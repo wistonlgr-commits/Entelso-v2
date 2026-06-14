@@ -1,0 +1,233 @@
+{
+  "name": "Inventario Entelso",
+  "nodes": [
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.body.data.message.conversation }}",
+        "options": {
+          "systemMessage": "=Eres el asistente de inventario de Entelso. Tu trabajo es conversar por WhatsApp con técnicos para registrar equipos.  siempre debes responder en inglés.                                                                        \n                                                                                                                                                                                              \n  OBJETIVO: recolectar estos 5 campos OBLIGATORIOS antes de registrar:                                                                                                                        \n  - numero_inventario (formato XXX-NNNN, ej. INV-2847)                                                                                                                                        \n  - equipo (ej. \"Fluke 87V Multimeter\")                                                                                                                                                       \n  - zona (preferir: NSW, TAS, QLD, ATC, NT, SA, VIC, WA; aceptar otras)                                                         \n  - team (uno de: Transmission, Energy, Networks, Maintenance, Calibration, Instrumentation, Civil Works, IT / Infrastructure)                                                                \n  - status (uno de: disponible, en_uso, en_mantenimiento, calibracion_pendiente, fuera_de_servicio, calibrado, desconocido, danado, en_funcionamiento)                                        \n                                                                                                                                                                                              \n  REGLAS DE CONVERSACIÓN:                                                                                                                                                                     \n  1. Pregunta UN campo por mensaje. Sé breve, en español, tono amable.                                                                                                                        \n  2. Si el usuario da varios datos en un mensaje, extráelos todos y solo pregunta lo que falta.                                                                                               \n  3. Valida cada respuesta. Si no coincide con el formato esperado, repregunta amablemente con ejemplos.                                                                                      \n  4. Cuando tengas los 5 obligatorios, muestra un resumen y pide confirmación: \"¿Confirmas? (sí/no)\".                                                                                         \n  5. Si confirma: llama a la herramienta register_inventory con todos los campos. Después responde \"✅ Registrado correctamente, ID interno #{report_id de la respuesta}\".                    \n  6. Si responde \"no\" o quiere corregir, vuelve al campo que quiera cambiar.                                                                                                                  \n  7. NUNCA llames a register_inventory antes de la confirmación explícita.                                                                                                                    \n  8. Si el usuario quiere agregar opcionales (calibración, marca, ingeniero asignado, notas, etc.), pregúntaselos antes de registrar y pásalos también al tool.                               \n                                                                                                                                                                                              \n  Hoy es {{ $now.toFormat('yyyy-MM-dd') }}."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "ca36bfe1-1fb9-4a9b-8f96-b2fe226fb08a",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        -240,
+        240
+      ],
+      "id": "f0e83365-be15-44cb-bdea-122c1421d67a",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "5R0mmqdfgoOCFoE7",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "messages-api",
+        "instanceName": "BotEntelso",
+        "remoteJid": "={{ $('Webhook').item.json.body.data.key.remoteJid }}",
+        "messageText": "={{ $json.output }}",
+        "options_message": {}
+      },
+      "type": "n8n-nodes-evolution-api.evolutionApi",
+      "typeVersion": 1,
+      "position": [
+        352,
+        48
+      ],
+      "id": "d9c23ccc-aada-4a71-aa5d-c3c88c620feb",
+      "name": "Enviar texto",
+      "credentials": {
+        "evolutionApi": {
+          "id": "Ct32vgjZ7ZUTMDa3",
+          "name": "Evolution account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "66ddf5d7-8607-42a8-9cb0-9d7551cf7846",
+              "leftValue": "={{ $json.body.data.key.fromMe }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "false",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -224,
+        16
+      ],
+      "id": "a4ad4103-c969-4ce7-9791-da081d9d3044",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ ($('Webhook').item.json.body.data.key.remoteJid || 'no-jid').split('@')[0] }}",
+        "contextWindowLength": 20
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        -96,
+        256
+      ],
+      "id": "62d84ee2-a2a1-45ca-b586-d1e30ba96756",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "evo-gateway",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -448,
+        16
+      ],
+      "id": "04537c9d-f065-479b-a3c2-be010b46d3c5",
+      "name": "Webhook",
+      "webhookId": "a02a0cd9-c1b2-4ec4-a534-608787ceaae3"
+    },
+    {
+      "parameters": {
+        "toolDescription": "Registra un equipo de inventario en Supabase cuando ya recolectaste TODOS los campos obligatorios: numero_inventario, equipo, zona, team, status. Llamar solo después de la confirmación del usuario.",
+        "method": "POST",
+        "url": "https://kbxfemgrzazoonspcajc.supabase.co/functions/v1/whatsapp-ingest",
+        "sendHeaders": true,
+        "specifyHeaders": "json",
+        "jsonHeaders": "{\n  \"Content-Type\": \"application/json\",\n  \"X-Ingest-Secret\": \"3654d151db4687d8b8a19a9d245f44924f3dd57f86eefa42b2a098e793c7c7f4\"\n}",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "{                                                                             \n    \"external_message_id\": \"wamid.HBgNNjE0MTI0Nzc1MzMVAgARGBI5MDA1RkE3MDQyQTAA\",\n    \"whatsapp_number\": \"+61412477533\",                                          \n    \"raw_text\": \"INV-2847 disponible en NSW\",                                   \n    \"received_at\": \"2026-05-04T09:30:00Z\",                                      \n    \"parsed\": {                                                                 \n      \"numero_inventario\": \"INV-2847\",                                          \n      \"equipo\": \"Fluke 87V Multimeter\",                                         \n      \"zona\": \"NSW\",                                                            \n      \"team\": \"Maintenance\",\n      \"status\": \"disponible\"                                                    \n    }                                                                           \n  }",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.4,
+      "position": [
+        128,
+        240
+      ],
+      "id": "5ab5e615-21c0-414a-9b0a-a697a90fefca",
+      "name": "register_inventory"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Enviar texto",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "register_inventory": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "24ccb4c6-466f-434c-b9bb-dc956feb2743",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "a5cb07c6ca5b8b05ce234f194e9dce029a9498e7a49c9353c873e08536ca5437"
+  },
+  "id": "5ZpRI0QZyTg0MaPp",
+  "tags": []
+}

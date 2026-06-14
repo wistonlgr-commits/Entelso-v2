@@ -1,0 +1,7 @@
+CREATE TABLE IF NOT EXISTS audit_logs (
+    id SERIAL PRIMARY KEY,
+    usuario_id INTEGER REFERENCES usuarios(id) ON DELETE SET NULL,
+    accion VARCHAR(255) NOT NULL,
+    detalles TEXT,
+    creado_en TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);

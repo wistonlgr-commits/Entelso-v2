@@ -1,0 +1,849 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Entelso — Sistema inteligente de inventario y asset tracking para equipos técnicos vía WhatsApp.">
+    <title>Entelso — Inventario</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx-js-style@1.2.0/dist/xlsx.bundle.js"></script>
+    <!-- i18n debe cargarse ANTES que script.js -->
+    <script src="i18n.js"></script>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════════════
+     PANTALLA DE LOGIN
+     Se muestra cuando no hay token válido en sessionStorage
+════════════════════════════════════════════════════════════ -->
+<div class="login-screen" id="loginScreen">
+    <div class="login-card">
+        <!-- Logo / Marca -->
+        <div class="login-logo">
+            <div class="login-avatar">E</div>
+            <div class="login-brand">
+                <span class="login-brand-name">Entelso</span>
+                <span class="login-brand-sub" data-i18n="login.subtitulo">Sistema de Inventario Entelso</span>
+            </div>
+        </div>
+
+        <h1 class="login-title" data-i18n="login.titulo">Iniciar Sesión</h1>
+
+        <!-- Mensaje de error -->
+        <div class="login-error" id="loginError" style="display:none"></div>
+
+        <form id="loginForm" autocomplete="off" novalidate>
+            <div class="form-group">
+                <label for="loginEmail" data-i18n="login.email">Correo electrónico</label>
+                <input
+                    type="email"
+                    id="loginEmail"
+                    class="form-input"
+                    data-i18n-ph="login.email.ph"
+                    placeholder="admin@entelso.com"
+                    autocomplete="username"
+                    required
+                >
+            </div>
+            <div class="form-group">
+                <label for="loginPin" data-i18n="login.pin">PIN de acceso</label>
+                <div class="pin-input-wrap">
+                    <input
+                        type="password"
+                        id="loginPin"
+                        class="form-input"
+                        data-i18n-ph="login.pin.ph"
+                        placeholder="••••••"
+                        autocomplete="current-password"
+                        required
+                    >
+                    <button type="button" class="pin-toggle" id="pinToggle" title="Mostrar/Ocultar PIN">
+                        <i class="fa-solid fa-eye" id="pinToggleIcon"></i>
+                    </button>
+                </div>
+            </div>
+            <button type="submit" class="btn-primary btn-full" id="loginBtn">
+                <span data-i18n="login.btn">Ingresar</span>
+            </button>
+        </form>
+
+        <!-- Selector de idioma en el login -->
+        <div class="login-lang">
+            <button class="lang-btn" id="loginLangBtn" onclick="toggleLoginLang()">
+                <i class="fa-solid fa-globe"></i>
+                <span id="loginLangLabel">EN</span>
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     APP PRINCIPAL (oculta hasta que se hace login)
+════════════════════════════════════════════════════════════ -->
+<div class="app-shell" id="appShell" style="display:none">
+
+    <!-- ═══ SIDEBAR ═══ -->
+    <aside class="sidebar">
+        <div class="sidebar-top">
+            <div class="workspace-header">
+                <div class="workspace-avatar">E</div>
+                <div class="workspace-info">
+                    <span class="workspace-name">Entelso</span>
+                    <span class="workspace-role" data-i18n="login.subtitulo">Sistema de Inventario</span>
+                </div>
+            </div>
+            <div class="sidebar-top-actions">
+                <button class="icon-btn" id="langToggleBtn" title="Cambiar idioma / Change language">
+                    <i class="fa-solid fa-globe"></i>
+                    <span class="lang-label" id="langLabel">EN</span>
+                </button>
+                <button class="icon-btn" id="themeToggleBtn" title="Cambiar tema">
+                    <i class="fa-solid fa-moon" id="themeIcon"></i>
+                </button>
+            </div>
+        </div>
+
+        <nav class="sidebar-nav">
+            <a class="nav-item active" data-view="dashboard" id="nav-dashboard">
+                <i class="fa-solid fa-border-all"></i> <span data-i18n="nav.dashboard">Dashboard</span>
+            </a>
+
+            <div class="nav-section-label" data-i18n="nav.inventario.sec">Inventario</div>
+            <a class="nav-item" data-view="inventario">
+                <i class="fa-solid fa-cube"></i> <span data-i18n="nav.inventario">Todos los Equipos</span>
+            </a>
+            <a class="nav-item" data-view="zonas">
+                <i class="fa-solid fa-location-dot"></i> <span data-i18n="nav.zonas">Zonas</span>
+            </a>
+            <a class="nav-item" data-view="teams">
+                <i class="fa-solid fa-users"></i> <span data-i18n="nav.teams">Teams</span>
+            </a>
+
+            <div class="nav-section-label" data-i18n="nav.operaciones.sec">Operaciones</div>
+            <a class="nav-item" data-view="mantenimiento">
+                <i class="fa-solid fa-screwdriver-wrench"></i> <span data-i18n="nav.mantenimiento">Mantenimiento</span>
+                <span class="nav-badge" id="badge-mantenimiento">0</span>
+            </a>
+            <a class="nav-item" data-view="alertas">
+                <i class="fa-solid fa-bell"></i> <span data-i18n="nav.alertas">Alertas</span>
+                <span class="nav-badge urgent" id="badge-alertas">0</span>
+            </a>
+        </nav>
+
+        <div class="sidebar-bottom">
+            <div class="user-row" id="profileToggleBtn" style="padding: 12px; gap: 12px; justify-content: space-between;">
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    <div class="user-avatar" id="userAvatar" style="background-color: var(--accent-blue); display:flex; align-items:center; justify-content:center; color:white; font-weight:bold; font-size:14px; border-radius:50%;"></div>
+                    <div class="user-info" style="display: flex; flex-direction: column;">
+                        <span class="user-name" id="userDisplayName">-</span>
+                        <span class="user-role" id="userDisplayRole">-</span>
+                    </div>
+                </div>
+                <i class="fa-solid fa-ellipsis-vertical" style="color:var(--text-3); font-size:14px; padding: 0 4px;"></i>
+            </div>
+        </div>
+
+        <!-- Profile Dropdown -->
+        <div class="profile-dropdown" id="profileDropdown">
+            <div class="profile-drop-header">
+                <div class="profile-drop-avatar" id="profileDropAvatar" style="background-color: var(--accent-blue); display:flex; align-items:center; justify-content:center; color:white; font-weight:bold; font-size:16px; border-radius:50%;"></div>
+                <div class="profile-drop-info">
+                    <div class="profile-drop-name" id="profileDropName">—</div>
+                    <div class="profile-drop-email" id="profileDropEmail">—</div>
+                </div>
+            </div>
+            <div class="profile-drop-divider"></div>
+            <div class="profile-drop-item" id="menuPerfil"><i class="fa-solid fa-user"></i> <span data-i18n="perfil.mi_perfil">Mi Perfil</span></div>
+            <div class="profile-drop-item" id="menuSeguridad"><i class="fa-solid fa-shield-halved"></i> <span data-i18n="perfil.seguridad">Seguridad</span></div>
+            <div class="profile-drop-item" id="menuNotif"><i class="fa-solid fa-bell"></i> <span data-i18n="perfil.notif">Notificaciones</span></div>
+            <div class="profile-drop-item" id="menuTema"><i class="fa-solid fa-circle-half-stroke"></i> <span data-i18n="perfil.tema">Preferencias de Tema</span></div>
+            <div class="profile-drop-divider"></div>
+            <div class="profile-drop-item" id="menuUsuarios"><i class="fa-solid fa-users-gear"></i> <span data-i18n="perfil.usuarios">Gestión de Usuarios</span></div>
+            <div class="profile-drop-item" id="menuAudit"><i class="fa-solid fa-clock-rotate-left"></i> <span data-i18n="perfil.audit">Registro de Actividad</span></div>
+            <div class="profile-drop-divider"></div>
+            <div class="profile-drop-item danger" id="logoutBtn"><i class="fa-solid fa-arrow-right-from-bracket"></i> <span data-i18n="perfil.cerrar">Cerrar Sesión</span></div>
+        </div>
+    </aside>
+
+    <!-- ═══ MAIN AREA ═══ -->
+    <div class="main-area">
+
+        <!-- ─── View: Dashboard ─── -->
+        <div class="view active" id="view-dashboard">
+            <header class="view-header">
+                <div class="breadcrumb">
+                    <span class="bc-root">Entelso</span>
+                    <i class="fa-solid fa-chevron-right bc-sep"></i>
+                    <span class="bc-current" data-i18n="nav.dashboard">Dashboard</span>
+                </div>
+                <div class="header-actions">
+                    <button class="btn-primary" id="openNewItemModal"><i class="fa-solid fa-plus"></i> <span data-i18n="header.nuevo">Nuevo Registro</span></button>
+                </div>
+            </header>
+
+            <!-- KPI Strip -->
+            <div class="kpi-strip">
+                <div class="kpi-card">
+                    <span class="kpi-label" data-i18n="kpi.total">Total Equipos</span>
+                    <strong class="kpi-value" id="kpi-total">—</strong>
+                    <span class="kpi-delta positive" id="kpi-total-delta"></span>
+                </div>
+                <div class="kpi-divider"></div>
+                <div class="kpi-card">
+                    <span class="kpi-label" data-i18n="kpi.disponibles">Disponibles</span>
+                    <strong class="kpi-value accent-green" id="kpi-disponibles">—</strong>
+                    <span class="kpi-delta positive" id="kpi-disp-delta"></span>
+                </div>
+                <div class="kpi-divider"></div>
+                <div class="kpi-card">
+                    <span class="kpi-label" data-i18n="kpi.calibracion">Calibración Pendiente</span>
+                    <strong class="kpi-value accent-yellow" id="kpi-calibracion">—</strong>
+                    <span class="kpi-delta negative" id="kpi-cali-delta"></span>
+                </div>
+                <div class="kpi-divider"></div>
+                <div class="kpi-card">
+                    <span class="kpi-label" data-i18n="kpi.mantenimiento">En Mantenimiento</span>
+                    <strong class="kpi-value accent-red" id="kpi-mantenimiento">—</strong>
+                    <span class="kpi-delta neutral" id="kpi-maint-delta"></span>
+                </div>
+                <div class="kpi-divider"></div>
+                <div class="kpi-card">
+                    <span class="kpi-label" data-i18n="kpi.disponibilidad">Disponibilidad</span>
+                    <strong class="kpi-value accent-purple" id="kpi-disponibilidad">—</strong>
+                    <span class="kpi-delta positive" id="kpi-disp2-delta"></span>
+                </div>
+            </div>
+
+            <!-- Charts Row -->
+            <div class="charts-row">
+                <div class="chart-card wide">
+                    <div class="card-header">
+                        <span class="card-title" data-i18n="dash.zona.title">Distribución por Zona</span>
+                        <div class="tab-group">
+                            <button class="tab active" data-i18n="dash.zona.mensual">Mensual</button>
+                            <button class="tab" data-i18n="dash.zona.trim">Trimestral</button>
+                        </div>
+                    </div>
+                    <div class="chart-body"><canvas id="zonaChart"></canvas></div>
+                </div>
+                <div class="chart-card narrow">
+                    <div class="card-header">
+                        <span class="card-title" data-i18n="dash.estado.title">Estado</span>
+                    </div>
+                    <div class="chart-body donut"><canvas id="statusChart"></canvas></div>
+                    <div class="donut-legend" id="donutLegend"></div>
+                </div>
+            </div>
+
+            <!-- Recent Table -->
+            <div class="list-card">
+                <div class="card-header">
+                    <span class="card-title" data-i18n="dash.recientes">Últimos Registros — Bot WhatsApp</span>
+                    <div class="filter-chips">
+                        <button class="chip active" data-i18n="dash.filter.todos">Todos</button>
+                        <button class="chip" data-i18n="dash.filter.disp">Disponibles</button>
+                        <button class="chip" data-i18n="dash.filter.alertas">Alertas</button>
+                    </div>
+                </div>
+                <table class="linear-table">
+                    <thead>
+                        <tr>
+                            <th data-i18n="col.id">ID</th>
+                            <th data-i18n="col.equipo">Equipo</th>
+                            <th data-i18n="col.zona">Zona</th>
+                            <th data-i18n="col.team">Team</th>
+                            <th data-i18n="col.estado">Estado</th>
+                            <th class="col-right" data-i18n="col.registrado">Registrado</th>
+                        </tr>
+                    </thead>
+                    <tbody id="dashTableBody"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- ─── View: Inventario ─── -->
+        <div class="view" id="view-inventario">
+            <header class="view-header">
+                <div class="breadcrumb">
+                    <span class="bc-root">Entelso</span>
+                    <i class="fa-solid fa-chevron-right bc-sep"></i>
+                    <span class="bc-current" data-i18n="nav.inventario">Todos los Equipos</span>
+                </div>
+                <div class="header-actions">
+                    <div class="search-inline">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                        <input type="text" id="inventarioSearch" data-i18n-ph="inv.buscar" placeholder="Filtrar equipos...">
+                    </div>
+                    <button class="btn-ghost" id="filterTriggerBtn"><i class="fa-solid fa-sliders"></i> <span data-i18n="header.filtrar">Filtro Avanzado</span></button>
+                    <button class="btn-ghost" id="confirmExportBtn"><i class="fa-solid fa-file-excel"></i> <span data-i18n="inv.exportar">Exportar</span></button>
+                    <button class="btn-ghost" id="openManageCategoriesBtn"><i class="fa-solid fa-tags"></i> <span>Categorías</span></button>
+                    <button class="btn-primary" id="openNewItemModal2"><i class="fa-solid fa-plus"></i> <span data-i18n="inv.nuevo">Nuevo</span></button>
+                </div>
+            </header>
+            
+            <div class="categories-dropdown-container" id="catDropdownContainer" style="display:none; padding: 10px 24px; background: var(--bg-hover); border-bottom: 1px solid var(--border);">
+                <div class="filter-chips" id="inventoryCategoryChips" style="flex-wrap: wrap;">
+                    <button class="chip active" data-filter="all">Todos</button>
+                    <!-- Dinámico desde JS -->
+                </div>
+            </div>
+
+            <div class="view-toolbar" style="display: flex; justify-content: space-between; align-items: center;">
+                <div class="group-tabs">
+                    <button class="gtab active" data-group="status" data-i18n="inv.agrupar.estado">Agrupar por Estado</button>
+                    <button class="gtab" data-group="zona" data-i18n="inv.agrupar.zona">Agrupar por Zona</button>
+                    <button class="gtab" data-group="team">Agrupar por Team</button>
+                </div>
+            </div>
+            <div class="list-card no-top-radius">
+                <table class="linear-table">
+                    <thead>
+                        <tr>
+                            <th data-i18n="col.id">ID</th>
+                            <th data-i18n="col.equipo">Equipo</th>
+                            <th data-i18n="col.zona">Zona</th>
+                            <th data-i18n="col.asignado">Asignado</th>
+                            <th data-i18n="col.team">Team</th>
+                            <th data-i18n="col.estado">Estado</th>
+                            <th class="col-right">Próx. Calibración</th>
+                            <th class="col-right" style="width:100px">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="inventTableBody"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- ─── View: Zonas ─── -->
+        <div class="view" id="view-zonas">
+            <header class="view-header">
+                <div class="breadcrumb">
+                    <span class="bc-root">Entelso</span>
+                    <i class="fa-solid fa-chevron-right bc-sep"></i>
+                    <span class="bc-current" data-i18n="nav.zonas">Zonas</span>
+                </div>
+            </header>
+            <div class="zone-grid" id="zoneGrid"></div>
+        </div>
+
+        <!-- ─── View: Teams / Empleados ─── -->
+        <div class="view" id="view-teams">
+            <header class="view-header">
+                <div class="breadcrumb">
+                    <span class="bc-root">Entelso</span>
+                    <i class="fa-solid fa-chevron-right bc-sep"></i>
+                    <span class="bc-current" data-i18n="nav.teams">Teams</span>
+                </div>
+                <div class="header-actions" style="flex-wrap: wrap; gap: 8px;">
+                    <div class="search-inline">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                        <input type="text" id="employeeSearch" data-i18n-ph="teams.buscar" placeholder="Buscar empleado, ID, team...">
+                    </div>
+                    <button class="btn-primary" id="btnNuevoEmpleadoTeams"><i class="fa-solid fa-plus"></i> <span data-i18n="teams.nuevo_emp">Nuevo Empleado</span></button>
+                </div>
+            </header>
+
+            <!-- Employee KPI strip -->
+            <div class="kpi-strip">
+                <div class="kpi-card"><span class="kpi-label" data-i18n="kpi.empleados">Total Empleados</span><strong class="kpi-value" id="kpi-emp-total">—</strong></div>
+                <div class="kpi-divider"></div>
+                <div class="kpi-card"><span class="kpi-label" data-i18n="kpi.terreno">En Terreno</span><strong class="kpi-value accent-blue" id="kpi-emp-terreno">—</strong></div>
+                <div class="kpi-divider"></div>
+                <div class="kpi-card"><span class="kpi-label" data-i18n="kpi.con_equipo">Con Equipo Asignado</span><strong class="kpi-value accent-green" id="kpi-emp-asig">—</strong></div>
+                <div class="kpi-divider"></div>
+                <div class="kpi-card"><span class="kpi-label" data-i18n="kpi.sin_asig">Sin Asignación</span><strong class="kpi-value accent-yellow" id="kpi-emp-sinasig">—</strong></div>
+                <div class="kpi-divider"></div>
+                <div class="kpi-card"><span class="kpi-label" data-i18n="kpi.teams_activos">Teams Activos</span><strong class="kpi-value accent-purple" id="kpi-emp-teams">—</strong></div>
+            </div>
+
+            <div class="list-card" style="margin-top:0;border-top:none;border-radius:0 0 10px 10px">
+                <div class="card-header">
+                    <span class="card-title" data-i18n="teams.todos_emp">Todos los Empleados</span>
+                    <div class="filter-chips">
+                        <button class="chip active" data-emp-filter="all" data-i18n="filter.todos">Todos</button>
+                        <button class="chip" data-emp-filter="en_terreno" data-i18n="filter.terreno">En Terreno</button>
+                        <button class="chip" data-emp-filter="oficina" data-i18n="filter.oficina">Oficina</button>
+                        <button class="chip" data-emp-filter="sin_asignacion" data-i18n="filter.sin_asig">Sin Asignación</button>
+                    </div>
+                </div>
+                <table class="linear-table">
+                    <thead>
+                        <tr>
+                            <th data-i18n="col.empleado">Empleado</th>
+                            <th data-i18n="col.team">Team</th>
+                            <th data-i18n="col.equipo_asig">Equipo Asignado</th>
+                            <th data-i18n="col.sitio">Sitio / Zona</th>
+                            <th data-i18n="col.fecha_asig">Fecha Asignación</th>
+                            <th data-i18n="col.retorno">Retorno Estimado</th>
+                            <th data-i18n="col.estado">Estado</th>
+                        </tr>
+                    </thead>
+                    <tbody id="employeeTableBody"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- ─── View: Mantenimiento ─── -->
+        <div class="view" id="view-mantenimiento">
+            <header class="view-header">
+                <div class="breadcrumb">
+                    <span class="bc-root">Entelso</span>
+                    <i class="fa-solid fa-chevron-right bc-sep"></i>
+                    <span class="bc-current" data-i18n="nav.mantenimiento">Mantenimiento</span>
+                </div>
+                <div class="header-actions">
+                    <button class="btn-primary" id="openAgendarModal"><i class="fa-solid fa-plus"></i> <span data-i18n="header.agendar">Agendar</span></button>
+                </div>
+            </header>
+            <div class="list-card">
+                <div class="card-header"><span class="card-title" data-i18n="maint.atencion">Equipos que requieren atención</span></div>
+                <table class="linear-table">
+                    <thead>
+                        <tr>
+                            <th style="width: 90px;" data-i18n="col.id">ID</th>
+                            <th data-i18n="col.equipo">Equipo</th>
+                            <th style="width: 80px;" data-i18n="col.zona">Zona</th>
+                            <th style="width: 150px;" data-i18n="col.motivo">Motivo</th>
+                            <th style="width: 170px;" data-i18n="col.estado">Estado</th>
+                            <th style="width: 100px;" class="col-right" data-i18n="col.vencimiento">Vencimiento</th>
+                            <th style="width: 100px;" class="col-right">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="maintTableBody"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- ─── View: Alertas ─── -->
+        <div class="view" id="view-alertas">
+            <header class="view-header">
+                <div class="breadcrumb">
+                    <span class="bc-root">Entelso</span>
+                    <i class="fa-solid fa-chevron-right bc-sep"></i>
+                    <span class="bc-current" data-i18n="nav.alertas">Alertas</span>
+                </div>
+            </header>
+            <div class="card" style="margin-top: 16px;">
+                <div class="card-header">
+                    <div class="card-title">Centro de Mando de Alertas</div>
+                </div>
+                <div class="table-responsive">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th style="width: 80px;">Gravedad</th>
+                                <th style="width: 100px;">ID</th>
+                                <th>Equipo / Zona</th>
+                                <th style="width: 170px;">Estado</th>
+                                <th style="width: 100px;" class="col-right">Reportado</th>
+                                <th style="width: 90px;" class="col-right">Acción</th>
+                            </tr>
+                        </thead>
+                        <tbody id="alertsTableBody">
+                            <!-- Alertas renderizadas aquí -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <!-- ─── View: Mi Perfil ─── -->
+        <div class="view" id="view-perfil">
+            <header class="view-header">
+                <div class="breadcrumb">
+                    <span class="bc-root">Entelso</span>
+                    <i class="fa-solid fa-chevron-right bc-sep"></i>
+                    <span class="bc-current" data-i18n="perfil.mi_perfil">Mi Perfil</span>
+                </div>
+            </header>
+            <div class="list-card" style="padding: 32px; max-width: 800px; margin: 24px auto;">
+                <div style="display: flex; gap: 32px; align-items: flex-start;">
+                    <!-- Avatar Column -->
+                    <div style="display: flex; flex-direction: column; align-items: center; gap: 16px;">
+                        <div style="width: 120px; height: 120px; border-radius: 50%; background: var(--accent-blue); display: flex; align-items: center; justify-content: center; font-size: 40px; font-weight: bold; color: white;" id="perfilAvatarBig">A</div>
+                        <button class="btn-ghost" style="width: 100%;">Cambiar Foto</button>
+                    </div>
+                    <!-- Form Column -->
+                    <div style="flex: 1;">
+                        <h2 style="margin-bottom: 24px; font-size: 18px;" data-i18n="perfil.cfg_titulo">Información Personal</h2>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                            <div class="form-group">
+                                <label data-i18n="perfil.nombre">Nombre Completo</label>
+                                <input type="text" class="form-input" id="perfilNombre" placeholder="Tu nombre">
+                            </div>
+                            <div class="form-group">
+                                <label data-i18n="perfil.tel">Teléfono (WhatsApp)</label>
+                                <input type="text" class="form-input" id="perfilTelefono" placeholder="+123456789">
+                            </div>
+                            <div class="form-group" style="grid-column: 1 / -1;">
+                                <label data-i18n="perfil.email">Correo Electrónico</label>
+                                <input type="email" class="form-input" id="perfilEmail" placeholder="tu@email.com">
+                            </div>
+                        </div>
+                        <hr style="border: 0; border-top: 1px solid var(--border); margin: 32px 0;">
+                        <h2 style="margin-bottom: 16px; font-size: 18px;">Preferencias de Notificación</h2>
+                        <div style="display: flex; flex-direction: column; gap: 12px; margin-bottom: 24px;">
+                            <label style="display: flex; align-items: center; gap: 8px;"><input type="checkbox" id="prefCalibracion"> Recibir correos sobre alertas de calibración</label>
+                            <label style="display: flex; align-items: center; gap: 8px;"><input type="checkbox" id="prefAsignacion"> Recibir mensajes de WhatsApp al asignar equipos</label>
+                            <label style="display: flex; align-items: center; gap: 8px;"><input type="checkbox" id="prefResumen"> Resumen semanal de inventario</label>
+                        </div>
+                        <button class="btn-primary" id="btnGuardarPerfil" data-i18n="perfil.guardar">Guardar Cambios</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ─── View: Seguridad ─── -->
+        <div class="view" id="view-seguridad">
+            <header class="view-header">
+                <div class="breadcrumb">
+                    <span class="bc-root">Entelso</span>
+                    <i class="fa-solid fa-chevron-right bc-sep"></i>
+                    <span class="bc-current" data-i18n="perfil.seguridad">Seguridad</span>
+                </div>
+            </header>
+            <div class="list-card" style="padding: 32px; max-width: 800px; margin: 24px auto;">
+                <h2 style="margin-bottom: 6px; font-size: 20px;" data-i18n="seg.titulo">Seguridad y Acceso</h2>
+                <p style="color: var(--text-2); font-size: 14px; margin-bottom: 32px;" data-i18n="seg.subtitulo">Gestiona tu contraseña, dispositivos conectados y métodos de autenticación.</p>
+                
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 32px;">
+                    <!-- Password Update -->
+                    <div>
+                        <h3 style="font-size: 16px; margin-bottom: 16px; border-bottom: 1px solid var(--border); padding-bottom: 8px;" data-i18n="seg.cambiar">Cambiar Contraseña</h3>
+                        <div class="form-group" style="margin-bottom: 16px;">
+                            <label data-i18n="seg.pass_actual">Contraseña Actual</label>
+                            <input type="password" class="form-input" id="segPassActual">
+                        </div>
+                        <div class="form-group" style="margin-bottom: 16px;">
+                            <label data-i18n="seg.pass_nueva">Nueva Contraseña</label>
+                            <input type="password" class="form-input" id="segPassNueva">
+                        </div>
+                        <div class="form-group" style="margin-bottom: 24px;">
+                            <label data-i18n="seg.pass_conf">Confirmar Nueva Contraseña</label>
+                            <input type="password" class="form-input" id="segPassConfirmar">
+                        </div>
+                        <button class="btn-primary" style="width: 100%;" id="btnCambiarPass" data-i18n="seg.btn_actualizar">Actualizar Contraseña</button>
+                    </div>
+
+                    <!-- Security Modules -->
+                    <div>
+                        <h3 style="font-size: 16px; margin-bottom: 16px; border-bottom: 1px solid var(--border); padding-bottom: 8px;" data-i18n="seg.2fa">Protección de Cuenta</h3>
+                        
+                        <div style="background: var(--bg-input); padding: 16px; border-radius: var(--radius-md); border: 1px solid var(--border); margin-bottom: 16px;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                                <strong style="font-size: 14px;">Autenticación 2FA</strong>
+                                <span style="color: var(--accent-yellow); font-size: 12px; font-weight: bold;">Desactivado</span>
+                            </div>
+                            <div style="font-size: 12px; color: var(--text-2); margin-bottom: 12px;">Protege tu cuenta con un código temporal desde tu app de autenticación (Google Authenticator).</div>
+                            <button id="btnSetup2FA" class="btn-ghost" style="width: 100%; font-size: 13px;" data-i18n="seg.2fa_btn">Configurar 2FA</button>
+                        </div>
+
+                        <div style="background: var(--bg-input); padding: 16px; border-radius: var(--radius-md); border: 1px solid var(--border);">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                                <strong style="font-size: 14px;">Sesiones Activas</strong>
+                                <span style="color: var(--accent-blue); font-size: 12px; font-weight: bold;">1 Dispositivo</span>
+                            </div>
+                            <div style="font-size: 12px; color: var(--text-2); margin-bottom: 12px;">Windows PC · Chrome <br> Melbourne, AU · Activo ahora</div>
+                            <button class="btn-ghost" style="width: 100%; font-size: 13px; color: var(--accent-red);">Cerrar otras sesiones</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ─── View: Audit Log ─── -->
+        <div class="view" id="view-audit">
+            <header class="view-header">
+                <div class="breadcrumb">
+                    <span class="bc-root">Entelso</span>
+                    <i class="fa-solid fa-chevron-right bc-sep"></i>
+                    <span class="bc-current" data-i18n="perfil.audit">Registro de Actividad</span>
+                </div>
+            </header>
+            <div class="card" style="margin-top: 16px;">
+                <div class="card-header">
+                    <div class="card-title" data-i18n="audit.titulo">Auditoría de Acciones (Audit Log)</div>
+                </div>
+                <div class="table-responsive">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th style="width: 150px;" data-i18n="audit.fecha">Fecha y Hora</th>
+                                <th data-i18n="audit.user">Usuario</th>
+                                <th data-i18n="audit.accion">Acción Realizada</th>
+                            </tr>
+                        </thead>
+                        <tbody id="auditTableBody">
+                            <!-- Logs renderizados aquí -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- ▣ View: Gestión de Usuarios ▣ -->
+        <div class="view" id="view-usuarios">
+            <header class="view-header">
+                <div class="breadcrumb">
+                    <span class="bc-root">Entelso</span>
+                    <i class="fa-solid fa-chevron-right bc-sep"></i>
+                    <span class="bc-current" data-i18n="perfil.usuarios">Gestión de Usuarios</span>
+                </div>
+                <button class="btn-primary" id="openAddUserModal"><i class="fa-solid fa-plus"></i> Añadir Usuario</button>
+            </header>
+            <div class="kpi-strip">
+                <div class="kpi-card">
+                    <span class="kpi-label">Usuarios Activos</span>
+                    <strong class="kpi-value" id="kpiUsuariosActivos">0</strong>
+                </div>
+                <div class="kpi-divider"></div>
+                <div class="kpi-card">
+                    <span class="kpi-label">Administradores</span>
+                    <strong class="kpi-value accent-purple" id="kpiUsuariosAdmin">0</strong>
+                </div>
+            </div>
+            <div class="card" style="margin-top:20px;">
+                <table class="linear-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Nombre</th>
+                            <th>Email</th>
+                            <th>Rol</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="usuariosTableBody"></tbody>
+                </table>
+            </div>
+        </div>
+
+    </div><!-- /main-area -->
+</div><!-- /app-shell -->
+
+<!-- ═══ Add User Modal ═══ -->
+<div class="modal-overlay" id="addUserModalOverlay">
+    <div class="modal" id="addUserModal">
+        <div class="modal-header">
+            <span><i class="fa-solid fa-user-plus"></i> Añadir Nuevo Usuario</span>
+            <button class="icon-btn" id="closeAddUserModal"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="modal-body">
+            <div class="modal-msg" id="addUserModalMsg" style="display:none"></div>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>Nombre Completo *</label>
+                    <input type="text" id="addUserName" class="form-input" required>
+                </div>
+                <div class="form-group">
+                    <label>Correo Electrónico</label>
+                    <input type="email" id="addUserEmail" class="form-input">
+                </div>
+                <div class="form-group">
+                    <label>Teléfono (WhatsApp)</label>
+                    <input type="text" id="addUserPhone" class="form-input" placeholder="+1234567890">
+                </div>
+                <div class="form-group">
+                    <label>Rol</label>
+                    <select id="addUserRole" class="form-input">
+                        <option value="trabajador">Trabajador</option>
+                        <option value="supervisor">Supervisor</option>
+                        <option value="almacen">Almacén</option>
+                        <option value="admin">Administrador</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Team</label>
+                    <select id="addUserTeam" class="form-input">
+                        <option value="">Sin Team</option>
+                        <option value="Transmission">Transmission</option>
+                        <option value="Energy">Energy</option>
+                        <option value="Networks">Networks</option>
+                        <option value="Maintenance">Maintenance</option>
+                        <option value="Calibration">Calibration</option>
+                        <option value="Instrumentation">Instrumentation</option>
+                        <option value="Civil Works">Civil Works</option>
+                        <option value="IT / Infrastructure">IT / Infrastructure</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Contraseña / PIN * <small style="color:var(--text-2)">(mín. 4 caracteres)</small></label>
+                    <input type="password" id="addUserPassword" class="form-input" required placeholder="Mínimo 4 caracteres">
+                </div>
+            </div>
+            <button class="btn-primary btn-full" id="confirmAddUserBtn" style="margin-top:20px;">
+                Crear Usuario
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- ═══ Equipment History Drawer ═══ -->
+<div class="drawer-overlay" id="drawerOverlay">
+    <div class="drawer" id="historyDrawer">
+        <div class="drawer-header">
+            <div>
+                <div class="drawer-title" id="drawerTitle">INV-XXXX</div>
+                <div class="drawer-subtitle" id="drawerSubtitle" data-i18n="drawer.subtitulo">Historial de Actividad</div>
+            </div>
+            <div style="display:flex;gap:4px;">
+                <button class="icon-btn" id="drawerEditBtn" title="Editar Activo"><i class="fa-solid fa-pen-to-square"></i></button>
+                <button class="icon-btn" id="expandDrawer" title="Expandir/Minimizar"><i class="fa-solid fa-expand"></i></button>
+                <button class="icon-btn" id="closeDrawer"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+        </div>
+        <div style="text-align: center; margin-top: 16px;">
+            <img id="drawerQRCode" src="" alt="QR Code" style="display:none; width: 120px; height: 120px; border-radius: 8px; border: 1px solid var(--border); padding: 4px; background: white;">
+            <button id="btnPrintQR" class="btn-ghost" style="display:none; margin: 8px auto 0 auto; font-size: 12px; padding: 4px 12px;">Imprimir QR</button>
+        </div>
+        <!-- Equipment detail cards -->
+        <div class="drawer-meta" id="drawerMeta"></div>
+
+        <!-- Timeline -->
+        <div class="drawer-section-label" data-i18n="drawer.historial">Historial de Actividad</div>
+        <div class="drawer-timeline" id="drawerTimeline"></div>
+    </div>
+</div>
+
+
+<!-- ═══ Advanced Filter Modal ═══ -->
+<div class="modal-overlay" id="filterModalOverlay">
+    <div class="modal" id="filterModal">
+        <div class="modal-header">
+            <span><i class="fa-solid fa-sliders"></i> Filtros Avanzados</span>
+            <button class="icon-btn" id="closeFilterModal"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="modal-body">
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>Zona Física</label>
+                    <select id="advFilterZona" class="select">
+                        <option value="">Todas las Zonas</option>
+                        <option value="Almacén Central">Almacén Central</option>
+                        <option value="NSW">NSW</option>
+                        <option value="Laboratorio B">Laboratorio B</option>
+                        <option value="Sede Norte">Sede Norte</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Team / Asignación</label>
+                    <select id="advFilterTeam" class="select">
+                        <option value="">Todos los Teams</option>
+                        <option value="Maintenance">Maintenance</option>
+                        <option value="Energy">Energy</option>
+                        <option value="IT">IT</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Estado</label>
+                    <select id="advFilterStatus" class="select">
+                        <option value="">Cualquier estado</option>
+                        <option value="disponible">Disponible</option>
+                        <option value="en_uso">En Uso</option>
+                        <option value="calibracion_pendiente">Calibración Pendiente</option>
+                        <option value="en_mantenimiento">En Mantenimiento</option>
+                        <option value="fuera_de_servicio">Fuera de Servicio</option>
+                    </select>
+                </div>
+            </div>
+            <div style="display: flex; gap: 10px; margin-top:20px;">
+                <button class="btn-ghost btn-full" id="clearFilterBtn">Limpiar Filtros</button>
+                <button class="btn-primary btn-full" id="applyFilterBtn">Aplicar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ═══ Maintenance Modal ═══ -->
+<div class="modal-overlay" id="maintenanceModalOverlay">
+    <div class="modal" id="maintenanceModal">
+        <div class="modal-header">
+            <span><i class="fa-solid fa-wrench"></i> Agendar Mantenimiento</span>
+            <button class="icon-btn" id="closeMaintenanceModal"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="modal-body">
+            <div class="modal-msg" id="maintenanceModalMsg" style="display:none"></div>
+            <div class="form-grid">
+                <div class="form-group">
+                    <label>Equipo (ID o Nombre) *</label>
+                    <input type="text" id="maintEquipo" class="input" placeholder="INV-1005" required>
+                </div>
+                <div class="form-group">
+                    <label>Fecha de Mantenimiento *</label>
+                    <input type="date" id="maintFecha" class="input" required>
+                </div>
+                <div class="form-group" style="grid-column: 1 / -1">
+                    <label>Observaciones</label>
+                    <textarea id="maintObs" class="input" rows="3" placeholder="Detalles del problema o calibración..."></textarea>
+                </div>
+            </div>
+            <button class="btn-primary btn-full" id="confirmMaintenanceBtn" style="margin-top:20px;">
+                Agendar Mantenimiento
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- ═══ New Item Modal ═══ -->
+<div class="modal-overlay" id="modalOverlay">
+    <div class="modal" id="newItemModal">
+        <div class="modal-header">
+            <span data-i18n="modal.titulo">Registrar Equipo</span>
+            <button class="icon-btn" id="closeModal"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="modal-body">
+            <!-- Mensaje de resultado del formulario -->
+            <div class="modal-msg" id="modalMsg" style="display:none"></div>
+
+            <div class="form-group">
+                <label data-i18n="modal.inv">No. Inventario</label>
+                <input type="text" id="modalNumSerie" class="form-input" data-i18n-ph="modal.inv.ph" placeholder="INV-XXXX">
+            </div>
+            <div class="form-group">
+                <label data-i18n="modal.desc">Equipo / Descripción</label>
+                <input type="text" id="modalDesc" class="form-input" data-i18n-ph="modal.desc.ph" placeholder="ej. Fluke 87V Multimeter">
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label data-i18n="modal.zona">Zona</label>
+                    <select id="modalZona" class="form-input">
+                        <option>NSW</option><option>VIC</option><option>QLD</option><option>WA</option>
+                        <option>SA</option><option>TAS</option><option>NT</option><option>ATC</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label data-i18n="modal.team">Team</label>
+                    <select id="modalTeam" class="form-input">
+                        <option>Transmission</option><option>Energy</option><option>Networks</option>
+                        <option>Maintenance</option><option>Calibration</option><option>Instrumentation</option>
+                        <option>Civil Works</option><option>IT / Infrastructure</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group">
+                <label data-i18n="modal.estado">Estado</label>
+                <select id="modalEstado" class="form-input">
+                    <option value="disponible" data-i18n="estado.disponible">Disponible</option>
+                    <option value="en_uso" data-i18n="estado.en_uso">En Uso</option>
+                    <option value="en_mantenimiento" data-i18n="estado.en_mantenimiento">En Mantenimiento</option>
+                    <option value="calibracion_pendiente" data-i18n="estado.calibracion_pendiente">Calibración Pendiente</option>
+                    <option value="fuera_de_servicio" data-i18n="estado.fuera_de_servicio">Fuera de Servicio</option>
+                    <option value="calibrado" data-i18n="estado.calibrado">Calibrado</option>
+                    <option value="danado" data-i18n="estado.danado">Dañado</option>
+                </select>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn-ghost" id="closeModal2" data-i18n="modal.cancelar">Cancelar</button>
+            <button class="btn-primary" id="submitNewItem">
+                <span data-i18n="modal.registrar">Registrar Equipo</span>
+            </button>
+        </div>
+    </div>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
