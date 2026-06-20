@@ -13,7 +13,7 @@
 //   - Si se abre desde otra PC en la red → usa la misma IP que ya tiene en la barra de direcciones
 const API_BASE = (!window.location.hostname || window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
   ? 'http://localhost:3001'
-  : `http://${window.location.hostname}:3001`;
+  : 'http://rlffb3uv162ja9sjunyx9meb.167.86.70.193.sslip.io';
 
 
 /* ─────────────────────────────────────────
