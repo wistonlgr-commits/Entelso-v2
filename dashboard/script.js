@@ -586,17 +586,10 @@ function renderizarEmpleados(data) {
           </div>
         </div>
       </td>
-        <td>
-          <select class="form-input" style="padding: 4px 20px 4px 8px; font-size: 13px; border: 1px solid var(--border); border-radius: 4px; width: 140px; appearance: auto;" onchange="updateWorkerTeam(${emp.db_id}, this.value)">
-            <option value="Transmission" ${emp.team === 'Transmission' ? 'selected' : ''}>Transmission</option>
-            <option value="Energy" ${emp.team === 'Energy' ? 'selected' : ''}>Energy</option>
-            <option value="Networks" ${emp.team === 'Networks' ? 'selected' : ''}>Networks</option>
-            <option value="Maintenance" ${emp.team === 'Maintenance' ? 'selected' : ''}>Maintenance</option>
-            <option value="Calibration" ${emp.team === 'Calibration' ? 'selected' : ''}>Calibration</option>
-            <option value="Instrumentation" ${emp.team === 'Instrumentation' ? 'selected' : ''}>Instrumentation</option>
-            <option value="Civil Works" ${emp.team === 'Civil Works' ? 'selected' : ''}>Civil Works</option>
-            <option value="IT / Infrastructure" ${emp.team === 'IT / Infrastructure' ? 'selected' : ''}>IT / Infrastructure</option>
-            <option value="" ${!emp.team || emp.team === '—' ? 'selected' : ''}>Sin Team</option>
+              <td>
+        <select class="form-input" style="padding: 4px 20px 4px 8px; font-size: 13px; border: 1px solid var(--border); border-radius: 4px; width: 140px; appearance: auto;" onchange="updateWorkerTeam(${emp.db_id}, this.value)">
+          <option value="" ${!emp.team || emp.team === '—' ? 'selected' : ''}>Sin Team</option>
+          ${window.teamsList.map(t => `<option value="${t.nombre}" ${emp.team === t.nombre ? 'selected' : ''}>${t.nombre}</option>`).join('')}
         </select>
       </td>
       <td>
@@ -2187,17 +2180,10 @@ window.editarActivo = async function(item) {
               ${ubOpts}
             </select>
           </div>
-          <div class="form-group"><label>Team</label>
+                    <div class="form-group"><label>Team</label>
             <select id="editAssetTeam" class="form-input">
               <option value="">Sin Team</option>
-              <option value="Transmission" ${item.team==='Transmission'?'selected':''}>Transmission</option>
-              <option value="Energy" ${item.team==='Energy'?'selected':''}>Energy</option>
-              <option value="Networks" ${item.team==='Networks'?'selected':''}>Networks</option>
-              <option value="Maintenance" ${item.team==='Maintenance'?'selected':''}>Maintenance</option>
-              <option value="Calibration" ${item.team==='Calibration'?'selected':''}>Calibration</option>
-              <option value="Instrumentation" ${item.team==='Instrumentation'?'selected':''}>Instrumentation</option>
-              <option value="Civil Works" ${item.team==='Civil Works'?'selected':''}>Civil Works</option>
-              <option value="IT / Infrastructure" ${item.team==='IT / Infrastructure'?'selected':''}>IT / Infrastructure</option>
+              ${window.teamsList.map(t => `<option value="${t.nombre}" ${item.team === t.nombre ? 'selected' : ''}>${t.nombre}</option>`).join('')}
             </select>
           </div>
           <div class="form-row">
@@ -2381,6 +2367,9 @@ function populateTeamSelects() {
     const eu = document.getElementById('editUserTeam');
     if (eu) eu.innerHTML = `<option value="" data-i18n="usuarios.sin_team">${window.i18n.t('usuarios.sin_team')}</option>` + opts;
     
+    const at = document.getElementById('advFilterTeam');
+    if (at) at.innerHTML = `<option value="" data-i18n="filter.todos_teams">${window.i18n.t('filter.todos_teams')}</option>` + opts;
+    
     const af = document.getElementById('filterTeam');
     if (af) af.innerHTML = `<option value="" data-i18n="filter.todos_teams">${window.i18n.t('filter.todos_teams')}</option>` + opts;
     
@@ -2546,6 +2535,9 @@ function populateZonaSelects() {
     
     const mz = document.getElementById('modalZona');
     if (mz) mz.innerHTML = `<option value="" data-i18n="filter.todas_zonas">${window.i18n.t('filter.todas_zonas')}</option>` + opts;
+    
+    const az = document.getElementById('advFilterZona');
+    if (az) az.innerHTML = `<option value="" data-i18n="filter.todas_zonas">${window.i18n.t('filter.todas_zonas')}</option>` + opts;
     
     const fz = document.getElementById('filterZona');
     if (fz) fz.innerHTML = `<option value="" data-i18n="filter.todas_zonas">${window.i18n.t('filter.todas_zonas')}</option>` + opts;

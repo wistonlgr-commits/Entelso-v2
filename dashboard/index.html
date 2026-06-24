@@ -313,10 +313,13 @@
         <!-- ─── View: Zonas ─── -->
         <div class="view" id="view-zonas">
             <header class="view-header">
-                <div class="breadcrumb">
+                                <div class="breadcrumb">
                     <span class="bc-root">Entelso</span>
                     <i class="fa-solid fa-chevron-right bc-sep"></i>
                     <span class="bc-current" data-i18n="nav.zonas">Zones</span>
+                </div>
+                <div class="header-actions">
+                    <button class="btn-primary" onclick="openManageZonas()"><i class="fa-solid fa-gear"></i> <span data-i18n="zonas.btn_manage">Manage Zones</span></button>
                 </div>
             </header>
             <div class="zone-grid" id="zoneGrid"></div>
@@ -706,12 +709,8 @@
             <div class="form-grid">
                 <div class="form-group">
                     <labeldata-i18n="filter.zona">Physical Zone</label>
-                    <select id="advFilterZona" class="select">
-                        <option value=""data-i18n="filter.todas_zonas">All Zones</option>
-                        <option value="Almacén Central">Almacén Central</option>
-                        <option value="NSW">NSW</option>
-                        <option value="Laboratorio B">Laboratorio B</option>
-                        <option value="Sede Norte">Sede Norte</option>
+                                        <select id="advFilterZona" class="select">
+                        <option value="" data-i18n="filter.todas_zonas">All Zones</option>
                     </select>
                 </div>
                 <div class="form-group">
