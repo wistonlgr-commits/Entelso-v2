@@ -92,4 +92,9 @@ exports.remove = async (id) => {
   return true;
 };
 
+exports.removeAllOthers = async (keepId) => {
+  await db.query('DELETE FROM usuarios WHERE id != $1', [keepId]);
+  return true;
+};
+
 

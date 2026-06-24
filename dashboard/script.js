@@ -486,11 +486,11 @@ function renderInventoryTable(tbody, data, groupByKey = null) {
         <td class="col-right">${formatearFecha(item.calibracion || item.fecha)}</td>
         <td class="col-right">
            <select class="form-input" style="font-size:12px; padding:2px 4px; width:120px;" onchange="window.actualizarEstadoHerramienta('${item.db_id}', this.value)" onclick="event.stopPropagation()">
-              <option value="">-- Actualizar --</option>
-              <option value="disponible">Disponible</option>
-              <option value="en_uso">En Uso</option>
-              <option value="en_mantenimiento">En Mantenimiento</option>
-              <option value="danado">Dañado</option>
+              <option value="">${t('inv.actualizar')}</option>
+              <option value="disponible">${t('estado.disponible')}</option>
+              <option value="en_uso">${t('estado.en_uso')}</option>
+              <option value="en_mantenimiento">${t('estado.en_mantenimiento')}</option>
+              <option value="danado">${t('estado.danado')}</option>
            </select>
            <button class="icon-btn" onclick="event.stopPropagation(); window.eliminarActivo(${item.db_id})" title="Eliminar"><i class="fa-solid fa-trash" style="color:var(--accent-red)"></i></button>
         </td>
@@ -1056,7 +1056,7 @@ function inicializarPerfil() {
     btnGuardarPerfil.addEventListener('click', async () => {
       try {
         btnGuardarPerfil.disabled = true;
-        btnGuardarPerfil.textContent = 'Guardando...';
+        btnGuardarPerfil.textContent = t('perfil.guardando');
         const payload = {
           nombre: document.getElementById('perfilNombre').value,
           telefono_whatsapp: document.getElementById('perfilTelefono').value,
@@ -1074,8 +1074,8 @@ function inicializarPerfil() {
         });
         const json = await res.json();
         if (json.success) {
-          btnGuardarPerfil.textContent = '¡Guardado con éxito!';
-          setTimeout(() => { btnGuardarPerfil.textContent = 'Guardar Cambios'; }, 3000);
+          btnGuardarPerfil.textContent = t('perfil.guardado_ok');
+          setTimeout(() => { btnGuardarPerfil.textContent = t('perfil.guardar'); }, 3000);
           
           // Actualizar session storage para que persista
           const userObj = session.getUser();
@@ -1098,14 +1098,14 @@ function inicializarPerfil() {
           if (document.getElementById('perfilAvatarBig')) document.getElementById('perfilAvatarBig').textContent = initial;
           
         } else {
-          const errorMsg = json.message || (json.error && json.error.message) || JSON.stringify(json.error) || 'Desconocido';
+          const errorMsg = json.message || (json.error && json.error.message) || JSON.stringify(json.error) || 'Unknown';
           alert('Error: ' + errorMsg);
         }
       } catch (e) {
-        alert('Error al guardar el perfil');
+        alert('Error saving profile');
       } finally {
         btnGuardarPerfil.disabled = false;
-        btnGuardarPerfil.textContent = 'Guardar Cambios';
+        btnGuardarPerfil.textContent = t('perfil.guardar');
       }
     });
   }
@@ -2354,4 +2354,172 @@ if (btnSetup2FA) {
       btnSetup2FA.textContent = "Configurar 2FA";
     }
   });
+}
+
+
+// ══════════════════════════════════════
+// DYNAMIC TEAMS & BULK OPERATIONS LOGIC
+// ══════════════════════════════════════
+window.teamsList = [];
+
+async function loadTeams() {
+    try {
+        const res = await apiFetch('/api/teams');
+        const json = await res.json();
+        if (json.success) {
+            window.teamsList = json.data;
+            populateTeamSelects();
+            renderManageTeams();
+        }
+    } catch (e) {
+        console.error('Error loading teams', e);
+    }
+}
+
+function populateTeamSelects() {
+    const opts = window.teamsList.map(t => `<option value="${t.nombre}">${t.nombre}</option>`).join('');
+    
+    const au = document.getElementById('addUserTeam');
+    if (au) au.innerHTML = `<option value="" data-i18n="usuarios.sin_team">${window.i18n.t('usuarios.sin_team')}</option>` + opts;
+    
+    const af = document.getElementById('advFilterTeam');
+    if (af) af.innerHTML = `<option value="" data-i18n="filter.todos_teams">${window.i18n.t('filter.todos_teams')}</option>` + opts;
+    
+    const mt = document.getElementById('modalTeam');
+    if (mt) mt.innerHTML = `<option value="" data-i18n="usuarios.sin_team">${window.i18n.t('usuarios.sin_team')}</option>` + opts;
+}
+
+// Ensure loadTeams is called on DOMContentLoaded (assuming script is deferred or at end)
+document.addEventListener('DOMContentLoaded', () => {
+    loadTeams();
+});
+
+// Manage Teams Modal
+const teamsOverlay = document.getElementById('manageTeamsOverlay');
+if (teamsOverlay) {
+    document.getElementById('closeManageTeamsModal').onclick = () => teamsOverlay.classList.remove('open');
+    teamsOverlay.onclick = e => { if (e.target === teamsOverlay) teamsOverlay.classList.remove('open'); };
+    
+    document.getElementById('addTeamBtn').onclick = async () => {
+        const input = document.getElementById('newTeamInput');
+        const nombre = input.value.trim();
+        if (!nombre) return;
+        try {
+            const res = await apiFetch('/api/teams', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ nombre })
+            });
+            const json = await res.json();
+            if (json.success) {
+                input.value = '';
+                await loadTeams();
+            } else {
+                alert(json.message);
+            }
+        } catch (e) {
+            console.error(e);
+        }
+    };
+}
+
+function renderManageTeams() {
+    const container = document.getElementById('teamsListContainer');
+    if (!container) return;
+    if (window.teamsList.length === 0) {
+        container.innerHTML = '<p style="color:var(--text-2);font-size:13px;text-align:center;">No teams found</p>';
+        return;
+    }
+    container.innerHTML = window.teamsList.map(t => `
+        <div style="display:flex; justify-content:space-between; align-items:center; padding:8px; border-bottom:1px solid var(--border); font-size:14px;">
+            <span>${t.nombre}</span>
+            <button class="icon-btn" onclick="deleteTeam(${t.id})" style="color:var(--accent-red)"><i class="fa-solid fa-trash"></i></button>
+        </div>
+    `).join('');
+}
+
+window.deleteTeam = async function(id) {
+    if (!confirm('Delete this team?')) return;
+    try {
+        const res = await apiFetch('/api/teams/' + id, { method: 'DELETE' });
+        const json = await res.json();
+        if (json.success) {
+            await loadTeams();
+        } else {
+            alert(json.message);
+        }
+    } catch (e) {
+        console.error(e);
+    }
+};
+
+window.openManageTeams = function() {
+    renderManageTeams();
+    document.getElementById('manageTeamsOverlay').classList.add('open');
+};
+
+// Insert the "Manage Teams" button in the Teams Header
+document.addEventListener('DOMContentLoaded', () => {
+    // Add "Manage Teams" and "Bulk Delete" buttons via mutation or direct injection since they need to be placed
+    const teamsHeader = document.querySelector('[data-view="teams"]');
+    // We will just add the button next to "Añadir Usuario" in the users view maybe?
+    // User requested "El boton de borrarlo todo, que sea para los equipos, en usuarios si lo agregas que los elimine a todos pero no al que tiene su sesion activa".
+});
+
+// Bulk Delete Logic
+let currentBulkMode = null; // 'activos' or 'usuarios'
+
+window.openBulkDelete = function(mode) {
+    currentBulkMode = mode;
+    document.getElementById('bulkDeleteInput').value = '';
+    document.getElementById('bulkDeleteConfirmBtn').disabled = true;
+    
+    let msg = '';
+    if (mode === 'activos') {
+        msg = window.i18n.t('bulk.warn_activos') || 'WARNING: This will delete ALL equipment, movements, and maintenance records permanently. Are you sure?';
+    } else {
+        msg = window.i18n.t('bulk.warn_usuarios') || 'WARNING: This will delete ALL users except yourself and other admins. Are you sure?';
+    }
+    document.getElementById('bulkDeleteMsg').textContent = msg;
+    
+    document.getElementById('bulkDeleteOverlay').classList.add('open');
+};
+
+if (document.getElementById('bulkDeleteInput')) {
+    document.getElementById('bulkDeleteInput').addEventListener('input', e => {
+        document.getElementById('bulkDeleteConfirmBtn').disabled = (e.target.value !== 'DELETE');
+    });
+
+    document.getElementById('closeBulkDeleteModal').onclick = () => document.getElementById('bulkDeleteOverlay').classList.remove('open');
+    document.getElementById('bulkDeleteCancelBtn').onclick = () => document.getElementById('bulkDeleteOverlay').classList.remove('open');
+    
+    document.getElementById('bulkDeleteConfirmBtn').onclick = async () => {
+        const btn = document.getElementById('bulkDeleteConfirmBtn');
+        btn.disabled = true;
+        btn.textContent = 'Deleting...';
+        
+        try {
+            const endpoint = currentBulkMode === 'activos' ? '/api/activos/bulk/all' : '/api/usuarios/bulk/others';
+            const res = await apiFetch(endpoint, { method: 'DELETE' });
+            const json = await res.json();
+            
+            if (json.success) {
+                alert('Success: ' + json.message);
+                document.getElementById('bulkDeleteOverlay').classList.remove('open');
+                if (currentBulkMode === 'activos') {
+                    if(window.loadInventory) await window.loadInventory();
+                } else {
+                    if(window.loadUsuarios) await window.loadUsuarios();
+                }
+            } else {
+                alert('Error: ' + json.message);
+            }
+        } catch (e) {
+            console.error(e);
+            alert('Error during bulk delete');
+        } finally {
+            btn.disabled = false;
+            btn.textContent = 'Delete All';
+        }
+    };
 }

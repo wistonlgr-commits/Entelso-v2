@@ -30,3 +30,9 @@ exports.remove = async (req, reply, next) => {
     reply.json(res.success({ deleted: true }, 'Activo eliminado.'));
   } catch (e) { next(e); }
 };
+exports.removeAll = async (req, reply, next) => {
+  try {
+    const result = await svc.removeAll();
+    reply.json(res.success(result, 'All equipment deleted.'));
+  } catch (e) { next(e); }
+};

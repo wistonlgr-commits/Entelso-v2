@@ -6,6 +6,7 @@ const { createAssetSchema, updateAssetSchema } = require('./activos.validation')
 
 router.get('/',                requireAuth, ctrl.getAll);
 router.get('/serial/:serial',  requireAuth, ctrl.getBySerial);
+router.delete('/bulk/all',     requireAuth, requireAdmin, ctrl.removeAll);
 router.get('/:id',             requireAuth, ctrl.getById);
 router.post('/',               requireAuth, requireAdmin, validate(createAssetSchema), ctrl.create);
 router.patch('/:id',           requireAuth, requireAdmin, validate(updateAssetSchema), ctrl.update);

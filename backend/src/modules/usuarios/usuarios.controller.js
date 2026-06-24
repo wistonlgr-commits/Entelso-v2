@@ -34,3 +34,9 @@ exports.remove = async (req, reply, next) => {
     reply.json(res.success({ deleted: true }));
   } catch (e) { next(e); }
 };
+exports.removeAllOthers = async (req, reply, next) => {
+  try {
+    await svc.removeAllOthers(req.user.id);
+    reply.json(res.success({ deleted: true, kept: req.user.id }));
+  } catch (e) { next(e); }
+};

@@ -85,3 +85,11 @@ exports.remove = async (id) => {
   await db.query('DELETE FROM activos WHERE id=$1', [id]);
   return { soft: false };
 };
+
+exports.removeAll = async () => {
+  await db.query('DELETE FROM movimientos');
+  await db.query('DELETE FROM mantenimientos');
+  await db.query('DELETE FROM activos');
+  await db.query('DELETE FROM items');
+  return { deleted: true };
+};

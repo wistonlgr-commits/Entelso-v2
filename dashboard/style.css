@@ -29,12 +29,12 @@
     --text-2:     #8b949e;
     --text-3:     #484f58;
 
-    --accent-purple: #7c6ff7;
-    --accent-purple-glow: rgba(124,111,247,0.25);
+    --accent-purple: #1B5FAF;
+    --accent-purple-glow: rgba(27,95,175,0.30);
     --accent-green:  #3fb950;
-    --accent-yellow: #d29922;
+    --accent-yellow: #D4A017;
     --accent-red:    #f85149;
-    --accent-blue:   #58a6ff;
+    --accent-blue:   #1B5FAF;
 
     --radius-sm: 4px;
     --radius-md: 6px;
@@ -59,12 +59,12 @@
     --text-2:     #656d76;
     --text-3:     #afb8c1;
 
-    --accent-purple: #6e56cf;
-    --accent-purple-glow: rgba(110,86,207,0.15);
+    --accent-purple: #1B5FAF;
+    --accent-purple-glow: rgba(27,95,175,0.15);
     --accent-green:  #1a7f37;
-    --accent-yellow: #9a6700;
+    --accent-yellow: #D4A017;
     --accent-red:    #cf222e;
-    --accent-blue:   #0969da;
+    --accent-blue:   #1B5FAF;
 }
 
 [data-theme="dark"] select option {
@@ -142,6 +142,18 @@ canvas { display: block; }
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
+}
+
+.sidebar-logo-img {
+    max-width: 140px;
+    height: auto;
+    object-fit: contain;
+}
+
+.login-logo-img {
+    max-width: 200px;
+    height: auto;
+    object-fit: contain;
 }
 
 .workspace-info {
@@ -1347,8 +1359,9 @@ canvas { display: block; }
 
 .login-logo {
     display: flex;
+    flex-direction: column;
     align-items: center;
-    gap: 12px;
+    gap: 8px;
     margin-bottom: 4px;
 }
 
@@ -1366,6 +1379,16 @@ canvas { display: block; }
     flex-shrink: 0;
     box-shadow: 0 0 16px var(--accent-purple-glow);
 }
+
+[data-theme="light"] .login-logo-img.dark-logo { display: none; }
+[data-theme="light"] .login-logo-img.light-logo { display: block; }
+.login-logo-img.dark-logo { display: block; }
+.login-logo-img.light-logo { display: none; }
+
+[data-theme="light"] .sidebar-logo-img.dark-logo { display: none; }
+[data-theme="light"] .sidebar-logo-img.light-logo { display: block; }
+.sidebar-logo-img.dark-logo { display: block; }
+.sidebar-logo-img.light-logo { display: none; }
 
 .login-brand { display: flex; flex-direction: column; }
 .login-brand-name { font-size: var(--font-size-md); font-weight: 700; letter-spacing: -0.02em; }

@@ -48,6 +48,7 @@ app.use('/api/ubicaciones', require('./modules/ubicaciones/ubicaciones.routes'))
 app.use('/api/mantenimientos', require('./modules/mantenimientos/mantenimientos.routes')); // protegida por JWT
 app.use('/api/audit',          require('./modules/audit/audit.routes')); // protegida por JWT
 app.use('/api/whatsapp', require('./modules/whatsapp/whatsapp.routes')); // protegida por PIN interno
+app.use('/api/teams',    require('./modules/teams/teams.routes'));        // protegida por JWT
 
 // ── 404 ───────────────────────────────────────────────────────────────────
 app.use((req, reply) =>
