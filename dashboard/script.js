@@ -2073,17 +2073,7 @@ window.editarEmpleado = async function(userId) {
               <div class="form-group"><label>Nombre</label><input type="text" id="editUserNombre" class="form-input"></div>
               <div class="form-group"><label>Email</label><input type="email" id="editUserEmail" class="form-input"></div>
               <div class="form-group"><label>Team</label>
-                <select id="editUserTeam" class="form-input">
-                  <option value="">Sin Team</option>
-                  <option value="Transmission">Transmission</option>
-                  <option value="Energy">Energy</option>
-                  <option value="Networks">Networks</option>
-                  <option value="Maintenance">Maintenance</option>
-                  <option value="Calibration">Calibration</option>
-                  <option value="Instrumentation">Instrumentation</option>
-                  <option value="Civil Works">Civil Works</option>
-                  <option value="IT / Infrastructure">IT / Infrastructure</option>
-                </select>
+                <select id="editUserTeam" class="form-input"></select>
               </div>
               <div class="form-group"><label>Rol</label>
                 <select id="editUserRol" class="form-input">
@@ -2388,7 +2378,10 @@ function populateTeamSelects() {
     const au = document.getElementById('addUserTeam');
     if (au) au.innerHTML = `<option value="" data-i18n="usuarios.sin_team">${window.i18n.t('usuarios.sin_team')}</option>` + opts;
     
-    const af = document.getElementById('advFilterTeam');
+    const eu = document.getElementById('editUserTeam');
+    if (eu) eu.innerHTML = `<option value="" data-i18n="usuarios.sin_team">${window.i18n.t('usuarios.sin_team')}</option>` + opts;
+    
+    const af = document.getElementById('filterTeam');
     if (af) af.innerHTML = `<option value="" data-i18n="filter.todos_teams">${window.i18n.t('filter.todos_teams')}</option>` + opts;
     
     const mt = document.getElementById('modalTeam');
@@ -2398,6 +2391,7 @@ function populateTeamSelects() {
 // Ensure loadTeams is called on DOMContentLoaded (assuming script is deferred or at end)
 document.addEventListener('DOMContentLoaded', () => {
     loadTeams();
+    loadZonas();
 });
 
 // Manage Teams Modal
@@ -2420,6 +2414,7 @@ if (teamsOverlay) {
             if (json.success) {
                 input.value = '';
                 await loadTeams();
+    loadZonas();
             } else {
                 alert(json.message);
             }
@@ -2451,6 +2446,7 @@ window.deleteTeam = async function(id) {
         const json = await res.json();
         if (json.success) {
             await loadTeams();
+    loadZonas();
         } else {
             alert(json.message);
         }
@@ -2526,3 +2522,95 @@ if (document.getElementById('bulkDeleteConfirmBtn')) {
         }
     };
 }
+
+// ── Zonas (Ubicaciones) CRUD ──
+
+window.zonasList = [];
+
+async function loadZonas() {
+    try {
+        const res = await apiFetch('/api/ubicaciones');
+        const json = await res.json();
+        if (json.success) {
+            window.zonasList = json.data;
+            populateZonaSelects();
+            renderManageZonas();
+        }
+    } catch (e) {
+        console.error('Error loading zones', e);
+    }
+}
+
+function populateZonaSelects() {
+    const opts = window.zonasList.map(z => `<option value="${z.id}">${z.nombre_ubicacion}</option>`).join('');
+    
+    const mz = document.getElementById('modalZona');
+    if (mz) mz.innerHTML = `<option value="" data-i18n="filter.todas_zonas">${window.i18n.t('filter.todas_zonas')}</option>` + opts;
+    
+    const fz = document.getElementById('filterZona');
+    if (fz) fz.innerHTML = `<option value="" data-i18n="filter.todas_zonas">${window.i18n.t('filter.todas_zonas')}</option>` + opts;
+}
+
+window.openManageZonas = function() {
+    document.getElementById('manageZonasOverlay').classList.add('open');
+    renderManageZonas();
+};
+
+if (document.getElementById('closeManageZonasModal')) {
+    document.getElementById('closeManageZonasModal').onclick = () => document.getElementById('manageZonasOverlay').classList.remove('open');
+}
+
+function renderManageZonas() {
+    const tbody = document.getElementById('manageZonasList');
+    if (!tbody) return;
+    tbody.innerHTML = '';
+    window.zonasList.forEach(z => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+            <td>${escapeHTML(z.nombre_ubicacion)}</td>
+            <td><button class="icon-btn" onclick="window.deleteZona(${z.id})" style="color:var(--accent-red)"><i class="fa-solid fa-trash"></i></button></td>
+        `;
+        tbody.appendChild(tr);
+    });
+}
+
+if (document.getElementById('btnCreateZona')) {
+    document.getElementById('btnCreateZona').addEventListener('click', async () => {
+        const input = document.getElementById('newZonaName');
+        const val = input.value.trim();
+        if (!val) return;
+        
+        try {
+            const res = await apiFetch('/api/ubicaciones', {
+                method: 'POST',
+                body: JSON.stringify({ nombre_ubicacion: val })
+            });
+            const json = await res.json();
+            if (json.success) {
+                input.value = '';
+                await loadZonas();
+                showToast(window.i18n.t('zonas.toast_creada') || 'Zone created');
+            } else {
+                showToast(json.message, 'error');
+            }
+        } catch (e) {
+            showToast('Error', 'error');
+        }
+    });
+}
+
+window.deleteZona = async function(id) {
+    if (!confirm(window.i18n.t('zonas.confirm_delete') || 'Are you sure you want to delete this zone?')) return;
+    try {
+        const res = await apiFetch(`/api/ubicaciones/${id}`, { method: 'DELETE' });
+        const json = await res.json();
+        if (json.success) {
+            await loadZonas();
+            showToast(window.i18n.t('zonas.toast_eliminada') || 'Zone deleted');
+        } else {
+            showToast(json.message, 'error');
+        }
+    } catch (e) {
+        showToast('Error deleting zone', 'error');
+    }
+};

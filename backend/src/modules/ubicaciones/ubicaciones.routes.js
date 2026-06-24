@@ -8,5 +8,7 @@ router.get('/',            requireAuth, ctrl.getAll);
 router.get('/:id',         requireAuth, ctrl.getById);
 router.get('/:id/activos', requireAuth, ctrl.getAssets);
 router.post('/',           requireAuth, validate(createLocationSchema), ctrl.create);
+router.put('/:id',          requireAuth, ctrl.update);
+router.delete('/:id',       requireAuth, ctrl.delete);
 
 module.exports = router;

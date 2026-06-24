@@ -32,3 +32,17 @@ exports.create = async ({ nombre_ubicacion, descripcion }) => {
   );
   return rows[0];
 };
+
+
+exports.update = async (id, { nombre_ubicacion, descripcion }) => {
+  const { rows } = await db.query(
+    'UPDATE ubicaciones SET nombre_ubicacion=$1, descripcion=$2 WHERE id=$3 RETURNING *',
+    [nombre_ubicacion, descripcion ?? '', id]
+  );
+  return rows[0] ?? null;
+};
+
+exports.delete = async (id) => {
+  const { rowCount } = await db.query('DELETE FROM ubicaciones WHERE id=$1', [id]);
+  return rowCount > 0;
+};
