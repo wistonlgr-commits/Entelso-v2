@@ -145,15 +145,18 @@ canvas { display: block; }
 }
 
 .sidebar-logo-img {
+    max-height: 48px;
     max-width: 140px;
-    height: auto;
+    width: auto;
     object-fit: contain;
 }
 
 .login-logo-img {
+    max-height: 80px;
     max-width: 200px;
-    height: auto;
+    width: auto;
     object-fit: contain;
+    margin: 0 auto;
 }
 
 .workspace-info {
