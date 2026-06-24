@@ -2471,8 +2471,8 @@ let currentBulkMode = null; // 'activos' or 'usuarios'
 
 window.openBulkDelete = function(mode) {
     currentBulkMode = mode;
-    document.getElementById('bulkDeleteInput').value = '';
-    document.getElementById('bulkDeleteConfirmBtn').disabled = true;
+    
+    
     
     let msg = '';
     if (mode === 'activos') {
@@ -2485,10 +2485,7 @@ window.openBulkDelete = function(mode) {
     document.getElementById('bulkDeleteOverlay').classList.add('open');
 };
 
-if (document.getElementById('bulkDeleteInput')) {
-    document.getElementById('bulkDeleteInput').addEventListener('input', e => {
-        document.getElementById('bulkDeleteConfirmBtn').disabled = (e.target.value !== 'DELETE');
-    });
+if (document.getElementById('bulkDeleteConfirmBtn')) {
 
     document.getElementById('closeBulkDeleteModal').onclick = () => document.getElementById('bulkDeleteOverlay').classList.remove('open');
     document.getElementById('bulkDeleteCancelBtn').onclick = () => document.getElementById('bulkDeleteOverlay').classList.remove('open');

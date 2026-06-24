@@ -7,11 +7,11 @@
     <title>Entelso — Inventory</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-    <link rel="stylesheet" href="style.css?v=4">
+    <link rel="stylesheet" href="style.css?v=5">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/xlsx-js-style@1.2.0/dist/xlsx.bundle.js"></script>
     <!-- i18n debe cargarse ANTES que script.js -->
-    <script src="i18n.js?v=4"></script>
+    <script src="i18n.js?v=5"></script>
 </head>
 <body>
 
@@ -270,7 +270,6 @@
                         <i class="fa-solid fa-magnifying-glass"></i>
                         <input type="text" id="inventarioSearch" data-i18n-ph="inv.buscar" placeholder="Filtrar equipos...">
                     </div>
-                    <button class="btn-ghost" id="filterTriggerBtn"><i class="fa-solid fa-sliders"></i> <span data-i18n="inv.filtro_avanzado">Advanced Filter</span></button>
                     <button class="btn-ghost" id="confirmExportBtn"><i class="fa-solid fa-file-excel"></i> <span data-i18n="inv.exportar">Export</span></button>
                     <button class="btn-ghost" id="openManageCategoriesBtn"><i class="fa-solid fa-tags"></i> <span data-i18n="inv.categorias">Categories</span></button>
                     <button class="btn-ghost" onclick="openBulkDelete('activos')" style="color:var(--accent-red)"><i class="fa-solid fa-trash-can"></i> <span data-i18n="bulk.btn_delete_all">Delete All</span></button>
@@ -833,13 +832,9 @@
         </div>
         <div class="modal-body">
             <div class="modal-msg warning" id="bulkDeleteMsg" style="display:block; background: rgba(248,81,73,0.1); border: 1px solid var(--accent-red); color: var(--accent-red); padding: 12px; border-radius: var(--radius-md); margin-bottom: 16px;"></div>
-            <div class="form-group">
-                <label data-i18n="bulk.type_delete">Type DELETE to confirm:</label>
-                <input type="text" id="bulkDeleteInput" class="form-input" placeholder="DELETE" autocomplete="off">
-            </div>
             <div style="display: flex; gap: 10px; margin-top: 20px;">
                 <button class="btn-ghost btn-full" id="bulkDeleteCancelBtn" data-i18n="bulk.cancel">Cancel</button>
-                <button class="btn-primary btn-full" id="bulkDeleteConfirmBtn" style="background: var(--accent-red);" data-i18n="bulk.delete" disabled>Delete All</button>
+                <button class="btn-primary btn-full" id="bulkDeleteConfirmBtn" style="background: var(--accent-red);" data-i18n="bulk.delete">Delete All</button>
             </div>
         </div>
     </div>
@@ -862,7 +857,7 @@
     </div>
 </div>
 
-<script src="script.js?v=4"></script>
+<script src="script.js?v=5"></script>
 
 </body>
 </html>

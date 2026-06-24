@@ -535,7 +535,7 @@ const TRANSLATIONS = {
     'usuarios.col_acciones':  'Acciones',
 
     // ── Bulk & Teams Management ──
-    'bulk.btn_delete_all': 'Eliminar Todos',
+    'bulk.btn_delete_all': 'Borrar Todo',
     'bulk.confirm_title': 'Confirmar Eliminación',
     'bulk.type_delete': 'Escriba DELETE para confirmar:',
     'bulk.cancel': 'Cancelar',
