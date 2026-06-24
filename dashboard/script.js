@@ -958,6 +958,12 @@ function aplicarTema(theme) {
   localStorage.setItem('entelso_theme', theme);
   const icon = document.getElementById('themeIcon');
   if (icon) icon.className = theme === 'dark' ? 'fa-solid fa-moon' : 'fa-solid fa-sun';
+  
+  const logoSrc = theme === 'dark' ? 'LOGOTYPE-WHITE.png' : 'LOGOTYPE-BLUE.png';
+  const sidebarLogo = document.getElementById('sidebarLogoImg');
+  const loginLogo = document.getElementById('loginLogoImg');
+  if (sidebarLogo) sidebarLogo.src = logoSrc;
+  if (loginLogo) loginLogo.src = logoSrc;
   if (zonaChart || statusChart) {
     if (zonaChart) {
       zonaChart.options.scales.y.grid.color  = chartColors().grid;
