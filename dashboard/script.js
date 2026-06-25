@@ -999,6 +999,9 @@ document.addEventListener('langchange', () => {
     renderizarZonas();
     renderizarEmpleados(employeesData);
     renderizarAlertas([]);
+    if (typeof maintenanceData !== 'undefined') {
+        renderMaintenanceTable(document.getElementById('maintTableBody'), maintenanceData);
+    }
   }
 });
 
@@ -1538,8 +1541,8 @@ function inicializarModal() {
       itemId = cat ? cat.id : (systemCategories[0]?.id || 1);
     }
 
-    // ubicacion: find the location matching the zona dropdown text
-    const ubicacion = window.ubicacionesData?.find(u => u.nombre_ubicacion === zonaVal);
+        // ubicacion: zonaVal is already the ID from the select option value
+    const ubicacionId = zonaVal ? parseInt(zonaVal) : null;
 
     const btn = document.getElementById('submitNewItem');
     btn.disabled = true;
@@ -1549,7 +1552,7 @@ function inicializarModal() {
       const payload = {
         numero_serie:        numSerie,
         item_id:             itemId,
-        ubicacion_actual_id: ubicacion ? ubicacion.id : null,
+        ubicacion_actual_id: ubicacionId,
         estado,
         team: team || null,
       };
@@ -1843,13 +1846,14 @@ if (confirmExportBtn) {
 
 function exportarExcel() {
   if (typeof XLSX === 'undefined') {
-    alert("Librería de Excel no disponible.");
+    alert(window.i18n.t('drawer.err_red') || "Librería de Excel no disponible.");
     return;
   }
   const dataToExport = window.currentFilteredData || inventoryData;
-  const today = new Date().toLocaleDateString('es-ES', { year: 'numeric', month: 'long', day: 'numeric' });
+  const today = new Date().toLocaleDateString(window.i18n.getLang() === 'en' ? 'en-US' : 'es-ES', { year: 'numeric', month: 'long', day: 'numeric' });
 
   // ── Definir estilos ──
+
   const headerStyle = {
     font: { bold: true, color: { rgb: 'FFFFFF' }, sz: 12, name: 'Calibri' },
     fill: { fgColor: { rgb: '1E3A5F' } },
@@ -1880,7 +1884,11 @@ function exportarExcel() {
   };
 
   // ── Preparar filas de datos ──
-  const headers = ['Nº Inventario', 'Equipo', 'Nº Serie', 'Zona / Sitio', 'Team', 'Estado', 'Próx. Calibración', 'Asignado a'];
+  const isEn = window.i18n.getLang() === 'en';
+  const headers = isEn 
+    ? ['Inventory No.', 'Equipment', 'Serial No.', 'Zone / Site', 'Team', 'Status', 'Next Calibration', 'Assigned to']
+    : ['Nº Inventario', 'Equipo', 'Nº Serie', 'Zona / Sitio', 'Team', 'Estado', 'Próx. Calibración', 'Asignado a'];
+    
   const rows = dataToExport.map(item => [
     item.id || '—',
     item.equipo || '—',
@@ -1893,8 +1901,8 @@ function exportarExcel() {
   ]);
 
   // ── Construir hoja con título de empresa ──
-  const titleRow = ['ENTELSO — Reporte de Inventario'];
-  const dateRow = [`Fecha de generación: ${today}  |  Total activos: ${rows.length}`];
+  const titleRow = [isEn ? 'ENTELSO — Inventory Report' : 'ENTELSO — Reporte de Inventario'];
+  const dateRow = [isEn ? `Generated on: ${today}  |  Total assets: ${rows.length}` : `Fecha de generación: ${today}  |  Total activos: ${rows.length}`];
   const emptyRow = [''];
   const allRows = [titleRow, dateRow, emptyRow, headers, ...rows];
 
