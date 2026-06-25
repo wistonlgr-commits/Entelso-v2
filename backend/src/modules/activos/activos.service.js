@@ -93,3 +93,58 @@ exports.removeAll = async () => {
   await db.query('DELETE FROM items');
   return { deleted: true };
 };
+
+exports.bulkCreate = async (activosData) => {
+  const client = await db.pool.connect();
+  try {
+    await client.query('BEGIN');
+    let inserted = 0;
+
+    for (const item of activosData) {
+      // 1. Resolve or create Item Category (by name)
+      let item_id;
+      const { rows: itemRows } = await client.query('SELECT id FROM items WHERE LOWER(nombre) = LOWER($1)', [item.descripcion.trim()]);
+      if (itemRows.length > 0) {
+        item_id = itemRows[0].id;
+      } else {
+        const { rows: newItem } = await client.query('INSERT INTO items (nombre, tipo, categoria) VALUES ($1, $2, $3) RETURNING id', [item.descripcion.trim(), 'herramienta', 'general']);
+        item_id = newItem[0].id;
+      }
+
+      // 2. Resolve Zone ID (by name)
+      let ubicacion_actual_id = null;
+      if (item.zona) {
+        const { rows: zoneRows } = await client.query('SELECT id FROM ubicaciones WHERE LOWER(nombre_ubicacion) = LOWER($1)', [item.zona.trim()]);
+        if (zoneRows.length > 0) ubicacion_actual_id = zoneRows[0].id;
+        else {
+          const { rows: newZone } = await client.query('INSERT INTO ubicaciones (nombre_ubicacion) VALUES ($1) RETURNING id', [item.zona.trim()]);
+          ubicacion_actual_id = newZone[0].id;
+        }
+      }
+
+      // 3. Resolve Team (String, but validate if needed. It's stored as VARCHAR in DB)
+      const team = item.team ? item.team.trim() : null;
+
+      // 4. Insert into activos
+      await client.query(`
+        INSERT INTO activos (item_id, numero_serie, ubicacion_actual_id, estado, team)
+        VALUES ($1, $2, $3, $4, $5)
+        ON CONFLICT (numero_serie) DO UPDATE SET
+          item_id = EXCLUDED.item_id,
+          ubicacion_actual_id = EXCLUDED.ubicacion_actual_id,
+          estado = EXCLUDED.estado,
+          team = EXCLUDED.team
+      `, [item_id, item.numero_serie.trim(), ubicacion_actual_id, item.estado || 'disponible', team]);
+      
+      inserted++;
+    }
+
+    await client.query('COMMIT');
+    return { inserted, total: activosData.length };
+  } catch (error) {
+    await client.query('ROLLBACK');
+    throw error;
+  } finally {
+    client.release();
+  }
+};

@@ -222,6 +222,7 @@ async function inicializarApp() {
     inicializarPerfil();
     inicializarDrawer();
     inicializarModal();
+  inicializarImportModal();
     inicializarFiltros();
     window.appUIInitialized = true;
   }
@@ -1430,6 +1431,171 @@ async function openDrawer(item) {
 /* ─────────────────────────────────────────
    MODAL — Registrar Equipo
 ───────────────────────────────────────── */
+
+/* ─────────────────────────────────────────
+   MODAL — Importación Masiva (Excel/CSV)
+───────────────────────────────────────── */
+let importFileData = null;
+
+function inicializarImportModal() {
+  const overlay = document.getElementById('importModalOverlay');
+  const fileInput = document.getElementById('importFileInput');
+  const previewArea = document.getElementById('importPreviewArea');
+  const previewBody = document.getElementById('importPreviewBody');
+  const submitBtn = document.getElementById('submitImportBtn');
+  const msgEl = document.getElementById('importMsg');
+
+  const openModal = () => {
+    overlay.classList.add('open');
+    fileInput.value = '';
+    previewArea.style.display = 'none';
+    msgEl.style.display = 'none';
+    submitBtn.disabled = true;
+    importFileData = null;
+  };
+  const closeModal = () => overlay.classList.remove('open');
+
+  document.getElementById('openImportModal')?.addEventListener('click', openModal);
+  document.getElementById('openImportModal2')?.addEventListener('click', openModal);
+  document.getElementById('closeImportModal')?.addEventListener('click', closeModal);
+  document.getElementById('cancelImportModal')?.addEventListener('click', closeModal);
+
+  fileInput.addEventListener('change', async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    msgEl.style.display = 'none';
+    previewArea.style.display = 'none';
+    submitBtn.disabled = true;
+    importFileData = null;
+
+    if (typeof XLSX === 'undefined') {
+      msgEl.textContent = 'Error: Librería XLSX no cargada.';
+      msgEl.className = 'modal-msg error';
+      msgEl.style.display = 'block';
+      return;
+    }
+
+    try {
+      const arrayBuffer = await file.arrayBuffer();
+      const workbook = XLSX.read(arrayBuffer, { type: 'array' });
+      const firstSheetName = workbook.SheetNames[0];
+      const worksheet = workbook.Sheets[firstSheetName];
+      
+      // Convert to Array of Arrays
+      const rows = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+      if (rows.length < 2) {
+        throw new Error('El archivo está vacío o no tiene encabezados.');
+      }
+
+      const headers = rows[0].map(h => String(h).toLowerCase().trim());
+      // Validar columnas requeridas (Nº Inventario o Inventory No, y Equipo/Equipment)
+      const invIndex = headers.findIndex(h => h.includes('inventario') || h.includes('inventory'));
+      const eqIndex = headers.findIndex(h => h.includes('equipo') || h.includes('equipment') || h.includes('descripci'));
+      const serieIndex = headers.findIndex(h => h.includes('serie') || h.includes('serial'));
+      const zonaIndex = headers.findIndex(h => h.includes('zona') || h.includes('zone') || h.includes('sitio') || h.includes('site'));
+      const teamIndex = headers.findIndex(h => h.includes('team'));
+      const statusIndex = headers.findIndex(h => h.includes('estado') || h.includes('status'));
+
+      if (invIndex === -1 || eqIndex === -1) {
+        msgEl.textContent = window.i18n.t('import.err_req_fields') || 'Faltan columnas obligatorias.';
+        msgEl.className = 'modal-msg error';
+        msgEl.style.display = 'block';
+        return;
+      }
+
+      // Validar cada fila
+      const parsedData = [];
+      for (let i = 1; i < rows.length; i++) {
+        const row = rows[i];
+        if (!row || row.length === 0 || (!row[invIndex] && !row[eqIndex])) continue; // saltar vacías
+
+        const numero_serie = String(row[invIndex] || '').trim();
+        const descripcion = String(row[eqIndex] || '').trim();
+
+        if (!numero_serie || !descripcion) {
+          msgEl.textContent = `${window.i18n.t('import.err_row')} ${i+1} ${window.i18n.t('import.err_empty')}`;
+          msgEl.className = 'modal-msg error';
+          msgEl.style.display = 'block';
+          return;
+        }
+
+        parsedData.push({
+          numero_serie: numero_serie,
+          descripcion: descripcion,
+          serie: serieIndex !== -1 ? String(row[serieIndex] || '').trim() : '',
+          zona: zonaIndex !== -1 ? String(row[zonaIndex] || '').trim() : '',
+          team: teamIndex !== -1 ? String(row[teamIndex] || '').trim() : '',
+          estado: statusIndex !== -1 ? String(row[statusIndex] || '').trim().toLowerCase() : 'disponible'
+        });
+      }
+
+      if (parsedData.length === 0) {
+        throw new Error('No hay datos válidos para importar.');
+      }
+
+      // Pre-visualizar
+      importFileData = parsedData;
+      previewBody.innerHTML = '';
+      parsedData.slice(0, 5).forEach(item => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td><span class="id-cell">${escapeHTML(item.numero_serie)}</span></td>
+          <td>${escapeHTML(item.descripcion)}</td>
+          <td>${escapeHTML(item.zona || '—')}</td>
+        `;
+        previewBody.appendChild(tr);
+      });
+
+      previewArea.style.display = 'block';
+      submitBtn.disabled = false;
+      msgEl.textContent = `${parsedData.length} equipos listos para importar.`;
+      msgEl.className = 'modal-msg success';
+      msgEl.style.display = 'block';
+
+    } catch (err) {
+      console.error(err);
+      msgEl.textContent = window.i18n.t('import.err_parse') || 'Error al procesar el archivo.';
+      msgEl.className = 'modal-msg error';
+      msgEl.style.display = 'block';
+    }
+  });
+
+  submitBtn.addEventListener('click', async () => {
+    if (!importFileData || importFileData.length === 0) return;
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> <span>Importando...</span>';
+
+    try {
+      const res = await apiFetch('/api/activos/bulk', {
+        method: 'POST',
+        body: JSON.stringify({ activos: importFileData })
+      });
+      const data = await res.json();
+      if (res.ok) {
+        msgEl.textContent = `✓ ${window.i18n.t('import.success')} ${data.data.inserted} ${window.i18n.t('import.items')}`;
+        msgEl.className = 'modal-msg success';
+        msgEl.style.display = 'block';
+        await cargarActivos();
+        setTimeout(() => closeModal(), 2000);
+      } else {
+        msgEl.textContent = data.message || 'Error en la importación.';
+        msgEl.className = 'modal-msg error';
+        msgEl.style.display = 'block';
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = '<i class="fa-solid fa-cloud-arrow-up"></i> <span data-i18n="import.btn_upload">' + (window.i18n.t('import.btn_upload') || 'Importar') + '</span>';
+      }
+    } catch (err) {
+      msgEl.textContent = window.i18n.t('drawer.err_red') || 'Error de conexión.';
+      msgEl.className = 'modal-msg error';
+      msgEl.style.display = 'block';
+      submitBtn.disabled = false;
+      submitBtn.innerHTML = '<i class="fa-solid fa-cloud-arrow-up"></i> <span data-i18n="import.btn_upload">' + (window.i18n.t('import.btn_upload') || 'Importar') + '</span>';
+    }
+  });
+}
+
+
 function inicializarModal() {
   const overlay = document.getElementById('modalOverlay');
   const openModal  = () => {

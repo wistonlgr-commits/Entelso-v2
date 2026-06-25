@@ -36,3 +36,11 @@ exports.removeAll = async (req, reply, next) => {
     reply.json(res.success(result, 'All equipment deleted.'));
   } catch (e) { next(e); }
 };
+
+exports.bulkCreate = async (req, reply, next) => {
+  try { 
+    reply.status(201).json(res.success(await svc.bulkCreate(req.body.activos))); 
+  } catch (e) { 
+    next(e); 
+  }
+};

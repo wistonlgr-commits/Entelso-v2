@@ -26,3 +26,14 @@ exports.updateAssetSchema = z.object({
   fecha_ultimo_tag:  fecha, fecha_prox_tag:  fecha,
   estado: estadoEnum.optional(),
 }).refine(noConflicto, conflictMsg);
+
+exports.bulkCreateAssetSchema = z.object({
+  activos: z.array(z.object({
+    numero_serie: z.string().min(2).max(100),
+    descripcion: z.string().min(2),
+    serie: z.string().optional(),
+    zona: z.string().optional(),
+    team: z.string().optional(),
+    estado: estadoEnum.default('disponible')
+  })).min(1).max(500)
+});
