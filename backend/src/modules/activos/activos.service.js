@@ -42,10 +42,25 @@ exports.getBySerial = async (serial) => {
 };
 
 exports.create = async (data) => {
-  const { item_id, numero_serie, usuario_actual_id, ubicacion_actual_id,
+  let { item_id, descripcion, numero_serie, usuario_actual_id, ubicacion_actual_id,
           fecha_ultima_cali, fecha_prox_cali, fecha_ultimo_tag, fecha_prox_tag, estado, team } = data;
   if (usuario_actual_id && ubicacion_actual_id)
     throw Object.assign(new Error('Un activo no puede tener usuario y ubicación simultáneamente.'), { isOperational: true });
+
+  if (!item_id && descripcion) {
+    const descTrimmed = descripcion.trim();
+    const itemRows = await db.query('SELECT id FROM items WHERE LOWER(nombre) = LOWER($1)', [descTrimmed]);
+    if (itemRows.rows.length > 0) {
+      item_id = itemRows.rows[0].id;
+    } else {
+      const newItem = await db.query('INSERT INTO items (nombre, tipo) VALUES ($1, $2) RETURNING id', [descTrimmed, 'herramienta']);
+      item_id = newItem.rows[0].id;
+    }
+  }
+
+  if (!item_id) {
+    throw Object.assign(new Error('Debe proporcionar item_id o descripcion.'), { isOperational: true });
+  }
 
   const { rows } = await db.query(
     `INSERT INTO activos (item_id, numero_serie, usuario_actual_id, ubicacion_actual_id,
@@ -107,7 +122,7 @@ exports.bulkCreate = async (activosData) => {
       if (itemRows.length > 0) {
         item_id = itemRows[0].id;
       } else {
-        const { rows: newItem } = await client.query('INSERT INTO items (nombre, tipo, categoria) VALUES ($1, $2, $3) RETURNING id', [item.descripcion.trim(), 'herramienta', 'general']);
+        const { rows: newItem } = await client.query('INSERT INTO items (nombre, tipo) VALUES ($1, $2) RETURNING id', [item.descripcion.trim(), 'herramienta']);
         item_id = newItem[0].id;
       }
 

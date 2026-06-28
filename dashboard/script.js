@@ -887,7 +887,7 @@ function renderizarGraficos() {
   const otros       = inventoryData.filter(a => ['fuera_de_servicio','danado','desconocido'].includes(a.status)).length;
 
   const { t } = window.i18n;
-  const donutLabels = [t('estado.disponible'), t('estado.en_uso'), t('nav.mantenimiento'), t('kpi.calibracion'), 'Otros'];
+  const donutLabels = [t('estado.disponible'), t('estado.en_uso'), t('nav.mantenimiento'), t('kpi.calibracion'), t('kpi.otros') || 'Otros'];
   const donutColors = ['#3fb950','#58a6ff','#d29922','#7c6ff7','#8b949e'];
   const donutData   = [disponible, enUso, mantenim, calibPend, otros];
 
@@ -1171,13 +1171,13 @@ function inicializarPerfil() {
     try {
       const res = await apiFetch(`/api/usuarios/${id}`, { method: 'DELETE' });
       if (res.ok) {
-        alert("Usuario eliminado");
+        alert(window.i18n.t('usuarios.eliminado') || "Usuario eliminado");
         cargarUsuariosAdministracion();
         cargarUsuarios();
       } else {
-        alert("Error al eliminar");
+        alert(window.i18n.t('usuarios.err_eliminar') || "Error al eliminar");
       }
-    } catch(e) { alert("Error de red"); }
+    } catch(e) { alert(window.i18n.t('seg.err_red') || "Error de red"); }
   };
 
   // Add User Modal
@@ -1323,7 +1323,7 @@ window.openDrawerAsset = function(id) {
     document.querySelector('.nav-item[data-view="inventario"]')?.classList.add('active');
     openDrawer(asset);
   } else {
-    alert("No se encontró el equipo en el inventario.");
+    alert(window.i18n.t('drawer.no_encontrado') || "No se encontró el equipo en el inventario.");
   }
 };
 
@@ -1341,20 +1341,24 @@ async function openDrawer(item) {
     
     qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=${encodeURIComponent(qrPayload)}&margin=4`;
     qrImg.style.display = 'inline-block';
-    qrImg.title = 'Escanea para consultar este activo por WhatsApp';
+    qrImg.title = window.i18n.t('drawer.qr_title');
+    const btnPrint = document.getElementById('btnPrintQR');
+    if (btnPrint) btnPrint.style.display = 'inline-block';
+    const btnDownload = document.getElementById('btnDownloadQR');
+    if (btnDownload) btnDownload.style.display = 'inline-block';
   }
 
   const metaEl = document.getElementById('drawerMeta');
   metaEl.innerHTML = '';
   const metaFields = [
-    { label: 'No. Serie / ID',   value: item.serie || item.id || '—' },
-    { label: 'Tipo de Equipo',   value: item.tipo_item || '—' },
-    { label: 'Zona / Ubicación', value: item.zona || '—' },
-    { label: 'Estado',           value: (item.status || '').replace(/_/g,' ') || '—' },
-    { label: 'Próx. Calibración', value: formatearFecha(item.calibracion) },
-    { label: 'Próx. Tag/Inspección', value: formatearFecha(item.tag) },
-    { label: 'Asignado a',       value: item.asignado || '—' },
-    { label: 'Team',             value: item.team || '—' },
+    { label: window.i18n.t('drawer.meta_serie'),   value: item.serie || item.id || '—' },
+    { label: window.i18n.t('drawer.meta_tipo'),    value: item.tipo_item || '—' },
+    { label: window.i18n.t('drawer.meta_zona'),    value: item.zona || '—' },
+    { label: window.i18n.t('drawer.meta_estado'),  value: (item.status || '').replace(/_/g,' ') || '—' },
+    { label: window.i18n.t('drawer.meta_cal'),     value: formatearFecha(item.calibracion) },
+    { label: window.i18n.t('drawer.meta_tag'),     value: formatearFecha(item.tag) },
+    { label: window.i18n.t('drawer.meta_asignado'),value: item.asignado || '—' },
+    { label: window.i18n.t('drawer.meta_team'),    value: item.team || '—' },
   ];
   metaFields.forEach(f => {
     const div = document.createElement('div');
@@ -1371,7 +1375,7 @@ async function openDrawer(item) {
 
   // Timeline
   const timelineEl = document.getElementById('drawerTimeline');
-  timelineEl.innerHTML = `<div class="timeline-item"><div class="timeline-body">Cargando historial...</div></div>`;
+  timelineEl.innerHTML = `<div class="timeline-item"><div class="timeline-body">${window.i18n.t('drawer.cargando_hist')}</div></div>`;
 
   try {
     let url = '/api/movimientos';
@@ -1413,15 +1417,65 @@ async function openDrawer(item) {
         `;
       });
     } else {
-      timelineEl.innerHTML = `<div class="timeline-item"><div class="timeline-body">No hay historial registrado.</div></div>`;
+      timelineEl.innerHTML = `<div class="timeline-item"><div class="timeline-body">${window.i18n.t('drawer.sin_historial')}</div></div>`;
     }
   } catch (error) {
     console.error('Error fetching timeline:', error);
-    timelineEl.innerHTML = `<div class="timeline-item"><div class="timeline-body">Error al cargar historial.</div></div>`;
+    timelineEl.innerHTML = `<div class="timeline-item"><div class="timeline-body">${window.i18n.t('drawer.err_historial')}</div></div>`;
   }
 
   overlay.classList.add('open');
 }
+
+// QR Download handler
+document.getElementById('btnDownloadQR')?.addEventListener('click', () => {
+  const qrImg = document.getElementById('drawerQRCode');
+  const title = document.getElementById('drawerTitle')?.textContent || 'qr-code';
+  if (!qrImg || !qrImg.src) return;
+  const a = document.createElement('a');
+  a.href = qrImg.src;
+  a.download = `QR-${title}.png`;
+  a.target = '_blank';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+});
+
+// QR Print handler
+document.getElementById('btnPrintQR')?.addEventListener('click', () => {
+  const qrImg = document.getElementById('drawerQRCode');
+  const title = document.getElementById('drawerTitle')?.textContent || 'Equipment';
+  const subtitle = document.getElementById('drawerSubtitle')?.textContent || '';
+  if (!qrImg || !qrImg.src) return;
+  const w = window.open('', '_blank');
+  w.document.write(`<html><head><title>QR - ${title}</title><style>body{font-family:Arial,sans-serif;text-align:center;padding:40px;}img{width:200px;height:200px;}h2{margin-bottom:4px;}p{color:#666;}</style></head><body><h2>${title}</h2><p>${subtitle}</p><img src="${qrImg.src}" /><script>setTimeout(()=>{window.print();window.close();},500);<\/script></body></html>`);
+  w.document.close();
+});
+
+// Modal QR Download handler
+document.getElementById('modalBtnDownloadQR')?.addEventListener('click', () => {
+  const qrImg = document.getElementById('modalQRCode');
+  const title = document.getElementById('modalNumSerie')?.value || 'qr-code';
+  if (!qrImg || !qrImg.src) return;
+  const a = document.createElement('a');
+  a.href = qrImg.src;
+  a.download = `QR-${title}.png`;
+  a.target = '_blank';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+});
+
+// Modal QR Print handler
+document.getElementById('modalBtnPrintQR')?.addEventListener('click', () => {
+  const qrImg = document.getElementById('modalQRCode');
+  const title = document.getElementById('modalNumSerie')?.value || 'Equipment';
+  const subtitle = document.getElementById('modalDesc')?.value || '';
+  if (!qrImg || !qrImg.src) return;
+  const w = window.open('', '_blank');
+  w.document.write(`<html><head><title>QR - ${title}</title><style>body{font-family:Arial,sans-serif;text-align:center;padding:40px;}img{width:200px;height:200px;}h2{margin-bottom:4px;}p{color:#666;}</style></head><body><h2>${title}</h2><p>${subtitle}</p><img src="${qrImg.src}" /><script>setTimeout(()=>{window.print();window.close();},500);<\/script></body></html>`);
+  w.document.close();
+});
 
 /* ─────────────────────────────────────────
    COMMAND PALETTE
@@ -1470,7 +1524,7 @@ function inicializarImportModal() {
     importFileData = null;
 
     if (typeof XLSX === 'undefined') {
-      msgEl.textContent = 'Error: Librería XLSX no cargada.';
+      msgEl.textContent = window.i18n.t('modal.err_xlsx');
       msgEl.className = 'modal-msg error';
       msgEl.style.display = 'block';
       return;
@@ -1603,14 +1657,18 @@ function inicializarModal() {
     document.getElementById('modalMsg').style.display = 'none';
     document.getElementById('modalMsg').className = 'modal-msg';
   };
-  const closeModal = () => overlay.classList.remove('open');
+  const closeModal = () => {
+    overlay.classList.remove('open');
+    const qrContainer = document.getElementById('modalQRContainer');
+    if (qrContainer) qrContainer.style.display = 'none';
+  };
 
   document.getElementById('openNewItemModal').addEventListener('click', () => {
-    document.getElementById('modalEstado').value = 'operativo';
+    document.getElementById('modalEstado').value = 'disponible';
     openModal();
   });
   document.getElementById('openNewItemModal2')?.addEventListener('click', () => {
-    document.getElementById('modalEstado').value = 'operativo';
+    document.getElementById('modalEstado').value = 'disponible';
     openModal();
   });
   document.getElementById('openAgendarModal')?.addEventListener('click', () => {
@@ -1630,14 +1688,14 @@ function inicializarModal() {
     const obs = document.getElementById('maintObs').value.trim();
 
     if (!equipoVal || !fecha) {
-      msgEl.textContent = 'Por favor complete el equipo y la fecha.';
+      msgEl.textContent = window.i18n.t('maint.err_campos');
       msgEl.className = 'modal-msg error';
       msgEl.style.display = 'block';
       return;
     }
 
     btn.disabled = true;
-    btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Agendando...';
+    btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> ${window.i18n.t('maint.registrando')}`;
 
     // Find the asset by serial number or name
     const activo = inventoryData.find(a =>
@@ -1652,7 +1710,7 @@ function inicializarModal() {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ estado: 'en_mantenimiento', fecha_prox_cali: fecha })
         });
-        msgEl.textContent = `✓ Mantenimiento agendado para ${activo.id}.`;
+        msgEl.textContent = `✓ ${window.i18n.t('maint.agendado_ok')} ${activo.id}.`;
         msgEl.className = 'modal-msg success';
         msgEl.style.display = 'block';
         await cargarActivos();
@@ -1663,21 +1721,21 @@ function inicializarModal() {
           document.getElementById('maintObs').value = '';
           msgEl.style.display = 'none';
           btn.disabled = false;
-          btn.textContent = 'Agendar Mantenimiento';
+          btn.textContent = window.i18n.t('maint.btn_agendar');
         }, 1500);
       } catch (e) {
-        msgEl.textContent = 'Error al agendar mantenimiento.';
+        msgEl.textContent = window.i18n.t('maint.err_agendar');
         msgEl.className = 'modal-msg error';
         msgEl.style.display = 'block';
         btn.disabled = false;
-        btn.textContent = 'Agendar Mantenimiento';
+        btn.textContent = window.i18n.t('maint.btn_agendar') || 'Agendar Mantenimiento';
       }
     } else {
-      msgEl.textContent = 'Equipo no encontrado en el inventario. Verifique el ID o nombre.';
+      msgEl.textContent = window.i18n.t('maint.err_no_encontrado');
       msgEl.className = 'modal-msg error';
       msgEl.style.display = 'block';
       btn.disabled = false;
-      btn.textContent = 'Agendar Mantenimiento';
+      btn.textContent = window.i18n.t('maint.btn_agendar') || 'Agendar Mantenimiento';
     }
   });
   document.getElementById('closeModal').addEventListener('click', closeModal);
@@ -1694,7 +1752,7 @@ function inicializarModal() {
     const msgEl     = document.getElementById('modalMsg');
 
     if (!numSerie || !desc) {
-      msgEl.textContent  = 'El número de inventario y la descripción son obligatorios.';
+      msgEl.textContent  = window.i18n.t('modal.err_requerido');
       msgEl.className    = 'modal-msg error';
       msgEl.style.display = 'block';
       return;
@@ -1704,7 +1762,7 @@ function inicializarModal() {
     let itemId = itemIdVal ? Number(itemIdVal) : null;
     if (!itemId) {
       const cat = systemCategories.find(c => c.nombre.toLowerCase() === desc.toLowerCase());
-      itemId = cat ? cat.id : (systemCategories[0]?.id || 1);
+      if (cat) itemId = cat.id;
     }
 
         // ubicacion: zonaVal is already the ID from the select option value
@@ -1712,12 +1770,13 @@ function inicializarModal() {
 
     const btn = document.getElementById('submitNewItem');
     btn.disabled = true;
-    btn.querySelector('span').textContent = 'Registrando...';
+    btn.querySelector('span').textContent = window.i18n.t('modal.registrando');
 
     try {
       const payload = {
         numero_serie:        numSerie,
         item_id:             itemId,
+        descripcion:         desc,
         ubicacion_actual_id: ubicacionId,
         estado,
         team: team || null,
@@ -1728,24 +1787,38 @@ function inicializarModal() {
       });
 
       if (res.ok) {
-        msgEl.textContent   = `✓ Equipo ${numSerie} registrado correctamente.`;
+        msgEl.textContent   = `✓ ${window.i18n.t('modal.registrado_ok').replace('{0}', numSerie)}`;
         msgEl.className     = 'modal-msg success';
         msgEl.style.display = 'block';
         await cargarActivos();
-        setTimeout(() => {
-          overlay.classList.remove('open');
-          document.getElementById('modalNumSerie').value = '';
-          document.getElementById('modalDesc').value     = '';
-          msgEl.style.display = 'none';
-        }, 1500);
+        const waNumber = localStorage.getItem('entelso_wa_number') || '18298908685';
+        const qrPayload = `https://wa.me/${waNumber}?text=${encodeURIComponent('INFO ' + numSerie)}`;
+        const qrImg = document.getElementById('modalQRCode');
+        if (qrImg) {
+          qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=${encodeURIComponent(qrPayload)}&margin=4`;
+          document.getElementById('modalQRContainer').style.display = 'block';
+        }
+        btn.disabled = false;
+        btn.querySelector('span').textContent = window.i18n.t('modal.registrar');
+        document.getElementById('modalNumSerie').value = '';
+        document.getElementById('modalDesc').value     = '';
       } else {
         const data = await res.json();
-        msgEl.textContent   = data.message || 'Error al registrar el equipo.';
+        let errMsg = window.i18n.t('modal.err_registrar');
+        if (data.error?.code) {
+          const transKey = 'err.' + data.error.code;
+          const translated = window.i18n.t(transKey);
+          if (translated !== transKey) errMsg = translated;
+          else errMsg = data.error.message || data.message || errMsg;
+        } else if (data.error?.message || data.message) {
+          errMsg = data.error?.message || data.message;
+        }
+        msgEl.textContent = errMsg;
         msgEl.className     = 'modal-msg error';
         msgEl.style.display = 'block';
       }
     } catch (err) {
-      msgEl.textContent   = 'Error de conexión al servidor.';
+      msgEl.textContent   = window.i18n.t('modal.err_conexion');
       msgEl.className     = 'modal-msg error';
       msgEl.style.display = 'block';
     } finally {
@@ -1928,13 +2001,13 @@ window.marcarMantenimientoAtendido = async function(id) {
       });
     }
 
-    alert(`Equipo ${id} marcado como atendido con éxito.`);
+    alert((window.i18n.t('maint.atendido_ok') || "Equipo {0} marcado como atendido con éxito.").replace('{0}', id));
     // Recargar vista desde backend real
     await cargarActivos();
     
   } catch (err) {
     console.error('Error al marcar atendido:', err);
-    alert('Error al marcar el equipo como atendido.');
+    alert(window.i18n.t('maint.err_atendido') || 'Error al marcar el equipo como atendido.');
   }
 };
 
@@ -1975,7 +2048,7 @@ function renderizarCategoriasUI() {
 function renderizarFiltrosCategorias() {
   const container = document.getElementById('inventoryCategoryChips');
   if (!container) return;
-  container.innerHTML = `<button class="chip active" data-filter="all">Todos</button>`;
+  container.innerHTML = `<button class="chip active" data-filter="all" data-i18n="dash.filter.todos">${window.i18n.t('dash.filter.todos')}</button>`;
   systemCategories.forEach(cat => {
     const btn = document.createElement('button');
     btn.className = 'chip';
@@ -2144,9 +2217,9 @@ window.eliminarActivo = async function(db_id) {
     if(!confirm(`¿Seguro que desea eliminar el activo?`)) return;
     try {
         await apiFetch(`/api/activos/${db_id}`, { method: 'DELETE' });
-        alert("Eliminado");
+        alert(window.i18n.t('drawer.eliminado') || "Eliminado");
         await cargarActivos();
-    } catch(e) { alert("Error eliminando"); }
+    } catch(e) { alert(window.i18n.t('drawer.err_eliminar') || "Error eliminando"); }
 };
 
 window.actualizarEstadoHerramienta = async function(db_id, newState) {
@@ -2157,9 +2230,9 @@ window.actualizarEstadoHerramienta = async function(db_id, newState) {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ estado: newState })
         });
-        alert("Estado actualizado");
+        alert(window.i18n.t('drawer.estado_ok') || "Estado actualizado");
         await cargarActivos();
-    } catch(e) { alert("Error actualizando"); }
+    } catch(e) { alert(window.i18n.t('drawer.err_actualizar') || "Error actualizando"); }
 };
 
 const saveCategoryBtn = document.getElementById('saveCategoryBtn');
@@ -2206,7 +2279,7 @@ async function updateWorkerTeam(userId, newTeam) {
     });
     if (!res.ok) {
       const d = await res.json();
-      alert('Error actualizando team: ' + (d.message || 'Error desconocido'));
+      alert((window.i18n.t('drawer.err_actualizar_team') || 'Error actualizando team: {0}').replace('{0}', d.message || window.i18n.t('drawer.err_desconocido') || 'Error desconocido'));
     }
   } catch (err) {
     console.error('Error updateWorkerTeam', err);
@@ -2221,7 +2294,7 @@ window.editarEmpleado = async function(userId) {
   try {
     const res  = await apiFetch(`/api/usuarios/${userId}`);
     const json = await res.json();
-    if (!json.success || !json.data) return alert('No se pudo cargar el usuario.');
+    if (!json.success || !json.data) return alert(window.i18n.t('usuarios.err_cargar') || 'No se pudo cargar el usuario.');
     const u = json.data;
 
     // Build modal dynamically
@@ -2311,7 +2384,7 @@ window.editarEmpleado = async function(userId) {
       }
     };
   } catch (e) {
-    alert('Error cargando usuario.');
+    alert(window.i18n.t('usuarios.err_cargar') || 'Error cargando usuario.');
   }
 };
 
@@ -2319,7 +2392,7 @@ window.editarEmpleado = async function(userId) {
    EDIT ASSET MODAL (Global)
 ----------------------------------------- */
 window.editarActivo = async function(item) {
-  if (!item || !item.db_id) return alert('Sin ID de activo.');
+  if (!item || !item.db_id) return alert(window.i18n.t('drawer.sin_id') || 'Sin ID de activo.');
 
   let modal = document.getElementById('editAssetModal');
   if (modal) modal.remove();
@@ -2339,7 +2412,7 @@ window.editarActivo = async function(item) {
           <div class="modal-msg" id="editAssetMsg" style="display:none"></div>
           <div class="form-group"><label>Estado</label>
             <select id="editAssetEstado" class="form-input">
-              <option value="disponible" ${item.status==='disponible'?'selected':''}>Disponible</option>
+              <option value="disponible" ${item.status==='disponible' || !item.status ?'selected':''}>Disponible</option>
               <option value="en_uso" ${item.status==='en_uso'?'selected':''}>En Uso</option>
               <option value="en_mantenimiento" ${item.status==='en_mantenimiento'?'selected':''}>En Mantenimiento</option>
               <option value="calibracion_pendiente" ${item.status==='calibracion_pendiente'?'selected':''}>Calibración Pendiente</option>
@@ -2429,9 +2502,9 @@ async function cargarUbicaciones() {
       // Populate zona select in main register modal
       const zonaSelect = document.getElementById('modalZona');
       if (zonaSelect) {
-        zonaSelect.innerHTML = '<option value="">-- Seleccionar Zona --</option>';
+        zonaSelect.innerHTML = `<option value="" data-i18n="filter.todas_zonas">${window.i18n.t('filter.todas_zonas')}</option>`;
         json.data.forEach(ub => {
-          zonaSelect.innerHTML += `<option value="${ub.nombre_ubicacion}">${ub.nombre_ubicacion}</option>`;
+          zonaSelect.innerHTML += `<option value="${ub.id}">${ub.nombre_ubicacion}</option>`;
         });
       }
     }
@@ -2450,12 +2523,12 @@ if (btnCambiarPass) {
     const nueva = document.getElementById('segPassNueva').value;
     const conf = document.getElementById('segPassConfirmar').value;
 
-    if (!actual || !nueva || !conf) return alert("Llena todos los campos.");
-    if (nueva !== conf) return alert("Las contraseñas nuevas no coinciden.");
+    if (!actual || !nueva || !conf) return alert(window.i18n.t('seg.err_campos'));
+    if (nueva !== conf) return alert(window.i18n.t('seg.err_no_coinciden'));
 
     try {
       btnCambiarPass.disabled = true;
-      btnCambiarPass.textContent = "Actualizando...";
+      btnCambiarPass.textContent = window.i18n.t('seg.actualizando');
       const res = await apiFetch('/api/auth/change-password', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -2463,7 +2536,7 @@ if (btnCambiarPass) {
       });
       const json = await res.json();
       if (json.success) {
-        alert("Contraseña actualizada exitosamente.");
+        alert(window.i18n.t('seg.pass_ok'));
         document.getElementById('segPassActual').value = '';
         document.getElementById('segPassNueva').value = '';
         document.getElementById('segPassConfirmar').value = '';
@@ -2471,10 +2544,10 @@ if (btnCambiarPass) {
         alert("Error: " + (json.message || (json.error && json.error.message) || "No se pudo actualizar"));
       }
     } catch (e) {
-      alert("Error de red");
+      alert(window.i18n.t('seg.err_red'));
     } finally {
       btnCambiarPass.disabled = false;
-      btnCambiarPass.textContent = "Actualizar Contraseña";
+      btnCambiarPass.textContent = window.i18n.t('seg.btn_actualizar');
     }
   });
 }
@@ -2484,30 +2557,64 @@ if (btnSetup2FA) {
   btnSetup2FA.addEventListener('click', async () => {
     try {
       btnSetup2FA.disabled = true;
-      btnSetup2FA.textContent = "Cargando...";
+      btnSetup2FA.textContent = window.i18n.t('seg.2fa_loading') || 'Loading...';
       const res = await apiFetch('/api/auth/setup-2fa', { method: 'POST' });
       const json = await res.json();
       if (json.success && json.data) {
-        const token = prompt("Escanea este QR (se muestra en consola por ahora si no hay modal HTML) o guarda tu secreto. Ingresa el token de tu app aquí para verificar:");
-        if (token) {
-          const vRes = await apiFetch('/api/auth/verify-2fa', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ token })
-          });
-          const vJson = await vRes.json();
-          if (vJson.success) alert("2FA Activado correctamente.");
-          else alert("Token inválido.");
-        }
+        // Show 2FA modal with QR code
+        document.getElementById('twoFAQRImage').src = json.data.qrCode;
+        document.getElementById('twoFATokenInput').value = '';
+        document.getElementById('twoFAMsg').style.display = 'none';
+        document.getElementById('twoFAModalOverlay').classList.add('open');
       } else {
-        const errMsg = json.message || (json.error && json.error.message) || "Error al configurar 2FA.";
-        alert("Error: " + errMsg);
+        const errMsg = json.message || (json.error && json.error.message) || (window.i18n.t('seg.2fa_err') || 'Error setting up 2FA.');
+        alert(errMsg);
       }
     } catch(e) {
-      alert("Falla de red o dependencias faltantes en backend.");
+      alert(window.i18n.t('seg.2fa_net_err') || 'Network error or missing backend dependencies.');
     } finally {
       btnSetup2FA.disabled = false;
-      btnSetup2FA.textContent = "Configurar 2FA";
+      btnSetup2FA.textContent = window.i18n.t('seg.2fa_btn') || 'Setup 2FA';
+    }
+  });
+}
+
+// 2FA Modal handlers
+const twoFAOverlay = document.getElementById('twoFAModalOverlay');
+if (twoFAOverlay) {
+  document.getElementById('closeTwoFAModal')?.addEventListener('click', () => twoFAOverlay.classList.remove('open'));
+  document.getElementById('cancelTwoFABtn')?.addEventListener('click', () => twoFAOverlay.classList.remove('open'));
+  
+  document.getElementById('verifyTwoFABtn')?.addEventListener('click', async () => {
+    const token = document.getElementById('twoFATokenInput').value.trim();
+    const msgEl = document.getElementById('twoFAMsg');
+    if (!token || token.length !== 6) {
+      msgEl.textContent = window.i18n.t('seg.2fa_invalid_code') || 'Please enter a valid 6-digit code.';
+      msgEl.className = 'modal-msg error';
+      msgEl.style.display = 'block';
+      return;
+    }
+    try {
+      const vRes = await apiFetch('/api/auth/verify-2fa', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ token })
+      });
+      const vJson = await vRes.json();
+      if (vJson.success) {
+        msgEl.textContent = window.i18n.t('seg.2fa_activated') || '✓ 2FA activated successfully!';
+        msgEl.className = 'modal-msg success';
+        msgEl.style.display = 'block';
+        setTimeout(() => twoFAOverlay.classList.remove('open'), 2000);
+      } else {
+        msgEl.textContent = window.i18n.t('seg.2fa_invalid_token') || 'Invalid token. Please try again.';
+        msgEl.className = 'modal-msg error';
+        msgEl.style.display = 'block';
+      }
+    } catch(e) {
+      msgEl.textContent = window.i18n.t('drawer.err_red') || 'Network error.';
+      msgEl.className = 'modal-msg error';
+      msgEl.style.display = 'block';
     }
   });
 }
@@ -2780,3 +2887,196 @@ window.deleteZona = async function(id) {
         showToast('Error deleting zone', 'error');
     }
 };
+
+// ==========================================
+// BULK IMPORT LOGIC
+// ==========================================
+(function() {
+  const importModal = document.getElementById('importModalOverlay');
+  const btnOpen1 = document.getElementById('openImportModal');
+  const btnOpen2 = document.getElementById('openImportModal2');
+  const btnClose = document.getElementById('closeImportModal');
+  const btnCancel = document.getElementById('cancelImportModal');
+  const fileInput = document.getElementById('importFileInput');
+  const previewArea = document.getElementById('importPreviewArea');
+  const previewBody = document.getElementById('importPreviewBody');
+  const submitBtn = document.getElementById('submitImportBtn');
+  const msgEl = document.getElementById('importMsg');
+
+  let parsedItems = [];
+
+  const resetModal = () => {
+    fileInput.value = '';
+    parsedItems = [];
+    previewArea.style.display = 'none';
+    previewBody.innerHTML = '';
+    submitBtn.disabled = true;
+    msgEl.style.display = 'none';
+    msgEl.className = 'modal-msg';
+  };
+
+  const openImport = () => {
+    resetModal();
+    importModal.classList.add('open');
+  };
+
+  const closeImport = () => {
+    importModal.classList.remove('open');
+  };
+
+  if (btnOpen1) btnOpen1.addEventListener('click', openImport);
+  if (btnOpen2) btnOpen2.addEventListener('click', openImport);
+  if (btnClose) btnClose.addEventListener('click', closeImport);
+  if (btnCancel) btnCancel.addEventListener('click', closeImport);
+
+  // Parse Excel/CSV
+  if (fileInput) {
+    fileInput.addEventListener('change', function(e) {
+      const file = e.target.files[0];
+      if (!file) {
+        resetModal();
+        return;
+      }
+
+      msgEl.style.display = 'none';
+      const reader = new FileReader();
+      reader.onload = function(evt) {
+        try {
+          const data = evt.target.result;
+          const workbook = XLSX.read(data, { type: 'binary' });
+          const firstSheetName = workbook.SheetNames[0];
+          const worksheet = workbook.Sheets[firstSheetName];
+          const jsonRaw = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+          
+          if (jsonRaw.length < 2) {
+            throw new Error(window.i18n.t('import.err_empty') || 'El archivo está vacío o no tiene datos válidos.');
+          }
+
+          const headers = jsonRaw[0].map(h => String(h).toLowerCase().trim());
+          const rows = jsonRaw.slice(1);
+
+          // Find column indexes
+          const idxId = headers.findIndex(h => h.includes('inventory') || h.includes('inventario') || h === 'id' || h.includes('código') || h.includes('codigo'));
+          const idxDesc = headers.findIndex(h => h.includes('equipment') || h.includes('equipo') || h.includes('desc'));
+          const idxSerial = headers.findIndex(h => h.includes('serial'));
+          const idxZona = headers.findIndex(h => h.includes('zone') || h.includes('zona'));
+          const idxTeam = headers.findIndex(h => h.includes('team') || h.includes('equipo')); // Be careful if team and equipment match
+          const idxStatus = headers.findIndex(h => h.includes('status') || h.includes('estado'));
+
+          if (idxId === -1 || idxDesc === -1) {
+            throw new Error(window.i18n.t('import.err_headers') || 'Faltan columnas requeridas (Inventory No. y Description).');
+          }
+
+          parsedItems = [];
+          previewBody.innerHTML = '';
+          
+          let hasErrors = false;
+
+          rows.forEach((row, i) => {
+            if (!row || row.length === 0 || !row[idxId] || !row[idxDesc]) return; // Skip empty/invalid rows
+
+            const item = {
+              id: String(row[idxId]).trim(),
+              description: String(row[idxDesc]).trim(),
+              serial_number: row[idxSerial] ? String(row[idxSerial]).trim() : null,
+              status: row[idxStatus] ? String(row[idxStatus]).trim().toLowerCase().replace(' ', '_') : 'disponible'
+            };
+
+            // Map Zona (string to UUID)
+            const zonaName = row[idxZona] ? String(row[idxZona]).trim().toLowerCase() : null;
+            if (zonaName && window.ubicacionesData) {
+              const u = window.ubicacionesData.find(ub => ub.nombre_ubicacion.toLowerCase() === zonaName);
+              if (u) item.ubicacion_id = u.id;
+            }
+
+            // Map Team (string to UUID)
+            const teamName = row[idxTeam] && idxTeam !== idxDesc ? String(row[idxTeam]).trim().toLowerCase() : null;
+            if (teamName && window.teamsList) {
+              const t = window.teamsList.find(tm => tm.name.toLowerCase() === teamName);
+              if (t) item.team_id = t.id;
+            }
+
+            parsedItems.push(item);
+
+            // Add to preview
+            if (i < 10) { // Limit preview to 10 rows
+              const tr = document.createElement('tr');
+              tr.innerHTML = `
+                <td>${item.id}</td>
+                <td>${item.description}</td>
+                <td>${row[idxZona] || '-'}</td>
+              `;
+              previewBody.appendChild(tr);
+            }
+          });
+
+          if (parsedItems.length > 10) {
+             const tr = document.createElement('tr');
+             tr.innerHTML = `<td colspan="3" style="text-align:center; color:var(--text-3);">+ ${parsedItems.length - 10} ${window.i18n.t('import.mas_filas') || 'filas más...'}</td>`;
+             previewBody.appendChild(tr);
+          }
+
+          if (parsedItems.length > 0) {
+            previewArea.style.display = 'block';
+            submitBtn.disabled = false;
+            msgEl.className = 'modal-msg success';
+            msgEl.textContent = (window.i18n.t('import.listo') || 'Archivo escaneado. ') + parsedItems.length + ' filas listas.';
+            msgEl.style.display = 'block';
+          } else {
+            throw new Error(window.i18n.t('import.err_no_valid') || 'No se encontraron filas válidas con ID y Descripción.');
+          }
+
+        } catch(err) {
+          msgEl.className = 'modal-msg error';
+          msgEl.textContent = err.message;
+          msgEl.style.display = 'block';
+          submitBtn.disabled = true;
+          previewArea.style.display = 'none';
+        }
+      };
+      reader.readAsBinaryString(file);
+    });
+  }
+
+  if (submitBtn) {
+    submitBtn.addEventListener('click', async () => {
+      if (parsedItems.length === 0) return;
+      
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> ' + (window.i18n.t('import.importando') || 'Importando...');
+      msgEl.style.display = 'none';
+
+      try {
+        const res = await apiFetch('/api/activos/bulk', {
+          method: 'POST',
+          body: JSON.stringify({ items: parsedItems })
+        });
+        const data = await res.json();
+        
+        if (data.success) {
+          msgEl.className = 'modal-msg success';
+          msgEl.textContent = data.message || `Importación exitosa.`;
+          msgEl.style.display = 'block';
+          
+          setTimeout(() => {
+            closeImport();
+            window.cargarInventario && window.cargarInventario();
+          }, 1500);
+        } else {
+          msgEl.className = 'modal-msg error';
+          msgEl.textContent = data.message || 'Error en la importación.';
+          msgEl.style.display = 'block';
+          submitBtn.disabled = false;
+          submitBtn.innerHTML = '<i class="fa-solid fa-cloud-arrow-up"></i> ' + (window.i18n.t('import.btn_upload') || 'Import Data');
+        }
+      } catch (err) {
+        msgEl.className = 'modal-msg error';
+        msgEl.textContent = window.i18n.t('modal.err_conexion') || 'Error de conexión al servidor.';
+        msgEl.style.display = 'block';
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = '<i class="fa-solid fa-cloud-arrow-up"></i> ' + (window.i18n.t('import.btn_upload') || 'Import Data');
+      }
+    });
+  }
+})();
+

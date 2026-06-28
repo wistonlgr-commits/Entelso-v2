@@ -535,7 +535,7 @@
                                 <strong style="font-size: 14px;"data-i18n="seg.2fa_label">2FA Authentication</strong>
                                 <span style="color: var(--accent-yellow); font-size: 12px; font-weight: bold;"data-i18n="seg.2fa_desactivado">Disabled</span>
                             </div>
-                            <div style="font-size: 12px; color: var(--text-2); margin-bottom: 12px;">Protege tu cuenta con un código temporal desde tu app de autenticación (Google Authenticator).</div>
+                            <div style="font-size: 12px; color: var(--text-2); margin-bottom: 12px;" data-i18n="seg.2fa_desc">Protect your account with a temporary code from your authenticator app (Google Authenticator).</div>
                             <button id="btnSetup2FA" class="btn-ghost" style="width: 100%; font-size: 13px;" data-i18n="seg.2fa_btn">Setup 2FA</button>
                         </div>
 
@@ -689,6 +689,7 @@
         <div style="text-align: center; margin-top: 16px;">
             <img id="drawerQRCode" src="" alt="QR Code" style="display:none; width: 120px; height: 120px; border-radius: 8px; border: 1px solid var(--border); padding: 4px; background: white;">
             <button id="btnPrintQR" class="btn-ghost" style="display:none; margin: 8px auto 0 auto; font-size: 12px; padding: 4px 12px;"data-i18n="drawer.imprimir_qr">Print QR</button>
+            <button id="btnDownloadQR" class="btn-ghost" style="display:none; margin: 4px auto 0 auto; font-size: 12px; padding: 4px 12px;" data-i18n="drawer.descargar_qr">Download QR</button>
         </div>
         <!-- Equipment detail cards -->
         <div class="drawer-meta" id="drawerMeta"></div>
@@ -811,6 +812,13 @@
                     <option value="calibrado" data-i18n="estado.calibrado">Calibrado</option>
                     <option value="danado" data-i18n="estado.danado">Dañado</option>
                 </select>
+            </div>
+        </div>
+        <div id="modalQRContainer" style="text-align: center; margin-top: 16px; display: none;">
+            <img id="modalQRCode" src="" alt="QR Code" style="width: 120px; height: 120px; border-radius: 8px; border: 1px solid var(--border); padding: 4px; background: white;">
+            <div style="display: flex; gap: 8px; justify-content: center; margin-top: 8px;">
+                <button id="modalBtnPrintQR" class="btn-ghost" style="font-size: 12px; padding: 4px 12px;" data-i18n="drawer.imprimir_qr">Print QR</button>
+                <button id="modalBtnDownloadQR" class="btn-ghost" style="font-size: 12px; padding: 4px 12px;" data-i18n="drawer.descargar_qr">Download QR</button>
             </div>
         </div>
         <div class="modal-footer">
@@ -957,6 +965,29 @@
             </div>
         </div>
     </div>
+
+<!-- Modal: 2FA Setup -->
+<div class="modal-overlay" id="twoFAModalOverlay">
+    <div class="modal" style="max-width: 420px;">
+        <div class="modal-header">
+            <h3 data-i18n="seg.2fa_setup_title">Setup Two-Factor Authentication</h3>
+            <button class="close-btn" id="closeTwoFAModal"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="modal-body" style="text-align: center;">
+            <p data-i18n="seg.2fa_setup_desc" style="color: var(--text-2); margin-bottom: 16px; font-size: 13px;">Scan the QR code below with your authenticator app (Google Authenticator, Authy, etc.), then enter the 6-digit code to verify.</p>
+            <img id="twoFAQRImage" src="" alt="2FA QR Code" style="width: 200px; height: 200px; border-radius: 8px; border: 1px solid var(--border); padding: 8px; background: white; margin-bottom: 16px;">
+            <div class="form-group" style="max-width: 200px; margin: 0 auto;">
+                <label data-i18n="seg.2fa_token_label">Verification Code</label>
+                <input type="text" id="twoFATokenInput" class="form-input" placeholder="000000" maxlength="6" style="text-align: center; font-size: 20px; letter-spacing: 8px;">
+            </div>
+            <div id="twoFAMsg" class="modal-msg" style="display: none; margin-top: 12px;"></div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn-ghost" id="cancelTwoFABtn" data-i18n="modal.cancelar">Cancel</button>
+            <button class="btn-primary" id="verifyTwoFABtn"><i class="fa-solid fa-shield-halved"></i> <span data-i18n="seg.2fa_verify_btn">Verify & Activate</span></button>
+        </div>
+    </div>
+</div>
 
 </body>
 </html>

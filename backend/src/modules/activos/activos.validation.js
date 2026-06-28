@@ -10,10 +10,12 @@ const noConflicto = (data) => !(data.usuario_actual_id && data.ubicacion_actual_
 const conflictMsg  = { message: 'No puede asignarse usuario y ubicación al mismo tiempo.', path: ['usuario_actual_id'] };
 
 exports.createAssetSchema = z.object({
-  item_id: z.number().int().positive(),
+  item_id: z.number().int().positive().optional().nullable(),
+  descripcion: z.string().optional(),
   numero_serie: z.string().min(2).max(100),
   usuario_actual_id:   z.number().int().positive().nullable().optional(),
   ubicacion_actual_id: z.number().int().positive().nullable().optional(),
+  team: z.string().nullable().optional(),
   fecha_ultima_cali: fecha, fecha_prox_cali: fecha,
   fecha_ultimo_tag:  fecha, fecha_prox_tag:  fecha,
   estado: estadoEnum.default('disponible'),
@@ -22,6 +24,7 @@ exports.createAssetSchema = z.object({
 exports.updateAssetSchema = z.object({
   usuario_actual_id:   z.number().int().positive().nullable().optional(),
   ubicacion_actual_id: z.number().int().positive().nullable().optional(),
+  team: z.string().nullable().optional(),
   fecha_ultima_cali: fecha, fecha_prox_cali: fecha,
   fecha_ultimo_tag:  fecha, fecha_prox_tag:  fecha,
   estado: estadoEnum.optional(),
