@@ -42,8 +42,26 @@ class IngestService {
     const { numero_inventario, equipo, zona, team, status } = parsed;
 
     // Normalizar y validar el estado recibido del bot
-    const dbStatus = ESTADOS_VALIDOS.has(status?.toLowerCase?.().trim())
-      ? status.toLowerCase().trim()
+    let rawStatus = status?.toLowerCase?.().trim() || '';
+    
+    // Mapear traducciones del LLM (inglés) a estados válidos (español)
+    const statusMap = {
+      'available': 'disponible',
+      'in use': 'en_uso',
+      'maintenance': 'en_mantenimiento',
+      'under maintenance': 'en_mantenimiento',
+      'damaged': 'danado',
+      'broken': 'danado',
+      'out of service': 'fuera_de_servicio',
+      'calibration pending': 'calibracion_pendiente',
+      'pending calibration': 'calibracion_pendiente',
+      'calibrated': 'calibrado'
+    };
+    
+    let normalizedStatus = statusMap[rawStatus] || rawStatus;
+    
+    const dbStatus = ESTADOS_VALIDOS.has(normalizedStatus)
+      ? normalizedStatus
       : 'desconocido'; // fallback seguro si Gemini manda algo inesperado
 
     const client = await db.pool.connect();
