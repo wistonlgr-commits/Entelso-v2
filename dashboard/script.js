@@ -2322,38 +2322,39 @@ window.editarEmpleado = async function(userId) {
       const div = document.createElement('div');
       div.innerHTML = `
         <div class="modal-overlay open" id="editUserModal" style="z-index:9999">
-          <div class="modal" style="max-width:440px">
-            <div class="modal-header">
-              <span>Editar Usuario</span>
-              <button class="icon-btn" onclick="document.getElementById('editUserModal').remove()"><i class="fa-solid fa-xmark"></i></button>
-            </div>
-            <div class="modal-body">
-              <div class="modal-msg" id="editUserMsg" style="display:none"></div>
-              <div class="form-group"><label>Nombre</label><input type="text" id="editUserNombre" class="form-input"></div>
-              <div class="form-group"><label>Email</label><input type="email" id="editUserEmail" class="form-input"></div>
-              <div class="form-group"><label>Team</label>
-                <select id="editUserTeam" class="form-input"></select>
+            <div class="modal" style="max-width:440px">
+              <div class="modal-header">
+                <span data-i18n="usuarios.edit_title">${window.i18n.t('usuarios.edit_title') || 'Editar Usuario'}</span>
+                <button class="icon-btn" onclick="document.getElementById('editUserModal').remove()"><i class="fa-solid fa-xmark"></i></button>
               </div>
-              <div class="form-group"><label>Rol</label>
-                <select id="editUserRol" class="form-input">
-                  <option value="trabajador">Trabajador</option>
-                  <option value="supervisor">Supervisor</option>
-                  <option value="almacen">Almacén</option>
-                  <option value="admin">Admin</option>
-                </select>
+              <div class="modal-body">
+                <div class="modal-msg" id="editUserMsg" style="display:none"></div>
+                <div class="form-group"><label data-i18n="usuarios.edit_name">${window.i18n.t('usuarios.edit_name') || 'Nombre'}</label><input type="text" id="editUserNombre" class="form-input"></div>
+                <div class="form-group"><label data-i18n="usuarios.edit_email">${window.i18n.t('usuarios.edit_email') || 'Email'}</label><input type="email" id="editUserEmail" class="form-input"></div>
+                <div class="form-group"><label data-i18n="usuarios.edit_team">${window.i18n.t('usuarios.edit_team') || 'Team'}</label>
+                  <select id="editUserTeam" class="form-input"></select>
+                </div>
+                <div class="form-group"><label data-i18n="usuarios.edit_rol">${window.i18n.t('usuarios.edit_rol') || 'Rol'}</label>
+                  <select id="editUserRol" class="form-input">
+                    <option value="trabajador">${window.i18n.t('usuarios.edit_rol_trabajador') || 'Trabajador'}</option>
+                    <option value="supervisor">${window.i18n.t('usuarios.edit_rol_supervisor') || 'Supervisor'}</option>
+                    <option value="almacen">${window.i18n.t('usuarios.edit_rol_almacen') || 'Almacén'}</option>
+                    <option value="admin">${window.i18n.t('usuarios.edit_rol_admin') || 'Admin'}</option>
+                  </select>
+                </div>
+                <div class="form-group" style="display:flex; align-items:center; gap:8px;">
+                  <input type="checkbox" id="editUserTerreno">
+                  <label for="editUserTerreno" style="margin:0; font-size:13px; font-weight:normal;" data-i18n="usuarios.edit_terreno">${window.i18n.t('usuarios.edit_terreno') || 'Empleado en terreno (Manual)'}</label>
+                </div>
+                <div class="form-group"><label data-i18n="usuarios.edit_pin">${window.i18n.t('usuarios.edit_pin') || 'Nuevo PIN / Contraseña (dejar vacío para no cambiar)'}</label><input type="password" id="editUserPin" class="form-input" placeholder="${window.i18n.t('usuarios.edit_pin_ph') || 'Mínimo 4 caracteres'}"></div>
               </div>
-              <div class="form-group" style="display:flex; align-items:center; gap:8px;">
-                <input type="checkbox" id="editUserTerreno">
-                <label for="editUserTerreno" style="margin:0; font-size:13px; font-weight:normal;">Empleado en terreno (Manual)</label>
+              <div class="modal-footer">
+                <button class="btn-ghost" onclick="document.getElementById('editUserModal').remove()" data-i18n="modal.cancelar">${window.i18n.t('modal.cancelar') || 'Cancelar'}</button>
+                <button class="btn-primary" id="btnSaveEditUser" data-i18n="modal.guardar">${window.i18n.t('modal.guardar') || 'Guardar Cambios'}</button>
               </div>
-              <div class="form-group"><label>Nuevo PIN / Contraseña (dejar vacío para no cambiar)</label><input type="password" id="editUserPin" class="form-input" placeholder="Mínimo 4 caracteres"></div>
-            </div>
-            <div class="modal-footer">
-              <button class="btn-ghost" onclick="document.getElementById('editUserModal').remove()">Cancelar</button>
-              <button class="btn-primary" id="confirmEditUserBtn">Guardar Cambios</button>
             </div>
           </div>
-        </div>`;
+        `;
       modal = div.firstElementChild;
       document.body.appendChild(modal);
     }
