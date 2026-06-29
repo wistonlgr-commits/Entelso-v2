@@ -1120,10 +1120,10 @@ function inicializarPerfil() {
           
         } else {
           const errorMsg = json.message || (json.error && json.error.message) || JSON.stringify(json.error) || 'Unknown';
-          alert((window.i18n.t('api.error_prefix') || 'Error: ') + errorMsg);
+          window.customAlert((window.i18n.t('api.error_prefix') || 'Error: ') + errorMsg);
         }
       } catch (e) {
-        alert(window.i18n.t('perfil.err_guardar') || 'Error saving profile');
+        window.customAlert(window.i18n.t('perfil.err_guardar') || 'Error saving profile');
       } finally {
         btnGuardarPerfil.disabled = false;
         btnGuardarPerfil.textContent = t('perfil.guardar');
@@ -1185,17 +1185,17 @@ function inicializarPerfil() {
   }
 
   window.eliminarUsuario = async function(id) {
-    if (!confirm((window.i18n.t('usuarios.confirm_delete') || '¿Eliminar usuario {0}?').replace('{0}', id))) return;
+    if (!await window.customConfirm((window.i18n.t('usuarios.confirm_delete') || '¿Eliminar usuario {0}?').replace('{0}', id))) return;
     try {
       const res = await apiFetch(`/api/usuarios/${id}`, { method: 'DELETE' });
       if (res.ok) {
-        alert(window.i18n.t('usuarios.eliminado') || "Usuario eliminado");
+        window.customAlert(window.i18n.t('usuarios.eliminado') || "Usuario eliminado");
         cargarUsuariosAdministracion();
         cargarUsuarios();
       } else {
-        alert(window.i18n.t('usuarios.err_eliminar') || "Error al eliminar");
+        window.customAlert(window.i18n.t('usuarios.err_eliminar') || "Error al eliminar");
       }
-    } catch(e) { alert(window.i18n.t('seg.err_red') || "Error de red"); }
+    } catch(e) { window.customAlert(window.i18n.t('seg.err_red') || "Error de red"); }
   };
 
   // Add User Modal
@@ -1341,7 +1341,7 @@ window.openDrawerAsset = function(id) {
     document.querySelector('.nav-item[data-view="inventario"]')?.classList.add('active');
     openDrawer(asset);
   } else {
-    alert(window.i18n.t('drawer.no_encontrado') || "No se encontró el equipo en el inventario.");
+    window.customAlert(window.i18n.t('drawer.no_encontrado') || "No se encontró el equipo en el inventario.");
   }
 };
 
@@ -1999,14 +1999,14 @@ window.simularIngresoEquipo = function(equipo, estado = 'disponible', zona = 'VI
   
   const msgTemplate = window.i18n.t('simulacion.exito') || `¡Simulación Exitosa!\n\nSe ha detectado un nuevo reporte:\nID: {id}\nEquipo: {equipo}\nEstado: {estado}\n\nLos paneles, KPIs y tablas se han actualizado automáticamente.`;
 const msg = msgTemplate.replace('{id}', newId).replace('{equipo}', newItem.equipo).replace('{estado}', estado);
-  alert(msg);
+  window.customAlert(msg);
 
   return msg;
 };
 
 // Exponer la funcion global para el boton de mantenimiento
 window.marcarMantenimientoAtendido = async function(id) {
-  if (!confirm(`¿Estás seguro de marcar el equipo ${id} como atendido/disponible?`)) return;
+  if (!await window.customConfirm(`¿Estás seguro de marcar el equipo ${id} como atendido/disponible?`)) return;
   try {
     const act = inventoryData.find(a => a.id === id);
     if (!act) return;
@@ -2020,13 +2020,13 @@ window.marcarMantenimientoAtendido = async function(id) {
       });
     }
 
-    alert((window.i18n.t('maint.atendido_ok') || "Equipo {0} marcado como atendido con éxito.").replace('{0}', id));
+    window.customAlert((window.i18n.t('maint.atendido_ok') || "Equipo {0} marcado como atendido con éxito.").replace('{0}', id));
     // Recargar vista desde backend real
     await cargarActivos();
     
   } catch (err) {
     console.error('Error al marcar atendido:', err);
-    alert(window.i18n.t('maint.err_atendido') || 'Error al marcar el equipo como atendido.');
+    window.customAlert(window.i18n.t('maint.err_atendido') || 'Error al marcar el equipo como atendido.');
   }
 };
 
@@ -2104,7 +2104,7 @@ if (confirmExportBtn) {
 
 function exportarExcel() {
   if (typeof XLSX === 'undefined') {
-    alert(window.i18n.t('drawer.err_red') || "Librería de Excel no disponible.");
+    window.customAlert(window.i18n.t('drawer.err_red') || "Librería de Excel no disponible.");
     return;
   }
   const dataToExport = window.currentFilteredData || inventoryData;
@@ -2233,12 +2233,12 @@ if (openManageCategoriesBtn && catDropdownContainer) {
 }
 
 window.eliminarActivo = async function(db_id) {
-    if(!confirm(window.i18n.t('drawer.confirm_delete') || '¿Seguro que desea eliminar el activo?')) return;
+    if(!await window.customConfirm(window.i18n.t('drawer.confirm_delete') || '¿Seguro que desea eliminar el activo?')) return;
     try {
         await apiFetch(`/api/activos/${db_id}`, { method: 'DELETE' });
-        alert(window.i18n.t('drawer.eliminado') || "Eliminado");
+        window.customAlert(window.i18n.t('drawer.eliminado') || "Eliminado");
         await cargarActivos();
-    } catch(e) { alert(window.i18n.t('drawer.err_eliminar') || "Error eliminando"); }
+    } catch(e) { window.customAlert(window.i18n.t('drawer.err_eliminar') || "Error eliminando"); }
 };
 
 window.actualizarEstadoHerramienta = async function(db_id, newState) {
@@ -2249,9 +2249,9 @@ window.actualizarEstadoHerramienta = async function(db_id, newState) {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ estado: newState })
         });
-        alert(window.i18n.t('drawer.estado_ok') || "Estado actualizado");
+        window.customAlert(window.i18n.t('drawer.estado_ok') || "Estado actualizado");
         await cargarActivos();
-    } catch(e) { alert(window.i18n.t('drawer.err_actualizar') || "Error actualizando"); }
+    } catch(e) { window.customAlert(window.i18n.t('drawer.err_actualizar') || "Error actualizando"); }
 };
 
 const saveCategoryBtn = document.getElementById('saveCategoryBtn');
@@ -2298,7 +2298,7 @@ async function updateWorkerTeam(userId, newTeam) {
     });
     if (!res.ok) {
       const d = await res.json();
-      alert((window.i18n.t('drawer.err_actualizar_team') || 'Error actualizando team: {0}').replace('{0}', d.message || window.i18n.t('drawer.err_desconocido') || 'Error desconocido'));
+      window.customAlert((window.i18n.t('drawer.err_actualizar_team') || 'Error actualizando team: {0}').replace('{0}', d.message || window.i18n.t('drawer.err_desconocido') || 'Error desconocido'));
     }
   } catch (err) {
     console.error('Error updateWorkerTeam', err);
@@ -2313,7 +2313,7 @@ window.editarEmpleado = async function(userId) {
   try {
     const res  = await apiFetch(`/api/usuarios/${userId}`);
     const json = await res.json();
-    if (!json.success || !json.data) return alert(window.i18n.t('usuarios.err_cargar') || 'No se pudo cargar el usuario.');
+    if (!json.success || !json.data) return window.customAlert(window.i18n.t('usuarios.err_cargar') || 'No se pudo cargar el usuario.');
     const u = json.data;
 
     // Build modal dynamically
@@ -2403,7 +2403,7 @@ window.editarEmpleado = async function(userId) {
       }
     };
   } catch (e) {
-    alert(window.i18n.t('usuarios.err_cargar') || 'Error cargando usuario.');
+    window.customAlert(window.i18n.t('usuarios.err_cargar') || 'Error cargando usuario.');
   }
 };
 
@@ -2411,7 +2411,7 @@ window.editarEmpleado = async function(userId) {
    EDIT ASSET MODAL (Global)
 ----------------------------------------- */
 window.editarActivo = async function(item) {
-  if (!item || !item.db_id) return alert(window.i18n.t('drawer.sin_id') || 'Sin ID de activo.');
+  if (!item || !item.db_id) return window.customAlert(window.i18n.t('drawer.sin_id') || 'Sin ID de activo.');
 
   let modal = document.getElementById('editAssetModal');
   if (modal) modal.remove();
@@ -2542,8 +2542,8 @@ if (btnCambiarPass) {
     const nueva = document.getElementById('segPassNueva').value;
     const conf = document.getElementById('segPassConfirmar').value;
 
-    if (!actual || !nueva || !conf) return alert(window.i18n.t('seg.err_campos'));
-    if (nueva !== conf) return alert(window.i18n.t('seg.err_no_coinciden'));
+    if (!actual || !nueva || !conf) return window.customAlert(window.i18n.t('seg.err_campos'));
+    if (nueva !== conf) return window.customAlert(window.i18n.t('seg.err_no_coinciden'));
 
     try {
       btnCambiarPass.disabled = true;
@@ -2555,15 +2555,15 @@ if (btnCambiarPass) {
       });
       const json = await res.json();
       if (json.success) {
-        alert(window.i18n.t('seg.pass_ok'));
+        window.customAlert(window.i18n.t('seg.pass_ok'));
         document.getElementById('segPassActual').value = '';
         document.getElementById('segPassNueva').value = '';
         document.getElementById('segPassConfirmar').value = '';
       } else {
-        alert((window.i18n.t('api.error_prefix') || 'Error: ') + (json.message || (json.error && json.error.message) || "No se pudo actualizar"));
+        window.customAlert((window.i18n.t('api.error_prefix') || 'Error: ') + (json.message || (json.error && json.error.message) || "No se pudo actualizar"));
       }
     } catch (e) {
-      alert(window.i18n.t('seg.err_red'));
+      window.customAlert(window.i18n.t('seg.err_red'));
     } finally {
       btnCambiarPass.disabled = false;
       btnCambiarPass.textContent = window.i18n.t('seg.btn_actualizar');
@@ -2587,10 +2587,10 @@ if (btnSetup2FA) {
         document.getElementById('twoFAModalOverlay').classList.add('open');
       } else {
         const errMsg = json.message || (json.error && json.error.message) || (window.i18n.t('seg.2fa_err') || 'Error setting up 2FA.');
-        alert(errMsg);
+        window.customAlert(errMsg);
       }
     } catch(e) {
-      alert(window.i18n.t('seg.2fa_net_err') || 'Network error or missing backend dependencies.');
+      window.customAlert(window.i18n.t('seg.2fa_net_err') || 'Network error or missing backend dependencies.');
     } finally {
       btnSetup2FA.disabled = false;
       btnSetup2FA.textContent = window.i18n.t('seg.2fa_btn') || 'Setup 2FA';
@@ -2705,7 +2705,7 @@ if (teamsOverlay) {
                 await loadTeams();
     loadZonas();
             } else {
-                alert(json.message);
+                window.customAlert(json.message);
             }
         } catch (e) {
             console.error(e);
@@ -2729,7 +2729,7 @@ function renderManageTeams() {
 }
 
 window.deleteTeam = async function(id) {
-    if (!confirm(window.i18n.t('teams.confirm_delete') || 'Delete this team?')) return;
+    if (!await window.customConfirm(window.i18n.t('teams.confirm_delete') || 'Delete this team?')) return;
     try {
         const res = await apiFetch('/api/teams/' + id, { method: 'DELETE' });
         const json = await res.json();
@@ -2737,7 +2737,7 @@ window.deleteTeam = async function(id) {
             await loadTeams();
     loadZonas();
         } else {
-            alert(json.message);
+            window.customAlert(json.message);
         }
     } catch (e) {
         console.error(e);
@@ -2792,7 +2792,7 @@ if (document.getElementById('bulkDeleteConfirmBtn')) {
             const json = await res.json();
             
             if (json.success) {
-                alert((window.i18n.t('api.success') || 'Success: ') + json.message);
+                window.customAlert((window.i18n.t('api.success') || 'Success: ') + json.message);
                 document.getElementById('bulkDeleteOverlay').classList.remove('open');
                 if (currentBulkMode === 'activos') {
                     if(window.loadInventory) await window.loadInventory();
@@ -2800,11 +2800,11 @@ if (document.getElementById('bulkDeleteConfirmBtn')) {
                     if(window.loadUsuarios) await window.loadUsuarios();
                 }
             } else {
-                alert((window.i18n.t('api.error_prefix') || 'Error: ') + json.message);
+                window.customAlert((window.i18n.t('api.error_prefix') || 'Error: ') + json.message);
             }
         } catch (e) {
             console.error(e);
-            alert(window.i18n.t('bulk.err_delete') || 'Error during bulk delete');
+            window.customAlert(window.i18n.t('bulk.err_delete') || 'Error during bulk delete');
         } finally {
             btn.disabled = false;
             btn.textContent = 'Delete All';
@@ -2892,7 +2892,7 @@ if (document.getElementById('btnCreateZona')) {
 }
 
 window.deleteZona = async function(id) {
-    if (!confirm(window.i18n.t('zonas.confirm_delete') || 'Are you sure you want to delete this zone?')) return;
+    if (!await window.customConfirm(window.i18n.t('zonas.confirm_delete') || 'Are you sure you want to delete this zone?')) return;
     try {
         const res = await apiFetch(`/api/ubicaciones/${id}`, { method: 'DELETE' });
         const json = await res.json();

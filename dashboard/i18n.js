@@ -248,7 +248,15 @@ const TRANSLATIONS = {
     'alertas.gravedad':     'Severity',
     'alertas.equipo_zona':  'Equipment / Zone',
     'alertas.reportado':    'Reported',
-    'alertas.accion':       'Action',
+    'alertas.accion': 'Action',
+    'alertas.vencida': 'Calibration Expired',
+    'alertas.fuera_zona': 'Out of Zone',
+    'alertas.resolver': 'Resolve',
+    'modal.ok': 'OK',
+    'modal.cancelar': 'Cancel',
+    'modal.aviso': 'Notice',
+    'modal.confirmar': 'Confirm',
+
 
     // ── Seguridad ──
     'seg.titulo':          'Security & Password',
@@ -611,7 +619,15 @@ const TRANSLATIONS = {
     'alertas.gravedad':     'Gravedad',
     'alertas.equipo_zona':  'Equipo / Zona',
     'alertas.reportado':    'Reportado',
-    'alertas.accion':       'Acción',
+    'alertas.accion': 'Acción',
+    'alertas.vencida': 'Calibración Vencida',
+    'alertas.fuera_zona': 'Fuera de Zona',
+    'alertas.resolver': 'Resolver',
+    'modal.ok': 'OK',
+    'modal.cancelar': 'Cancelar',
+    'modal.aviso': 'Aviso',
+    'modal.confirmar': 'Confirmar',
+
 
     // ── Seguridad ──
     'seg.titulo':          'Seguridad y Contraseña',
