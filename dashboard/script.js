@@ -1372,7 +1372,7 @@ async function openDrawer(item) {
     { label: window.i18n.t('drawer.meta_serie'),   value: item.serie || item.id || '—' },
     { label: window.i18n.t('drawer.meta_tipo'),    value: item.tipo_item || '—' },
     { label: window.i18n.t('drawer.meta_zona'),    value: item.zona || '—' },
-    { label: window.i18n.t('drawer.meta_estado'),  value: (item.status || '').replace(/_/g,' ') || '—' },
+    { label: window.i18n.t('drawer.meta_estado'),  value: window.i18n.t('estado.' + item.status) || (item.status || '').replace(/_/g,' ') || '—' },
     { label: window.i18n.t('drawer.meta_cal'),     value: formatearFecha(item.calibracion) },
     { label: window.i18n.t('drawer.meta_tag'),     value: formatearFecha(item.tag) },
     { label: window.i18n.t('drawer.meta_asignado'),value: item.asignado || '—' },
