@@ -681,7 +681,25 @@ function renderizarZonas() {
 /* ─────────────────────────────────────────
    RENDER: ALERTAS
 ───────────────────────────────────────── */
+
+window.tieneAlerta = function(a) {
+  if (['calibracion_pendiente','fuera_de_servicio','danado','en_mantenimiento'].includes(a.status)) return true;
+  const today = new Date();
+  let hasAlert = false;
+  const checkDate = (dateStr) => {
+    if (dateStr && dateStr !== '—') {
+      const d = new Date(dateStr);
+      const diffDays = Math.ceil((d - today) / (1000 * 60 * 60 * 24));
+      if (diffDays <= 30) hasAlert = true;
+    }
+  };
+  checkDate(a.calibracion);
+  checkDate(a.tag);
+  return hasAlert;
+};
+
 function renderizarAlertas(data) {
+
   const tbody = document.getElementById('alertsTableBody');
   if (!tbody) return;
   tbody.innerHTML = '';
@@ -721,7 +739,7 @@ function renderizarAlertas(data) {
           }
           alertasGeneradas.push({
             id: a.id,
-            equipo: `${label} en ${diffDays} días`,
+            equipo: window.i18n.t('alertas.en_dias') ? window.i18n.t('alertas.en_dias').replace('{label}', window.i18n.t(label) || label).replace('{days}', diffDays) : `${label} en ${diffDays} días`,
             zona: a.zona,
             status: a.status,
             fecha: dateStr,
@@ -731,7 +749,7 @@ function renderizarAlertas(data) {
         } else if (diffDays <= 0) {
           alertasGeneradas.push({
             id: a.id,
-            equipo: `${label} Vencida`,
+            equipo: window.i18n.t('alertas.vencida') ? window.i18n.t('alertas.vencida').replace('{label}', window.i18n.t(label) || label) : `${label} Vencida`,
             zona: a.zona,
             status: a.status,
             fecha: dateStr,
@@ -742,8 +760,8 @@ function renderizarAlertas(data) {
       }
     };
 
-    checkDate(a.calibracion, 'Calibración');
-    checkDate(a.tag, 'Tag');
+    checkDate(a.calibracion, 'alertas.calibracion');
+    checkDate(a.tag, 'alertas.tag');
   });
 
   const todasAlertas = [...alertasGeneradas, ...data];
@@ -766,12 +784,12 @@ function renderizarAlertas(data) {
       <td class="id-cell">${escapeHTML(a.id)}</td>
       <td>
         <strong>${escapeHTML(a.equipo)}</strong><br>
-        <span style="font-size:11px;color:var(--text-2)">Zona: ${escapeHTML(a.zona)}</span>
+        <span style="font-size:11px;color:var(--text-2)">${window.i18n.t('col.zona') || 'Zona'}: ${escapeHTML(a.zona)}</span>
       </td>
       <td>${statusPill(a.status)}</td>
       <td class="col-right">${formatearFecha(a.fecha)}</td>
       <td class="col-right">
-        <button class="btn-ghost" onclick="window.openDrawerAsset('${a.id}')" style="padding:4px 8px;font-size:12px;">Resolver</button>
+        <button class="btn-ghost" onclick="window.openDrawerAsset('${a.id}')" style="padding:4px 8px;font-size:12px;">${window.i18n.t('alertas.resolver') || 'Resolver'}</button>
       </td>
     `;
     tbody.appendChild(tr);
@@ -1879,7 +1897,7 @@ function inicializarFiltros() {
       const label    = this.textContent.trim();
       let filtered   = inventoryData;
       if (label === t('dash.filter.disp'))    filtered = inventoryData.filter(i => ['disponible','calibrado','en_funcionamiento'].includes(i.status));
-      else if (label === t('dash.filter.alertas')) filtered = inventoryData.filter(i => ['fuera_de_servicio','danado','calibracion_pendiente','en_mantenimiento'].includes(i.status));
+      else if (label === t('dash.filter.alertas')) filtered = inventoryData.filter(i => window.tieneAlerta(i));
       renderInventoryTable(document.getElementById('dashTableBody'), filtered);
     });
   });
