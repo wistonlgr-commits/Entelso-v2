@@ -14,7 +14,7 @@ exports.createUserSchema = z.object({
 exports.updateUserSchema = z.object({
   nombre:            z.string().min(2).max(100).optional(),
   telefono_whatsapp: z.string().min(7).max(20).nullable().optional(),
-  email:             z.string().email().optional(),
+  email:             z.string().email().nullable().optional(),
   rol:               z.enum(['trabajador', 'admin', 'supervisor', 'almacen']).optional(),
   team:              z.string().max(80).nullable().optional(),
   activo:            z.boolean().optional(),

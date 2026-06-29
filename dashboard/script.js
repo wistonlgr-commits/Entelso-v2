@@ -2368,7 +2368,7 @@ window.editarEmpleado = async function(userId) {
     document.getElementById('editUserPin').value    = '';
     document.getElementById('editUserMsg').style.display = 'none';
 
-    document.getElementById('confirmEditUserBtn').onclick = async () => {
+    document.getElementById('btnSaveEditUser').onclick = async () => {
       const payload = {
         nombre: document.getElementById('editUserNombre').value.trim(),
         email:  document.getElementById('editUserEmail').value.trim() || null,
