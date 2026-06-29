@@ -130,3 +130,46 @@ exports.reportarMantenimiento = async (telefono, pin, numero_inventario, descrip
     throw err;
   }
 };
+
+exports.agregarEquipo = async (telefono, pin, numero_inventario, descripcion, zona_nombre, team_nombre, estado) => {
+  const user = await getUserByTelefono(telefono);
+  await validatePin(user, pin);
+
+  // Check if asset already exists
+  const { rows: existing } = await db.query('SELECT id FROM activos WHERE numero_serie = $1', [numero_inventario]);
+  if (existing.length > 0) throwOpError(`El equipo con inventario ${numero_inventario} ya existe.`);
+
+  // Find or create item (Equipment Description)
+  const descTrimmed = (descripcion || 'Herramienta Desconocida').trim();
+  const itemRows = await db.query('SELECT id FROM items WHERE LOWER(nombre) = LOWER($1)', [descTrimmed]);
+  let item_id;
+  if (itemRows.rows.length > 0) {
+    item_id = itemRows.rows[0].id;
+  } else {
+    const newItem = await db.query("INSERT INTO items (nombre, tipo) VALUES ($1, 'herramienta') RETURNING id", [descTrimmed]);
+    item_id = newItem.rows[0].id;
+  }
+
+  // Find or create zona
+  let ubicacion_id = null;
+  if (zona_nombre) {
+    const zonaTrimmed = zona_nombre.trim();
+    const zonaRows = await db.query('SELECT id FROM ubicaciones WHERE LOWER(nombre_ubicacion) = LOWER($1)', [zonaTrimmed]);
+    if (zonaRows.rows.length > 0) {
+      ubicacion_id = zonaRows.rows[0].id;
+    } else {
+      const newZona = await db.query('INSERT INTO ubicaciones (nombre_ubicacion) VALUES ($1) RETURNING id', [zonaTrimmed]);
+      ubicacion_id = newZona.rows[0].id;
+    }
+  }
+
+  const finalEstado = estado ? estado.toLowerCase().replace(/ /g, '_') : 'disponible';
+
+  const insertQuery = `
+    INSERT INTO activos (item_id, numero_serie, ubicacion_actual_id, estado, team)
+    VALUES ($1, $2, $3, $4, $5) RETURNING id
+  `;
+  await db.query(insertQuery, [item_id, numero_inventario, ubicacion_id, finalEstado, team_nombre || null]);
+
+  return { success: true, equipo: descTrimmed, inventario: numero_inventario };
+};

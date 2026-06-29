@@ -48,3 +48,19 @@ exports.reportarMantenimiento = async (req, reply, next) => {
     next(e);
   }
 };
+
+exports.agregar = async (req, reply, next) => {
+  try {
+    const { telefono, pin, numero_inventario, descripcion, zona, team, estado } = req.body;
+    if (!telefono || !pin || !numero_inventario || !descripcion) {
+      return reply.status(200).json(res.error('Faltan parámetros: telefono, pin, numero_inventario, descripcion.'));
+    }
+    const data = await svc.agregarEquipo(telefono, pin, numero_inventario, descripcion, zona, team, estado);
+    reply.json(res.success(data, 'Equipo agregado correctamente.'));
+  } catch (e) {
+    if (e.isOperational) {
+      return reply.status(200).json(res.error(e.message));
+    }
+    next(e);
+  }
+};
