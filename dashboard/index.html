@@ -744,27 +744,27 @@
 <div class="modal-overlay" id="maintenanceModalOverlay">
     <div class="modal" id="maintenanceModal">
         <div class="modal-header">
-            <span><i class="fa-solid fa-wrench"></i> Agendar Mantenimiento</span>
+            <span><i class="fa-solid fa-wrench"></i> <span data-i18n="maint.agendar">Agendar Mantenimiento</span></span>
             <button class="icon-btn" id="closeMaintenanceModal"><i class="fa-solid fa-xmark"></i></button>
         </div>
         <div class="modal-body">
             <div class="modal-msg" id="maintenanceModalMsg" style="display:none"></div>
             <div class="form-grid">
                 <div class="form-group">
-                    <labeldata-i18n="maint.equipo_label">Equipment (ID or Name) *</label>
+                    <label data-i18n="maint.equipo_label">Equipment (ID or Name) *</label>
                     <input type="text" id="maintEquipo" class="input" placeholder="INV-1005" required>
                 </div>
                 <div class="form-group">
-                    <labeldata-i18n="maint.fecha_label">Maintenance Date *</label>
+                    <label data-i18n="maint.fecha_label">Maintenance Date *</label>
                     <input type="date" id="maintFecha" class="input" required>
                 </div>
                 <div class="form-group" style="grid-column: 1 / -1">
-                    <labeldata-i18n="maint.observaciones">Observations</label>
-                    <textarea id="maintObs" class="input" rows="3" placeholder="Detalles del problema o calibración..."></textarea>
+                    <label data-i18n="maint.observaciones">Observations</label>
+                    <textarea id="maintObs" class="input" rows="3" placeholder="Detalles del problema o calibración..." data-i18n-ph="maint.obs_ph"></textarea>
                 </div>
             </div>
             <button class="btn-primary btn-full" id="confirmMaintenanceBtn" style="margin-top:20px;">
-                Agendar Mantenimiento
+                <span data-i18n="maint.btn_agendar">Agendar Mantenimiento</span>
             </button>
         </div>
     </div>
