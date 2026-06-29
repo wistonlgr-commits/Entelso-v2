@@ -416,7 +416,7 @@ async function cargarAuditLog() {
     tbody.innerHTML = '';
     
     if (logs.length === 0) {
-      tbody.innerHTML = '<tr><td colspan="3" style="text-align:center; padding: 20px; color: var(--text-3);">No hay registros de actividad.</td></tr>';
+      tbody.innerHTML = `<tr><td colspan="3" style="text-align:center; padding: 20px; color: var(--text-3);">${window.i18n.t('audit.no_records') || 'No activity records.'}</td></tr>`;
       return;
     }
     
@@ -640,7 +640,7 @@ function renderizarZonas() {
       <div class="zone-stat"><span>${window.i18n.t('kpi.total')}</span><strong>${stats.total}</strong></div>
       <div class="zone-stat"><span>${window.i18n.t('kpi.disponibles')}</span><strong style="color:var(--accent-green)">${stats.disponibles}</strong></div>
       <div class="zone-bar"><div class="zone-bar-fill" style="width:${pct}%"></div></div>
-      <div style="font-size:11px;color:var(--text-2);margin-top:4px;">${pct}% disponibilidad</div>
+      <div style="font-size:11px;color:var(--text-2);margin-top:4px;">${pct}% ${window.i18n.t('kpi.disponibilidad') || 'disponibilidad'}</div>
     `;
     
     // Al hacer clic, filtrar la tabla de inventario y redirigir
@@ -1120,10 +1120,10 @@ function inicializarPerfil() {
           
         } else {
           const errorMsg = json.message || (json.error && json.error.message) || JSON.stringify(json.error) || 'Unknown';
-          alert('Error: ' + errorMsg);
+          alert((window.i18n.t('api.error_prefix') || 'Error: ') + errorMsg);
         }
       } catch (e) {
-        alert('Error saving profile');
+        alert(window.i18n.t('perfil.err_guardar') || 'Error saving profile');
       } finally {
         btnGuardarPerfil.disabled = false;
         btnGuardarPerfil.textContent = t('perfil.guardar');
@@ -1185,7 +1185,7 @@ function inicializarPerfil() {
   }
 
   window.eliminarUsuario = async function(id) {
-    if (!confirm(`¿Eliminar usuario ${id}?`)) return;
+    if (!confirm((window.i18n.t('usuarios.confirm_delete') || '¿Eliminar usuario {0}?').replace('{0}', id))) return;
     try {
       const res = await apiFetch(`/api/usuarios/${id}`, { method: 'DELETE' });
       if (res.ok) {
@@ -1238,7 +1238,7 @@ function inicializarPerfil() {
     }
 
     btn.disabled = true;
-    btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Creando...';
+    btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> ${window.i18n.t('btn.creando') || 'Creando...'}`;
 
     try {
       const payload = { nombre, email: email || undefined, telefono_whatsapp: telefono || undefined, rol, team: team || undefined, password };
@@ -1636,7 +1636,7 @@ function inicializarImportModal() {
   submitBtn.addEventListener('click', async () => {
     if (!importFileData || importFileData.length === 0) return;
     submitBtn.disabled = true;
-    submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> <span>Importando...</span>';
+    submitBtn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> <span>${window.i18n.t('btn.importando') || 'Importando...'}</span>`;
 
     try {
       const res = await apiFetch('/api/activos/bulk', {
@@ -1997,7 +1997,8 @@ window.simularIngresoEquipo = function(equipo, estado = 'disponible', zona = 'VI
   // Mostrar notificación básica
   console.log(`✅ Nuevo equipo detectado vía WhatsApp: ${newItem.id} - ${newItem.equipo}`);
   
-  const msg = `¡Simulación Exitosa!\n\nSe ha detectado un nuevo reporte:\nID: ${newId}\nEquipo: ${newItem.equipo}\nEstado: ${estado}\n\nLos paneles, KPIs y tablas se han actualizado automáticamente.`;
+  const msgTemplate = window.i18n.t('simulacion.exito') || `¡Simulación Exitosa!\n\nSe ha detectado un nuevo reporte:\nID: {id}\nEquipo: {equipo}\nEstado: {estado}\n\nLos paneles, KPIs y tablas se han actualizado automáticamente.`;
+const msg = msgTemplate.replace('{id}', newId).replace('{equipo}', newItem.equipo).replace('{estado}', estado);
   alert(msg);
 
   return msg;
@@ -2232,7 +2233,7 @@ if (openManageCategoriesBtn && catDropdownContainer) {
 }
 
 window.eliminarActivo = async function(db_id) {
-    if(!confirm(`¿Seguro que desea eliminar el activo?`)) return;
+    if(!confirm(window.i18n.t('drawer.confirm_delete') || '¿Seguro que desea eliminar el activo?')) return;
     try {
         await apiFetch(`/api/activos/${db_id}`, { method: 'DELETE' });
         alert(window.i18n.t('drawer.eliminado') || "Eliminado");
@@ -2559,7 +2560,7 @@ if (btnCambiarPass) {
         document.getElementById('segPassNueva').value = '';
         document.getElementById('segPassConfirmar').value = '';
       } else {
-        alert("Error: " + (json.message || (json.error && json.error.message) || "No se pudo actualizar"));
+        alert((window.i18n.t('api.error_prefix') || 'Error: ') + (json.message || (json.error && json.error.message) || "No se pudo actualizar"));
       }
     } catch (e) {
       alert(window.i18n.t('seg.err_red'));
@@ -2716,7 +2717,7 @@ function renderManageTeams() {
     const container = document.getElementById('teamsListContainer');
     if (!container) return;
     if (window.teamsList.length === 0) {
-        container.innerHTML = '<p style="color:var(--text-2);font-size:13px;text-align:center;">No teams found</p>';
+        container.innerHTML = `<p style="color:var(--text-2);font-size:13px;text-align:center;">${window.i18n.t('teams.no_teams') || 'No teams found.'}</p>`;
         return;
     }
     container.innerHTML = window.teamsList.map(t => `
@@ -2728,7 +2729,7 @@ function renderManageTeams() {
 }
 
 window.deleteTeam = async function(id) {
-    if (!confirm('Delete this team?')) return;
+    if (!confirm(window.i18n.t('teams.confirm_delete') || 'Delete this team?')) return;
     try {
         const res = await apiFetch('/api/teams/' + id, { method: 'DELETE' });
         const json = await res.json();
@@ -2791,7 +2792,7 @@ if (document.getElementById('bulkDeleteConfirmBtn')) {
             const json = await res.json();
             
             if (json.success) {
-                alert('Success: ' + json.message);
+                alert((window.i18n.t('api.success') || 'Success: ') + json.message);
                 document.getElementById('bulkDeleteOverlay').classList.remove('open');
                 if (currentBulkMode === 'activos') {
                     if(window.loadInventory) await window.loadInventory();
@@ -2799,11 +2800,11 @@ if (document.getElementById('bulkDeleteConfirmBtn')) {
                     if(window.loadUsuarios) await window.loadUsuarios();
                 }
             } else {
-                alert('Error: ' + json.message);
+                alert((window.i18n.t('api.error_prefix') || 'Error: ') + json.message);
             }
         } catch (e) {
             console.error(e);
-            alert('Error during bulk delete');
+            alert(window.i18n.t('bulk.err_delete') || 'Error during bulk delete');
         } finally {
             btn.disabled = false;
             btn.textContent = 'Delete All';
