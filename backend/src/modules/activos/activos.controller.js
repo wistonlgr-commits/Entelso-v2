@@ -57,3 +57,33 @@ exports.bulkUpdateCategory = async (req, reply, next) => {
     reply.json(res.success({ updated: result }, 'Categoría actualizada para los equipos.'));
   } catch (e) { next(e); }
 };
+
+exports.bulkUpdateStatus = async (req, reply, next) => {
+  try {
+    if (!req.body.ids || !Array.isArray(req.body.ids) || !req.body.status) {
+      return reply.status(400).json(res.error('Faltan datos.', 'BAD_REQUEST'));
+    }
+    const result = await svc.bulkUpdateStatus(req.body.ids, req.body.status);
+    reply.json(res.success({ updated: result }, 'Estado actualizado.'));
+  } catch (e) { next(e); }
+};
+
+exports.bulkUpdateZona = async (req, reply, next) => {
+  try {
+    if (!req.body.ids || !Array.isArray(req.body.ids)) {
+      return reply.status(400).json(res.error('Faltan datos.', 'BAD_REQUEST'));
+    }
+    const result = await svc.bulkUpdateZona(req.body.ids, req.body.zona_id);
+    reply.json(res.success({ updated: result }, 'Zona actualizada.'));
+  } catch (e) { next(e); }
+};
+
+exports.bulkUpdateTeam = async (req, reply, next) => {
+  try {
+    if (!req.body.ids || !Array.isArray(req.body.ids)) {
+      return reply.status(400).json(res.error('Faltan datos.', 'BAD_REQUEST'));
+    }
+    const result = await svc.bulkUpdateTeam(req.body.ids, req.body.team_id);
+    reply.json(res.success({ updated: result }, 'Equipo actualizado.'));
+  } catch (e) { next(e); }
+};
