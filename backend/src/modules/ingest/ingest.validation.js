@@ -1,4 +1,4 @@
-const { z } = require('zod');
+﻿const { z } = require('zod');
 
 const ingestWhatsappSchema = z.object({
   whatsapp_number:     z.string().min(8),
@@ -8,10 +8,11 @@ const ingestWhatsappSchema = z.object({
   parsed: z.object({
     numero_inventario: z.string().min(2),
     equipo:            z.string().min(2),
-    zona:              z.string().min(1),
+    zona:              z.string().optional(),
     team:              z.string().optional(),
-    status:            z.string().min(1),
+    status:            z.string().optional(),
   }),
 });
 
 module.exports = { ingestWhatsappSchema };
+

@@ -3017,7 +3017,7 @@ const renderManageCatList = () => {
   });
 };
 
-document.addEventListener('DOMContentLoaded', () => {
+// Ensure the event listeners are attached immediately
   document.getElementById('openManageCategoriesModalBtn')?.addEventListener('click', () => {
     renderManageCatList();
     document.getElementById('manageCategoriesModal').style.display = 'flex';
@@ -3038,7 +3038,6 @@ document.addEventListener('DOMContentLoaded', () => {
       if(json.success) { systemCategories = json.data; renderManageCatList(); renderizarFiltrosCategorias(); }
     } catch (err) { window.customAlert('Error: ' + err.message); }
   });
-});
 
 window.deleteCategory = async function(id) {
   if(!await window.customConfirm(window.i18n.t('cat.confirm_delete') || 'Delete category?')) return;
