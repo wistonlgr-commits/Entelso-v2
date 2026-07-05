@@ -1,7 +1,7 @@
-﻿const db = require('../../config/database');
+const db = require('../../config/database');
 
 const ASSET_SELECT = `
-  SELECT a.id, a.numero_serie, a.estado,
+  SELECT a.id, a.numero_serie, a.estado, a.team,
          a.fecha_ultima_cali, a.fecha_prox_cali,
          a.fecha_ultimo_tag,  a.fecha_prox_tag,
          i.id   AS item_id,       i.nombre AS nombre_item, i.tipo AS tipo,
@@ -222,3 +222,32 @@ exports.bulkCreate = async (activosData) => {
   }
 };
 
+exports.bulkRemoveSelected = async (ids) => {
+  if (!ids || !ids.length) return 0;
+  const { rowCount } = await db.query('DELETE FROM activos WHERE id = ANY($1::int[])', [ids]);
+  return rowCount;
+};
+
+exports.bulkUpdateCategory = async (ids, item_id) => {
+  if (!ids || !ids.length) return 0;
+  const { rowCount } = await db.query('UPDATE activos SET item_id = $1 WHERE id = ANY($2::int[])', [item_id, ids]);
+  return rowCount;
+};
+
+exports.bulkUpdateStatus = async (ids, status) => {
+  if (!ids || !ids.length) return 0;
+  const { rowCount } = await db.query('UPDATE activos SET estado = $1 WHERE id = ANY($2::int[])', [status, ids]);
+  return rowCount;
+};
+
+exports.bulkUpdateZona = async (ids, zona_id) => {
+  if (!ids || !ids.length) return 0;
+  const { rowCount } = await db.query('UPDATE activos SET ubicacion_actual_id = $1 WHERE id = ANY($2::int[])', [zona_id, ids]);
+  return rowCount;
+};
+
+exports.bulkUpdateTeam = async (ids, team) => {
+  if (!ids || !ids.length) return 0;
+  const { rowCount } = await db.query('UPDATE activos SET team = $1 WHERE id = ANY($2::int[])', [team, ids]);
+  return rowCount;
+};

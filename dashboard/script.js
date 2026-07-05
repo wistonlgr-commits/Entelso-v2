@@ -214,6 +214,8 @@ async function inicializarApp() {
     cargarAlertas(),
     cargarCategorias(),
     cargarUbicaciones(),
+    loadTeams(),
+    loadZonas(),
   ]);
   
   if (!window.appUIInitialized) {
@@ -612,7 +614,7 @@ function renderizarEmpleados(data) {
       <td style="color:var(--text-2)">${emp.retorno}</td>
       <td>${empStatusPill(emp.estado)}</td>
       <td>
-        <button class="icon-btn" title="Editar" onclick="window.editarEmpleado(${emp.db_id})"><i class="fa-solid fa-pen"></i></button>
+        <button class="icon-btn" title="${window.i18n.t('drawer.editar') || 'Editar'}" onclick="window.editarEmpleado(${emp.db_id})"><i class="fa-solid fa-pen"></i></button>
       </td>
     `;
     tbody.appendChild(tr);
@@ -1177,8 +1179,8 @@ function inicializarPerfil() {
             <td>${u.email}</td>
             <td><span class="status-badge status-${u.rol}">${u.rol}</span></td>
             <td>
-              <button class="icon-btn" title="Editar" onclick="window.editarEmpleado(${u.id})"><i class="fa-solid fa-pen"></i></button>
-              <button class="icon-btn" title="Eliminar" onclick="eliminarUsuario(${u.id})"><i class="fa-solid fa-trash" style="color:var(--accent-red)"></i></button>
+              <button class="icon-btn" title="${window.i18n.t('drawer.editar') || 'Editar'}" onclick="window.editarEmpleado(${u.id})"><i class="fa-solid fa-pen"></i></button>
+              <button class="icon-btn" title="${window.i18n.t('bulk.btn_eliminar') || 'Eliminar'}" onclick="eliminarUsuario(${u.id})"><i class="fa-solid fa-trash" style="color:var(--accent-red)"></i></button>
             </td>
           `;
           tbody.appendChild(tr);
@@ -1258,7 +1260,7 @@ function inicializarPerfil() {
       const data = await res.json();
       
       if (res.ok && data.success) {
-        msgEl.textContent = '✓ Usuario creado exitosamente.';
+        msgEl.textContent = window.i18n.t('usuarios.creado_ok') || '✓ Usuario creado exitosamente.';
         msgEl.className = 'modal-msg success';
         msgEl.style.display = 'block';
         
@@ -1275,10 +1277,10 @@ function inicializarPerfil() {
           cargarUsuarios();
         }, 1500);
       } else {
-        throw new Error(data.message || 'Error al crear usuario');
+        throw new Error(data.message || window.i18n.t('usuarios.err_registrar') || 'Error al crear usuario');
       }
     } catch (err) {
-      msgEl.textContent = err.message || 'Error de conexión al servidor.';
+      msgEl.textContent = err.message || window.i18n.t('usuarios.err_conexion') || 'Error de conexión al servidor.';
       msgEl.className = 'modal-msg error';
       msgEl.style.display = 'block';
       btn.disabled = false;
@@ -2411,13 +2413,13 @@ window.editarEmpleado = async function(userId) {
           cargarUsuarios();
         } else {
           const msgEl = document.getElementById('editUserMsg');
-          msgEl.textContent = d.message || 'Error al guardar.';
+          msgEl.textContent = d.message || window.i18n.t('drawer.err_guardar') || 'Error al guardar.';
           msgEl.className = 'modal-msg error';
           msgEl.style.display = 'block';
         }
       } catch (e) {
         const msgEl = document.getElementById('editUserMsg');
-        msgEl.textContent = 'Error de red.';
+        msgEl.textContent = window.i18n.t('drawer.err_red') || 'Error de red.';
         msgEl.className = 'modal-msg error';
         msgEl.style.display = 'block';
       }
@@ -2444,46 +2446,46 @@ window.editarActivo = async function(item) {
     <div class="modal-overlay open" id="editAssetModal" style="z-index:9999">
       <div class="modal" style="max-width:480px">
         <div class="modal-header">
-          <span>Editar Activo: ${item.id}</span>
+          <span>${window.i18n.t('drawer.editar') || 'Editar Activo'}: ${item.id}</span>
           <button class="icon-btn" onclick="document.getElementById('editAssetModal').remove()"><i class="fa-solid fa-xmark"></i></button>
         </div>
         <div class="modal-body">
           <div class="modal-msg" id="editAssetMsg" style="display:none"></div>
-          <div class="form-group"><label>Estado</label>
+          <div class="form-group"><label>${window.i18n.t('col.estado') || 'Estado'}</label>
             <select id="editAssetEstado" class="form-input">
-              <option value="disponible" ${item.status==='disponible' || !item.status ?'selected':''}>Disponible</option>
-              <option value="en_uso" ${item.status==='en_uso'?'selected':''}>En Uso</option>
-              <option value="en_mantenimiento" ${item.status==='en_mantenimiento'?'selected':''}>En Mantenimiento</option>
-              <option value="calibracion_pendiente" ${item.status==='calibracion_pendiente'?'selected':''}>Calibración Pendiente</option>
-              <option value="fuera_de_servicio" ${item.status==='fuera_de_servicio'?'selected':''}>Fuera de Servicio</option>
-              <option value="danado" ${item.status==='danado'?'selected':''}>Dañado</option>
-              <option value="calibrado" ${item.status==='calibrado'?'selected':''}>Calibrado</option>
+              <option value="disponible" ${item.status==='disponible' || !item.status ?'selected':''}>${window.i18n.t('estado.disponible') || 'Disponible'}</option>
+              <option value="en_uso" ${item.status==='en_uso'?'selected':''}>${window.i18n.t('estado.en_uso') || 'En Uso'}</option>
+              <option value="en_mantenimiento" ${item.status==='en_mantenimiento'?'selected':''}>${window.i18n.t('estado.en_mantenimiento') || 'En Mantenimiento'}</option>
+              <option value="calibracion_pendiente" ${item.status==='calibracion_pendiente'?'selected':''}>${window.i18n.t('estado.calibracion_pendiente') || 'Calibración Pendiente'}</option>
+              <option value="fuera_de_servicio" ${item.status==='fuera_de_servicio'?'selected':''}>${window.i18n.t('estado.fuera_de_servicio') || 'Fuera de Servicio'}</option>
+              <option value="danado" ${item.status==='danado'?'selected':''}>${window.i18n.t('estado.danado') || 'Dañado'}</option>
+              <option value="calibrado" ${item.status==='calibrado'?'selected':''}>${window.i18n.t('estado.calibrado') || 'Calibrado'}</option>
             </select>
           </div>
-          <div class="form-group"><label>Ubicación / Zona</label>
+          <div class="form-group"><label>${window.i18n.t('col.zona') || 'Ubicación / Zona'}</label>
             <select id="editAssetUbicacion" class="form-input">
-              <option value="">Sin Ubicación</option>
+              <option value="">${window.i18n.t('filter.todas_zonas') || 'Sin Ubicación'}</option>
               ${ubOpts}
             </select>
           </div>
-                    <div class="form-group"><label>Team</label>
+          <div class="form-group"><label>${window.i18n.t('col.team') || 'Team'}</label>
             <select id="editAssetTeam" class="form-input">
-              <option value="">Sin Team</option>
+              <option value="">${window.i18n.t('usuarios.sin_team') || 'Sin Team'}</option>
               ${window.teamsList.map(t => `<option value="${t.nombre}" ${item.team === t.nombre ? 'selected' : ''}>${t.nombre}</option>`).join('')}
             </select>
           </div>
           <div class="form-row">
-            <div class="form-group"><label>Fecha Últ. Calibración</label><input type="date" id="editAssetUltiCal" class="form-input" value="${item.calibracion?item.calibracion.substring(0,10):''}"></div>
-            <div class="form-group"><label>Fecha Próx. Calibración</label><input type="date" id="editAssetProxCal" class="form-input" value="${item.calibracion?item.calibracion.substring(0,10):''}"></div>
+            <div class="form-group"><label>${window.i18n.t('col.ulti_cal') || 'Fecha Últ. Calibración'}</label><input type="date" id="editAssetUltiCal" class="form-input" value="${item.calibracion?item.calibracion.substring(0,10):''}"></div>
+            <div class="form-group"><label>${window.i18n.t('col.prox_cal') || 'Fecha Próx. Calibración'}</label><input type="date" id="editAssetProxCal" class="form-input" value="${item.calibracion?item.calibracion.substring(0,10):''}"></div>
           </div>
           <div class="form-row">
-            <div class="form-group"><label>Fecha Últ. Tag</label><input type="date" id="editAssetUltiTag" class="form-input" value="${item.tag?item.tag.substring(0,10):''}"></div>
-            <div class="form-group"><label>Fecha Próx. Tag</label><input type="date" id="editAssetProxTag" class="form-input" value="${item.tag?item.tag.substring(0,10):''}"></div>
+            <div class="form-group"><label>${window.i18n.t('drawer.meta_ulti_tag') || 'Fecha Últ. Tag'}</label><input type="date" id="editAssetUltiTag" class="form-input" value="${item.tag?item.tag.substring(0,10):''}"></div>
+            <div class="form-group"><label>${window.i18n.t('drawer.meta_tag') || 'Fecha Próx. Tag'}</label><input type="date" id="editAssetProxTag" class="form-input" value="${item.tag?item.tag.substring(0,10):''}"></div>
           </div>
         </div>
         <div class="modal-footer">
-          <button class="btn-ghost" onclick="document.getElementById('editAssetModal').remove()">Cancelar</button>
-          <button class="btn-primary" id="confirmEditAssetBtn">Guardar Cambios</button>
+          <button class="btn-ghost" onclick="document.getElementById('editAssetModal').remove()">${window.i18n.t('modal.cancelar') || 'Cancelar'}</button>
+          <button class="btn-primary" id="confirmEditAssetBtn">${window.i18n.t('modal.guardar') || 'Guardar Cambios'}</button>
         </div>
       </div>
     </div>`;
@@ -2516,13 +2518,13 @@ window.editarActivo = async function(item) {
         await cargarActivos();
       } else {
         const msgEl = document.getElementById('editAssetMsg');
-        msgEl.textContent = d.message || 'Error al guardar.';
+        msgEl.textContent = d.message || window.i18n.t('drawer.err_guardar') || 'Error al guardar.';
         msgEl.className = 'modal-msg error';
         msgEl.style.display = 'block';
       }
     } catch (e) {
       const msgEl = document.getElementById('editAssetMsg');
-      msgEl.textContent = 'Error de red.';
+      msgEl.textContent = window.i18n.t('drawer.err_red') || 'Error de red.';
       msgEl.className = 'modal-msg error';
       msgEl.style.display = 'block';
     }
@@ -2697,11 +2699,16 @@ function populateTeamSelects() {
     if (mt) mt.innerHTML = `<option value="" data-i18n="usuarios.sin_team">${window.i18n.t('usuarios.sin_team')}</option>` + opts;
 }
 
-// Ensure loadTeams is called on DOMContentLoaded (assuming script is deferred or at end)
-document.addEventListener('DOMContentLoaded', () => {
+// Ensure loadTeams is called on DOMContentLoaded or immediately if already loaded
+function initTeamsAndZonas() {
     loadTeams();
     loadZonas();
-});
+}
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initTeamsAndZonas);
+} else {
+    initTeamsAndZonas();
+}
 
 // Manage Teams Modal
 const teamsOverlay = document.getElementById('manageTeamsOverlay');
@@ -2723,7 +2730,9 @@ if (teamsOverlay) {
             if (json.success) {
                 input.value = '';
                 await loadTeams();
-    loadZonas();
+                if (typeof showToast === 'function') {
+                    showToast(window.i18n.t('teams.toast_creado') || 'Team created successfully');
+                }
             } else {
                 window.customAlert(json.message);
             }
@@ -2996,8 +3005,95 @@ document.getElementById('confirmBulkCategoryBtn')?.addEventListener('click', asy
   if(!item_id) return;
   try {
     await apiFetch('/api/activos/bulk/category', { method: 'PATCH', body: JSON.stringify({ ids: selectedIdsForMove, item_id }) });
-    window.customAlert('Equipos movidos exitosamente.');
+    window.customAlert(window.i18n.t('bulk.ok_cat') || 'Equipos movidos exitosamente.');
     document.getElementById('bulkCategoryModal').style.display = 'none';
+    await cargarActivos();
+    document.getElementById('selectAllCheckbox').checked = false;
+    window.updateBulkActionsState();
+  } catch (err) { window.customAlert('Error: ' + err.message); }
+});
+
+// Bulk Status
+let selectedIdsForStatus = [];
+document.getElementById('bulkSetStatusBtn')?.addEventListener('click', () => {
+  document.getElementById('bulkActionsMenu').style.display = 'none';
+  const checked = document.querySelectorAll('.row-checkbox:checked');
+  if(!checked.length) return;
+  selectedIdsForStatus = Array.from(checked).map(cb => cb.value);
+  document.getElementById('bulkStatusModal').style.display = 'flex';
+});
+
+document.getElementById('closeBulkStatusModal')?.addEventListener('click', () => document.getElementById('bulkStatusModal').style.display = 'none');
+document.getElementById('cancelBulkStatusBtn')?.addEventListener('click', () => document.getElementById('bulkStatusModal').style.display = 'none');
+document.getElementById('confirmBulkStatusBtn')?.addEventListener('click', async () => {
+  const status = document.getElementById('bulkStatusSelect').value;
+  if(!status) return;
+  try {
+    await apiFetch('/api/activos/bulk/status', { method: 'PATCH', body: JSON.stringify({ ids: selectedIdsForStatus, status }) });
+    window.customAlert(window.i18n.t('bulk.ok_estado') || 'Estados actualizados exitosamente.');
+    document.getElementById('bulkStatusModal').style.display = 'none';
+    await cargarActivos();
+    document.getElementById('selectAllCheckbox').checked = false;
+    window.updateBulkActionsState();
+  } catch (err) { window.customAlert('Error: ' + err.message); }
+});
+
+// Bulk Zone
+let selectedIdsForZona = [];
+document.getElementById('bulkSetZonaBtn')?.addEventListener('click', () => {
+  document.getElementById('bulkActionsMenu').style.display = 'none';
+  const checked = document.querySelectorAll('.row-checkbox:checked');
+  if(!checked.length) return;
+  selectedIdsForZona = Array.from(checked).map(cb => cb.value);
+  const select = document.getElementById('bulkZonaSelect');
+  select.innerHTML = '<option value="">-- ' + (window.i18n?.t('usuarios.sin_team') || 'No Zone') + ' --</option>';
+  if (window.zonasList) {
+    window.zonasList.forEach(z => {
+      select.innerHTML += `<option value="${z.id}">${z.nombre_ubicacion}</option>`;
+    });
+  }
+  document.getElementById('bulkZonaModal').style.display = 'flex';
+});
+
+document.getElementById('closeBulkZonaModal')?.addEventListener('click', () => document.getElementById('bulkZonaModal').style.display = 'none');
+document.getElementById('cancelBulkZonaBtn')?.addEventListener('click', () => document.getElementById('bulkZonaModal').style.display = 'none');
+document.getElementById('confirmBulkZonaBtn')?.addEventListener('click', async () => {
+  const zona_id = document.getElementById('bulkZonaSelect').value || null;
+  try {
+    await apiFetch('/api/activos/bulk/zona', { method: 'PATCH', body: JSON.stringify({ ids: selectedIdsForZona, zona_id }) });
+    window.customAlert(window.i18n.t('bulk.ok_zona') || 'Zonas actualizadas exitosamente.');
+    document.getElementById('bulkZonaModal').style.display = 'none';
+    await cargarActivos();
+    document.getElementById('selectAllCheckbox').checked = false;
+    window.updateBulkActionsState();
+  } catch (err) { window.customAlert('Error: ' + err.message); }
+});
+
+// Bulk Team
+let selectedIdsForTeam = [];
+document.getElementById('bulkSetTeamBtn')?.addEventListener('click', () => {
+  document.getElementById('bulkActionsMenu').style.display = 'none';
+  const checked = document.querySelectorAll('.row-checkbox:checked');
+  if(!checked.length) return;
+  selectedIdsForTeam = Array.from(checked).map(cb => cb.value);
+  const select = document.getElementById('bulkTeamSelect');
+  select.innerHTML = '<option value="">-- ' + (window.i18n?.t('usuarios.sin_team') || 'No Team') + ' --</option>';
+  if (window.teamsList) {
+    window.teamsList.forEach(t => {
+      select.innerHTML += `<option value="${t.nombre}">${t.nombre}</option>`;
+    });
+  }
+  document.getElementById('bulkTeamModal').style.display = 'flex';
+});
+
+document.getElementById('closeBulkTeamModal')?.addEventListener('click', () => document.getElementById('bulkTeamModal').style.display = 'none');
+document.getElementById('cancelBulkTeamBtn')?.addEventListener('click', () => document.getElementById('bulkTeamModal').style.display = 'none');
+document.getElementById('confirmBulkTeamBtn')?.addEventListener('click', async () => {
+  const team_id = document.getElementById('bulkTeamSelect').value || null;
+  try {
+    await apiFetch('/api/activos/bulk/team', { method: 'PATCH', body: JSON.stringify({ ids: selectedIdsForTeam, team_id }) });
+    window.customAlert(window.i18n.t('bulk.ok_team') || 'Teams actualizados exitosamente.');
+    document.getElementById('bulkTeamModal').style.display = 'none';
     await cargarActivos();
     document.getElementById('selectAllCheckbox').checked = false;
     window.updateBulkActionsState();

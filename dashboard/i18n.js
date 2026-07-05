@@ -37,6 +37,7 @@ const TRANSLATIONS = {
     'import.listo':        'File scanned. ',
     'import.err_no_valid': 'No valid rows found with ID and Description.',
     'import.importando':   'Importing...',
+    'import.err_parse':    'Error parsing the file.',
 
     // ── Sidebar ──
     'nav.dashboard':       'Dashboard',
@@ -440,6 +441,11 @@ const TRANSLATIONS = {
     'bulk.confirm_users':      'This will permanently delete ALL users except your account. This action cannot be undone.',
     'bulk.type_delete':        'Type DELETE to confirm:',
     'bulk.cancel':             'Cancel',
+    'bulk.err_delete':         'Error during bulk delete',
+    'bulk.ok_cat':             'Categories updated successfully.',
+    'bulk.ok_estado':          'Statuses updated successfully.',
+    'bulk.ok_zona':            'Zones updated successfully.',
+    'bulk.ok_team':            'Teams updated successfully.',
     'bulk.delete':             'Delete All',
     'bulk.deleting':           'Deleting...',
     'bulk.deleted_ok':         'All records deleted successfully.',
@@ -450,6 +456,8 @@ const TRANSLATIONS = {
     'teams.nuevo_nombre':   'New team name...',
     'teams.btn_agregar':    'Add',
     'teams.sin_teams':      'No teams yet. Add one above.',
+    'teams.toast_creado':   'Team created successfully.',
+    'teams.no_teams':       'No teams found.',
 
     // ── Tema ──
     'tema.cambiar':         'Toggle theme',
@@ -483,6 +491,7 @@ const TRANSLATIONS = {
     'import.listo':        'Archivo escaneado. ',
     'import.err_no_valid': 'No se encontraron filas válidas con ID y Descripción.',
     'import.importando':   'Importando...',
+    'import.err_parse':    'Error al procesar el archivo.',
 
     // ── Sidebar ──
     'nav.dashboard':       'Dashboard',
@@ -604,6 +613,8 @@ const TRANSLATIONS = {
     'teams.nuevo_emp':     'Nuevo Empleado',
     'teams.todos_emp':     'Todos los Empleados',
     'teams.gestionar':     'Gestionar Teams',
+    'teams.toast_creado':  'Team creado correctamente.',
+    'teams.no_teams':      'No se encontraron teams.',
     'filter.todos':        'Todos',
     'filter.terreno':      'En Terreno',
     'filter.oficina':      'Oficina',
@@ -753,7 +764,7 @@ const TRANSLATIONS = {
     'alertas.titulo':       'Centro de Mando de Alertas',
     'alertas.gravedad':     'Gravedad',
     'alertas.equipo_zona':  'Equipo / Zona',
-    'alertas.reportado':    'Reportado',
+    'alertas.reportado':    'Reported',
     'alertas.accion': 'Acción',
     'alertas.vencida': 'Calibración Vencida',
     'alertas.fuera_zona': 'Fuera de Zona',
@@ -885,6 +896,11 @@ const TRANSLATIONS = {
     'bulk.confirm_users':      'Esto eliminará permanentemente TODOS los usuarios excepto tu cuenta. Esta acción no se puede deshacer.',
     'bulk.type_delete':        'Escribe ELIMINAR para confirmar:',
     'bulk.cancel':             'Cancelar',
+    'bulk.err_delete':         'Error durante la eliminación masiva',
+    'bulk.ok_cat':             'Categorías actualizadas exitosamente.',
+    'bulk.ok_estado':          'Estados actualizados exitosamente.',
+    'bulk.ok_zona':            'Zonas actualizadas exitosamente.',
+    'bulk.ok_team':            'Teams actualizados exitosamente.',
     'bulk.delete':             'Eliminar Todo',
     'bulk.deleting':           'Eliminando...',
     'bulk.deleted_ok':         'Todos los registros eliminados exitosamente.',
