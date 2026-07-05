@@ -795,7 +795,9 @@ function renderizarAlertas(data) {
       <td>${statusPill(a.status)}</td>
       <td class="col-right">${formatearFecha(a.fecha)}</td>
       <td class="col-right">
-        <button class="btn-ghost" onclick="window.openDrawerAsset('${a.id}')" style="padding:4px 8px;font-size:12px;">${window.i18n.t('alertas.resolver') || 'Resolver'}</button>
+        <button class="btn-ghost" onclick="window.openDrawerAsset('${a.id}')" style="padding:4px 8px;font-size:12px;border:1px solid var(--primary);color:var(--primary);">
+          <i class="fa-solid fa-arrow-up-right-from-square"></i> ${window.i18n.t('alertas.resolver') || 'Abrir / Actualizar'}
+        </button>
       </td>
     `;
     tbody.appendChild(tr);
@@ -3043,5 +3045,7 @@ window.deleteCategory = async function(id) {
     if(json.success) { systemCategories = json.data; renderManageCatList(); renderizarFiltrosCategorias(); }
   } catch (err) { window.customAlert('Error: ' + err.message); }
 };
+
+
 
 
