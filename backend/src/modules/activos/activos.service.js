@@ -140,7 +140,21 @@ exports.bulkCreate = async (activosData) => {
       // 3. Resolve Team (String, but validate if needed. It's stored as VARCHAR in DB)
       const team = item.team ? item.team.trim() : null;
 
-      // 4. Insert into activos
+      // 4. Normalize Status (to avoid ENUM errors)
+      let rawStatus = (item.estado || '').toLowerCase().trim();
+      const statusMap = {
+        'available': 'disponible', 'in use': 'en_uso', 'maintenance': 'en_mantenimiento',
+        'under maintenance': 'en_mantenimiento', 'damaged': 'danado', 'broken': 'danado',
+        'out of service': 'fuera_de_servicio', 'calibration pending': 'calibracion_pendiente',
+        'calibrated': 'calibrado', 'good': 'disponible', 'fair': 'disponible', 'poor': 'danado'
+      };
+      let normalizedStatus = statusMap[rawStatus] || rawStatus;
+      const validStatuses = new Set(['disponible', 'en_uso', 'en_mantenimiento', 'calibracion_pendiente', 'fuera_de_servicio', 'calibrado', 'danado', 'en_funcionamiento', 'desconocido']);
+      if (!validStatuses.has(normalizedStatus)) {
+          normalizedStatus = 'desconocido';
+      }
+
+      // 5. Insert into activos
       await client.query(`
         INSERT INTO activos (item_id, numero_serie, ubicacion_actual_id, estado, team)
         VALUES ($1, $2, $3, $4, $5)
@@ -149,7 +163,7 @@ exports.bulkCreate = async (activosData) => {
           ubicacion_actual_id = EXCLUDED.ubicacion_actual_id,
           estado = EXCLUDED.estado,
           team = EXCLUDED.team
-      `, [item_id, item.numero_serie.trim(), ubicacion_actual_id, item.estado || 'disponible', team]);
+      `, [item_id, item.numero_serie.trim(), ubicacion_actual_id, normalizedStatus, team]);
       
       inserted++;
     }
