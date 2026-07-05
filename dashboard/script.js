@@ -1562,12 +1562,12 @@ function inicializarImportModal() {
 
       const headers = rows[0].map(h => String(h).toLowerCase().trim());
       // Validar columnas requeridas (Nº Inventario o Inventory No, y Equipo/Equipment)
-      const invIndex = headers.findIndex(h => h.includes('inventario') || h.includes('inventory'));
+      const invIndex = headers.findIndex(h => h.includes('inventario') || h.includes('inventory') || h.includes('asset id'));
       const eqIndex = headers.findIndex(h => h.includes('equipo') || h.includes('equipment') || h.includes('descripci'));
       const serieIndex = headers.findIndex(h => h.includes('serie') || h.includes('serial'));
       const zonaIndex = headers.findIndex(h => h.includes('zona') || h.includes('zone') || h.includes('sitio') || h.includes('site'));
       const teamIndex = headers.findIndex(h => h.includes('team'));
-      const statusIndex = headers.findIndex(h => h.includes('estado') || h.includes('status'));
+      const statusIndex = headers.findIndex(h => h.includes('estado') || h.includes('status') || h.includes('condition'));
 
       if (invIndex === -1 || eqIndex === -1) {
         msgEl.textContent = window.i18n.t('import.err_req_fields') || 'Faltan columnas obligatorias.';
