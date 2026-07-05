@@ -1,4 +1,4 @@
-/* ════════════════════════════════════════════
+﻿/* ════════════════════════════════════════════
    ENTELSO DASHBOARD — JavaScript v3
    Autenticación JWT · API REST · i18n ES/EN
    Navegación · Charts · Tema · Cmd Palette
@@ -3043,4 +3043,5 @@ window.deleteCategory = async function(id) {
     if(json.success) { systemCategories = json.data; renderManageCatList(); renderizarFiltrosCategorias(); }
   } catch (err) { window.customAlert('Error: ' + err.message); }
 };
+
 
