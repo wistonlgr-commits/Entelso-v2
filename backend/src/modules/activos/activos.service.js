@@ -1,4 +1,4 @@
-const db = require('../../config/database');
+﻿const db = require('../../config/database');
 
 const ASSET_SELECT = `
   SELECT a.id, a.numero_serie, a.estado,
@@ -127,6 +127,16 @@ function parseDateStr(dateStr) {
     ds = `20${monthYearMatch[2]}-${m}-01`;
   }
 
+  // Handle DD/MM/YYYY or D/M/YY
+  const dmyMatch = ds.match(/^(\d{1,2})\/(\d{1,2})\/(\d{2,4})$/);
+  if (dmyMatch) {
+    let day = dmyMatch[1].padStart(2, '0');
+    let month = dmyMatch[2].padStart(2, '0');
+    let year = dmyMatch[3];
+    if (year.length === 2) year = '20' + year;
+    ds = year + '-' + month + '-' + day;
+  }
+
   const d = new Date(ds);
   return isNaN(d.getTime()) ? null : d.toISOString().split('T')[0];
 }
@@ -211,3 +221,4 @@ exports.bulkCreate = async (activosData) => {
     client.release();
   }
 };
+
