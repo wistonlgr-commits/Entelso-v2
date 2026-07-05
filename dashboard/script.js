@@ -1,4 +1,4 @@
-/* ════════════════════════════════════════════
+﻿/* ════════════════════════════════════════════
    ENTELSO DASHBOARD — JavaScript v3
    Autenticación JWT · API REST · i18n ES/EN
    Navegación · Charts · Tema · Cmd Palette
@@ -3017,23 +3017,27 @@ const renderManageCatList = () => {
   });
 };
 
-document.getElementById('openManageCategoriesModalBtn')?.addEventListener('click', () => {
-  renderManageCatList();
-  document.getElementById('manageCategoriesModal').style.display = 'flex';
-});
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('openManageCategoriesModalBtn')?.addEventListener('click', () => {
+    renderManageCatList();
+    document.getElementById('manageCategoriesModal').style.display = 'flex';
+  });
 
-document.getElementById('closeManageCategoriesModal')?.addEventListener('click', () => document.getElementById('manageCategoriesModal').style.display = 'none');
+  document.getElementById('closeManageCategoriesModal')?.addEventListener('click', () => {
+    document.getElementById('manageCategoriesModal').style.display = 'none';
+  });
 
-document.getElementById('addCategoryBtn')?.addEventListener('click', async () => {
-  const name = document.getElementById('newCategoryName').value.trim();
-  if(!name) return;
-  try {
-    await apiFetch('/api/items', { method: 'POST', body: JSON.stringify({ nombre: name, tipo: 'herramienta' }) });
-    document.getElementById('newCategoryName').value = '';
-    const res = await apiFetch('/api/items');
-    const json = await res.json();
-    if(json.success) { systemCategories = json.data; renderManageCatList(); renderizarFiltrosCategorias(); }
-  } catch (err) { window.customAlert('Error: ' + err.message); }
+  document.getElementById('addCategoryBtn')?.addEventListener('click', async () => {
+    const name = document.getElementById('newCategoryName').value.trim();
+    if(!name) return;
+    try {
+      await apiFetch('/api/items', { method: 'POST', body: JSON.stringify({ nombre: name, tipo: 'herramienta' }) });
+      document.getElementById('newCategoryName').value = '';
+      const res = await apiFetch('/api/items');
+      const json = await res.json();
+      if(json.success) { systemCategories = json.data; renderManageCatList(); renderizarFiltrosCategorias(); }
+    } catch (err) { window.customAlert('Error: ' + err.message); }
+  });
 });
 
 window.deleteCategory = async function(id) {
@@ -3049,3 +3053,67 @@ window.deleteCategory = async function(id) {
 
 
 
+
+window.customAlert = function(msg) {
+  return new Promise((resolve) => {
+    const overlay = document.getElementById('customAlertOverlay');
+    const msgEl = document.getElementById('customAlertMsg');
+    const okBtn = document.getElementById('customAlertOkBtn');
+    const closeBtn = document.getElementById('customAlertCloseTop');
+    
+    if(!overlay || !msgEl || !okBtn || !closeBtn) {
+      alert(msg);
+      resolve();
+      return;
+    }
+    
+    msgEl.innerHTML = msg;
+    overlay.style.display = 'flex';
+    
+    const cleanup = () => {
+      overlay.style.display = 'none';
+      okBtn.removeEventListener('click', onOk);
+      closeBtn.removeEventListener('click', onOk);
+    };
+    
+    const onOk = () => {
+      cleanup();
+      resolve();
+    };
+    
+    okBtn.addEventListener('click', onOk);
+    closeBtn.addEventListener('click', onOk);
+  });
+};
+
+window.customConfirm = function(msg) {
+  return new Promise((resolve) => {
+    const overlay = document.getElementById('customConfirmOverlay');
+    const msgEl = document.getElementById('customConfirmMsg');
+    const okBtn = document.getElementById('customConfirmOkBtn');
+    const cancelBtn = document.getElementById('customConfirmCancelBtn');
+    const closeBtn = document.getElementById('customConfirmCloseTop');
+    
+    if(!overlay || !msgEl || !okBtn || !cancelBtn || !closeBtn) {
+      resolve(confirm(msg));
+      return;
+    }
+    
+    msgEl.innerHTML = msg;
+    overlay.style.display = 'flex';
+    
+    const cleanup = () => {
+      overlay.style.display = 'none';
+      okBtn.removeEventListener('click', onOk);
+      cancelBtn.removeEventListener('click', onCancel);
+      closeBtn.removeEventListener('click', onCancel);
+    };
+    
+    const onOk = () => { cleanup(); resolve(true); };
+    const onCancel = () => { cleanup(); resolve(false); };
+    
+    okBtn.addEventListener('click', onOk);
+    cancelBtn.addEventListener('click', onCancel);
+    closeBtn.addEventListener('click', onCancel);
+  });
+};
