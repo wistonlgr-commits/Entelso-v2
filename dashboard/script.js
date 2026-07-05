@@ -1,4 +1,4 @@
-﻿/* ════════════════════════════════════════════
+/* ════════════════════════════════════════════
    ENTELSO DASHBOARD — JavaScript v3
    Autenticación JWT · API REST · i18n ES/EN
    Navegación · Charts · Tema · Cmd Palette
@@ -718,8 +718,8 @@ function renderizarAlertas(data) {
     if (['calibracion_pendiente','fuera_de_servicio','danado','en_mantenimiento'].includes(a.status)) {
       alertasGeneradas.push({
         id: a.id,
-        equipo: a.equipo,
-        zona: a.zona,
+        equipo: window.i18n.t('alertas.msg_status') ? window.i18n.t('alertas.msg_status').replace('{status}', a.status.replace(/_/g, ' ').toUpperCase()) : `Attention required: ${a.status.replace(/_/g, ' ').toUpperCase()}`,
+        zona: window.i18n.t('alertas.msg_status_desc') ? `<span style="color:var(--danger)">${window.i18n.t('alertas.msg_status_desc').replace('{status}', a.status.replace(/_/g, ' ').toUpperCase())}</span>` : `<span style="color:var(--danger)">The asset is marked as ${a.status.replace(/_/g, ' ')}. Please repair it and change the status to Available in the panel.</span>`,
         status: a.status,
         fecha: a.fecha,
         type: ['fuera_de_servicio','danado'].includes(a.status) ? 'danger' : 'warn',
@@ -746,7 +746,7 @@ function renderizarAlertas(data) {
           alertasGeneradas.push({
             id: a.id,
             equipo: window.i18n.t('alertas.en_dias') ? window.i18n.t('alertas.en_dias').replace('{label}', window.i18n.t(label) || label).replace('{days}', diffDays) : `${label} en ${diffDays} días`,
-            zona: a.zona,
+            zona: window.i18n.t('alertas.msg_dias') ? `<span style="color:var(--warn-text, #b8860b)">${window.i18n.t('alertas.msg_dias').replace('{label}', window.i18n.t(label) || label)}</span>` : `<span style="color:var(--warn-text, #b8860b)">The date is approaching. Schedule the ${label} and update the date in the asset panel.</span>`,
             status: a.status,
             fecha: dateStr,
             type: severityType,
@@ -756,7 +756,7 @@ function renderizarAlertas(data) {
           alertasGeneradas.push({
             id: a.id,
             equipo: window.i18n.t('alertas.vencida') ? window.i18n.t('alertas.vencida').replace('{label}', window.i18n.t(label) || label) : `${label} Vencida`,
-            zona: a.zona,
+            zona: window.i18n.t('alertas.msg_vencida') ? `<span style="color:var(--danger)">${window.i18n.t('alertas.msg_vencida').replace('{label}', window.i18n.t(label) || label)}</span>` : `<span style="color:var(--danger)">The deadline has passed. Update the ${label} date in the asset panel to resolve.</span>`,
             status: a.status,
             fecha: dateStr,
             type: 'danger',
@@ -790,7 +790,7 @@ function renderizarAlertas(data) {
       <td class="id-cell">${escapeHTML(a.id)}</td>
       <td>
         <strong>${escapeHTML(a.equipo)}</strong><br>
-        <span style="font-size:11px;color:var(--text-2)">${window.i18n.t('col.zona') || 'Zona'}: ${escapeHTML(a.zona)}</span>
+        <span style="font-size:12px;color:var(--text-2); display:block; margin-top:2px;">${a.zona}</span>
       </td>
       <td>${statusPill(a.status)}</td>
       <td class="col-right">${formatearFecha(a.fecha)}</td>
