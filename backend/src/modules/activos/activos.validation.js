@@ -37,6 +37,6 @@ exports.bulkCreateAssetSchema = z.object({
     serie: z.string().optional(),
     zona: z.string().optional(),
     team: z.string().optional(),
-    estado: estadoEnum.default('disponible')
+    estado: z.string().optional()
   })).min(1).max(500)
 });
