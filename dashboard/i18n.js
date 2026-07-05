@@ -292,7 +292,13 @@ const TRANSLATIONS = {
     'alertas.accion': 'Action',
     'alertas.vencida': 'Calibration Expired',
     'alertas.fuera_zona': 'Out of Zone',
-    'alertas.resolver': 'Resolve',
+        'alertas.resolver': 'Open / Update',
+    'alertas.calibracion': 'Calibration',
+    'alertas.tag': 'Tag / Inspection',
+    'alertas.msg_vencida': 'The deadline has passed. Update the {label} date in the asset panel to resolve.',
+    'alertas.msg_dias': 'The date is approaching. Schedule the {label} and update the date in the asset panel.',
+    'alertas.msg_status': 'Attention required: {status}',
+    'alertas.msg_status_desc': 'The asset is marked as {status}. Please repair it and change the status to Available in the panel.',
     'modal.ok': 'OK',
     'modal.cancelar': 'Cancel',
     'modal.aviso': 'Notice',
@@ -698,7 +704,13 @@ const TRANSLATIONS = {
     'alertas.accion': 'Acción',
     'alertas.vencida': 'Calibración Vencida',
     'alertas.fuera_zona': 'Fuera de Zona',
-    'alertas.resolver': 'Resolver',
+        'alertas.resolver': 'Abrir / Actualizar',
+    'alertas.calibracion': 'Calibración',
+    'alertas.tag': 'Tag / Inspección',
+    'alertas.msg_vencida': 'La fecha límite ya pasó. Actualice la fecha de {label} en el panel del equipo para resolver.',
+    'alertas.msg_dias': 'Se acerca la fecha. Programe la {label} y actualice la fecha en el panel.',
+    'alertas.msg_status': 'Atención requerida: {status}',
+    'alertas.msg_status_desc': 'El equipo se encuentra marcado como {status}. Repárelo y cambie el estado a Disponible en el panel.',
     'modal.ok': 'OK',
     'modal.cancelar': 'Cancelar',
     'modal.aviso': 'Aviso',
@@ -877,6 +889,7 @@ function applyTranslations() {
 
 // Expose globally so script.js can use
 window.i18n = { t, setLang, getLang, applyTranslations };
+
 
 
 
