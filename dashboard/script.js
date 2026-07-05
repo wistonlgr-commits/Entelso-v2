@@ -1,4 +1,4 @@
-﻿/* ════════════════════════════════════════════
+/* ════════════════════════════════════════════
    ENTELSO DASHBOARD — JavaScript v3
    Autenticación JWT · API REST · i18n ES/EN
    Navegación · Charts · Tema · Cmd Palette
@@ -305,14 +305,16 @@ async function cargarActivos(silent = false) {
       db_id:       a.id,
       id:          a.numero_serie,
       equipo:      a.nombre_item,
-      tipo_item:   a.tipo || '—',
+      tipo_item:   (function(t) { const map = { herramienta:'Tool', equipo:'Equipment', instrumento:'Instrument', vehiculo:'Vehicle', consumible:'Consumable' }; return map[t] || t || '—'; })(a.tipo),
       zona:        a.nombre_ubicacion || '—',
       team:        a.usuario_team || a.team || '—',
       status:      a.estado,
       fecha:       a.fecha_prox_tag || a.fecha_prox_cali || null,
       // Drawer fields
       serie:       a.numero_serie,
+      ultima_calibracion: a.fecha_ultima_cali || null,
       calibracion: a.fecha_prox_cali || null,
+      ultimo_tag:  a.fecha_ultimo_tag || null,
       tag:         a.fecha_prox_tag  || null,
       asignado:    a.nombre_usuario  || '—',
       ubicacion:   a.nombre_ubicacion || '—',
@@ -485,16 +487,19 @@ function renderInventoryTable(tbody, data, groupByKey = null) {
         <td>${escapeHTML(item.asignado)}</td>
         <td style="color:var(--text-2)">${escapeHTML(item.team)}</td>
         <td>${statusPill(item.status)}</td>
+        <td class="col-right">${formatearFecha(item.ultima_calibracion)}</td>
         <td class="col-right">${formatearFecha(item.calibracion || item.fecha)}</td>
         <td class="action-cell">
-           <select class="form-input" style="font-size:12px; padding:2px 4px; width:120px;" onchange="window.actualizarEstadoHerramienta('${item.db_id}', this.value)" onclick="event.stopPropagation()">
-              <option value="">${t('inv.actualizar')}</option>
-              <option value="disponible">${t('estado.disponible')}</option>
-              <option value="en_uso">${t('estado.en_uso')}</option>
-              <option value="en_mantenimiento">${t('estado.en_mantenimiento')}</option>
-              <option value="danado">${t('estado.danado')}</option>
-           </select>
-           <button class="icon-btn" onclick="event.stopPropagation(); window.eliminarActivo(${item.db_id})" title="Eliminar"><i class="fa-solid fa-trash" style="color:var(--accent-red)"></i></button>
+           <div style="display:flex; align-items:center; gap:4px; justify-content:flex-end;">
+             <select class="form-input" style="font-size:11px; padding:2px 4px; width:110px;" onchange="window.actualizarEstadoHerramienta('${item.db_id}', this.value)" onclick="event.stopPropagation()">
+                <option value="">${t('inv.actualizar')}</option>
+                <option value="disponible">${t('estado.disponible')}</option>
+                <option value="en_uso">${t('estado.en_uso')}</option>
+                <option value="en_mantenimiento">${t('estado.en_mantenimiento')}</option>
+                <option value="danado">${t('estado.danado')}</option>
+             </select>
+             <button class="icon-btn" onclick="event.stopPropagation(); window.eliminarActivo(${item.db_id})" title="Delete" style="flex-shrink:0;"><i class="fa-solid fa-trash" style="color:var(--accent-red)"></i></button>
+           </div>
         </td>
       `;
     }
@@ -1374,7 +1379,9 @@ async function openDrawer(item) {
     { label: window.i18n.t('drawer.meta_tipo'),    value: item.tipo_item || '—' },
     { label: window.i18n.t('drawer.meta_zona'),    value: item.zona || '—' },
     { label: window.i18n.t('drawer.meta_estado'),  value: window.i18n.t('estado.' + item.status) || (item.status || '').replace(/_/g,' ') || '—' },
+    { label: window.i18n.t('drawer.meta_ulti_cal') || 'Last Calibration',  value: formatearFecha(item.ultima_calibracion) },
     { label: window.i18n.t('drawer.meta_cal'),     value: formatearFecha(item.calibracion) },
+    { label: window.i18n.t('drawer.meta_ulti_tag') || 'DOM / Last Tag',    value: formatearFecha(item.ultimo_tag) },
     { label: window.i18n.t('drawer.meta_tag'),     value: formatearFecha(item.tag) },
     { label: window.i18n.t('drawer.meta_asignado'),value: item.asignado || '—' },
     { label: window.i18n.t('drawer.meta_team'),    value: item.team || '—' },
@@ -1569,19 +1576,24 @@ function inicializarImportModal() {
       const zonaIndex = headers.findIndex(h => h.includes('zona') || h.includes('zone') || h.includes('sitio') || h.includes('site'));
       const teamIndex = headers.findIndex(h => h.includes('team'));
       const statusIndex = headers.findIndex(h => h.includes('estado') || h.includes('status') || h.includes('condition'));
+      // Date columns from Excel
+      const lastCalIndex = headers.findIndex(h => (h.includes('last') && (h.includes('inspect') || h.includes('calibr'))) || h.includes('ultima calibracion'));
+      const nextCalIndex = headers.findIndex(h => h.includes('next due') || h.includes('proxima calibracion') || (h.includes('next') && h.includes('calibr')));
+      const domIndex = headers.findIndex(h => h === 'dom' || h.includes('date of man'));
+      const expiryIndex = headers.findIndex(h => h.includes('expiry') || h.includes('expire'));
 
       if (invIndex === -1 || eqIndex === -1) {
-        msgEl.textContent = window.i18n.t('import.err_req_fields') || 'Faltan columnas obligatorias.';
+        msgEl.textContent = window.i18n.t('import.err_req_fields') || 'Required columns missing.';
         msgEl.className = 'modal-msg error';
         msgEl.style.display = 'block';
         return;
       }
 
-      // Validar cada fila
+      // Parse each row
       const parsedData = [];
       for (let i = 1; i < rows.length; i++) {
         const row = rows[i];
-        if (!row || row.length === 0 || (!row[invIndex] && !row[eqIndex])) continue; // saltar vacías
+        if (!row || row.length === 0 || (!row[invIndex] && !row[eqIndex])) continue;
 
         const numero_serie = String(row[invIndex] || '').trim();
         const descripcion = String(row[eqIndex] || '').trim();
@@ -1599,7 +1611,11 @@ function inicializarImportModal() {
           serie: serieIndex !== -1 ? String(row[serieIndex] || '').trim() : '',
           zona: zonaIndex !== -1 ? String(row[zonaIndex] || '').trim() : '',
           team: teamIndex !== -1 ? String(row[teamIndex] || '').trim() : '',
-          estado: statusIndex !== -1 ? String(row[statusIndex] || '').trim().toLowerCase() : 'disponible'
+          estado: statusIndex !== -1 ? String(row[statusIndex] || '').trim().toLowerCase() : 'disponible',
+          fecha_ultima_cali: lastCalIndex !== -1 && row[lastCalIndex] ? String(row[lastCalIndex]).trim() : null,
+          fecha_prox_cali:   nextCalIndex !== -1 && row[nextCalIndex] ? String(row[nextCalIndex]).trim() : null,
+          fecha_ultimo_tag:  domIndex !== -1 && row[domIndex] ? String(row[domIndex]).trim() : null,
+          fecha_prox_tag:    expiryIndex !== -1 && row[expiryIndex] ? String(row[expiryIndex]).trim() : null,
         });
       }
 

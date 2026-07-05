@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en" data-theme="light">
 <head>
     <meta charset="UTF-8">
@@ -319,8 +319,9 @@
                             <th data-i18n="col.asignado">Assigned to</th>
                             <th data-i18n="col.team">Team</th>
                             <th data-i18n="col.estado">Status</th>
-                            <th class="col-right" data-i18n="col.ulti_cal">Last Calibration</th>`n                              <th class="col-right" data-i18n="col.prox_cal">Next Calibration</th>
-                            <th class="col-right" data-i18n="col.acciones" style="width:100px">Actions</th>
+                            <th class="col-right" data-i18n="col.ulti_cal">Last Calibration</th>
+                            <th class="col-right" data-i18n="col.prox_cal">Next Calibration</th>
+                            <th class="col-right" data-i18n="col.acciones" style="width:140px">Actions</th>
                         </tr>
                     </thead>
                     <tbody id="inventTableBody"></tbody>
@@ -941,9 +942,25 @@
                             <td style="padding: 6px 0;"><strong data-i18n="import.col_team">Team</strong></td>
                             <td style="padding: 6px 0; color:var(--text-3);" data-i18n="import.opc">Optional</td>
                         </tr>
-                        <tr>
+                        <tr style="border-bottom: 1px solid var(--border);">
                             <td style="padding: 6px 0;"><strong data-i18n="import.col_estado">Status</strong></td>
-                            <td style="padding: 6px 0; color:var(--text-3);" data-i18n="import.estado_opc">Optional (Default: disponible)</td>
+                            <td style="padding: 6px 0; color:var(--text-3);" data-i18n="import.estado_opc">Optional (Default: Available)</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid var(--border);">
+                            <td style="padding: 6px 0;"><strong data-i18n="import.col_last_cal">Last Calibration / Inspection</strong></td>
+                            <td style="padding: 6px 0; color:var(--text-3);" data-i18n="import.opc">Optional</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid var(--border);">
+                            <td style="padding: 6px 0;"><strong data-i18n="import.col_next_cal">Next Due / Next Calibration</strong></td>
+                            <td style="padding: 6px 0; color:var(--text-3);" data-i18n="import.opc">Optional</td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid var(--border);">
+                            <td style="padding: 6px 0;"><strong data-i18n="import.col_dom">DOM (Date of Manufacture)</strong></td>
+                            <td style="padding: 6px 0; color:var(--text-3);" data-i18n="import.opc">Optional</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 6px 0;"><strong data-i18n="import.col_expiry">Expiry / Tag Expiry</strong></td>
+                            <td style="padding: 6px 0; color:var(--text-3);" data-i18n="import.opc">Optional</td>
                         </tr>
                     </table>
                 </div>

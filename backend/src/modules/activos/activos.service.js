@@ -1,4 +1,4 @@
-﻿const db = require('../../config/database');
+const db = require('../../config/database');
 
 const ASSET_SELECT = `
   SELECT a.id, a.numero_serie, a.estado,
@@ -45,7 +45,7 @@ exports.create = async (data) => {
   let { item_id, descripcion, numero_serie, usuario_actual_id, ubicacion_actual_id,
           fecha_ultima_cali, fecha_prox_cali, fecha_ultimo_tag, fecha_prox_tag, estado, team } = data;
   if (usuario_actual_id && ubicacion_actual_id)
-    throw Object.assign(new Error('Un activo no puede tener usuario y ubicación simultáneamente.'), { isOperational: true });
+    throw Object.assign(new Error('An asset cannot have both a user and a location simultaneously.'), { isOperational: true });
 
   if (!item_id && descripcion) {
     const descTrimmed = descripcion.trim();
@@ -53,13 +53,13 @@ exports.create = async (data) => {
     if (itemRows.rows.length > 0) {
       item_id = itemRows.rows[0].id;
     } else {
-      const newItem = await db.query('INSERT INTO items (nombre, tipo) VALUES ($1, $2) RETURNING id', [descTrimmed, 'herramienta']);
+      const newItem = await db.query('INSERT INTO items (nombre, tipo) VALUES ($1, $2) RETURNING id', [descTrimmed, 'tool']);
       item_id = newItem.rows[0].id;
     }
   }
 
   if (!item_id) {
-    throw Object.assign(new Error('Debe proporcionar item_id o descripcion.'), { isOperational: true });
+    throw Object.assign(new Error('Must provide item_id or descripcion.'), { isOperational: true });
   }
 
   const { rows } = await db.query(
@@ -109,6 +109,28 @@ exports.removeAll = async () => {
   return { deleted: true };
 };
 
+/**
+ * Safely parse date strings from Excel into YYYY-MM-DD format.
+ * Handles: '7/1/2026', '2026-01-15', 'sept-20', 'Jan 2025', etc.
+ */
+function parseDateStr(dateStr) {
+  if (!dateStr) return null;
+  let ds = String(dateStr).trim();
+  if (!ds || ds === '-' || ds === '—' || ds.toLowerCase() === 'n/a') return null;
+
+  // Handle "sept-20", "jan-25" style (month abbreviation + 2-digit year)
+  const monthYearMatch = ds.match(/^([a-z]{3,9})-(\d{2})$/i);
+  if (monthYearMatch) {
+    const months = { jan:'01',feb:'02',mar:'03',apr:'04',may:'05',jun:'06',
+                     jul:'07',aug:'08',sep:'09',sept:'09',oct:'10',nov:'11',dec:'12' };
+    const m = months[monthYearMatch[1].toLowerCase()] || '01';
+    ds = `20${monthYearMatch[2]}-${m}-01`;
+  }
+
+  const d = new Date(ds);
+  return isNaN(d.getTime()) ? null : d.toISOString().split('T')[0];
+}
+
 exports.bulkCreate = async (activosData) => {
   const client = await db.pool.connect();
   try {
@@ -122,7 +144,7 @@ exports.bulkCreate = async (activosData) => {
       if (itemRows.length > 0) {
         item_id = itemRows[0].id;
       } else {
-        const { rows: newItem } = await client.query('INSERT INTO items (nombre, tipo) VALUES ($1, $2) RETURNING id', [item.descripcion.trim(), 'herramienta']);
+        const { rows: newItem } = await client.query('INSERT INTO items (nombre, tipo) VALUES ($1, $2) RETURNING id', [item.descripcion.trim(), 'tool']);
         item_id = newItem[0].id;
       }
 
@@ -137,10 +159,10 @@ exports.bulkCreate = async (activosData) => {
         }
       }
 
-      // 3. Resolve Team (String, but validate if needed. It's stored as VARCHAR in DB)
+      // 3. Resolve Team
       const team = item.team ? item.team.trim() : null;
 
-      // 4. Normalize Status (to avoid ENUM errors)
+      // 4. Normalize Status
       let rawStatus = (item.estado || '').toLowerCase().trim();
       const statusMap = {
         'available': 'disponible', 'in use': 'en_uso', 'maintenance': 'en_mantenimiento',
@@ -151,20 +173,32 @@ exports.bulkCreate = async (activosData) => {
       let normalizedStatus = statusMap[rawStatus] || rawStatus;
       const validStatuses = new Set(['disponible', 'en_uso', 'en_mantenimiento', 'calibracion_pendiente', 'fuera_de_servicio', 'calibrado', 'danado', 'en_funcionamiento', 'desconocido']);
       if (!validStatuses.has(normalizedStatus)) {
-          normalizedStatus = 'desconocido';
+        normalizedStatus = 'desconocido';
       }
 
-      // 5. Insert into activos
+      // 5. Parse dates from Excel
+      const fecha_ultima_cali = parseDateStr(item.fecha_ultima_cali);
+      const fecha_prox_cali   = parseDateStr(item.fecha_prox_cali);
+      const fecha_ultimo_tag  = parseDateStr(item.fecha_ultimo_tag);
+      const fecha_prox_tag    = parseDateStr(item.fecha_prox_tag);
+
+      // 6. Insert into activos (with dates)
       await client.query(`
-        INSERT INTO activos (item_id, numero_serie, ubicacion_actual_id, estado, team)
-        VALUES ($1, $2, $3, $4, $5)
+        INSERT INTO activos (item_id, numero_serie, ubicacion_actual_id, estado, team,
+            fecha_ultima_cali, fecha_prox_cali, fecha_ultimo_tag, fecha_prox_tag)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
         ON CONFLICT (numero_serie) DO UPDATE SET
           item_id = EXCLUDED.item_id,
           ubicacion_actual_id = EXCLUDED.ubicacion_actual_id,
           estado = EXCLUDED.estado,
-          team = EXCLUDED.team
-      `, [item_id, item.numero_serie.trim(), ubicacion_actual_id, normalizedStatus, team]);
-      
+          team = EXCLUDED.team,
+          fecha_ultima_cali = COALESCE(EXCLUDED.fecha_ultima_cali, activos.fecha_ultima_cali),
+          fecha_prox_cali   = COALESCE(EXCLUDED.fecha_prox_cali, activos.fecha_prox_cali),
+          fecha_ultimo_tag  = COALESCE(EXCLUDED.fecha_ultimo_tag, activos.fecha_ultimo_tag),
+          fecha_prox_tag    = COALESCE(EXCLUDED.fecha_prox_tag, activos.fecha_prox_tag)
+      `, [item_id, item.numero_serie.trim(), ubicacion_actual_id, normalizedStatus, team,
+          fecha_ultima_cali, fecha_prox_cali, fecha_ultimo_tag, fecha_prox_tag]);
+
       inserted++;
     }
 
@@ -177,4 +211,3 @@ exports.bulkCreate = async (activosData) => {
     client.release();
   }
 };
-

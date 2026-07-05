@@ -1,4 +1,4 @@
-/* ════════════════════════════════════════════
+﻿/* ════════════════════════════════════════════
    ENTELSO i18n — Language System EN / ES
    Usage:
      import { t, setLang, getLang } from './i18n.js'
@@ -21,7 +21,11 @@ const TRANSLATIONS = {
     'import.col_zona':     'Zone',
     'import.col_team':     'Team',
     'import.col_estado':   'Status',
-    'import.estado_opc':   'Optional (Default: disponible)',
+    'import.estado_opc':   'Optional (Default: Available)',
+    'import.col_last_cal': 'Last Calibration / Inspection',
+    'import.col_next_cal': 'Next Due / Next Calibration',
+    'import.col_dom':      'DOM (Date of Manufacture)',
+    'import.col_expiry':   'Expiry / Tag Expiry',
     'import.seleccionar':  'Select File',
     'import.preview_title':'Preview',
     'import.btn_upload':   'Import Data',
@@ -106,6 +110,7 @@ const TRANSLATIONS = {
     'col.retorno':         'Expected Return',
     'col.asignado':        'Assigned to',
     'col.prox_cal':        'Next Calibration',
+    'col.ulti_cal':        'Last Calibration',
     'col.acciones':        'Actions',
 
     // ── Inventario ──
@@ -254,7 +259,9 @@ const TRANSLATIONS = {
     'drawer.meta_tipo':    'Equipment Type',
     'drawer.meta_zona':    'Zone / Location',
     'drawer.meta_estado':  'Status',
+    'drawer.meta_ulti_cal':'Last Calibration',
     'drawer.meta_cal':     'Next Calibration',
+    'drawer.meta_ulti_tag':'DOM / Last Tag',
     'drawer.meta_tag':     'Next Tag/Inspection',
     'drawer.meta_asignado':'Assigned to',
     'drawer.meta_team':    'Team',
@@ -510,6 +517,7 @@ const TRANSLATIONS = {
     'col.fecha_asig':      'Fecha Asignación',
     'col.retorno':         'Retorno Estimado',
     'col.asignado':        'Asignado a',
+    'col.ulti_cal':        'Últ. Calibración',
     'col.prox_cal':        'Próx. Calibración',
     'col.acciones':        'Acciones',
 
@@ -522,12 +530,12 @@ const TRANSLATIONS = {
     'inv.exportar':        'Exportar',
     'inv.categorias':      'Categorías',
     'inv.actualizar':      '-- Cambiar Estado --',
-      'cat.gestionar':       'Gestionar Categor�as',
-      'cat.nueva_ph':        'Nueva categor�a...',
-      'cat.seleccionar':     'Seleccionar Categor�a Destino',
+      'cat.gestionar':       'Gestionar Categor�as',
+      'cat.nueva_ph':        'Nueva categor�a...',
+      'cat.seleccionar':     'Seleccionar Categor�a Destino',
       'bulk.acciones':       'Acciones en Lote',
       'bulk.borrar_sel':     'Borrar Seleccionados',
-      'bulk.mover_cat':      'Mover de Categor�a',
+      'bulk.mover_cat':      'Mover de Categor�a',
     'inv.eliminar_todos':  'Eliminar Todo',
     'inv.filtro_avanzado': 'Filtro Avanzado',
 
@@ -869,4 +877,6 @@ function applyTranslations() {
 
 // Expose globally so script.js can use
 window.i18n = { t, setLang, getLang, applyTranslations };
+
+
 
