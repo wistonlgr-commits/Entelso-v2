@@ -1636,7 +1636,7 @@ function inicializarImportModal() {
   submitBtn.addEventListener('click', async () => {
     if (!importFileData || importFileData.length === 0) return;
     submitBtn.disabled = true;
-    submitBtn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> <span>${window.i18n.t('btn.importando') || 'Importando...'}</span>`;
+    submitBtn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> <span>${window.i18n.t('import.importando') || 'Importando...'}</span>`;
 
     try {
       const res = await apiFetch('/api/activos/bulk', {
