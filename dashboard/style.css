@@ -996,6 +996,9 @@ canvas { display: block; }
     overflow: hidden;
     box-shadow: 0 24px 64px rgba(0,0,0,0.5);
     animation: cmdIn 120ms ease;
+    display: flex;
+    flex-direction: column;
+    max-height: 90vh;
 }
 
 .modal-header {
@@ -1008,7 +1011,7 @@ canvas { display: block; }
     font-weight: 600;
 }
 
-.modal-body { padding: 20px; display: flex; flex-direction: column; gap: 14px; }
+.modal-body { padding: 20px; display: flex; flex-direction: column; gap: 14px; overflow-y: auto; }
 
 .form-group { display: flex; flex-direction: column; gap: 5px; }
 .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
@@ -1607,7 +1610,6 @@ canvas { display: block; }
         width: 95%;
         margin: 20px auto;
         max-height: 90vh;
-        overflow-y: auto;
     }
     .login-box {
         width: 92%;
