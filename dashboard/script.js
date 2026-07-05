@@ -1,4 +1,4 @@
-﻿/* ════════════════════════════════════════════
+/* ════════════════════════════════════════════
    ENTELSO DASHBOARD — JavaScript v3
    Autenticación JWT · API REST · i18n ES/EN
    Navegación · Charts · Tema · Cmd Palette
@@ -3041,7 +3041,7 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 window.deleteCategory = async function(id) {
-  if(!await window.customConfirm('Eliminar categoria?')) return;
+  if(!await window.customConfirm(window.i18n.t('cat.confirm_delete') || 'Delete category?')) return;
   try {
     await apiFetch(`/api/items/${id}`, { method: 'DELETE' });
     const res = await apiFetch('/api/items');
