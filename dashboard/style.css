@@ -662,10 +662,18 @@ canvas { display: block; }
     font-size: var(--font-size-sm);
     color: var(--text-1);
     border-bottom: 1px solid var(--border);
-    white-space: nowrap;
+    white-space: normal;
     overflow: hidden;
     text-overflow: ellipsis;
     vertical-align: middle;
+}
+
+.action-cell {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    justify-content: flex-end;
+    white-space: nowrap; /* keep actions inline */
 }
 
 .linear-table tbody tr:last-child td { border-bottom: none; }
