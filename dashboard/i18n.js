@@ -1,4 +1,4 @@
-﻿/* ════════════════════════════════════════════
+/* ════════════════════════════════════════════
    ENTELSO i18n — Language System EN / ES
    Usage:
      import { t, setLang, getLang } from './i18n.js'
@@ -389,6 +389,19 @@ const TRANSLATIONS = {
     'teams.modal_titulo': 'Manage Teams',
     'teams.nuevo_nombre': 'New team name...',
     'teams.btn_agregar': 'Add',
+
+    'drawer.confirm_delete': 'Are you sure you want to delete this asset?',
+    'drawer.err_red': 'Network Error',
+    'drawer.eliminado': 'Deleted',
+    'drawer.err_eliminar': 'Error deleting',
+    'drawer.estado_ok': 'Status updated',
+    'drawer.err_actualizar': 'Error updating',
+    'drawer.err_actualizar_team': 'Error updating team: {0}',
+    'drawer.err_desconocido': 'Unknown error',
+    'drawer.sin_id': 'No Asset ID found.',
+    'zonas.toast_creada': 'Zone created successfully',
+    'zonas.confirm_delete': 'Are you sure you want to delete this zone?',
+    'zonas.toast_eliminada': 'Zone deleted successfully',
 
     // ── Filtro Avanzado ──
     'filter.titulo':        'Advanced Filters',
@@ -801,6 +814,19 @@ const TRANSLATIONS = {
     'teams.modal_titulo': 'Gestionar Teams',
     'teams.nuevo_nombre': 'Nombre del nuevo team...',
     'teams.btn_agregar': 'Agregar',
+
+    'drawer.confirm_delete': '¿Seguro que desea eliminar el activo?',
+    'drawer.err_red': 'Error de red',
+    'drawer.eliminado': 'Eliminado',
+    'drawer.err_eliminar': 'Error eliminando',
+    'drawer.estado_ok': 'Estado actualizado',
+    'drawer.err_actualizar': 'Error actualizando',
+    'drawer.err_actualizar_team': 'Error actualizando equipo: {0}',
+    'drawer.err_desconocido': 'Error desconocido',
+    'drawer.sin_id': 'Sin ID de activo.',
+    'zonas.toast_creada': 'Zona creada con éxito',
+    'zonas.confirm_delete': '¿Seguro que desea eliminar esta zona?',
+    'zonas.toast_eliminada': 'Zona eliminada con éxito',
 
     // ── Filtro Avanzado ──
     'filter.titulo':        'Filtros Avanzados',
