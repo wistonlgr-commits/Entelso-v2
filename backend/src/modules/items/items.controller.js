@@ -18,3 +18,11 @@ exports.updateStock = async (req, reply, next) => {
   try { reply.json(res.success(await svc.updateStock(req.params.id, req.body.cantidad, req.body.operacion))); }
   catch (e) { next(e); }
 };
+
+exports.remove = async (req, reply, next) => {
+  try {
+    await svc.remove(req.params.id);
+    reply.json(res.success({ deleted: true }, 'Categoría eliminada.'));
+  } catch (e) { next(e); }
+};
+

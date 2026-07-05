@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en" data-theme="light">
 <head>
     <meta charset="UTF-8">
@@ -273,16 +273,31 @@
                     </div>
                     <button class="btn-ghost" id="confirmExportBtn"><i class="fa-solid fa-file-excel"></i> <span data-i18n="inv.exportar">Export</span></button>
                     <button class="btn-ghost" id="openManageCategoriesBtn"><i class="fa-solid fa-tags"></i> <span data-i18n="inv.categorias">Categories</span></button>
-                    <button class="btn-ghost" onclick="openBulkDelete('activos')" style="color:var(--accent-red)"><i class="fa-solid fa-trash-can"></i> <span data-i18n="bulk.btn_delete_all">Delete All</span></button>
+                    <div class="dropdown-wrapper" style="position: relative;">
+                        <button class="btn-ghost" id="bulkActionsBtn" style="color:var(--text-1); display:none;">
+                            <i class="fa-solid fa-layer-group"></i> <span id="bulkActionsCount">0</span> <span data-i18n="bulk.acciones">Bulk Actions</span> <i class="fa-solid fa-chevron-down" style="font-size: 10px; margin-left: 4px;"></i>
+                        </button>
+                        <div class="dropdown-menu" id="bulkActionsMenu" style="display:none; position:absolute; right:0; top:100%; background:var(--bg-panel); border:1px solid var(--border); box-shadow:var(--shadow-md); border-radius:4px; z-index:100; min-width:180px;">
+                            <div class="dropdown-item" id="bulkDeleteSelectedBtn" style="color:var(--accent-red); cursor:pointer; padding:10px 12px; display:flex; align-items:center; gap:8px;">
+                                <i class="fa-solid fa-trash-can"></i> <span data-i18n="bulk.borrar_sel">Delete Selected</span>
+                            </div>
+                            <div class="dropdown-item" id="bulkMoveCategoryBtn" style="cursor:pointer; padding:10px 12px; display:flex; align-items:center; gap:8px; border-top: 1px solid var(--border);">
+                                <i class="fa-solid fa-folder-tree"></i> <span data-i18n="bulk.mover_cat">Move Category</span>
+                            </div>
+                        </div>
+                    </div>
                                         <button class="btn-ghost" id="openImportModal"><i class="fa-solid fa-file-import"></i> <span data-i18n="inv.importar">Bulk Import</span></button>
                     <button class="btn-primary" id="openNewItemModal2"><i class="fa-solid fa-plus"></i> <span data-i18n="inv.nuevo">Nuevo</span></button>
                 </div>
             </header>
             
             <div class="categories-dropdown-container" id="catDropdownContainer" style="display:none; padding: 10px 24px; background: var(--bg-hover); border-bottom: 1px solid var(--border);">
-                <div class="filter-chips" id="inventoryCategoryChips" style="flex-wrap: wrap;">
-                    <button class="chip active" data-filter="all">All</button>
-                    <!-- Dinámico desde JS -->
+                <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap;">
+                    <div class="filter-chips" id="inventoryCategoryChips" style="flex-wrap: wrap; margin-bottom: 0;">
+                        <button class="chip active" data-filter="all">All</button>
+                        <!-- Dinámico desde JS -->
+                    </div>
+                    <button class="icon-btn" id="openManageCategoriesModalBtn" title="Manage Categories" style="background: var(--bg); border: 1px solid var(--border);"><i class="fa-solid fa-gear"></i></button>
                 </div>
             </div>
 
@@ -297,13 +312,14 @@
                 <table class="linear-table">
                     <thead>
                         <tr>
+                            <th style="width: 40px; text-align: center;"><input type="checkbox" id="selectAllCheckbox"></th>
                             <th data-i18n="col.id">ID</th>
                             <th data-i18n="col.equipo">Equipment</th>
                             <th data-i18n="col.zona">Zone</th>
                             <th data-i18n="col.asignado">Assigned to</th>
                             <th data-i18n="col.team">Team</th>
                             <th data-i18n="col.estado">Status</th>
-                            <th class="col-right" data-i18n="col.prox_cal">Next Calibration</th>
+                            <th class="col-right" data-i18n="col.ulti_cal">Last Calibration</th>`n                              <th class="col-right" data-i18n="col.prox_cal">Next Calibration</th>
                             <th class="col-right" data-i18n="col.acciones" style="width:100px">Actions</th>
                         </tr>
                     </thead>
@@ -1021,5 +1037,47 @@
     </div>
 </div>
 
+<!-- Modal: Manage Categories -->
+<div class="modal-overlay" id="manageCategoriesModal">
+    <div class="modal" style="max-width: 450px;">
+        <div class="modal-header">
+            <h3 data-i18n="cat.gestionar">Manage Categories</h3>
+            <button class="close-btn" id="closeManageCategoriesModal"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="modal-body" style="max-height: 350px; overflow-y: auto;">
+            <ul id="manageCategoriesList" style="list-style: none; padding: 0; margin: 0;">
+                <!-- Filled dynamically -->
+            </ul>
+        </div>
+        <div class="modal-footer" style="display: flex; gap: 8px;">
+            <input type="text" id="newCategoryName" class="form-input" placeholder="Nueva categoría..." style="flex: 1;" data-i18n-ph="cat.nueva_ph">
+            <button class="btn-primary" id="addCategoryBtn"><i class="fa-solid fa-plus"></i></button>
+        </div>
+    </div>
+</div>
+
+<!-- Modal: Bulk Move to Category -->
+<div class="modal-overlay" id="bulkCategoryModal">
+    <div class="modal" style="max-width: 400px;">
+        <div class="modal-header">
+            <h3 data-i18n="bulk.mover_cat">Move Category</h3>
+            <button class="close-btn" id="closeBulkCategoryModal"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="modal-body">
+            <div class="form-group">
+                <label data-i18n="cat.seleccionar">Select Destination Category</label>
+                <select id="bulkCategorySelect" class="form-input select">
+                    <!-- Filled dynamically -->
+                </select>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn-ghost" id="cancelBulkCategoryBtn" data-i18n="modal.cancelar">Cancel</button>
+            <button class="btn-primary" id="confirmBulkCategoryBtn"><i class="fa-solid fa-check"></i> <span data-i18n="modal.ok">OK</span></button>
+        </div>
+    </div>
+</div>
+
 </body>
 </html>
+

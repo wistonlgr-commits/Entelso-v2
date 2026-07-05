@@ -1,4 +1,4 @@
-/* ════════════════════════════════════════════
+﻿/* ════════════════════════════════════════════
    ENTELSO DASHBOARD — JavaScript v3
    Autenticación JWT · API REST · i18n ES/EN
    Navegación · Charts · Tema · Cmd Palette
@@ -478,6 +478,7 @@ function renderInventoryTable(tbody, data, groupByKey = null) {
       `;
     } else {
       return `
+        <td style="text-align:center;"><input type="checkbox" class="row-checkbox" value="${item.db_id}" onclick="event.stopPropagation(); updateBulkActionsState()"></td>
         <td class="id-cell">${escapeHTML(item.id)}</td>
         <td>${escapeHTML(item.equipo)}</td>
         <td>${escapeHTML(item.zona)}</td>
@@ -485,7 +486,7 @@ function renderInventoryTable(tbody, data, groupByKey = null) {
         <td style="color:var(--text-2)">${escapeHTML(item.team)}</td>
         <td>${statusPill(item.status)}</td>
         <td class="col-right">${formatearFecha(item.calibracion || item.fecha)}</td>
-        <td class="col-right">
+        <td class="action-cell">
            <select class="form-input" style="font-size:12px; padding:2px 4px; width:120px;" onchange="window.actualizarEstadoHerramienta('${item.db_id}', this.value)" onclick="event.stopPropagation()">
               <option value="">${t('inv.actualizar')}</option>
               <option value="disponible">${t('estado.disponible')}</option>
@@ -1555,7 +1556,7 @@ function inicializarImportModal() {
       const worksheet = workbook.Sheets[firstSheetName];
       
       // Convert to Array of Arrays
-      const rows = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+      const rows = XLSX.utils.sheet_to_json(worksheet, { header: 1, raw: false });
       if (rows.length < 2) {
         throw new Error('El archivo está vacío o no tiene encabezados.');
       }
@@ -2913,3 +2914,117 @@ window.deleteZona = async function(id) {
 // ==========================================
 (function() {
 })();
+
+// ==========================================
+// BULK ACTIONS & CATEGORY MANAGEMENT
+// ==========================================
+window.updateBulkActionsState = function() {
+  const checked = document.querySelectorAll('.row-checkbox:checked');
+  const btn = document.getElementById('bulkActionsBtn');
+  const countEl = document.getElementById('bulkActionsCount');
+  if(checked.length > 0) {
+    btn.style.display = 'inline-flex';
+    countEl.textContent = checked.length;
+  } else {
+    btn.style.display = 'none';
+    document.getElementById('bulkActionsMenu').style.display = 'none';
+  }
+};
+
+document.getElementById('selectAllCheckbox')?.addEventListener('change', (e) => {
+  document.querySelectorAll('.row-checkbox').forEach(cb => cb.checked = e.target.checked);
+  window.updateBulkActionsState();
+});
+
+document.getElementById('bulkActionsBtn')?.addEventListener('click', () => {
+  const menu = document.getElementById('bulkActionsMenu');
+  menu.style.display = menu.style.display === 'none' ? 'block' : 'none';
+});
+
+document.getElementById('bulkDeleteSelectedBtn')?.addEventListener('click', async () => {
+  document.getElementById('bulkActionsMenu').style.display = 'none';
+  const checked = document.querySelectorAll('.row-checkbox:checked');
+  if(!checked.length) return;
+  if(!await window.customConfirm(window.i18n.t('drawer.confirm_delete') || 'Seguro que desea eliminar los seleccionados?')) return;
+  const ids = Array.from(checked).map(cb => cb.value);
+  try {
+    await apiFetch('/api/activos/bulk/delete', { method: 'POST', body: JSON.stringify({ ids }) });
+    window.customAlert('Equipos eliminados.');
+    await cargarActivos();
+    document.getElementById('selectAllCheckbox').checked = false;
+    window.updateBulkActionsState();
+  } catch (err) { window.customAlert('Error: ' + err.message); }
+});
+
+// Move Category
+let selectedIdsForMove = [];
+document.getElementById('bulkMoveCategoryBtn')?.addEventListener('click', () => {
+  document.getElementById('bulkActionsMenu').style.display = 'none';
+  const checked = document.querySelectorAll('.row-checkbox:checked');
+  if(!checked.length) return;
+  selectedIdsForMove = Array.from(checked).map(cb => cb.value);
+  const select = document.getElementById('bulkCategorySelect');
+  select.innerHTML = '<option value="">-- ' + (window.i18n.t('cat.seleccionar') || 'Seleccionar') + ' --</option>';
+  systemCategories.forEach(c => {
+    select.innerHTML += `<option value="${c.id}">${c.nombre}</option>`;
+  });
+  document.getElementById('bulkCategoryModal').style.display = 'flex';
+});
+
+document.getElementById('closeBulkCategoryModal')?.addEventListener('click', () => document.getElementById('bulkCategoryModal').style.display = 'none');
+document.getElementById('cancelBulkCategoryBtn')?.addEventListener('click', () => document.getElementById('bulkCategoryModal').style.display = 'none');
+document.getElementById('confirmBulkCategoryBtn')?.addEventListener('click', async () => {
+  const item_id = document.getElementById('bulkCategorySelect').value;
+  if(!item_id) return;
+  try {
+    await apiFetch('/api/activos/bulk/category', { method: 'PATCH', body: JSON.stringify({ ids: selectedIdsForMove, item_id }) });
+    window.customAlert('Equipos movidos exitosamente.');
+    document.getElementById('bulkCategoryModal').style.display = 'none';
+    await cargarActivos();
+    document.getElementById('selectAllCheckbox').checked = false;
+    window.updateBulkActionsState();
+  } catch (err) { window.customAlert('Error: ' + err.message); }
+});
+
+// Category Management
+const renderManageCatList = () => {
+  const ul = document.getElementById('manageCategoriesList');
+  if(!ul) return;
+  ul.innerHTML = '';
+  systemCategories.forEach(c => {
+    ul.innerHTML += `<li style="display:flex; justify-content:space-between; padding:8px 12px; border-bottom:1px solid var(--border);">
+      <span>${c.nombre} <small style="color:var(--text-2)">(${c.tipo})</small></span>
+      <button class="icon-btn" onclick="deleteCategory(${c.id})" title="Delete"><i class="fa-solid fa-trash" style="color:var(--accent-red)"></i></button>
+    </li>`;
+  });
+};
+
+document.getElementById('openManageCategoriesModalBtn')?.addEventListener('click', () => {
+  renderManageCatList();
+  document.getElementById('manageCategoriesModal').style.display = 'flex';
+});
+
+document.getElementById('closeManageCategoriesModal')?.addEventListener('click', () => document.getElementById('manageCategoriesModal').style.display = 'none');
+
+document.getElementById('addCategoryBtn')?.addEventListener('click', async () => {
+  const name = document.getElementById('newCategoryName').value.trim();
+  if(!name) return;
+  try {
+    await apiFetch('/api/items', { method: 'POST', body: JSON.stringify({ nombre: name, tipo: 'herramienta' }) });
+    document.getElementById('newCategoryName').value = '';
+    const res = await apiFetch('/api/items');
+    const json = await res.json();
+    if(json.success) { systemCategories = json.data; renderManageCatList(); renderizarFiltrosCategorias(); }
+  } catch (err) { window.customAlert('Error: ' + err.message); }
+});
+
+window.deleteCategory = async function(id) {
+  if(!await window.customConfirm('Eliminar categoria?')) return;
+  try {
+    await apiFetch(`/api/items/${id}`, { method: 'DELETE' });
+    const res = await apiFetch('/api/items');
+    const json = await res.json();
+    if(json.success) { systemCategories = json.data; renderManageCatList(); renderizarFiltrosCategorias(); }
+  } catch (err) { window.customAlert('Error: ' + err.message); }
+};
+

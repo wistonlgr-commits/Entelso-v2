@@ -1,10 +1,10 @@
-const db = require('../../config/database');
+﻿const db = require('../../config/database');
 
 const ASSET_SELECT = `
   SELECT a.id, a.numero_serie, a.estado,
          a.fecha_ultima_cali, a.fecha_prox_cali,
          a.fecha_ultimo_tag,  a.fecha_prox_tag,
-         i.id   AS item_id,       i.nombre AS nombre_item,
+         i.id   AS item_id,       i.nombre AS nombre_item, i.tipo AS tipo,
          u.id   AS usuario_id,    u.nombre AS nombre_usuario, u.telefono_whatsapp, u.team AS usuario_team,
          ub.id  AS ubicacion_id,  ub.nombre_ubicacion
   FROM   activos a
@@ -177,3 +177,4 @@ exports.bulkCreate = async (activosData) => {
     client.release();
   }
 };
+

@@ -1,4 +1,4 @@
-const { z } = require('zod');
+﻿const { z } = require('zod');
 
 const estadoEnum = z.enum([
   'disponible', 'en_uso', 'en_mantenimiento', 'calibracion_pendiente',

@@ -116,7 +116,13 @@ const TRANSLATIONS = {
     'inv.agrupar.team':    'Group by Team',
     'inv.exportar':        'Export',
     'inv.categorias':      'Categories',
-    'inv.actualizar':      '-- Update --',
+    'inv.actualizar':      '-- Set Status --',
+      'cat.gestionar':       'Manage Categories',
+      'cat.nueva_ph':        'New category...',
+      'cat.seleccionar':     'Select Destination Category',
+      'bulk.acciones':       'Bulk Actions',
+      'bulk.borrar_sel':     'Delete Selected',
+      'bulk.mover_cat':      'Move Category',
     'inv.eliminar_todos':  'Delete All',
     'inv.filtro_avanzado': 'Advanced Filter',
 
@@ -515,7 +521,13 @@ const TRANSLATIONS = {
     'inv.agrupar.team':    'Agrupar por Equipo (Team)',
     'inv.exportar':        'Exportar',
     'inv.categorias':      'CategorÃ­as',
-    'inv.actualizar':      '-- Actualizar --',
+    'inv.actualizar':      '-- Cambiar Estado --',
+      'cat.gestionar':       'Gestionar Categorías',
+      'cat.nueva_ph':        'Nueva categoría...',
+      'cat.seleccionar':     'Seleccionar Categoría Destino',
+      'bulk.acciones':       'Acciones en Lote',
+      'bulk.borrar_sel':     'Borrar Seleccionados',
+      'bulk.mover_cat':      'Mover de Categoría',
     'inv.eliminar_todos':  'Eliminar Todo',
     'inv.filtro_avanzado': 'Filtro Avanzado',
 
@@ -857,3 +869,4 @@ function applyTranslations() {
 
 // Expose globally so script.js can use
 window.i18n = { t, setLang, getLang, applyTranslations };
+

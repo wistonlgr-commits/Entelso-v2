@@ -33,14 +33,27 @@ exports.remove = async (req, reply, next) => {
 exports.removeAll = async (req, reply, next) => {
   try {
     const result = await svc.removeAll();
-    reply.json(res.success(result, 'All equipment deleted.'));
+    reply.json(res.success({ deleted: result }, 'Todos los activos eliminados.'));
   } catch (e) { next(e); }
 };
-
 exports.bulkCreate = async (req, reply, next) => {
-  try { 
-    reply.status(201).json(res.success(await svc.bulkCreate(req.body.activos))); 
-  } catch (e) { 
-    next(e); 
-  }
+  try { reply.status(201).json(res.success(await svc.bulkCreate(req.body.activos))); } catch (e) { next(e); }
+};
+exports.bulkRemoveSelected = async (req, reply, next) => {
+  try {
+    if (!req.body.ids || !Array.isArray(req.body.ids)) {
+      return reply.status(400).json(res.error('Se requiere un array de IDs.', 'BAD_REQUEST'));
+    }
+    const result = await svc.bulkRemoveSelected(req.body.ids);
+    reply.json(res.success({ deleted: result }, 'Activos seleccionados eliminados.'));
+  } catch (e) { next(e); }
+};
+exports.bulkUpdateCategory = async (req, reply, next) => {
+  try {
+    if (!req.body.ids || !Array.isArray(req.body.ids) || !req.body.item_id) {
+      return reply.status(400).json(res.error('Faltan datos.', 'BAD_REQUEST'));
+    }
+    const result = await svc.bulkUpdateCategory(req.body.ids, req.body.item_id);
+    reply.json(res.success({ updated: result }, 'Categoría actualizada para los equipos.'));
+  } catch (e) { next(e); }
 };

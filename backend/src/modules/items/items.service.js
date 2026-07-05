@@ -37,3 +37,10 @@ exports.updateStock = async (id, cantidad, operacion) => {
   );
   return rows[0];
 };
+
+exports.remove = async (id) => {
+  const check = await db.query('SELECT id FROM activos WHERE item_id = $1 LIMIT 1', [id]);
+  if (check.rows.length > 0) throw Object.assign(new Error('No se puede eliminar porque hay equipos asignados a esta categoría.'), { isOperational: true });
+  await db.query('DELETE FROM items WHERE id = $1', [id]);
+};
+
