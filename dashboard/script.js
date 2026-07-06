@@ -1383,10 +1383,13 @@ async function openDrawer(item) {
     { label: window.i18n.t('drawer.meta_tipo'),    value: item.tipo_item || '—' },
     { label: window.i18n.t('drawer.meta_zona'),    value: item.zona || '—' },
     { label: window.i18n.t('drawer.meta_estado'),  value: window.i18n.t('estado.' + item.status) || (item.status || '').replace(/_/g,' ') || '—' },
-    { label: window.i18n.t('drawer.meta_ulti_cal') || 'Last Calibration',  value: formatearFecha(item.ultima_calibracion) },
-    { label: window.i18n.t('drawer.meta_cal'),     value: formatearFecha(item.calibracion) },
-    { label: window.i18n.t('drawer.meta_ulti_tag') || 'DOM / Last Tag',    value: formatearFecha(item.ultimo_tag) },
-    { label: window.i18n.t('drawer.meta_tag'),     value: formatearFecha(item.tag) },
+    ...( (item.id === 'EQ-15' || item.id === 'EQ-17') ? [
+      { label: window.i18n.t('drawer.meta_ulti_cal') || 'Last Calibration',  value: formatearFecha(item.ultima_calibracion) },
+      { label: window.i18n.t('drawer.meta_cal') || 'Next Calibration',       value: formatearFecha(item.calibracion) }
+    ] : [
+      { label: 'Last Test/tag',  value: formatearFecha(item.ultima_calibracion) },
+      { label: 'Next Test/tag',  value: formatearFecha(item.calibracion) }
+    ]),
     { label: window.i18n.t('drawer.meta_asignado'),value: item.asignado || '—' },
     { label: window.i18n.t('drawer.meta_team'),    value: item.team || '—' },
   ];
@@ -2474,14 +2477,21 @@ window.editarActivo = async function(item) {
               ${window.teamsList.map(t => `<option value="${t.nombre}" ${item.team === t.nombre ? 'selected' : ''}>${t.nombre}</option>`).join('')}
             </select>
           </div>
+          ${(item.id === 'EQ-15' || item.id === 'EQ-17') ? `
           <div class="form-row">
-            <div class="form-group"><label>${window.i18n.t('col.ulti_cal') || 'Fecha Últ. Calibración'}</label><input type="date" id="editAssetUltiCal" class="form-input" value="${item.calibracion?item.calibracion.substring(0,10):''}"></div>
+            <div class="form-group"><label>${window.i18n.t('col.ulti_cal') || 'Fecha Últ. Calibración'}</label><input type="date" id="editAssetUltiCal" class="form-input" value="${item.ultima_calibracion?item.ultima_calibracion.substring(0,10):''}"></div>
             <div class="form-group"><label>${window.i18n.t('col.prox_cal') || 'Fecha Próx. Calibración'}</label><input type="date" id="editAssetProxCal" class="form-input" value="${item.calibracion?item.calibracion.substring(0,10):''}"></div>
+            <input type="hidden" id="editAssetUltiTag" value="">
+            <input type="hidden" id="editAssetProxTag" value="">
           </div>
+          ` : `
           <div class="form-row">
-            <div class="form-group"><label>${window.i18n.t('drawer.meta_ulti_tag') || 'Fecha Últ. Tag'}</label><input type="date" id="editAssetUltiTag" class="form-input" value="${item.tag?item.tag.substring(0,10):''}"></div>
-            <div class="form-group"><label>${window.i18n.t('drawer.meta_tag') || 'Fecha Próx. Tag'}</label><input type="date" id="editAssetProxTag" class="form-input" value="${item.tag?item.tag.substring(0,10):''}"></div>
+            <div class="form-group"><label>Last Test/tag</label><input type="date" id="editAssetUltiCal" class="form-input" value="${item.ultima_calibracion?item.ultima_calibracion.substring(0,10):''}"></div>
+            <div class="form-group"><label>Next Test/tag</label><input type="date" id="editAssetProxCal" class="form-input" value="${item.calibracion?item.calibracion.substring(0,10):''}"></div>
+            <input type="hidden" id="editAssetUltiTag" value="">
+            <input type="hidden" id="editAssetProxTag" value="">
           </div>
+          `}
         </div>
         <div class="modal-footer">
           <button class="btn-ghost" onclick="document.getElementById('editAssetModal').remove()">${window.i18n.t('modal.cancelar') || 'Cancelar'}</button>

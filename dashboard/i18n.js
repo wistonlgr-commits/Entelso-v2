@@ -110,8 +110,8 @@ const TRANSLATIONS = {
     'col.fecha_asig':      'Assignment Date',
     'col.retorno':         'Expected Return',
     'col.asignado':        'Assigned to',
-    'col.prox_cal':        'Next Calibration',
-    'col.ulti_cal':        'Last Calibration',
+    'col.prox_cal':        'Next Cal / Tag',
+    'col.ulti_cal':        'Last Cal / Tag',
     'col.acciones':        'Actions',
 
     // ── Inventario ──
@@ -565,8 +565,8 @@ const TRANSLATIONS = {
     'col.fecha_asig':      'Fecha Asignación',
     'col.retorno':         'Retorno Estimado',
     'col.asignado':        'Asignado a',
-    'col.ulti_cal':        'Últ. Calibración',
-    'col.prox_cal':        'Próx. Calibración',
+    'col.ulti_cal':        'Última Cal / Tag',
+    'col.prox_cal':        'Próxima Cal / Tag',
     'col.acciones':        'Acciones',
 
     // ── Inventario ──
