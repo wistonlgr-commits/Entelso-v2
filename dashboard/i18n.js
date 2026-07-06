@@ -96,6 +96,8 @@ const TRANSLATIONS = {
 
     // ── Tabla ──
     'col.id':              'ID',
+    'col.nombre':          'Name',
+    'col.email':           'Email',
     'col.equipo':          'Equipment',
     'col.zona':            'Zone',
     'col.team':            'Team',
@@ -551,6 +553,8 @@ const TRANSLATIONS = {
 
     // ── Tabla ──
     'col.id':              'ID',
+    'col.nombre':          'Nombre',
+    'col.email':           'Email',
     'col.equipo':          'Equipo / Dispositivo',
     'col.zona':            'Zona / Sitio',
     'col.team':            'Equipo (Team)',

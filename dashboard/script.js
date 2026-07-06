@@ -1177,7 +1177,7 @@ function inicializarPerfil() {
             <td>${u.id}</td>
             <td>${u.nombre}</td>
             <td>${u.email}</td>
-            <td><span class="status-badge status-${u.rol}">${u.rol}</span></td>
+            <td><span class="status-badge status-${u.rol}">${window.i18n.t('usuarios.role_' + u.rol) || u.rol}</span></td>
             <td>
               <button class="icon-btn" title="${window.i18n.t('drawer.editar') || 'Editar'}" onclick="window.editarEmpleado(${u.id})"><i class="fa-solid fa-pen"></i></button>
               <button class="icon-btn" title="${window.i18n.t('bulk.btn_eliminar') || 'Eliminar'}" onclick="eliminarUsuario(${u.id})"><i class="fa-solid fa-trash" style="color:var(--accent-red)"></i></button>
