@@ -827,17 +827,23 @@
                     <select id="modalTeam" class="form-input"><option value="" data-i18n="usuarios.sin_team">No Team</option></select>
                 </div>
             </div>
-            <div class="form-group">
-                <label data-i18n="modal.estado">Status</label>
-                <select id="modalEstado" class="form-input">
-                    <option value="disponible" data-i18n="estado.disponible">Disponible</option>
-                    <option value="en_uso" data-i18n="estado.en_uso">En Uso</option>
-                    <option value="en_mantenimiento" data-i18n="estado.en_mantenimiento">Under Maintenance</option>
-                    <option value="calibracion_pendiente" data-i18n="estado.calibracion_pendiente">Calibration Pending</option>
-                    <option value="fuera_de_servicio" data-i18n="estado.fuera_de_servicio">Fuera de Servicio</option>
-                    <option value="calibrado" data-i18n="estado.calibrado">Calibrado</option>
-                    <option value="danado" data-i18n="estado.danado">Dañado</option>
-                </select>
+            <div class="form-row">
+                <div class="form-group">
+                    <label data-i18n="modal.estado">Status</label>
+                    <select id="modalEstado" class="form-input">
+                        <option value="disponible" data-i18n="estado.disponible">Disponible</option>
+                        <option value="en_uso" data-i18n="estado.en_uso">En Uso</option>
+                        <option value="en_mantenimiento" data-i18n="estado.en_mantenimiento">Under Maintenance</option>
+                        <option value="calibracion_pendiente" data-i18n="estado.calibracion_pendiente">Calibration Pending</option>
+                        <option value="fuera_de_servicio" data-i18n="estado.fuera_de_servicio">Fuera de Servicio</option>
+                        <option value="calibrado" data-i18n="estado.calibrado">Calibrado</option>
+                        <option value="danado" data-i18n="estado.danado">Dañado</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label data-i18n="modal.fecha_registro">Registration Date</label>
+                    <input type="date" id="modalFechaRegistro" class="form-input">
+                </div>
             </div>
         </div>
         <div id="modalQRContainer" style="text-align: center; margin-top: 16px; display: none;">

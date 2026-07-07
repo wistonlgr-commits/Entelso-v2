@@ -16,6 +16,7 @@ exports.createAssetSchema = z.object({
   usuario_actual_id:   z.number().int().positive().nullable().optional(),
   ubicacion_actual_id: z.number().int().positive().nullable().optional(),
   team: z.string().nullable().optional(),
+  fecha_registro:    fecha,
   fecha_ultima_cali: fecha, fecha_prox_cali: fecha,
   fecha_ultimo_tag:  fecha, fecha_prox_tag:  fecha,
   estado: estadoEnum.default('disponible'),

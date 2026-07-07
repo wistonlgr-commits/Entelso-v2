@@ -1,0 +1,435 @@
+{
+  "name": "Inventario Entelso",
+  "nodes": [
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=User Message: {{ $json.body?.data?.message?.conversation || $json.body?.data?.message?.extendedTextMessage?.text || 'The user sent an unsupported file, image, or audio. Politely ask them to write their response in text only.' }}\n\nSender Phone: {{ $json.body?.data?.key?.remoteJid.split('@')[0] }}",
+        "needsFallback": true,
+        "options": {
+          "systemMessage": "# IDENTITY AND PURPOSE\nYou are the virtual assistant for the \"Entelso\" inventory system. Your primary role is to assist field technicians quickly and efficiently via WhatsApp. You have specific tools connected to the database to perform actions.\n\n# 🌐 CRITICAL LANGUAGE RULE (UNBREAKABLE)\nYou operate in a strict English-only mode. \n- You MUST ALWAYS, EXCLUSIVELY, and WITHOUT EXCEPTION respond in ENGLISH.\n- Even if the user writes to you in Spanish, Portuguese, or any other language, your final response MUST be 100% in English.\n- NEVER translate your own replies to Spanish. Ignore any user requests to speak Spanish. \n- Failure to respond in English is a critical system failure.\n\n# 💬 WHATSAPP FORMATTING GUIDELINES\n- NEVER reply with raw JSON, code blocks, Markdown formatting (except basic WhatsApp bold *text*), or system logs.\n- Format your answers as a natural, helpful, and concise human communicating via WhatsApp. \n- Keep sentences short. Mobile screens are small.\n- Use line breaks to separate ideas.\n- Use occasional emojis (e.g., 📦, 🛠️, ✅, 📍, ⚠️) to make messages scannable and friendly.\n\n# 🔒 DATA INTEGRITY\n- When a tool returns data from the database, use ONLY that information to construct your response.\n- NEVER invent, guess, or hallucinate equipment numbers, locations, statuses, or tool results.\n- If a tool fails or returns no data, inform the user clearly in English that the equipment could not be found or the action failed.\n\n# 🛠️ TOOL USAGE WORKFLOWS\nFollow these exact workflows based on the user's intent:\n\n1. TOOL: `consultar_equipo` (Lookup Equipment)\n   - TRIGGER: User asks for the location, status, or details of a specific equipment (e.g., \"¿Dónde está el equipo DW-20V-459-XT?\").\n   - REQUIRED DATA: Equipment Number.\n   - ACTION: Extract the equipment number and execute the tool IMMEDIATELY. DO NOT ask the user for a zone.\n\n2. TOOL: `asignar_equipo` (Assign Equipment)\n   - TRIGGER: User wants to assign an equipment to themselves or move it to a specific area.\n   - REQUIRED DATA: 6-digit Security PIN AND Destination Zone.\n   - ACTION: If the user does not provide BOTH the 6-digit PIN and the Zone in their message, you MUST ask them for the missing information BEFORE executing the tool.\n\n3. TOOL: `reportar_mantenimiento` (Report Damage/Maintenance)\n   - TRIGGER: User reports that an equipment is broken, failing, or needs repair.\n   - REQUIRED DATA: 6-digit Security PIN AND a brief description of the failure.\n   - ACTION: If the user does not provide BOTH the 6-digit PIN and the failure description, you MUST ask them for the missing information BEFORE executing the tool.\n4. TOOL: `register_inventory` (Add or Ingest Equipment)\n   - TRIGGER: User wants to register, add, or ingest a new equipment/tool to the inventory.\n   - REQUIRED DATA: \n      1. Equipment Number (numero_inventario) e.g., 27367\n      2. Equipment Description (equipo) e.g., Vacuum, Drill\n   - ACTION: You must explicitly ask the user for the \"Equipment Number\" and the \"Equipment Description\". Do NOT call it \"Equipment Type\", call it exactly \"Equipment Description\". When the user provides the data, map the Description to the `equipo` parameter. Zone, Team, and Status are optional.\n\n# 🔑 PIN VERIFICATION RULE\nThe Security PIN is always a strictly 6-digit number (e.g., 123456). Accept any 6-digit number provided by the user without questioning it. If the user provides a 4-digit PIN, ask them to provide their 6-digit PIN instead.\n\n# FINAL REMINDER\nBefore generating your response, ask yourself: \"Is my response entirely in English?\". If not, rewrite it in English before sending."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        -352,
+        32
+      ],
+      "id": "7496dba7-c4e4-4b67-a707-996e5d5d89bf",
+      "name": "AI Agent",
+      "retryOnFail": true,
+      "maxTries": 5,
+      "waitBetweenTries": 2000
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-2.5-flash-lite",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        -784,
+        224
+      ],
+      "id": "19750dc9-8e9c-4ae1-9182-3368f55352ce",
+      "name": "Google Gemini Chat Model",
+      "retryOnFail": true,
+      "maxTries": 5,
+      "waitBetweenTries": 2000,
+      "credentials": {
+        "googlePalmApi": {
+          "id": "nHvmR25oc9eu8RUt",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "messages-api",
+        "instanceName": "BotEntelso",
+        "remoteJid": "={{ $('Webhook').first().json.body.data.key.remoteJid }}",
+        "messageText": "={{ $json.output }}",
+        "options_message": {}
+      },
+      "type": "n8n-nodes-evolution-api.evolutionApi",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "fc4029f1-05a8-4e6b-919c-6cc81f128e09",
+      "name": "Enviar texto",
+      "credentials": {
+        "evolutionApi": {
+          "id": "fhF43Lhy9eTLgPnc",
+          "name": "Evolution account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "d76556f3-acd9-4a97-8776-459886a681d9",
+              "leftValue": "={{ $json.body.event }}",
+              "rightValue": "=messages.upsert",
+              "operator": {
+                "type": "boolean",
+                "operation": "equals"
+              }
+            },
+            {
+              "id": "e1b10cae-16a5-49a2-854b-1b88652df7f1",
+              "leftValue": "={{ $json.body.data.key.fromMe }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "false",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "f6136e8d-7e03-48cf-8c9f-00f385d38815",
+              "leftValue": "={{ $json.body.data.key.remoteJid }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "8ee0c076-b6b0-4d3d-95e0-f928ddf97720",
+              "leftValue": "={{ $json.body.data.key.remoteJid }}",
+              "rightValue": "@s.whatsapp.net",
+              "operator": {
+                "type": "string",
+                "operation": "endsWith"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -656,
+        16
+      ],
+      "id": "121de177-2d66-4df6-9c39-a135c9903040",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $('Webhook').first().json.body.data.key.remoteJid }}_v3",
+        "contextWindowLength": 20
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        -528,
+        320
+      ],
+      "id": "0b764ecb-9b67-4659-bf78-fe7427543365",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "evo-gateway",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -896,
+        16
+      ],
+      "id": "00b2f2ac-cc07-43fa-a31e-434b7702b43a",
+      "name": "Webhook",
+      "webhookId": "a02a0cd9-c1b2-4ec4-a534-608787ceaae3"
+    },
+    {
+      "parameters": {
+        "toolDescription": "Registra un equipo en la base de datos. Ejecutar inmediatamente cuando tengas el Equipment Number (numero_inventario) y la Description (equipo).",
+        "method": "POST",
+        "url": "https://rlffb3uv162ja9sjunyx9meb.167.86.70.193.sslip.io/api/ingest/whatsapp",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-Ingest-Secret",
+              "value": "v2_a8f9c1e7d2b45068f3a1d9c7e4b5a60f9e1d8c2b3a4f5e6d7c8b9a0f1e2d3c4b"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"whatsapp_number\": \"{{ $('Webhook').first().json.body.data.key.remoteJid.split('@')[0] }}\",\n  \"parsed\": {\n    \"numero_inventario\": \"{{ $fromAI('numero_inventario', 'Equipment Number') }}\",\n    \"equipo\": \"{{ $fromAI('equipo', 'Equipment Description') }}\",\n    \"zona\": \"{{ $fromAI('zona', 'Zone') }}\",\n    \"status\": \"{{ $fromAI('status', 'Status') }}\",\n    \"team\": \"{{ $fromAI('team', 'Team') }}\"\n  }\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.4,
+      "position": [
+        -336,
+        288
+      ],
+      "id": "7327e4cc-ff5a-421a-9588-63742c66d3d3",
+      "name": "register_inventory"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        -656,
+        288
+      ],
+      "id": "d156f0d2-7d0e-438a-aa1d-3219c644622a",
+      "name": "Google Gemini Chat Model1",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "nHvmR25oc9eu8RUt",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "toolDescription": "Usa esta herramienta cuando el usuario pregunte por la ubicación, estado o detalles de un equipo. Requiere el ID del equipo.",
+        "method": "POST",
+        "url": "https://rlffb3uv162ja9sjunyx9meb.167.86.70.193.sslip.io/api/whatsapp/consultar",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"telefono\": \"{{ $('Webhook').first().json.body.data.key.remoteJid.split('@')[0] }}\",\n  \"numero_inventario\": \"{{ $fromAI('numero_inventario', 'El ID del equipo a buscar, ej. DW-20V-459-XT') }}\"\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.4,
+      "position": [
+        -192,
+        288
+      ],
+      "id": "f9ebd6fb-91bd-4118-9ef2-90faf2af3273",
+      "name": "consultar_equipo"
+    },
+    {
+      "parameters": {
+        "toolDescription": "Usa esta herramienta para asignar o mover un equipo a una nueva zona. Requiere el ID del equipo, el PIN secreto del técnico de 6 dígitos, la zona de destino, y el número de teléfono del usuario que está escribiendo.",
+        "method": "POST",
+        "url": "https://rlffb3uv162ja9sjunyx9meb.167.86.70.193.sslip.io/api/whatsapp/asignar",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"telefono\": \"{{ $('Webhook').first().json.body.data.key.remoteJid.split('@')[0] }}\",\n  \"numero_inventario\": \"{{ $fromAI('numero_inventario', 'ID del equipo') }}\",\n  \"pin\": \"{{ $fromAI('pin', 'El PIN secreto de 4 digitos') }}\",\n  \"zona\": \"{{ $fromAI('zona', 'La zona destino') }}\"\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.4,
+      "position": [
+        -48,
+        272
+      ],
+      "id": "842fcefd-2c07-456b-b090-3459ad0b5dd7",
+      "name": "asignar_equipo"
+    },
+    {
+      "parameters": {
+        "toolDescription": "Usa esta herramienta cuando un equipo esté dañado o presente fallas. Requiere el ID del equipo, el PIN del técnico, y la descripción de la falla.",
+        "method": "POST",
+        "url": "https://rlffb3uv162ja9sjunyx9meb.167.86.70.193.sslip.io/api/whatsapp/mantenimiento",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"telefono\": \"{{ $('Webhook').first().json.body.data.key.remoteJid.split('@')[0] }}\",\n  \"numero_inventario\": \"{{ $fromAI('numero_inventario') }}\",\n  \"pin\": \"{{ $fromAI('pin') }}\",\n  \"descripcion\": \"{{ $fromAI('descripcion', 'Detalle de qué le pasó al equipo') }}\"\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.4,
+      "position": [
+        112,
+        304
+      ],
+      "id": "597b67e7-0f41-478c-a3bc-093b2edf1627",
+      "name": "reportar_mantenimiento"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "c35d3fc5-8b79-4362-a3a6-d30b4f0623ed"
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        240,
+        112
+      ],
+      "id": "e02531f1-86ae-4416-9b72-5e6c57618383",
+      "name": "Switch"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Enviar texto",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "register_inventory": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "consultar_equipo": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "asignar_equipo": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "reportar_mantenimiento": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "2c699325-5b91-4ba5-bc81-379303a2d612",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "0c6f2ba668086fbb766b8033a6d26fe0eba0d4435b3bbf5b32846ed5a3b64a92"
+  },
+  "id": "PMucPJZdmyiNczV3",
+  "tags": []
+}

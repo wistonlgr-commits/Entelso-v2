@@ -2,6 +2,7 @@ const db = require('../../config/database');
 
 const ASSET_SELECT = `
   SELECT a.id, a.numero_serie, a.estado, a.team,
+         a.fecha_registro,
          a.fecha_ultima_cali, a.fecha_prox_cali,
          a.fecha_ultimo_tag,  a.fecha_prox_tag,
          i.id   AS item_id,       i.nombre AS nombre_item, i.tipo AS tipo,
@@ -64,9 +65,10 @@ exports.create = async (data) => {
 
   const { rows } = await db.query(
     `INSERT INTO activos (item_id, numero_serie, usuario_actual_id, ubicacion_actual_id,
-       fecha_ultima_cali, fecha_prox_cali, fecha_ultimo_tag, fecha_prox_tag, estado, team)
-     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10) RETURNING *`,
+       fecha_registro, fecha_ultima_cali, fecha_prox_cali, fecha_ultimo_tag, fecha_prox_tag, estado, team)
+     VALUES ($1,$2,$3,$4,COALESCE($5, CURRENT_DATE),$6,$7,$8,$9,$10,$11) RETURNING *`,
     [item_id, numero_serie.trim(), usuario_actual_id ?? null, ubicacion_actual_id ?? null,
+     data.fecha_registro ?? null,
      fecha_ultima_cali ?? null, fecha_prox_cali ?? null,
      fecha_ultimo_tag  ?? null, fecha_prox_tag  ?? null,
      estado ?? 'disponible', team ?? null]

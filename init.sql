@@ -80,6 +80,7 @@ CREATE TABLE activos (
     usuario_actual_id   INT REFERENCES usuarios(id) ON DELETE SET NULL,
     ubicacion_actual_id INT REFERENCES ubicaciones(id) ON DELETE SET NULL,
     team                VARCHAR(80),         -- Team responsable del activo
+    fecha_registro      DATE DEFAULT CURRENT_DATE,
     fecha_ultima_cali   DATE,
     fecha_prox_cali     DATE,
     fecha_ultimo_tag    DATE,

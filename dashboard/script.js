@@ -311,7 +311,7 @@ async function cargarActivos(silent = false) {
       zona:        a.nombre_ubicacion || '—',
       team:        a.usuario_team || a.team || '—',
       status:      a.estado,
-      fecha:       a.fecha_prox_tag || a.fecha_prox_cali || null,
+      fecha:       a.fecha_registro || a.fecha_prox_tag || a.fecha_prox_cali || null,
       // Drawer fields
       serie:       a.numero_serie,
       ultima_calibracion: a.fecha_ultima_cali || null,
@@ -1793,6 +1793,7 @@ function inicializarModal() {
     const zonaVal   = document.getElementById('modalZona').value;
     const team      = document.getElementById('modalTeam').value;
     const estado    = document.getElementById('modalEstado').value;
+    const fRegistro = document.getElementById('modalFechaRegistro').value;
     const msgEl     = document.getElementById('modalMsg');
 
     if (!numSerie || !desc) {
@@ -1824,6 +1825,7 @@ function inicializarModal() {
         ubicacion_actual_id: ubicacionId,
         estado,
         team: team || null,
+        fecha_registro: fRegistro || undefined,
       };
       const res = await apiFetch('/api/activos', {
         method: 'POST',
