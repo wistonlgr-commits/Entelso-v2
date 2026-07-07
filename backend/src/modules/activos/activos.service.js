@@ -53,7 +53,7 @@ exports.create = async (data) => {
     if (itemRows.rows.length > 0) {
       item_id = itemRows.rows[0].id;
     } else {
-      const newItem = await db.query('INSERT INTO items (nombre, tipo) VALUES ($1, $2) RETURNING id', [descTrimmed, 'tool']);
+      const newItem = await db.query('INSERT INTO items (nombre, tipo) VALUES ($1, $2) RETURNING id', [descTrimmed, 'herramienta']);
       item_id = newItem.rows[0].id;
     }
   }
@@ -154,7 +154,7 @@ exports.bulkCreate = async (activosData) => {
       if (itemRows.length > 0) {
         item_id = itemRows[0].id;
       } else {
-        const { rows: newItem } = await client.query('INSERT INTO items (nombre, tipo) VALUES ($1, $2) RETURNING id', [item.descripcion.trim(), 'tool']);
+        const { rows: newItem } = await client.query('INSERT INTO items (nombre, tipo) VALUES ($1, $2) RETURNING id', [item.descripcion.trim(), 'herramienta']);
         item_id = newItem[0].id;
       }
 
