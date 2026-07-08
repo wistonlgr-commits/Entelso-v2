@@ -119,6 +119,24 @@ const TRANSLATIONS = {
     // ── Inventario ──
     'inv.buscar':          'Filter equipment...',
     'inv.nuevo':           'New',
+    'chart.by_status': 'Equipment by Status',
+
+    'audit.login': 'Logged into the system',
+    'audit.no_records': 'No activity records.',
+  
+    'err.FORBIDDEN': 'Access denied. Administrator privileges are required.',
+    'err.UNAUTHORIZED': 'Unauthorized access.',
+    'err.NOT_FOUND': 'Record not found.',
+    'err.VALIDATION_ERROR': 'Invalid input data.',
+    'err.DUPLICATE_KEY': 'A record with this identifier already exists.',
+    'err.FOREIGN_KEY_ERROR': 'Referenced ID does not exist.',
+    'err.CONSTRAINT_ERROR': 'Operation violates an integrity constraint.',
+    'err.BUSINESS_ERROR': 'Business logic error.',
+    'err.INTERNAL_SERVER_ERROR': 'Internal server error.',
+    'err.TOKEN_EXPIRED': 'Session expired. Please log in again.',
+    'err.INVALID_TOKEN': 'Invalid token.',
+    'err.BAD_REQUEST': 'Bad request. Missing data.',
+
     'inv.agrupar.estado':  'Group by Status',
     'inv.agrupar.zona':    'Group by Zone',
     'inv.agrupar.team':    'Group by Team',
@@ -577,6 +595,24 @@ const TRANSLATIONS = {
     // ── Inventario ──
     'inv.buscar':          'Filtrar equipos...',
     'inv.nuevo':           'Nuevo',
+    'chart.by_status': 'Equipos por Estado',
+
+    'audit.login': 'Inició sesión en el sistema',
+    'audit.no_records': 'No hay registros de actividad.',
+
+    'err.FORBIDDEN': 'Acceso denegado. Se requieren privilegios de administrador.',
+    'err.UNAUTHORIZED': 'Acceso no autorizado.',
+    'err.NOT_FOUND': 'Registro no encontrado.',
+    'err.VALIDATION_ERROR': 'Datos inválidos en la solicitud.',
+    'err.DUPLICATE_KEY': 'Ya existe un registro con ese identificador.',
+    'err.FOREIGN_KEY_ERROR': 'El ID referenciado no existe.',
+    'err.CONSTRAINT_ERROR': 'La operación viola una restricción de integridad.',
+    'err.BUSINESS_ERROR': 'Error de lógica de negocio.',
+    'err.INTERNAL_SERVER_ERROR': 'Error interno del servidor.',
+    'err.TOKEN_EXPIRED': 'La sesión expiró. Vuelve a iniciar sesión.',
+    'err.INVALID_TOKEN': 'Token inválido.',
+    'err.BAD_REQUEST': 'Faltan datos en la solicitud.',
+
     'inv.agrupar.estado':  'Agrupar por Estado',
     'inv.agrupar.zona':    'Agrupar por Zona',
     'inv.agrupar.team':    'Agrupar por Equipo (Team)',

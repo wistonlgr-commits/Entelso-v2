@@ -426,10 +426,16 @@ async function cargarAuditLog() {
     
     logs.forEach(log => {
       const tr = document.createElement('tr');
+      // Traducir acciones conocidas
+      let actionText = log.accion;
+      if (actionText === 'Inició sesión en el sistema' || actionText === 'login') {
+        actionText = window.i18n.t('audit.login') || actionText;
+      }
+      
       tr.innerHTML = `
         <td style="font-size: 12px; color: var(--text-2);">${escapeHTML(log.fecha)}</td>
         <td style="font-weight: 500;">${escapeHTML(log.user)}</td>
-        <td style="color: var(--text-1);">${escapeHTML(log.accion)}</td>
+        <td style="color: var(--text-1);">${escapeHTML(actionText)}</td>
       `;
       tbody.appendChild(tr);
     });
@@ -720,8 +726,12 @@ function renderizarAlertas(data) {
     if (['calibracion_pendiente','fuera_de_servicio','danado','en_mantenimiento'].includes(a.status)) {
       alertasGeneradas.push({
         id: a.id,
-        equipo: window.i18n.t('alertas.msg_status') ? window.i18n.t('alertas.msg_status').replace('{status}', a.status.replace(/_/g, ' ').toUpperCase()) : `Attention required: ${a.status.replace(/_/g, ' ').toUpperCase()}`,
-        zona: window.i18n.t('alertas.msg_status_desc') ? `<span style="color:var(--danger)">${window.i18n.t('alertas.msg_status_desc').replace('{status}', a.status.replace(/_/g, ' ').toUpperCase())}</span>` : `<span style="color:var(--danger)">The asset is marked as ${a.status.replace(/_/g, ' ')}. Please repair it and change the status to Available in the panel.</span>`,
+        equipo: window.i18n.t('alertas.msg_status') 
+                  ? window.i18n.t('alertas.msg_status').replace('{status}', (window.i18n.t('estado.' + a.status) || a.status.replace(/_/g, ' ')).toUpperCase()) 
+                  : `Attention required: ${(window.i18n.t('estado.' + a.status) || a.status).replace(/_/g, ' ').toUpperCase()}`,
+        zona: window.i18n.t('alertas.msg_status_desc') 
+                ? `<span style="color:var(--danger)">${window.i18n.t('alertas.msg_status_desc').replace('{status}', (window.i18n.t('estado.' + a.status) || a.status.replace(/_/g, ' ')).toUpperCase())}</span>` 
+                : `<span style="color:var(--danger)">The asset is marked as ${window.i18n.t('estado.' + a.status) || a.status.replace(/_/g, ' ')}. Please repair it and change the status to Available in the panel.</span>`,
         status: a.status,
         fecha: a.fecha,
         type: ['fuera_de_servicio','danado'].includes(a.status) ? 'danger' : 'warn',
@@ -1382,7 +1392,7 @@ async function openDrawer(item) {
     { label: window.i18n.t('drawer.meta_serie'),   value: item.serie || item.id || '—' },
     { label: window.i18n.t('drawer.meta_tipo'),    value: item.tipo_item || '—' },
     { label: window.i18n.t('drawer.meta_zona'),    value: item.zona || '—' },
-    { label: window.i18n.t('drawer.meta_estado'),  value: window.i18n.t('estado.' + item.status) || (item.status || '').replace(/_/g,' ') || '—' },
+    { label: window.i18n.t('drawer.meta_estado'),  value: (window.i18n.t('estado.' + item.status) || item.status || '').replace(/_/g,' ') || '—' },
     ...( (item.id === 'EQ-15' || item.id === 'EQ-17') ? [
       { label: window.i18n.t('drawer.meta_ulti_cal') || 'Last Calibration',  value: formatearFecha(item.ultima_calibracion) },
       { label: window.i18n.t('drawer.meta_cal') || 'Next Calibration',       value: formatearFecha(item.calibracion) },
@@ -2181,7 +2191,7 @@ function exportarExcel() {
     item.serie || '—',
     item.zona || '—',
     item.team || '—',
-    (item.status || '—').replace(/_/g, ' ').toUpperCase(),
+    (window.i18n.t('estado.' + item.status) || item.status || '—').replace(/_/g, ' ').toUpperCase(),
     item.calibracion ? item.calibracion.substring(0, 10) : '—',
     item.asignado || 'Sin asignar'
   ]);
