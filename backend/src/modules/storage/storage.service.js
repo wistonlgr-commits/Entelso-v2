@@ -1,6 +1,6 @@
 const { createClient } = require('@supabase/supabase-js');
 const env = require('../../config/environment');
-const { v4: uuidv4 } = require('uuid');
+
 
 let supabase = null;
 
