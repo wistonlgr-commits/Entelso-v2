@@ -48,3 +48,27 @@ exports.reportarMantenimiento = async (req, reply, next) => {
     next(e);
   }
 };
+
+exports.subirFoto = async (req, reply, next) => {
+  try {
+    const { telefono, pin, numero_inventario, base64_image, mimetype } = req.body;
+    let finalBase64 = base64_image;
+    let finalMime = mimetype;
+
+    if (req.file) {
+      finalBase64 = req.file.buffer.toString('base64');
+      finalMime = req.file.mimetype;
+    }
+
+    if (!telefono || !numero_inventario || !finalBase64) {
+      return reply.status(200).json(res.error('Faltan parámetros: telefono, numero_inventario, o la foto.'));
+    }
+    const data = await svc.subirFoto(telefono, pin, numero_inventario, finalBase64, finalMime);
+    reply.json(res.success(data, 'Foto subida y adjuntada correctamente desde WhatsApp.'));
+  } catch (e) {
+    if (e.isOperational) {
+      return reply.status(200).json(res.error(e.message));
+    }
+    next(e);
+  }
+};

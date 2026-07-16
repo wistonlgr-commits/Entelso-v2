@@ -130,3 +130,27 @@ exports.reportarMantenimiento = async (telefono, pin, numero_inventario, descrip
     throw err;
   }
 };
+
+const storageSvc = require('../storage/storage.service');
+
+exports.subirFoto = async (telefono, pin, numero_inventario, base64_image, mimetype = 'image/jpeg') => {
+  const user = await getUserByTelefono(telefono);
+  await validatePin(user, pin);
+  const activo = await getActivoByInventario(numero_inventario);
+
+  // Convertir base64 a buffer
+  const base64Data = base64_image.replace(/^data:image\/\w+;base64,/, "");
+  const buffer = Buffer.from(base64Data, 'base64');
+  
+  // Subir a Supabase
+  const url = await storageSvc.uploadImage(buffer, `whatsapp_${numero_inventario}.jpg`, mimetype);
+
+  // Guardar en la DB (Añadir al array de JSONB)
+  await db.query(`
+    UPDATE activos 
+    SET fotos = fotos || $1::jsonb 
+    WHERE id = $2
+  `, [JSON.stringify([url]), activo.id]);
+
+  return { success: true, url, equipo: activo.equipo_nombre };
+};

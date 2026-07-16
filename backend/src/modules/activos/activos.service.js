@@ -5,6 +5,7 @@ const ASSET_SELECT = `
          a.fecha_registro,
          a.fecha_ultima_cali, a.fecha_prox_cali,
          a.fecha_ultimo_tag,  a.fecha_prox_tag,
+         a.fotos,
          i.id   AS item_id,       i.nombre AS nombre_item, i.tipo AS tipo,
          u.id   AS usuario_id,    u.nombre AS nombre_usuario, u.telefono_whatsapp, u.team AS usuario_team,
          ub.id  AS ubicacion_id,  ub.nombre_ubicacion
@@ -65,23 +66,30 @@ exports.create = async (data) => {
 
   const { rows } = await db.query(
     `INSERT INTO activos (item_id, numero_serie, usuario_actual_id, ubicacion_actual_id,
-       fecha_registro, fecha_ultima_cali, fecha_prox_cali, fecha_ultimo_tag, fecha_prox_tag, estado, team)
-     VALUES ($1,$2,$3,$4,COALESCE($5, CURRENT_DATE),$6,$7,$8,$9,$10,$11) RETURNING *`,
+       fecha_registro, fecha_ultima_cali, fecha_prox_cali, fecha_ultimo_tag, fecha_prox_tag, estado, team, fotos)
+     VALUES ($1,$2,$3,$4,COALESCE($5, CURRENT_DATE),$6,$7,$8,$9,$10,$11,$12) RETURNING *`,
     [item_id, numero_serie.trim(), usuario_actual_id ?? null, ubicacion_actual_id ?? null,
      data.fecha_registro ?? null,
      fecha_ultima_cali ?? null, fecha_prox_cali ?? null,
      fecha_ultimo_tag  ?? null, fecha_prox_tag  ?? null,
-     estado ?? 'disponible', team ?? null]
+     estado ?? 'disponible', team ?? null, data.fotos ? JSON.stringify(data.fotos) : null]
   );
   return rows[0];
 };
 
 exports.update = async (id, patch) => {
   const allowed = ['usuario_actual_id','ubicacion_actual_id','estado','team',
-                   'fecha_ultima_cali','fecha_prox_cali','fecha_ultimo_tag','fecha_prox_tag'];
+                   'fecha_ultima_cali','fecha_prox_cali','fecha_ultimo_tag','fecha_prox_tag', 'fotos'];
   const sets = []; const params = [];
   for (const k of allowed) {
-    if (patch[k] !== undefined) { params.push(patch[k] === '' ? null : patch[k]); sets.push(`${k}=$${params.length}`); }
+    if (patch[k] !== undefined) { 
+      let val = patch[k] === '' ? null : patch[k];
+      if (k === 'fotos' && val !== null) {
+        val = JSON.stringify(val);
+      }
+      params.push(val); 
+      sets.push(`${k}=$${params.length}`); 
+    }
   }
   if (!sets.length) return exports.getById(id);
   params.push(id);

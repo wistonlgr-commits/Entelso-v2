@@ -506,6 +506,7 @@ function renderInventoryTable(tbody, data, groupByKey = null) {
                 <option value="en_mantenimiento">${t('estado.en_mantenimiento')}</option>
                 <option value="danado">${t('estado.danado')}</option>
              </select>
+             <button class="icon-btn" onclick="event.stopPropagation(); window.verDetallesActivo(${item.db_id})" title="Detalles" style="flex-shrink:0;"><i class="fa-solid fa-eye" style="color:var(--accent-blue)"></i></button>
              <button class="icon-btn" onclick="event.stopPropagation(); window.eliminarActivo(${item.db_id})" title="Delete" style="flex-shrink:0;"><i class="fa-solid fa-trash" style="color:var(--accent-red)"></i></button>
            </div>
         </td>
@@ -516,7 +517,7 @@ function renderInventoryTable(tbody, data, groupByKey = null) {
   if (groupByKey) {
     const groups = {};
     data.forEach(item => {
-      const key = item[groupByKey] || 'Sin Asignar';
+      const key = item[groupByKey] || (window.i18n.t('api.sin_asignar') || 'Sin Asignar');
       if (!groups[key]) groups[key] = [];
       groups[key].push(item);
     });
@@ -1796,6 +1797,60 @@ function inicializarModal() {
   document.getElementById('closeModal2').addEventListener('click', closeModal);
   overlay.addEventListener('click', e => { if (e.target === overlay) closeModal(); });
 
+  const fotoInput = document.getElementById('modalFotoInput');
+  const fotoStatus = document.getElementById('modalFotoStatus');
+  const fotoGallery = document.getElementById('modalFotosGallery');
+  
+  if (fotoInput) {
+    fotoInput.addEventListener('change', async (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      fotoStatus.textContent = window.i18n.t('modal.subiendo_foto') || 'Subiendo...';
+      const formData = new FormData();
+      formData.append('foto', file);
+
+      try {
+        const res = await apiFetch('/api/upload', {
+          method: 'POST',
+          body: formData,
+          headers: {} // apiFetch might set Content-Type: application/json automatically, need to ensure it doesn't. 
+        }, true); // Use a custom fetch or modify apiFetch to handle FormData
+
+        // Actually, we'll use native fetch if apiFetch forces Content-Type: application/json
+        const token = localStorage.getItem('entelso_jwt');
+        const uploadRes = await fetch(API_BASE + '/api/upload', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`
+          },
+          body: formData
+        });
+
+        const data = await uploadRes.json();
+        if (uploadRes.ok && data.success) {
+          fotoStatus.textContent = '';
+          window.uploadedPhotos = window.uploadedPhotos || [];
+          window.uploadedPhotos.push(data.data.url);
+          
+          const img = document.createElement('img');
+          img.src = data.data.url;
+          img.style.width = '50px';
+          img.style.height = '50px';
+          img.style.objectFit = 'cover';
+          img.style.borderRadius = '4px';
+          img.style.border = '1px solid var(--border)';
+          fotoGallery.appendChild(img);
+        } else {
+          fotoStatus.textContent = 'Error: ' + (data.message || 'Error al subir');
+        }
+      } catch (err) {
+        fotoStatus.textContent = 'Error de red al subir la imagen.';
+      }
+      fotoInput.value = ''; // reset
+    });
+  }
+
   document.getElementById('submitNewItem').addEventListener('click', async () => {
     const numSerie  = document.getElementById('modalNumSerie').value.trim();
     const desc      = document.getElementById('modalDesc').value.trim();
@@ -1836,6 +1891,7 @@ function inicializarModal() {
         estado,
         team: team || null,
         fecha_registro: fRegistro || undefined,
+        fotos: window.uploadedPhotos || [],
       };
       const res = await apiFetch('/api/activos', {
         method: 'POST',
@@ -1858,6 +1914,9 @@ function inicializarModal() {
         btn.querySelector('span').textContent = window.i18n.t('modal.registrar');
         document.getElementById('modalNumSerie').value = '';
         document.getElementById('modalDesc').value     = '';
+        window.uploadedPhotos = [];
+        const gallery = document.getElementById('modalFotosGallery');
+        if (gallery) gallery.innerHTML = '';
       } else {
         const data = await res.json();
         let errMsg = window.i18n.t('modal.err_registrar');
@@ -2193,7 +2252,7 @@ function exportarExcel() {
     item.team || '—',
     (window.i18n.t('estado.' + item.status) || item.status || '—').replace(/_/g, ' ').toUpperCase(),
     item.calibracion ? item.calibracion.substring(0, 10) : '—',
-    item.asignado || 'Sin asignar'
+    item.asignado || (window.i18n.t('api.sin_asignar') || 'Sin asignar')
   ]);
 
   // ── Construir hoja con título de empresa ──
@@ -3238,3 +3297,47 @@ window.customConfirm = function(msg) {
     closeBtn.addEventListener('click', onCancel);
   });
 };
+
+ 
+ w i n d o w . v e r D e t a l l e s A c t i v o   =   f u n c t i o n ( i d )   { 
+     c o n s t   a c t i v o   =   w i n d o w . c u r r e n t D a t a A c t i v o s . f i n d ( a   = >   a . i d   = = =   p a r s e I n t ( i d ) ) ; 
+     i f   ( ! a c t i v o )   r e t u r n ; 
+ 
+     d o c u m e n t . g e t E l e m e n t B y I d ( ' d e t I d ' ) . t e x t C o n t e n t   =   a c t i v o . n u m e r o _ s e r i e   | |   ' - - ' ; 
+     d o c u m e n t . g e t E l e m e n t B y I d ( ' d e t E s t a d o ' ) . i n n e r H T M L   =   s t a t u s P i l l ( a c t i v o . e s t a d o ) ; 
+     d o c u m e n t . g e t E l e m e n t B y I d ( ' d e t E q u i p o ' ) . t e x t C o n t e n t   =   a c t i v o . n o m b r e _ i t e m   | |   a c t i v o . d e s c r i p c i o n   | |   ' - - ' ; 
+     d o c u m e n t . g e t E l e m e n t B y I d ( ' d e t Z o n a ' ) . t e x t C o n t e n t   =   a c t i v o . n o m b r e _ u b i c a c i o n   | |   w i n d o w . i 1 8 n . t ( ' a p i . s i n _ a s i g n a r ' ) ; 
+     d o c u m e n t . g e t E l e m e n t B y I d ( ' d e t T e a m ' ) . t e x t C o n t e n t   =   a c t i v o . t e a m   | |   ' - - ' ; 
+     d o c u m e n t . g e t E l e m e n t B y I d ( ' d e t A s i g n a d o ' ) . t e x t C o n t e n t   =   a c t i v o . n o m b r e _ u s u a r i o   | |   w i n d o w . i 1 8 n . t ( ' a p i . s i n _ a s i g n a r ' ) ; 
+ 
+     c o n s t   g a l l e r y   =   d o c u m e n t . g e t E l e m e n t B y I d ( ' d e t F o t o s G a l l e r y ' ) ; 
+     c o n s t   n o F o t o s   =   d o c u m e n t . g e t E l e m e n t B y I d ( ' d e t N o F o t o s ' ) ; 
+     g a l l e r y . i n n e r H T M L   =   ' ' ; 
+     
+     i f   ( a c t i v o . f o t o s   & &   A r r a y . i s A r r a y ( a c t i v o . f o t o s )   & &   a c t i v o . f o t o s . l e n g t h   >   0 )   { 
+         n o F o t o s . s t y l e . d i s p l a y   =   ' n o n e ' ; 
+         a c t i v o . f o t o s . f o r E a c h ( f o t o U r l   = >   { 
+             c o n s t   a   =   d o c u m e n t . c r e a t e E l e m e n t ( ' a ' ) ; 
+             a . h r e f   =   f o t o U r l ; 
+             a . t a r g e t   =   ' _ b l a n k ' ; 
+             a . s t y l e . d i s p l a y   =   ' b l o c k ' ; 
+             
+             c o n s t   i m g   =   d o c u m e n t . c r e a t e E l e m e n t ( ' i m g ' ) ; 
+             i m g . s r c   =   f o t o U r l ; 
+             i m g . s t y l e . w i d t h   =   ' 1 0 0 % ' ; 
+             i m g . s t y l e . h e i g h t   =   ' 1 0 0 p x ' ; 
+             i m g . s t y l e . o b j e c t F i t   =   ' c o v e r ' ; 
+             i m g . s t y l e . b o r d e r R a d i u s   =   ' v a r ( - - r a d i u s - m d ) ' ; 
+             i m g . s t y l e . b o r d e r   =   ' 1 p x   s o l i d   v a r ( - - b o r d e r ) ' ; 
+             i m g . s t y l e . c u r s o r   =   ' p o i n t e r ' ; 
+             
+             a . a p p e n d C h i l d ( i m g ) ; 
+             g a l l e r y . a p p e n d C h i l d ( a ) ; 
+         } ) ; 
+     }   e l s e   { 
+         n o F o t o s . s t y l e . d i s p l a y   =   ' b l o c k ' ; 
+     } 
+ 
+     d o c u m e n t . g e t E l e m e n t B y I d ( ' a s s e t D e t a i l s M o d a l O v e r l a y ' ) . c l a s s L i s t . a d d ( ' o p e n ' ) ; 
+ } ;  
+ 

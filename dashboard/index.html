@@ -845,6 +845,21 @@
                     <input type="date" id="modalFechaRegistro" class="form-input">
                 </div>
             </div>
+            
+            <!-- ─── Image Gallery ─── -->
+            <div style="margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--border);">
+                <label data-i18n="modal.fotos">Photos</label>
+                <div id="modalFotosGallery" style="display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 8px; min-height: 50px;">
+                    <!-- Fotos se inyectarán aquí -->
+                </div>
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <input type="file" id="modalFotoInput" accept="image/*" style="display: none;">
+                    <button type="button" class="btn-ghost" onclick="document.getElementById('modalFotoInput').click()" style="font-size: 13px; padding: 6px 12px;">
+                        <i class="fa-solid fa-camera"></i> <span data-i18n="modal.subir_foto">Upload Photo</span>
+                    </button>
+                    <span id="modalFotoStatus" style="font-size: 12px; color: var(--text-2);"></span>
+                </div>
+            </div>
         </div>
         <div id="modalQRContainer" style="text-align: center; margin-top: 16px; display: none;">
             <img id="modalQRCode" src="" alt="QR Code" style="width: 120px; height: 120px; border-radius: 8px; border: 1px solid var(--border); padding: 4px; background: white;">
@@ -858,6 +873,58 @@
             <button class="btn-primary" id="submitNewItem">
                 <span data-i18n="modal.registrar">Register Equipment</span>
             </button>
+        </div>
+    </div>
+</div>
+
+<!-- ─── View Asset Details Modal ─── -->
+<div class="modal-overlay" id="assetDetailsModalOverlay">
+    <div class="modal" id="assetDetailsModal" style="max-width: 600px;">
+        <div class="modal-header">
+            <span><i class="fa-solid fa-circle-info"></i> <span data-i18n="modal.detalles_titulo">Asset Details</span></span>
+            <button class="close-btn" onclick="document.getElementById('assetDetailsModalOverlay').classList.remove('open')"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="modal-body">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px;">
+                <div>
+                    <div style="font-size: 12px; color: var(--text-2);" data-i18n="col.id">ID</div>
+                    <div id="detId" style="font-weight: 600;"></div>
+                </div>
+                <div>
+                    <div style="font-size: 12px; color: var(--text-2);" data-i18n="col.estado">Status</div>
+                    <div id="detEstado" style="margin-top: 4px;"></div>
+                </div>
+                <div style="grid-column: 1 / -1;">
+                    <div style="font-size: 12px; color: var(--text-2);" data-i18n="col.equipo">Equipment</div>
+                    <div id="detEquipo" style="font-size: 16px; font-weight: bold;"></div>
+                </div>
+                <div>
+                    <div style="font-size: 12px; color: var(--text-2);" data-i18n="col.zona">Zone</div>
+                    <div id="detZona"></div>
+                </div>
+                <div>
+                    <div style="font-size: 12px; color: var(--text-2);" data-i18n="col.team">Team</div>
+                    <div id="detTeam"></div>
+                </div>
+                <div>
+                    <div style="font-size: 12px; color: var(--text-2);" data-i18n="col.asignado">Assigned To</div>
+                    <div id="detAsignado"></div>
+                </div>
+            </div>
+
+            <!-- Photos Gallery Section -->
+            <div style="margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--border);">
+                <h4 style="margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between;">
+                    <span><i class="fa-solid fa-images"></i> <span data-i18n="modal.fotos_galeria">Photos & Attachments</span></span>
+                </h4>
+                <div id="detFotosGallery" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 8px;">
+                    <!-- Photos rendered dynamically -->
+                </div>
+                <div id="detNoFotos" style="color: var(--text-2); font-size: 13px; font-style: italic; display: none;" data-i18n="modal.no_fotos">No photos available.</div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn-primary" onclick="document.getElementById('assetDetailsModalOverlay').classList.remove('open')" data-i18n="modal.cerrar">Close</button>
         </div>
     </div>
 </div>

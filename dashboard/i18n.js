@@ -208,6 +208,13 @@ const TRANSLATIONS = {
     'modal.estado':        'Status',
     'modal.cancelar':      'Cancel',
     'modal.registrar':     'Register Equipment',
+    'modal.fotos':         'Photos',
+    'modal.subir_foto':    'Upload Photo',
+    'modal.subiendo_foto': 'Uploading...',
+    'modal.detalles_titulo': 'Asset Details',
+    'modal.fotos_galeria': 'Photos & Attachments',
+    'modal.no_fotos':      'No photos available.',
+    'modal.cerrar':        'Close',
     'modal.registrando':   'Registering...',
     'modal.fecha_registro':'Registration Date (Optional)',
     'modal.err_requerido': 'Inventory number and description are required.',
@@ -323,8 +330,10 @@ const TRANSLATIONS = {
 
     // ── API / empty states ──
     'api.cargando':        'Loading data...',
-    'api.error':           'Error loading data. Check your connection.',
+    'api.error':           'Connection error.',
     'api.sin_datos':       'No data available.',
+    'api.error_prefix':    'Error: ',
+    'api.sin_asignar':     'Unassigned',
 
     // ── Alertas ──
     'alertas.titulo':       'Alerts Command Center',
@@ -686,6 +695,13 @@ const TRANSLATIONS = {
     'modal.estado':        'Estado',
     'modal.cancelar':      'Cancelar',
     'modal.registrar':     'Registrar Equipo',
+    'modal.fotos':         'Fotos',
+    'modal.subir_foto':    'Subir Foto',
+    'modal.subiendo_foto': 'Subiendo...',
+    'modal.detalles_titulo': 'Detalles del Equipo',
+    'modal.fotos_galeria': 'Fotos y Adjuntos',
+    'modal.no_fotos':      'No hay fotos disponibles.',
+    'modal.cerrar':        'Cerrar',
     'modal.registrando':   'Registrando...',
     'modal.fecha_registro':'Fecha de Registro (Opcional)',
     'modal.err_requerido': 'El número de inventario y la descripción son obligatorios.',
@@ -801,6 +817,8 @@ const TRANSLATIONS = {
     'api.cargando':        'Cargando datos...',
     'api.error':           'Error al cargar datos. Revisa la conexión.',
     'api.sin_datos':       'No hay datos disponibles.',
+    'api.error_prefix':    'Error: ',
+    'api.sin_asignar':     'Sin asignar',
 
     // ── Alertas ──
     'alertas.titulo':       'Centro de Mando de Alertas',

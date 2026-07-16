@@ -8,6 +8,8 @@ const envSchema = z.object({
   API_KEY: z.string().min(10, 'API_KEY debe tener al menos 10 caracteres'),
   JWT_SECRET: z.string().min(10, 'JWT_SECRET debe tener al menos 10 caracteres'),
   CORS_ORIGIN: z.string().default('http://localhost:5173'),
+  SUPABASE_URL: z.string().optional(),
+  SUPABASE_SERVICE_KEY: z.string().optional(),
 });
 
 const parsed = envSchema.safeParse(process.env);

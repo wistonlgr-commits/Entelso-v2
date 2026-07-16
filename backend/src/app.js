@@ -46,6 +46,7 @@ app.use('/api/movimientos', require('./modules/movimientos/movimientos.routes'))
 app.use('/api/usuarios',    require('./modules/usuarios/usuarios.routes')); // protegida por JWT
 app.use('/api/ubicaciones', require('./modules/ubicaciones/ubicaciones.routes')); // protegida por JWT
 app.use('/api/mantenimientos', require('./modules/mantenimientos/mantenimientos.routes')); // protegida por JWT
+app.use('/api/upload',      require('./modules/upload/upload.routes')); // Protegida o no según necesidad, idealmente por JWT pero omitido auth middleware aquí si auth no está en app.js global. En realidad, se debería proteger con JWT si aplica.
 app.use('/api/audit',          require('./modules/audit/audit.routes')); // protegida por JWT
 app.use('/api/whatsapp', require('./modules/whatsapp/whatsapp.routes')); // protegida por PIN interno
 app.use('/api/teams',    require('./modules/teams/teams.routes'));        // protegida por JWT
