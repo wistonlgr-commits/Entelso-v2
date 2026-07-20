@@ -3,8 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Entelso - User Manual</title>
-    <!-- Mismos estilos de la plataforma -->
+    <title>Entelso - System Documentation</title>
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
@@ -20,27 +19,27 @@
             height: 100vh;
         }
 
-        /* Sidebar de navegación del manual */
+        /* Sidebar Navigation */
         .manual-sidebar {
-            width: 250px;
+            width: 260px;
             background-color: var(--bg-sidebar);
             border-right: 1px solid var(--border);
             display: flex;
             flex-direction: column;
-            padding: 24px 16px;
+            padding: 32px 20px;
         }
 
         .manual-logo-container {
-            margin-bottom: 40px;
+            margin-bottom: 48px;
             padding: 0 12px;
         }
 
         .manual-logo {
-            width: 120px;
+            width: 130px;
         }
 
         .manual-nav-item {
-            padding: 10px 16px;
+            padding: 12px 16px;
             border-radius: var(--radius-md);
             color: var(--text-2);
             cursor: pointer;
@@ -63,22 +62,23 @@
             font-weight: 500;
         }
 
-        /* Área principal de contenido */
+        /* Content Area */
         .manual-content-wrapper {
             flex: 1;
             overflow-y: auto;
-            padding: 40px;
+            padding: 48px;
             background-color: var(--bg-base);
+            position: relative;
         }
 
         .manual-container {
-            max-width: 800px;
+            max-width: 840px;
             margin: 0 auto;
         }
 
         .manual-section {
             display: none;
-            animation: fadeIn 0.3s ease;
+            animation: fadeIn 0.4s ease;
         }
 
         .manual-section.active {
@@ -86,45 +86,46 @@
         }
 
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
+            from { opacity: 0; transform: translateY(8px); }
             to { opacity: 1; transform: translateY(0); }
         }
 
-        /* Tipografía del Manual */
+        /* Typography */
         .manual-container h1 {
-            font-size: 28px;
+            font-size: 32px;
             font-weight: 600;
-            margin-bottom: 12px;
+            margin-bottom: 16px;
             color: var(--text-1);
+            letter-spacing: -0.5px;
         }
         
         .manual-container h2 {
-            font-size: 20px;
+            font-size: 22px;
             font-weight: 500;
-            margin-top: 40px;
-            margin-bottom: 16px;
-            padding-bottom: 8px;
+            margin-top: 48px;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
             border-bottom: 1px solid var(--border);
             color: var(--text-1);
         }
 
         .manual-container h3 {
             font-size: 16px;
-            font-weight: 500;
-            margin-top: 24px;
+            font-weight: 600;
+            margin-top: 32px;
             margin-bottom: 12px;
             color: var(--text-1);
         }
 
-        .manual-container p, .manual-container ul {
+        .manual-container p, .manual-container ul, .manual-container ol {
             font-size: var(--font-size-md);
-            line-height: 1.6;
+            line-height: 1.65;
             color: var(--text-2);
             margin-bottom: 16px;
         }
 
         .manual-container li {
-            margin-bottom: 8px;
+            margin-bottom: 10px;
         }
 
         .manual-container strong {
@@ -132,25 +133,27 @@
             font-weight: 600;
         }
 
-        /* Tarjetas de advertencia o información */
+        /* Documentation Cards (Redesigned Alerts) */
         .manual-alert {
             background-color: var(--bg-panel);
             border: 1px solid var(--border);
-            border-left: 4px solid var(--accent-blue);
-            padding: 16px;
+            padding: 20px;
             border-radius: var(--radius-md);
-            margin: 20px 0;
+            margin: 24px 0;
             display: flex;
-            gap: 12px;
+            gap: 16px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
         }
 
         .manual-alert i {
             color: var(--accent-blue);
-            margin-top: 3px;
+            margin-top: 4px;
+            font-size: 18px;
         }
         
         .manual-alert.warning {
-            border-left-color: var(--accent-yellow);
+            background-color: rgba(212, 160, 23, 0.05);
+            border: 1px solid rgba(212, 160, 23, 0.2);
         }
         .manual-alert.warning i {
             color: var(--accent-yellow);
@@ -162,20 +165,19 @@
             padding: 4px 8px;
             border-radius: 4px;
             font-family: monospace;
-            color: var(--accent-blue);
+            color: var(--text-1);
+            font-size: 12px;
         }
         
-        /* Botón volver */
         .back-btn {
             position: absolute;
-            top: 24px;
-            right: 40px;
+            top: 32px;
+            right: 48px;
         }
     </style>
 </head>
 <body>
 
-    <!-- Sidebar -->
     <div class="manual-sidebar">
         <div class="manual-logo-container">
             <img src="LOGOTYPE-WHITE.png" alt="Entelso Logo" class="manual-logo" id="logoImg">
@@ -183,138 +185,137 @@
 
         <div class="manual-nav-item active" onclick="switchTab('tecnicos')">
             <i class="fa-brands fa-whatsapp"></i>
-            Technician Manual
+            Field Operations
         </div>
         <div class="manual-nav-item" onclick="switchTab('dashboard')">
             <i class="fa-solid fa-desktop"></i>
-            Dashboard Manual
+            System Administration
         </div>
     </div>
 
-    <!-- Content -->
     <div class="manual-content-wrapper">
         
         <a href="index.html" class="btn btn-secondary back-btn" style="text-decoration:none;">
-            <i class="fa-solid fa-arrow-left"></i> Back to Dashboard
+            <i class="fa-solid fa-arrow-left"></i> Return to System
         </a>
 
         <div class="manual-container">
             
-            <!-- SECTION: TECHNICIANS -->
+            <!-- SECTION: FIELD OPERATIONS -->
             <div id="tecnicos" class="manual-section active">
-                <h1>WhatsApp Bot Guide (Technicians)</h1>
-                <p>Welcome to the Entelso inventory system. To make your field work easier, you don't need to install any app. The entire system is managed by sending messages directly to our <strong>WhatsApp Bot</strong>.</p>
+                <h1>Field Operations Guide</h1>
+                <p>This document outlines the standard operating procedures for utilizing the Entelso WhatsApp Integration for inventory management. The system provides real-time access to the database for field personnel, with all operations executed via direct messaging.</p>
                 
                 <div class="manual-alert warning">
-                    <i class="fa-solid fa-lock"></i>
+                    <i class="fa-solid fa-shield-halved"></i>
                     <div>
-                        <strong>Your Security PIN (6 digits)</strong><br>
-                        <span style="color:var(--text-2); font-size: 13px;">For any action that modifies an equipment's status (such as taking it to a site, reporting damage, or uploading photos), the bot will ask for your PIN. Never share it with anyone; this code automatically registers your name as the person responsible for the action.</span>
+                        <strong>Security & Authentication (PIN Authorization)</strong><br>
+                        <span style="color:var(--text-2); font-size: 13px; line-height: 1.5; display: block; margin-top: 6px;">A 6-digit Security PIN is strictly required for any operation that modifies asset status, location, or condition. This PIN serves as a digital signature and permanently logs the transaction against the assigned technician profile.</span>
                     </div>
                 </div>
 
-                <h2>What can you do with the Bot?</h2>
+                <h2>Supported Operations</h2>
 
-                <h3>1. Check the location or status of an equipment</h3>
-                <p>If you need to know where a tool is or if it's available, simply ask the bot.</p>
+                <h3>1. Asset Query</h3>
+                <p>Retrieve the current location, status, and assignment details of any registered asset.</p>
                 <ul>
-                    <li><strong>What to write:</strong> <em>"Where is equipment DW-20V-459?"</em> or <em>"Find equipment 27367"</em>.</li>
-                    <li><strong>Requirement:</strong> You just need to mention the equipment's serial number or ID.</li>
+                    <li><strong>Procedure:</strong> Send a query containing the asset ID (e.g., <em>"Locate asset 27367"</em> or <em>"Where is DW-20V-459?"</em>).</li>
+                    <li><strong>Required Data:</strong> Asset ID.</li>
                 </ul>
 
-                <h3>2. Assign an equipment to yourself or move it</h3>
-                <p>When you take an equipment from the warehouse to a job site, you must notify the system.</p>
+                <h3>2. Asset Reassignment (Checkout/Transfer)</h3>
+                <p>Log the transfer of an asset from the warehouse to a specific zone, or between zones.</p>
                 <ul>
-                    <li><strong>What to write:</strong> <em>"I'm taking equipment 27367 to the NSW zone, my PIN is 123456"</em>.</li>
-                    <li><strong>Requirement:</strong> Equipment Number, Destination Zone, and your 6-digit PIN.</li>
-                    <li><em>Note: If you forget any detail, don't worry, the bot will ask you for it.</em></li>
+                    <li><strong>Procedure:</strong> Specify the asset, the destination zone, and provide authorization. (e.g., <em>"Transferring asset 27367 to NSW zone, PIN 123456"</em>).</li>
+                    <li><strong>Required Data:</strong> Asset ID, Destination Zone, 6-digit PIN.</li>
                 </ul>
 
-                <h3>3. Report damaged or maintenance equipment</h3>
-                <p>If a tool fails or breaks in the field, report it immediately so it won't be assigned to anyone else.</p>
+                <h3>3. Maintenance & Damage Reporting</h3>
+                <p>Log a fault report to immediately flag an asset for maintenance and prevent further deployment.</p>
                 <ul>
-                    <li><strong>What to write:</strong> <em>"Equipment DW-20V has a stripped cable and won't turn on. PIN 123456"</em>.</li>
-                    <li><strong>Requirement:</strong> Equipment Number, a brief description of the failure, and your PIN.</li>
+                    <li><strong>Procedure:</strong> Describe the fault and authorize the report. (e.g., <em>"Asset DW-20V has a damaged power cord. PIN 123456"</em>).</li>
+                    <li><strong>Required Data:</strong> Asset ID, Fault Description, 6-digit PIN.</li>
                 </ul>
 
-                <h3>4. Register a new equipment into the system</h3>
-                <p>If you receive a new tool that isn't in the system yet, you can register it yourself.</p>
+                <h3>4. Asset Ingestion</h3>
+                <p>Register newly acquired equipment into the active inventory database.</p>
                 <ul>
-                    <li><strong>What to write:</strong> <em>"I want to register a new equipment. ID: 88899, Description: Cordless Drill"</em>.</li>
-                    <li><strong>Requirement:</strong> The Equipment ID or Serial Number and the tool's Description.</li>
+                    <li><strong>Procedure:</strong> State the intent to register, providing the new ID and description. (e.g., <em>"Register new asset. ID: 88899, Description: Cordless Drill"</em>).</li>
+                    <li><strong>Required Data:</strong> Asset ID, Description.</li>
                 </ul>
 
-                <h3>5. Upload photos of the tool</h3>
-                <p>It is mandatory and highly recommended to leave visual evidence of the condition in which you deliver or receive an equipment.</p>
+                <h3>5. Photographic Documentation</h3>
+                <p>Upload visual evidence of an asset's condition upon checkout or return. This procedure is mandatory for high-value equipment.</p>
                 <ul>
-                    <li><strong>What to do:</strong> Open the bot chat and send the photo. In the message attached to the photo (caption), write: <em>"Photo of equipment 27367, PIN 123456"</em>.</li>
-                    <li><strong>Requirement:</strong> Send the photo along with the Equipment Number and your PIN in the image caption.</li>
-                    <li><em>Note: You can send multiple photos at once. The bot has memory, so it will only ask for your details on the first photo and assume the rest belong to the same equipment.</em></li>
+                    <li><strong>Procedure:</strong> Send the photograph through WhatsApp. Include the Asset ID and PIN in the image caption. (e.g., <em>"Evidence for 27367, PIN 123456"</em>).</li>
+                    <li><strong>Required Data:</strong> Image attachment, Asset ID, 6-digit PIN.</li>
+                    <li><strong>Batch Uploads:</strong> When submitting multiple photographs sequentially, authorization is only required on the initial image. Subsequent images will be automatically associated with the active session.</li>
                 </ul>
 
-                <h2>Practical Tips</h2>
+                <h2>System Guidelines</h2>
                 <ul>
-                    <li><strong>Natural language:</strong> The bot understands human language. You don't need to memorize strange commands.</li>
-                    <li><strong>Text and photos only:</strong> The bot cannot listen to voice notes or read PDF/Word documents.</li>
-                    <li><strong>QR Code:</strong> If the equipment has a QR code label, scanning it with your camera will send you directly to the chat to interact.</li>
+                    <li><strong>Input Processing:</strong> The integration processes natural language. Rigid command structures are not required.</li>
+                    <li><strong>Media Support:</strong> The system currently supports text and image payloads exclusively. Voice memos and document attachments are not processed.</li>
+                    <li><strong>QR Integration:</strong> Scanning a physical asset's QR code will automatically initiate a pre-formatted query protocol in WhatsApp.</li>
                 </ul>
             </div>
 
-            <!-- SECTION: ADMINISTRATORS -->
+            <!-- SECTION: SYSTEM ADMINISTRATION -->
             <div id="dashboard" class="manual-section">
-                <h1>Control Panel (Web Dashboard)</h1>
-                <p>Welcome to the Entelso Administrative Dashboard. This platform is your main control center to have complete visibility of the company's assets, equipment, and tools in real time.</p>
+                <h1>Administrative Dashboard Guide</h1>
+                <p>The Entelso Web Dashboard provides centralized control and visibility over the entire asset lifecycle, enabling real-time tracking, auditing, and bulk management for administrative personnel.</p>
                 
-                <h2>1. Main View & Indicators</h2>
-                <p>Upon entering the platform, the top section gives you an instant summary:</p>
+                <h2>1. Interface & Analytics</h2>
+                <p>The primary interface provides a consolidated view of inventory metrics and status distributions.</p>
                 <ul>
-                    <li><strong>Key Metrics:</strong> You will see the percentage of available equipment and how many are currently in maintenance.</li>
-                    <li><strong>Quick Filters:</strong> You can filter the main table by <em>Status</em>, <em>Zone (Location)</em>, or <em>Work Team</em>.</li>
-                    <li><strong>Search Bar:</strong> Use the search bar to instantly find equipment by their serial number or description.</li>
+                    <li><strong>Global Metrics:</strong> Real-time calculation of asset availability and maintenance ratios.</li>
+                    <li><strong>Data Filtering:</strong> Dynamic table filtering by Status, Operational Zone, and Assigned Team.</li>
+                    <li><strong>Search Indexing:</strong> Instant querying against asset serial numbers and descriptions.</li>
                 </ul>
 
-                <h2>2. Individual Equipment Management (Asset Profile)</h2>
-                <p>If you click on any equipment in the list, the <strong>Details Side Panel</strong> will open on the right.</p>
+                <h2>2. Asset Profile Management</h2>
+                <p>Selecting any record from the primary table opens the Asset Details Panel, providing a comprehensive audit trail and management interface.</p>
                 
-                <h3>Details Side Panel</h3>
+                <h3>Details Panel Components</h3>
                 <ul>
-                    <li><strong>QR Code:</strong> From here you can generate, print, and download the QR code to physically stick on the tool.</li>
-                    <li><strong>Photo Gallery:</strong> Visual evidence of the equipment sent by technicians. Click on the photos to view them in full size.</li>
-                    <li><strong>Activity History:</strong> An unalterable timeline that shows exactly who moved the equipment, where to, and on what date.</li>
+                    <li><strong>QR Generation:</strong> Export and print unique QR identifiers for physical tagging and tracking.</li>
+                    <li><strong>Media Gallery:</strong> Review photographic evidence submitted by field technicians.</li>
+                    <li><strong>Audit Trail (Activity History):</strong> An immutable ledger logging all status changes, location transfers, and the respective authorizing personnel.</li>
                 </ul>
 
-                <h3>Edit an Equipment</h3>
-                <p>Inside the Side Panel, at the top right you will find the <strong>Pencil (Edit)</strong> icon. By clicking it, you can:</p>
+                <h3>Record Modification</h3>
+                <p>Administrative users possess override capabilities for all asset parameters. Access the modification interface via the Edit icon.</p>
                 <ul>
-                    <li>Update critical dates (Last and next calibration or Test/Tag).</li>
-                    <li>Manually reassign the equipment to another technician or zone (in case the technician didn't do it via WhatsApp).</li>
-                    <li><strong>Photo Management:</strong> At the bottom of the window, you can upload new photos or delete old ones by clicking the red "X" on the image.</li>
+                    <li><strong>Calibration Tracking:</strong> Update <em>'Last Tested'</em> and <em>'Next Test Due'</em> timestamps.</li>
+                    <li><strong>Manual Reassignment:</strong> Force-update asset locations or assignments independently of field reports.</li>
+                    <li><strong>Media Management:</strong> Upload new documentation or deprecate obsolete images.</li>
                 </ul>
                 <div class="manual-alert">
-                    <i class="fa-solid fa-circle-info"></i>
+                    <i class="fa-solid fa-server"></i>
                     <div>
-                        <strong>Don't forget to save</strong><br>
-                        <span style="color:var(--text-2); font-size: 13px;">Always remember to press the blue "Save Changes" button when finished to save your edits to the database.</span>
+                        <strong>Data Persistence</strong><br>
+                        <span style="color:var(--text-2); font-size: 13px; line-height: 1.5; display: block; margin-top: 6px;">Modifications made within the details panel remain local to the client session until explicitly committed to the database via the <em>Save Changes</em> protocol.</span>
                     </div>
                 </div>
 
-                <h2>3. Bulk Actions</h2>
-                <p>To save time when managing dozens of tools at once, the system allows mass actions.</p>
+                <h2>3. Bulk Operations</h2>
+                <p>For high-volume inventory management, the system supports simultaneous multi-record updates.</p>
                 <ol>
-                    <li>Select the <span class="manual-code">☑</span> checkboxes on the left side of the equipment in the main table.</li>
-                    <li>The "Bulk Actions" bar will appear above the table.</li>
-                    <li>From there you can simultaneously update the <strong>Category</strong>, <strong>Zone</strong>, <strong>Status</strong>, <strong>Team</strong>, or even <strong>Delete</strong> all selected equipment with a single click.</li>
+                    <li>Select the target assets using the primary table checkboxes (<span class="manual-code">☑</span>).</li>
+                    <li>Access the <strong>Bulk Actions</strong> control bar that appears above the grid.</li>
+                    <li>Execute localized updates for Category, Zone, Status, or Team across all selected entities simultaneously.</li>
                 </ol>
 
-                <h2>4. Create New Equipment</h2>
-                <p>While technicians can enter basic tools from WhatsApp, as an administrator you can do it more comprehensively:</p>
+                <h2>4. Manual Asset Creation</h2>
+                <p>While field technicians can perform basic ingestion, administrators can initialize complete asset profiles with extended parameters.</p>
                 <ol>
-                    <li>Click the blue <strong>"Add Asset"</strong> button in the top right corner of the dashboard.</li>
-                    <li>Fill out the equipment's technical profile (Serial Number, Description, Dates, Status, and Zone) and save it.</li>
+                    <li>Initiate the <strong>Add Asset</strong> protocol from the primary navigation header.</li>
+                    <li>Populate the comprehensive technical profile, including scheduling parameters and initial deployment status.</li>
+                    <li>Commit the record to generate the unique database identifier.</li>
                 </ol>
 
-                <h2>5. Real-Time WhatsApp Integration</h2>
-                <p>Remember that your field technicians update this platform without needing a web user account. Every time a technician reports a failure, assigns an equipment, or uploads a photo via the WhatsApp bot, you will see it reflected <strong>automatically</strong> in your table and in the equipment's history.</p>
+                <h2>5. System Telemetry</h2>
+                <p>The dashboard receives synchronous updates from the WhatsApp integration. All field reports, transfers, and media uploads executed by technicians are reflected instantaneously in the active table and corresponding audit trails, requiring no manual reconciliation.</p>
             </div>
 
         </div>
