@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="es" data-theme="dark">
+<html lang="en" data-theme="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Entelso - Manual de Usuario</title>
+    <title>Entelso - User Manual</title>
     <!-- Mismos estilos de la plataforma -->
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
@@ -175,7 +175,7 @@
 </head>
 <body>
 
-    <!-- Menú lateral -->
+    <!-- Sidebar -->
     <div class="manual-sidebar">
         <div class="manual-logo-container">
             <img src="LOGOTYPE-WHITE.png" alt="Entelso Logo" class="manual-logo" id="logoImg">
@@ -183,163 +183,156 @@
 
         <div class="manual-nav-item active" onclick="switchTab('tecnicos')">
             <i class="fa-brands fa-whatsapp"></i>
-            Manual Técnicos
+            Technician Manual
         </div>
         <div class="manual-nav-item" onclick="switchTab('dashboard')">
             <i class="fa-solid fa-desktop"></i>
-            Manual Dashboard
+            Dashboard Manual
         </div>
     </div>
 
-    <!-- Contenido -->
+    <!-- Content -->
     <div class="manual-content-wrapper">
         
         <a href="index.html" class="btn btn-secondary back-btn" style="text-decoration:none;">
-            <i class="fa-solid fa-arrow-left"></i> Volver al Dashboard
+            <i class="fa-solid fa-arrow-left"></i> Back to Dashboard
         </a>
 
         <div class="manual-container">
             
-            <!-- SECCIÓN: TÉCNICOS -->
+            <!-- SECTION: TECHNICIANS -->
             <div id="tecnicos" class="manual-section active">
-                <h1>Uso del Bot de WhatsApp (Técnicos)</h1>
-                <p>Bienvenido al sistema de inventario de Entelso. Para facilitar tu trabajo en terreno, no necesitas instalar ninguna aplicación. Todo el sistema se maneja enviando mensajes directamente a nuestro <strong>Bot de WhatsApp</strong>.</p>
+                <h1>WhatsApp Bot Guide (Technicians)</h1>
+                <p>Welcome to the Entelso inventory system. To make your field work easier, you don't need to install any app. The entire system is managed by sending messages directly to our <strong>WhatsApp Bot</strong>.</p>
                 
                 <div class="manual-alert warning">
                     <i class="fa-solid fa-lock"></i>
                     <div>
-                        <strong>Tu PIN de Seguridad (6 dígitos)</strong><br>
-                        <span style="color:var(--text-2); font-size: 13px;">Para cualquier acción que modifique el estado de un equipo (como llevártelo a una obra, reportar un daño o subir fotos), el bot te pedirá tu PIN. Nunca lo compartas con nadie; este código registra automáticamente tu nombre como la persona responsable del movimiento.</span>
+                        <strong>Your Security PIN (6 digits)</strong><br>
+                        <span style="color:var(--text-2); font-size: 13px;">For any action that modifies an equipment's status (such as taking it to a site, reporting damage, or uploading photos), the bot will ask for your PIN. Never share it with anyone; this code automatically registers your name as the person responsible for the action.</span>
                     </div>
                 </div>
 
-                <h2>¿Qué puedes hacer con el Bot?</h2>
+                <h2>What can you do with the Bot?</h2>
 
-                <h3>1. Consultar la ubicación o estado de un equipo</h3>
-                <p>Si necesitas saber dónde está una herramienta o si está disponible, simplemente pregúntale al bot.</p>
+                <h3>1. Check the location or status of an equipment</h3>
+                <p>If you need to know where a tool is or if it's available, simply ask the bot.</p>
                 <ul>
-                    <li><strong>Qué escribir:</strong> <em>"¿Dónde está el equipo DW-20V-459?"</em> o <em>"Busca el equipo 27367"</em>.</li>
-                    <li><strong>Requisito:</strong> Solo necesitas mencionar el número de serie o ID del equipo.</li>
+                    <li><strong>What to write:</strong> <em>"Where is equipment DW-20V-459?"</em> or <em>"Find equipment 27367"</em>.</li>
+                    <li><strong>Requirement:</strong> You just need to mention the equipment's serial number or ID.</li>
                 </ul>
 
-                <h3>2. Asignarte un equipo o moverlo de zona</h3>
-                <p>Cuando tomes un equipo de la bodega para llevarlo a una obra, debes notificarlo.</p>
+                <h3>2. Assign an equipment to yourself or move it</h3>
+                <p>When you take an equipment from the warehouse to a job site, you must notify the system.</p>
                 <ul>
-                    <li><strong>Qué escribir:</strong> <em>"Me llevo el equipo 27367 a la zona NSW, mi PIN es 123456"</em>.</li>
-                    <li><strong>Requisito:</strong> Número del equipo, la Zona destino, y tu PIN de 6 dígitos.</li>
-                    <li><em>Nota: Si olvidas algún dato, no te preocupes, el bot te lo preguntará.</em></li>
+                    <li><strong>What to write:</strong> <em>"I'm taking equipment 27367 to the NSW zone, my PIN is 123456"</em>.</li>
+                    <li><strong>Requirement:</strong> Equipment Number, Destination Zone, and your 6-digit PIN.</li>
+                    <li><em>Note: If you forget any detail, don't worry, the bot will ask you for it.</em></li>
                 </ul>
 
-                <h3>3. Reportar un equipo dañado o en mantenimiento</h3>
-                <p>Si una herramienta falla o se rompe en terreno, repórtala de inmediato para que no se le asigne a nadie más.</p>
+                <h3>3. Report damaged or maintenance equipment</h3>
+                <p>If a tool fails or breaks in the field, report it immediately so it won't be assigned to anyone else.</p>
                 <ul>
-                    <li><strong>Qué escribir:</strong> <em>"El equipo DW-20V tiene el cable pelado y no enciende. PIN 123456"</em>.</li>
-                    <li><strong>Requisito:</strong> Número del equipo, una breve descripción de la falla, y tu PIN.</li>
+                    <li><strong>What to write:</strong> <em>"Equipment DW-20V has a stripped cable and won't turn on. PIN 123456"</em>.</li>
+                    <li><strong>Requirement:</strong> Equipment Number, a brief description of the failure, and your PIN.</li>
                 </ul>
 
-                <h3>4. Ingresar un equipo nuevo al sistema</h3>
-                <p>Si recibes una herramienta nueva que no está en el sistema, puedes registrarla.</p>
+                <h3>4. Register a new equipment into the system</h3>
+                <p>If you receive a new tool that isn't in the system yet, you can register it yourself.</p>
                 <ul>
-                    <li><strong>Qué escribir:</strong> <em>"Quiero registrar un nuevo equipo. ID: 88899, Descripción: Taladro Inalámbrico"</em>.</li>
-                    <li><strong>Requisito:</strong> El ID o Número de Serie y la Descripción de la herramienta.</li>
+                    <li><strong>What to write:</strong> <em>"I want to register a new equipment. ID: 88899, Description: Cordless Drill"</em>.</li>
+                    <li><strong>Requirement:</strong> The Equipment ID or Serial Number and the tool's Description.</li>
                 </ul>
 
-                <h3>5. Subir fotos de la herramienta</h3>
-                <p>Es obligatorio y recomendable dejar evidencia visual del estado en el que entregas o recibes un equipo.</p>
+                <h3>5. Upload photos of the tool</h3>
+                <p>It is mandatory and highly recommended to leave visual evidence of the condition in which you deliver or receive an equipment.</p>
                 <ul>
-                    <li><strong>Qué hacer:</strong> Abre el chat del bot y envíale la foto. En el mensaje que acompaña la foto (comentario), escribe: <em>"Foto del equipo 27367, PIN 123456"</em>.</li>
-                    <li><strong>Requisito:</strong> Enviar la foto junto con el Número del Equipo y tu PIN en el texto de la imagen.</li>
-                    <li><em>Nota: Puedes enviar varias fotos de golpe. El bot tiene memoria, por lo que solo pedirá tus datos en la primera foto y asumirá que las demás pertenecen al mismo equipo.</em></li>
+                    <li><strong>What to do:</strong> Open the bot chat and send the photo. In the message attached to the photo (caption), write: <em>"Photo of equipment 27367, PIN 123456"</em>.</li>
+                    <li><strong>Requirement:</strong> Send the photo along with the Equipment Number and your PIN in the image caption.</li>
+                    <li><em>Note: You can send multiple photos at once. The bot has memory, so it will only ask for your details on the first photo and assume the rest belong to the same equipment.</em></li>
                 </ul>
 
-                <h2>Consejos Prácticos</h2>
+                <h2>Practical Tips</h2>
                 <ul>
-                    <li><strong>Lenguaje natural:</strong> El bot entiende lenguaje humano. No necesitas memorizar comandos extraños.</li>
-                    <li><strong>Solo texto y fotos:</strong> El bot no puede escuchar notas de voz ni leer documentos PDF/Word.</li>
-                    <li><strong>Código QR:</strong> Si el equipo tiene una etiqueta con un código QR, al escanearlo con la cámara te enviará directo al chat para interactuar.</li>
+                    <li><strong>Natural language:</strong> The bot understands human language. You don't need to memorize strange commands.</li>
+                    <li><strong>Text and photos only:</strong> The bot cannot listen to voice notes or read PDF/Word documents.</li>
+                    <li><strong>QR Code:</strong> If the equipment has a QR code label, scanning it with your camera will send you directly to the chat to interact.</li>
                 </ul>
             </div>
 
-            <!-- SECCIÓN: ADMINISTRADORES -->
+            <!-- SECTION: ADMINISTRATORS -->
             <div id="dashboard" class="manual-section">
-                <h1>Panel de Control (Dashboard Web)</h1>
-                <p>Bienvenido al Dashboard Administrativo de Entelso. Esta plataforma es tu centro de control principal para tener visibilidad total de los activos, equipos y herramientas de la empresa en tiempo real.</p>
+                <h1>Control Panel (Web Dashboard)</h1>
+                <p>Welcome to the Entelso Administrative Dashboard. This platform is your main control center to have complete visibility of the company's assets, equipment, and tools in real time.</p>
                 
-                <h2>1. Vista Principal e Indicadores</h2>
-                <p>Al ingresar a la plataforma, la parte superior te brinda un resumen instantáneo:</p>
+                <h2>1. Main View & Indicators</h2>
+                <p>Upon entering the platform, the top section gives you an instant summary:</p>
                 <ul>
-                    <li><strong>Métricas Clave:</strong> Verás el porcentaje de equipos disponibles y cuántos están actualmente en mantenimiento.</li>
-                    <li><strong>Filtros Rápidos:</strong> Puedes filtrar la tabla central por <em>Estado</em>, <em>Zona (Ubicación)</em> o <em>Equipo de trabajo (Team)</em>.</li>
-                    <li><strong>Buscador:</strong> Utiliza la barra de búsqueda para encontrar equipos instantáneamente por su número de serie o descripción.</li>
+                    <li><strong>Key Metrics:</strong> You will see the percentage of available equipment and how many are currently in maintenance.</li>
+                    <li><strong>Quick Filters:</strong> You can filter the main table by <em>Status</em>, <em>Zone (Location)</em>, or <em>Work Team</em>.</li>
+                    <li><strong>Search Bar:</strong> Use the search bar to instantly find equipment by their serial number or description.</li>
                 </ul>
 
-                <h2>2. Gestión Individual de Equipos (Ficha del Activo)</h2>
-                <p>Si haces clic sobre cualquier equipo de la lista, se abrirá el <strong>Panel Lateral de Detalles</strong> a la derecha.</p>
+                <h2>2. Individual Equipment Management (Asset Profile)</h2>
+                <p>If you click on any equipment in the list, the <strong>Details Side Panel</strong> will open on the right.</p>
                 
-                <h3>Panel Lateral de Detalles</h3>
+                <h3>Details Side Panel</h3>
                 <ul>
-                    <li><strong>Código QR:</strong> Desde aquí puedes generar, imprimir y descargar el código QR para pegar físicamente en la herramienta.</li>
-                    <li><strong>Galería de Fotos:</strong> Evidencia visual del equipo enviada por los técnicos. Haz clic en las fotos para verlas en tamaño completo.</li>
-                    <li><strong>Activity History (Historial):</strong> Una línea de tiempo inalterable que muestra exactamente quién movió el equipo, hacia dónde y en qué fecha.</li>
+                    <li><strong>QR Code:</strong> From here you can generate, print, and download the QR code to physically stick on the tool.</li>
+                    <li><strong>Photo Gallery:</strong> Visual evidence of the equipment sent by technicians. Click on the photos to view them in full size.</li>
+                    <li><strong>Activity History:</strong> An unalterable timeline that shows exactly who moved the equipment, where to, and on what date.</li>
                 </ul>
 
-                <h3>Editar un Equipo</h3>
-                <p>Dentro del Panel Lateral, arriba a la derecha encontrarás el ícono de un <strong>Lápiz (Editar)</strong>. Al hacer clic, podrás:</p>
+                <h3>Edit an Equipment</h3>
+                <p>Inside the Side Panel, at the top right you will find the <strong>Pencil (Edit)</strong> icon. By clicking it, you can:</p>
                 <ul>
-                    <li>Actualizar fechas críticas (Última y próxima calibración o Test/Tag).</li>
-                    <li>Reasignar manualmente el equipo a otro técnico o zona (en caso de que el técnico no lo haya hecho por WhatsApp).</li>
-                    <li><strong>Gestión de Fotos:</strong> En la parte inferior de la ventana, puedes subir fotos nuevas o eliminar fotos antiguas haciendo clic en la "X" roja de la imagen.</li>
+                    <li>Update critical dates (Last and next calibration or Test/Tag).</li>
+                    <li>Manually reassign the equipment to another technician or zone (in case the technician didn't do it via WhatsApp).</li>
+                    <li><strong>Photo Management:</strong> At the bottom of the window, you can upload new photos or delete old ones by clicking the red "X" on the image.</li>
                 </ul>
                 <div class="manual-alert">
                     <i class="fa-solid fa-circle-info"></i>
                     <div>
-                        <strong>No olvides guardar</strong><br>
-                        <span style="color:var(--text-2); font-size: 13px;">Recuerda siempre presionar el botón azul "Save Changes" al finalizar para guardar tus ediciones en la base de datos.</span>
+                        <strong>Don't forget to save</strong><br>
+                        <span style="color:var(--text-2); font-size: 13px;">Always remember to press the blue "Save Changes" button when finished to save your edits to the database.</span>
                     </div>
                 </div>
 
-                <h2>3. Acciones Masivas (Bulk Actions)</h2>
-                <p>Para ahorrar tiempo cuando gestionas decenas de herramientas a la vez, el sistema permite acciones masivas.</p>
+                <h2>3. Bulk Actions</h2>
+                <p>To save time when managing dozens of tools at once, the system allows mass actions.</p>
                 <ol>
-                    <li>Selecciona las casillas de verificación <span class="manual-code">☑</span> al lado izquierdo de los equipos en la tabla principal.</li>
-                    <li>Arriba de la tabla aparecerá la barra de "Bulk Actions" (Acciones Masivas).</li>
-                    <li>Desde ahí podrás actualizar al mismo tiempo la <strong>Categoría</strong>, <strong>Zona</strong>, <strong>Estado</strong>, <strong>Team</strong>, o incluso <strong>Eliminar</strong> todos los equipos seleccionados con un solo clic.</li>
+                    <li>Select the <span class="manual-code">☑</span> checkboxes on the left side of the equipment in the main table.</li>
+                    <li>The "Bulk Actions" bar will appear above the table.</li>
+                    <li>From there you can simultaneously update the <strong>Category</strong>, <strong>Zone</strong>, <strong>Status</strong>, <strong>Team</strong>, or even <strong>Delete</strong> all selected equipment with a single click.</li>
                 </ol>
 
-                <h2>4. Crear Equipos Nuevos</h2>
-                <p>Si bien los técnicos pueden ingresar herramientas básicas desde WhatsApp, como administrador puedes hacerlo de forma más completa:</p>
+                <h2>4. Create New Equipment</h2>
+                <p>While technicians can enter basic tools from WhatsApp, as an administrator you can do it more comprehensively:</p>
                 <ol>
-                    <li>Haz clic en el botón azul <strong>"Add Asset"</strong> en la esquina superior derecha del dashboard.</li>
-                    <li>Completa la ficha técnica del equipo (Número de Serie, Descripción, Fechas, Estado y Zona) y guárdalo.</li>
+                    <li>Click the blue <strong>"Add Asset"</strong> button in the top right corner of the dashboard.</li>
+                    <li>Fill out the equipment's technical profile (Serial Number, Description, Dates, Status, and Zone) and save it.</li>
                 </ol>
 
-                <h2>5. Integración con WhatsApp en Tiempo Real</h2>
-                <p>Recuerda que tus técnicos en terreno actualizan esta plataforma sin necesidad de tener un usuario web. Cada vez que un técnico reporte una falla, asigne un equipo o suba una foto a través del bot de WhatsApp, lo verás reflejado <strong>automáticamente</strong> en tu tabla y en el historial del equipo.</p>
+                <h2>5. Real-Time WhatsApp Integration</h2>
+                <p>Remember that your field technicians update this platform without needing a web user account. Every time a technician reports a failure, assigns an equipment, or uploads a photo via the WhatsApp bot, you will see it reflected <strong>automatically</strong> in your table and in the equipment's history.</p>
             </div>
 
         </div>
     </div>
 
     <script>
-        // Lógica simple para cambiar pestañas
         function switchTab(tabId) {
-            // Ocultar todas las secciones
             document.querySelectorAll('.manual-section').forEach(el => {
                 el.classList.remove('active');
             });
-            // Quitar clase active de los botones
             document.querySelectorAll('.manual-nav-item').forEach(el => {
                 el.classList.remove('active');
             });
             
-            // Mostrar sección actual
             document.getElementById(tabId).classList.add('active');
-            
-            // Activar botón pulsado
             event.currentTarget.classList.add('active');
         }
 
-        // Leer tema local para aplicar logos correctos si es necesario
         const theme = localStorage.getItem('theme') || 'dark';
         if(theme === 'light') {
             document.documentElement.setAttribute('data-theme', 'light');
