@@ -2619,11 +2619,16 @@ window.editarActivo = async function(item) {
   document.body.appendChild(modal);
 
 
-  let currentFotos = Array.isArray(item.fotos) ? [...item.fotos] : [];
+  let currentFotos = (item._raw && Array.isArray(item._raw.fotos)) ? [...item._raw.fotos] : [];
 
   const fotoInput = document.getElementById('editAssetFotoInput');
   const fotoStatus = document.getElementById('editAssetFotoStatus');
   const fotoGallery = document.getElementById('editAssetFotosGallery');
+
+  // Render existing photos
+  if (fotoGallery && currentFotos.length > 0) {
+    fotoGallery.innerHTML = currentFotos.map(url => `<img src="${url}" style="width:50px;height:50px;object-fit:cover;border-radius:4px;border:1px solid var(--border);">`).join('');
+  }
 
   if (fotoInput) {
     fotoInput.addEventListener('change', async (e) => {
