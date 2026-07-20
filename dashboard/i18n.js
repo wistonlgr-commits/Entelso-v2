@@ -979,7 +979,7 @@ const TRANSLATIONS = {
 };
 
 /* ── i18n Engine ─────────────────────────────────────── */
-let _currentLang = localStorage.getItem('entelso_lang') || 'en';
+let _currentLang = localStorage.getItem('entelso_lang') || 'es';
 
 /** Translate a key. If not found, returns the key itself */
 function t(key) {

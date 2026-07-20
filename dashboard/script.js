@@ -1811,18 +1811,13 @@ function inicializarModal() {
       formData.append('foto', file);
 
       try {
-        const res = await apiFetch('/api/upload', {
-          method: 'POST',
-          body: formData,
-          headers: {} // apiFetch might set Content-Type: application/json automatically, need to ensure it doesn't. 
-        }, true); // Use a custom fetch or modify apiFetch to handle FormData
-
-        // Actually, we'll use native fetch if apiFetch forces Content-Type: application/json
-        const token = localStorage.getItem('entelso_jwt');
+        // Use native fetch for FormData - apiFetch forces Content-Type: application/json
+        // which corrupts multipart/form-data. Let the browser set the correct boundary.
+        const token = session.getToken();
         const uploadRes = await fetch(API_BASE + '/api/upload', {
           method: 'POST',
           headers: {
-            'Authorization': `Bearer ${token}`
+            ...(token ? { 'Authorization': `Bearer ${token}` } : {})
           },
           body: formData
         });
