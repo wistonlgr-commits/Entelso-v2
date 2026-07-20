@@ -20,6 +20,7 @@ exports.createAssetSchema = z.object({
   fecha_ultima_cali: fecha, fecha_prox_cali: fecha,
   fecha_ultimo_tag:  fecha, fecha_prox_tag:  fecha,
   estado: estadoEnum.default('disponible'),
+  fotos: z.array(z.string()).optional(),
 }).refine(noConflicto, conflictMsg);
 
 exports.updateAssetSchema = z.object({
@@ -29,6 +30,7 @@ exports.updateAssetSchema = z.object({
   fecha_ultima_cali: fecha, fecha_prox_cali: fecha,
   fecha_ultimo_tag:  fecha, fecha_prox_tag:  fecha,
   estado: estadoEnum.optional(),
+  fotos: z.array(z.string()).optional(),
 }).refine(noConflicto, conflictMsg);
 
 exports.bulkCreateAssetSchema = z.object({
