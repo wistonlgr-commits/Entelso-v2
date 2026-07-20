@@ -2609,7 +2609,7 @@ window.editarActivo = async function(item) {
       try {
         const uploadRes = await fetch(API_BASE + '/api/upload', {
           method: 'POST',
-          headers: { 'Authorization': 'Bearer ' + window.session.getToken() },
+          headers: { 'Authorization': 'Bearer ' + session.getToken() },
           body: formData
         });
         
@@ -2621,10 +2621,10 @@ window.editarActivo = async function(item) {
             fotoStatus.textContent = '';
           }
         } else {
-          fotoStatus.textContent = 'Error subiendo foto';
+          fotoStatus.textContent = window.i18n.t('modal.subir_foto_error') || 'Error subiendo foto';
         }
       } catch (err) {
-        fotoStatus.textContent = 'Error de red';
+        fotoStatus.textContent = window.i18n.t('seg.err_red') || 'Error de red';
       }
 
       btn.disabled = false;
