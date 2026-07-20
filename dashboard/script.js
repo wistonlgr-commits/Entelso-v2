@@ -2640,7 +2640,7 @@ window.editarActivo = async function(item) {
       fecha_ultima_cali:   document.getElementById('editAssetUltiCal').value || null,
       fecha_prox_cali:     document.getElementById('editAssetProxCal').value || null,
       fecha_ultimo_tag:    document.getElementById('editAssetUltiTag').value || null,
-      fecha_prox_tag:      document.getElementById('editAssetProxTag').value || null,,
+      fecha_prox_tag:      document.getElementById('editAssetProxTag').value || null,
       fotos:               currentFotos
     };
     // If assigning to a location, remove user assignment
@@ -3354,46 +3354,45 @@ window.customConfirm = function(msg) {
   });
 };
 
- 
- w i n d o w . v e r D e t a l l e s A c t i v o   =   f u n c t i o n ( i d )   { 
-     c o n s t   a c t i v o   =   w i n d o w . c u r r e n t D a t a A c t i v o s . f i n d ( a   = >   a . i d   = = =   p a r s e I n t ( i d ) ) ; 
-     i f   ( ! a c t i v o )   r e t u r n ; 
- 
-     d o c u m e n t . g e t E l e m e n t B y I d ( ' d e t I d ' ) . t e x t C o n t e n t   =   a c t i v o . n u m e r o _ s e r i e   | |   ' - - ' ; 
-     d o c u m e n t . g e t E l e m e n t B y I d ( ' d e t E s t a d o ' ) . i n n e r H T M L   =   s t a t u s P i l l ( a c t i v o . e s t a d o ) ; 
-     d o c u m e n t . g e t E l e m e n t B y I d ( ' d e t E q u i p o ' ) . t e x t C o n t e n t   =   a c t i v o . n o m b r e _ i t e m   | |   a c t i v o . d e s c r i p c i o n   | |   ' - - ' ; 
-     d o c u m e n t . g e t E l e m e n t B y I d ( ' d e t Z o n a ' ) . t e x t C o n t e n t   =   a c t i v o . n o m b r e _ u b i c a c i o n   | |   w i n d o w . i 1 8 n . t ( ' a p i . s i n _ a s i g n a r ' ) ; 
-     d o c u m e n t . g e t E l e m e n t B y I d ( ' d e t T e a m ' ) . t e x t C o n t e n t   =   a c t i v o . t e a m   | |   ' - - ' ; 
-     d o c u m e n t . g e t E l e m e n t B y I d ( ' d e t A s i g n a d o ' ) . t e x t C o n t e n t   =   a c t i v o . n o m b r e _ u s u a r i o   | |   w i n d o w . i 1 8 n . t ( ' a p i . s i n _ a s i g n a r ' ) ; 
- 
-     c o n s t   g a l l e r y   =   d o c u m e n t . g e t E l e m e n t B y I d ( ' d e t F o t o s G a l l e r y ' ) ; 
-     c o n s t   n o F o t o s   =   d o c u m e n t . g e t E l e m e n t B y I d ( ' d e t N o F o t o s ' ) ; 
-     g a l l e r y . i n n e r H T M L   =   ' ' ; 
-     
-     i f   ( a c t i v o . f o t o s   & &   A r r a y . i s A r r a y ( a c t i v o . f o t o s )   & &   a c t i v o . f o t o s . l e n g t h   >   0 )   { 
-         n o F o t o s . s t y l e . d i s p l a y   =   ' n o n e ' ; 
-         a c t i v o . f o t o s . f o r E a c h ( f o t o U r l   = >   { 
-             c o n s t   a   =   d o c u m e n t . c r e a t e E l e m e n t ( ' a ' ) ; 
-             a . h r e f   =   f o t o U r l ; 
-             a . t a r g e t   =   ' _ b l a n k ' ; 
-             a . s t y l e . d i s p l a y   =   ' b l o c k ' ; 
-             
-             c o n s t   i m g   =   d o c u m e n t . c r e a t e E l e m e n t ( ' i m g ' ) ; 
-             i m g . s r c   =   f o t o U r l ; 
-             i m g . s t y l e . w i d t h   =   ' 1 0 0 % ' ; 
-             i m g . s t y l e . h e i g h t   =   ' 1 0 0 p x ' ; 
-             i m g . s t y l e . o b j e c t F i t   =   ' c o v e r ' ; 
-             i m g . s t y l e . b o r d e r R a d i u s   =   ' v a r ( - - r a d i u s - m d ) ' ; 
-             i m g . s t y l e . b o r d e r   =   ' 1 p x   s o l i d   v a r ( - - b o r d e r ) ' ; 
-             i m g . s t y l e . c u r s o r   =   ' p o i n t e r ' ; 
-             
-             a . a p p e n d C h i l d ( i m g ) ; 
-             g a l l e r y . a p p e n d C h i l d ( a ) ; 
-         } ) ; 
-     }   e l s e   { 
-         n o F o t o s . s t y l e . d i s p l a y   =   ' b l o c k ' ; 
-     } 
- 
-     d o c u m e n t . g e t E l e m e n t B y I d ( ' a s s e t D e t a i l s M o d a l O v e r l a y ' ) . c l a s s L i s t . a d d ( ' o p e n ' ) ; 
- } ;  
- 
+
+window.verDetallesActivo = function(id) {
+  const activo = window.currentDataActivos.find(a => a.id === parseInt(id));
+  if (!activo) return;
+
+  document.getElementById('detId').textContent = activo.numero_serie || '--';
+  document.getElementById('detEstado').innerHTML = statusPill(activo.estado);
+  document.getElementById('detEquipo').textContent = activo.nombre_item || activo.descripcion || '--';
+  document.getElementById('detZona').textContent = activo.nombre_ubicacion || window.i18n.t('api.sin_asignar');
+  document.getElementById('detTeam').textContent = activo.team || '--';
+  document.getElementById('detAsignado').textContent = activo.nombre_usuario || window.i18n.t('api.sin_asignar');
+
+  const gallery = document.getElementById('detFotosGallery');
+  const noFotos = document.getElementById('detNoFotos');
+  gallery.innerHTML = '';
+  
+  if (activo.fotos && Array.isArray(activo.fotos) && activo.fotos.length > 0) {
+    noFotos.style.display = 'none';
+    activo.fotos.forEach(fotoUrl => {
+      const a = document.createElement('a');
+      a.href = fotoUrl;
+      a.target = '_blank';
+      a.style.display = 'block';
+      
+      const img = document.createElement('img');
+      img.src = fotoUrl;
+      img.style.width = '100%';
+      img.style.height = '100px';
+      img.style.objectFit = 'cover';
+      img.style.borderRadius = 'var(--radius-md)';
+      img.style.border = '1px solid var(--border)';
+      img.style.cursor = 'pointer';
+      
+      a.appendChild(img);
+      gallery.appendChild(a);
+    });
+  } else {
+    noFotos.style.display = 'block';
+  }
+
+  document.getElementById('assetDetailsModalOverlay').classList.add('open');
+};
