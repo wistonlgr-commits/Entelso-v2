@@ -1419,6 +1419,39 @@ async function openDrawer(item) {
     drawerEditBtn.onclick = () => window.editarActivo(item);
   }
 
+  // Render Photos if available
+  const drawerFotosLabel = document.getElementById('drawerFotosLabel');
+  const drawerFotosGallery = document.getElementById('drawerFotosGallery');
+  if (drawerFotosLabel && drawerFotosGallery) {
+    drawerFotosGallery.innerHTML = '';
+    
+    if (item._raw && item._raw.fotos && Array.isArray(item._raw.fotos) && item._raw.fotos.length > 0) {
+      drawerFotosLabel.style.display = 'block';
+      drawerFotosGallery.style.display = 'grid';
+      item._raw.fotos.forEach(fotoUrl => {
+        const a = document.createElement('a');
+        a.href = fotoUrl;
+        a.target = '_blank';
+        a.style.display = 'block';
+        
+        const img = document.createElement('img');
+        img.src = fotoUrl;
+        img.style.width = '100%';
+        img.style.height = '80px';
+        img.style.objectFit = 'cover';
+        img.style.borderRadius = 'var(--radius-md)';
+        img.style.border = '1px solid var(--border)';
+        img.style.cursor = 'pointer';
+        
+        a.appendChild(img);
+        drawerFotosGallery.appendChild(a);
+      });
+    } else {
+      drawerFotosLabel.style.display = 'none';
+      drawerFotosGallery.style.display = 'none';
+    }
+  }
+
   // Timeline
   const timelineEl = document.getElementById('drawerTimeline');
   timelineEl.innerHTML = `<div class="timeline-item"><div class="timeline-body">${window.i18n.t('drawer.cargando_hist')}</div></div>`;
