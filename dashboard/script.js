@@ -2625,10 +2625,27 @@ window.editarActivo = async function(item) {
   const fotoStatus = document.getElementById('editAssetFotoStatus');
   const fotoGallery = document.getElementById('editAssetFotosGallery');
 
+  const renderFotos = () => {
+    if (!fotoGallery) return;
+    if (currentFotos.length === 0) {
+      fotoGallery.innerHTML = '';
+      return;
+    }
+    fotoGallery.innerHTML = currentFotos.map((url, idx) => `
+      <div style="position:relative; display:inline-block; margin-right:8px; margin-bottom:8px;">
+        <img src="${url}" style="width:60px;height:60px;object-fit:cover;border-radius:4px;border:1px solid var(--border);">
+        <button type="button" onclick="window.eliminarFotoEdit(${idx})" style="position:absolute;top:-6px;right:-6px;background:var(--danger);color:white;border:none;border-radius:50%;width:20px;height:20px;cursor:pointer;font-size:12px;line-height:20px;padding:0;text-align:center;">&times;</button>
+      </div>
+    `).join('');
+  };
+
+  window.eliminarFotoEdit = (idx) => {
+    currentFotos.splice(idx, 1);
+    renderFotos();
+  };
+
   // Render existing photos
-  if (fotoGallery && currentFotos.length > 0) {
-    fotoGallery.innerHTML = currentFotos.map(url => `<img src="${url}" style="width:50px;height:50px;object-fit:cover;border-radius:4px;border:1px solid var(--border);">`).join('');
-  }
+  renderFotos();
 
   if (fotoInput) {
     fotoInput.addEventListener('change', async (e) => {
@@ -2655,7 +2672,7 @@ window.editarActivo = async function(item) {
           const uploadJson = await uploadRes.json();
           if (uploadJson.success && uploadJson.data.url) {
             currentFotos.push(uploadJson.data.url);
-            fotoGallery.innerHTML += `<img src="${uploadJson.data.url}" style="width:50px;height:50px;object-fit:cover;border-radius:4px;">`;
+            renderFotos();
             fotoStatus.textContent = '';
           }
         } else {
