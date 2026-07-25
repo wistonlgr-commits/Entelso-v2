@@ -1,11 +1,11 @@
 <!DOCTYPE html>
-<html lang="es" data-theme="dark">
+<html lang="en" data-theme="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Entelso - Guía del Sistema</title>
+    <title>Entelso - Comprehensive System Documentation</title>
     <link rel="stylesheet" href="style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     
     <style>
@@ -21,34 +21,36 @@
 
         /* Sidebar Navigation */
         .manual-sidebar {
-            width: 260px;
+            width: 280px;
             background-color: var(--bg-sidebar);
             border-right: 1px solid var(--border);
             display: flex;
             flex-direction: column;
             padding: 32px 20px;
+            flex-shrink: 0;
         }
 
         .manual-logo-container {
-            margin-bottom: 48px;
+            margin-bottom: 40px;
             padding: 0 12px;
         }
 
         .manual-logo {
-            width: 130px;
+            width: 140px;
         }
 
         .manual-nav-item {
-            padding: 12px 16px;
+            padding: 14px 18px;
             border-radius: var(--radius-md);
             color: var(--text-2);
             cursor: pointer;
-            margin-bottom: 8px;
+            margin-bottom: 10px;
             font-size: var(--font-size-md);
             transition: var(--transition);
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 14px;
+            font-weight: 500;
         }
 
         .manual-nav-item:hover {
@@ -59,26 +61,27 @@
         .manual-nav-item.active {
             background-color: var(--bg-active);
             color: var(--text-1);
-            font-weight: 500;
+            font-weight: 600;
+            border-left: 4px solid var(--accent-blue);
         }
 
         /* Content Area */
         .manual-content-wrapper {
             flex: 1;
             overflow-y: auto;
-            padding: 48px;
+            padding: 48px 64px;
             background-color: var(--bg-base);
             position: relative;
         }
 
         .manual-container {
-            max-width: 840px;
+            max-width: 900px;
             margin: 0 auto;
         }
 
         .manual-section {
             display: none;
-            animation: fadeIn 0.4s ease;
+            animation: fadeIn 0.3s ease;
         }
 
         .manual-section.active {
@@ -86,46 +89,52 @@
         }
 
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(8px); }
+            from { opacity: 0; transform: translateY(6px); }
             to { opacity: 1; transform: translateY(0); }
         }
 
         /* Typography */
         .manual-container h1 {
-            font-size: 32px;
-            font-weight: 600;
+            font-size: 34px;
+            font-weight: 700;
             margin-bottom: 16px;
             color: var(--text-1);
             letter-spacing: -0.5px;
         }
         
         .manual-container h2 {
-            font-size: 22px;
-            font-weight: 500;
+            font-size: 24px;
+            font-weight: 600;
             margin-top: 48px;
-            margin-bottom: 20px;
+            margin-bottom: 24px;
             padding-bottom: 12px;
             border-bottom: 1px solid var(--border);
             color: var(--text-1);
+            display: flex;
+            align-items: center;
+            gap: 12px;
         }
 
         .manual-container h3 {
-            font-size: 16px;
+            font-size: 18px;
             font-weight: 600;
-            margin-top: 32px;
-            margin-bottom: 12px;
+            margin-top: 36px;
+            margin-bottom: 14px;
             color: var(--accent-blue);
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
 
         .manual-container p, .manual-container ul, .manual-container ol {
             font-size: var(--font-size-md);
-            line-height: 1.65;
+            line-height: 1.7;
             color: var(--text-2);
             margin-bottom: 16px;
         }
 
         .manual-container li {
-            margin-bottom: 10px;
+            margin-bottom: 12px;
         }
 
         .manual-container strong {
@@ -133,50 +142,57 @@
             font-weight: 600;
         }
 
-        /* Documentation Cards (Redesigned Alerts) */
+        /* Documentation Cards & Alerts */
         .manual-alert {
             background-color: var(--bg-panel);
             border: 1px solid var(--border);
-            padding: 20px;
+            padding: 22px;
             border-radius: var(--radius-md);
-            margin: 24px 0;
+            margin: 28px 0;
             display: flex;
-            gap: 16px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            gap: 18px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.08);
         }
 
         .manual-alert i {
             color: var(--accent-blue);
             margin-top: 4px;
-            font-size: 18px;
+            font-size: 20px;
+            flex-shrink: 0;
         }
         
         .manual-alert.warning {
-            background-color: rgba(212, 160, 23, 0.05);
-            border: 1px solid rgba(212, 160, 23, 0.2);
+            background-color: rgba(212, 160, 23, 0.06);
+            border: 1px solid rgba(212, 160, 23, 0.25);
         }
         .manual-alert.warning i {
             color: var(--accent-yellow);
         }
         
-        .manual-img-placeholder {
+        .manual-img-box {
             width: 100%;
-            min-height: 200px;
-            background-color: var(--bg-hover);
-            border: 2px dashed var(--border);
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: var(--text-3);
-            margin: 20px 0;
-            text-align: center;
-            padding: 20px;
-            flex-direction: column;
-            gap: 10px;
+            background-color: var(--bg-panel);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            margin: 24px 0;
+            overflow: hidden;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.12);
         }
-        .manual-img-placeholder i {
-            font-size: 32px;
+
+        .manual-img-box img {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        .manual-img-box .caption {
+            padding: 12px 18px;
+            background-color: var(--bg-sidebar);
+            border-top: 1px solid var(--border);
+            font-size: 13px;
+            color: var(--text-3);
+            text-align: center;
+            font-style: italic;
         }
 
         .manual-code {
@@ -186,41 +202,31 @@
             border-radius: 4px;
             font-family: monospace;
             color: var(--text-1);
-            font-size: 12px;
+            font-size: 13px;
         }
         
         .back-btn {
             position: absolute;
-            top: 32px;
-            right: 48px;
+            top: 36px;
+            right: 64px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 500;
         }
         
-        .step-list {
-            list-style: none;
-            padding-left: 0;
-            counter-reset: step-counter;
-        }
-        .step-list li {
-            position: relative;
-            padding-left: 35px;
-            margin-bottom: 20px;
-        }
-        .step-list li::before {
-            counter-increment: step-counter;
-            content: counter(step-counter);
-            position: absolute;
-            left: 0;
-            top: 0;
-            width: 24px;
-            height: 24px;
+        .step-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 28px;
+            height: 28px;
             background: var(--accent-blue);
             color: white;
             border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 12px;
-            font-weight: bold;
+            font-size: 14px;
+            font-weight: 700;
+            margin-right: 8px;
         }
     </style>
 </head>
@@ -233,141 +239,160 @@
 
         <div class="manual-nav-item active" onclick="switchTab('tecnicos')">
             <i class="fa-brands fa-whatsapp"></i>
-            Operaciones en Terreno
+            Field Operations (WhatsApp)
         </div>
         <div class="manual-nav-item" onclick="switchTab('dashboard')">
             <i class="fa-solid fa-desktop"></i>
-            Sistema de Administración
+            System Administration
         </div>
     </div>
 
     <div class="manual-content-wrapper">
         
-        <a href="index.html" class="btn btn-secondary back-btn" style="text-decoration:none;">
-            <i class="fa-solid fa-arrow-left"></i> Volver al Sistema
-        </a>
+        <div style="position: absolute; top: 36px; right: 64px; display: flex; gap: 12px;">
+            <a href="video_demo.html" class="btn btn-primary" style="text-decoration:none; display: flex; align-items: center; gap: 8px; font-weight: 600; background: #1f6feb; border: 1px solid #388bfd; color: white; padding: 8px 16px; border-radius: 6px;">
+                <i class="fa-solid fa-play"></i> Watch Silent Video Demo
+            </a>
+            <a href="index.html" class="btn btn-secondary" style="text-decoration:none; display: flex; align-items: center; gap: 8px; font-weight: 500;">
+                <i class="fa-solid fa-arrow-left"></i> Return to Dashboard
+            </a>
+        </div>
 
         <div class="manual-container">
             
-            <!-- SECTION: FIELD OPERATIONS -->
+            <!-- SECTION 1: FIELD OPERATIONS (WHATSAPP) -->
             <div id="tecnicos" class="manual-section active">
-                <h1>Guía de Operaciones en Terreno (WhatsApp)</h1>
-                <p>Este documento explica paso a paso cómo usar el sistema de inventario a través de WhatsApp. Está diseñado para que cualquier persona, sin importar su nivel de capacitación técnica, pueda registrar movimientos de equipos desde su teléfono de forma rápida y sencilla.</p>
+                <h1>Field Operations Guide (WhatsApp Integration)</h1>
+                <p>This document establishes the Standard Operating Procedures (SOP) for field technicians and warehouse personnel utilizing the Entelso WhatsApp Bot. The system allows real-time inventory tracking, instant checkout, and fault reporting directly from any mobile device without requiring third-party app installations.</p>
                 
                 <div class="manual-alert warning">
                     <i class="fa-solid fa-shield-halved"></i>
                     <div>
-                        <strong>Seguridad y PIN de Autorización</strong><br>
-                        <span style="color:var(--text-2); font-size: 13px; line-height: 1.5; display: block; margin-top: 6px;">Para hacer cualquier cambio (mover un equipo, reportar un daño, etc.), el sistema te pedirá siempre tu <strong>PIN de seguridad de 6 dígitos</strong>. Este PIN es tu firma digital y asegura que nadie más pueda hacer movimientos a tu nombre.</span>
+                        <strong>Mandatory PIN Authentication & Security</strong><br>
+                        <span style="color:var(--text-2); font-size: 13px; line-height: 1.5; display: block; margin-top: 6px;">Every field technician is assigned a unique <strong>6-digit Security PIN</strong>. This PIN serves as an legally binding digital signature. All inventory transfers, checkouts, and maintenance reports must include your PIN to be authorized by the system. Never share your PIN with unauthorized personnel.</span>
                     </div>
                 </div>
 
-                <h2>¿Cómo usar el sistema en WhatsApp?</h2>
+                <h2>12-Step Meticulous Operational Protocol</h2>
 
-                <h3>1. Consultar un Equipo (Saber dónde está)</h3>
-                <p>¿Necesitas saber a quién se le asignó un equipo o en qué bodega está? Solo pregúntale al bot de WhatsApp.</p>
-                <ul class="step-list">
-                    <li>Abre el chat de Entelso en WhatsApp.</li>
-                    <li>Escribe un mensaje natural como: <em>"¿Dónde está el equipo 27367?"</em> o <em>"Búscame el ID DW-20V"</em>.</li>
-                    <li>El sistema te responderá en segundos con la ubicación actual, el estado y el nombre de la persona que lo tiene.</li>
+                <h3><span class="step-badge">1</span> Initiating Contact & Bot Setup</h3>
+                <p>Before conducting field operations, ensure the Entelso WhatsApp Bot is saved in your mobile contact list and verified.</p>
+                <ul>
+                    <li><strong>Action:</strong> Open WhatsApp and send the message <code>"Hi"</code> or <code>"Start"</code> to the Entelso Bot number.</li>
+                    <li><strong>System Response:</strong> The bot will reply with a greeting and brief syntax instructions for queries and transfers.</li>
+                    <li><strong>Verification:</strong> Ensure your phone number is registered with your team leader. Unregistered numbers will receive read-only access.</li>
                 </ul>
-                <div class="manual-img-placeholder">
-                    <i class="fa-brands fa-whatsapp"></i>
-                    <span>[Insertar foto del chat de WhatsApp consultando un equipo]</span>
+
+                <h3><span class="step-badge">2</span> Asset Query (Locating Equipment)</h3>
+                <p>When you need to locate a specific tool, verify its current condition, or check who it is assigned to before heading to a job site.</p>
+                <ul>
+                    <li><strong>Syntax:</strong> Ask in natural language. Examples: <code>"Where is asset 27367?"</code>, <code>"Locate drill DW-20V"</code>, or <code>"Status of 88899"</code>.</li>
+                    <li><strong>Output Data:</strong> The system returns the exact warehouse or operational zone, assigned technician, status (Operational/Maintenance), and next Test & Tag calibration due date.</li>
+                </ul>
+                <div class="manual-img-box">
+                    <img src="images/whatsapp_query.png" alt="WhatsApp Query Screenshot" onerror="this.src='LOGOTYPE-WHITE.png'; this.style.padding='40px'; this.style.background='#111';">
+                    <div class="caption">Figure 1.1 - Real-time equipment location and status query via WhatsApp Bot.</div>
                 </div>
 
-                <h3>2. Trasladar o Asignar un Equipo (Checkout/Transfer)</h3>
-                <p>Si vas a sacar una herramienta de la bodega o se la vas a pasar a otro técnico, debes registrarlo en el sistema para no perder el rastro.</p>
-                <ul class="step-list">
-                    <li>Escribe al WhatsApp indicando qué equipo mueves y hacia dónde. Por ejemplo: <em>"Voy a transferir el equipo 27367 a la zona NSW"</em>.</li>
-                    <li>Incluye tu PIN en el mensaje para autorizarlo: <em>"Mover 27367 a NSW, PIN 123456"</em>.</li>
-                    <li>El sistema te confirmará que el equipo ahora está asignado a la nueva ubicación.</li>
+                <h3><span class="step-badge">3</span> Asset Checkout & Transfer Protocol</h3>
+                <p>Whenever an asset leaves the warehouse, is transferred between job sites, or is handed over to another technician, a formal transfer must be logged immediately.</p>
+                <ul>
+                    <li><strong>Syntax:</strong> Specify the asset ID, destination zone or team, and append your PIN. Example: <code>"Transfer asset 27367 to NSW Zone, PIN 123456"</code>.</li>
+                    <li><strong>Confirmation:</strong> The bot validates the PIN against your user profile and updates the database instantaneously. You will receive a confirmation receipt message.</li>
+                    <li><strong>Rule:</strong> The technician who executes the checkout is strictly accountable for the tool until a return or transfer is logged.</li>
                 </ul>
-                <div class="manual-img-placeholder">
-                    <i class="fa-solid fa-truck-fast"></i>
-                    <span>[Insertar foto del chat de WhatsApp transfiriendo un equipo]</span>
+
+                <h3><span class="step-badge">4</span> Damage & Maintenance Reporting</h3>
+                <p>If an asset suffers mechanical failure, electrical damage, or fails safety inspection in the field, it must be flagged immediately to prevent unsafe usage.</p>
+                <ul>
+                    <li><strong>Syntax:</strong> Describe the fault and authorize with PIN. Example: <code>"Asset DW-20V has a damaged power cord. PIN 123456"</code>.</li>
+                    <li><strong>System Action:</strong> The asset status immediately shifts to <strong>"Under Maintenance"</strong> in the global database. The web dashboard highlights the tool in red, alerting warehouse managers to arrange repair or replacement.</li>
+                </ul>
+                <div class="manual-img-box">
+                    <img src="images/whatsapp_maint.png" alt="WhatsApp Maintenance Report" onerror="this.src='LOGOTYPE-WHITE.png'; this.style.padding='40px'; this.style.background='#111';">
+                    <div class="caption">Figure 1.2 - Logging field damage to immediately trigger maintenance workflows.</div>
                 </div>
 
-                <h3>3. Reportar un Equipo Dañado o en Mantenimiento</h3>
-                <p>Si encuentras que una herramienta está fallando o se rompió, repórtalo de inmediato para que nadie más la use por error.</p>
-                <ul class="step-list">
-                    <li>Envía un mensaje indicando el problema y tu PIN. Ejemplo: <em>"El equipo DW-20V tiene el cable roto. PIN 123456"</em>.</li>
-                    <li>El sistema cambiará el estado del equipo a "En Mantenimiento" y notificará a los administradores en el panel de control.</li>
+                <h3><span class="step-badge">5</span> Photographic Evidence Submission</h3>
+                <p>For high-value equipment or damaged items, submitting visual proof is mandatory during checkout and return.</p>
+                <ul>
+                    <li><strong>Procedure:</strong> Take a clear photograph of the equipment (showing serial numbers or damage) directly within WhatsApp.</li>
+                    <li><strong>Captioning:</strong> In the photo caption, write the asset ID and PIN: <code>"Evidence for asset 27367, PIN 123456"</code>.</li>
+                    <li><strong>Batch Uploads:</strong> If sending multiple photos of the same tool, only the first photo requires the PIN. Subsequent images sent within 5 minutes are auto-attached to the same audit record.</li>
                 </ul>
-                
-                <h3>4. Subir Fotos como Evidencia</h3>
-                <p>Al sacar o devolver un equipo de alto valor, debes enviar una foto de su estado físico.</p>
-                <ul class="step-list">
-                    <li>Toma la foto directamente desde WhatsApp.</li>
-                    <li>En el <strong>comentario de la foto</strong> (antes de enviarla), escribe el ID del equipo y tu PIN. Ejemplo: <em>"Evidencia equipo 27367, PIN 123456"</em>.</li>
-                    <li>Si vas a mandar varias fotos del mismo equipo, solo pon el PIN en la primera foto; el sistema agrupará las demás automáticamente.</li>
+
+                <h3><span class="step-badge">6</span> QR Code Field Scanning</h3>
+                <p>Most tools are tagged with physical Entelso QR stickers. Scanning speeds up data entry and eliminates typing errors.</p>
+                <ul>
+                    <li><strong>Procedure:</strong> Open your smartphone camera or WhatsApp scanner and scan the QR tag on the tool.</li>
+                    <li><strong>Auto-Routing:</strong> The scan automatically opens the Entelso WhatsApp chat with a pre-filled query containing the exact Database ID and Serial Number. Simply hit send or append your PIN to transfer.</li>
                 </ul>
-                <div class="manual-img-placeholder">
-                    <i class="fa-solid fa-camera"></i>
-                    <span>[Insertar captura de WhatsApp enviando una foto con el comentario]</span>
-                </div>
             </div>
 
-            <!-- SECTION: SYSTEM ADMINISTRATION -->
+            <!-- SECTION 2: SYSTEM ADMINISTRATION (DASHBOARD) -->
             <div id="dashboard" class="manual-section">
-                <h1>Guía del Panel de Administración (Dashboard Web)</h1>
-                <p>El Dashboard es el "centro de mando". Aquí los administradores pueden ver todos los equipos de la empresa, gestionar a los trabajadores y tener control total sobre el inventario en tiempo real, sin depender de hojas de cálculo lentas y desactualizadas.</p>
+                <h1>Administrative Dashboard Guide (Web Control Panel)</h1>
+                <p>The Entelso Web Dashboard provides centralized governance, analytics, and full lifecycle tracking for administrative staff, warehouse managers, and supervisors. Everything executed in field operations via WhatsApp is reflected here synchronously in real-time.</p>
                 
-                <h2>1. Conociendo la Pantalla Principal</h2>
-                <p>La pantalla principal te muestra un resumen rápido y la lista completa de tu inventario.</p>
-                <ul class="step-list">
-                    <li><strong>Métricas Globales (Arriba):</strong> Verás recuadros con números totales: cuántos equipos hay, cuántos están dañados o en mantenimiento, y cuántas alertas hay pendientes.</li>
-                    <li><strong>Barra de Búsqueda:</strong> Si buscas un número de serie o un nombre de herramienta específico, escríbelo en la lupa de arriba y la tabla se filtrará instantáneamente.</li>
-                    <li><strong>Filtros:</strong> Arriba de la tabla hay botones desplegables para filtrar. Por ejemplo, puedes pedirle que solo muestre equipos "En Mantenimiento" o solo los de la zona "NSW".</li>
+                <h2>12-Step Meticulous Operational Protocol (Continued)</h2>
+
+                <h3><span class="step-badge">7</span> Dashboard Overview & Global KPI Metrics</h3>
+                <p>Upon logging in, administrators are presented with the executive overview bar at the top of the workspace.</p>
+                <ul>
+                    <li><strong>Total Assets:</strong> Consolidated count of all registered physical equipment across all warehouses and field zones.</li>
+                    <li><strong>Operational vs. Maintenance:</strong> Real-time ratios indicating fleet health. A high maintenance count signals potential equipment aging or harsh field conditions.</li>
+                    <li><strong>Pending Alerts:</strong> Highlights tools with expired calibration dates or unverified transfer logs.</li>
                 </ul>
-                <div class="manual-img-placeholder">
-                    <i class="fa-solid fa-table-list"></i>
-                    <span>[Insertar captura de pantalla de la tabla principal y filtros del Dashboard]</span>
+                <div class="manual-img-box">
+                    <img src="images/main_table.png" alt="Main Dashboard Table" onerror="this.src='LOGOTYPE-WHITE.png'; this.style.padding='40px'; this.style.background='#111';">
+                    <div class="caption">Figure 2.1 - The main administrative table displaying live inventory metrics and filtering tools.</div>
                 </div>
 
-                <h2>2. Ver el Historial y Detalles de un Equipo</h2>
-                <p>¿Quieres saber por dónde ha pasado un taladro en los últimos 3 meses? Puedes ver todo su historial.</p>
-                <ul class="step-list">
-                    <li>En la tabla principal, haz clic en <strong>cualquier fila</strong> (sobre el nombre del equipo).</li>
-                    <li>Se abrirá un panel lateral a la derecha (Asset Details).</li>
-                    <li><strong>Galería de Fotos:</strong> Verás las fotos que los técnicos enviaron por WhatsApp.</li>
-                    <li><strong>Historial de Actividad (Audit Trail):</strong> Abajo verás una lista inmodificable de todos los movimientos: quién lo movió, a qué hora y hacia dónde.</li>
-                    <li><strong>Código QR:</strong> En este panel también hay un botón para ver o imprimir el Código QR del equipo, ideal para pegárselo físicamente a la herramienta.</li>
-                </ul>
-                <div class="manual-img-placeholder">
-                    <i class="fa-solid fa-file-invoice"></i>
-                    <span>[Insertar captura del panel lateral (Drawer) con las fotos y el historial]</span>
-                </div>
-
-                <h2>3. Modificar un Equipo (Solo Administradores)</h2>
-                <p>Si hubo un error en campo o necesitas actualizar las fechas de calibración (Test and Tag), puedes hacerlo directamente.</p>
-                <ul class="step-list">
-                    <li>Haz clic en el ícono de <strong>Lápiz (Editar)</strong> al lado derecho de un equipo en la tabla.</li>
-                    <li>Se abrirá una ventana donde podrás cambiar manualmente a quién está asignado, su zona, o su estado.</li>
-                    <li><strong>Fechas de Calibración:</strong> En esta misma ventana, puedes actualizar la <em>Última Calibración</em> y la fecha del <em>Próximo Test</em>.</li>
-                    <li>No olvides darle al botón azul de <strong>Guardar Cambios</strong> al terminar.</li>
+                <h3><span class="step-badge">8</span> Advanced Multi-Parameter Filtering & Search</h3>
+                <p>With thousands of tools in circulation, pinpointing specific items requires efficient filtering.</p>
+                <ul>
+                    <li><strong>Search Bar:</strong> Enter serial numbers, tool descriptions, or assigned usernames for instant real-time text matching.</li>
+                    <li><strong>Dropdown Filters:</strong> Combine filters to narrow views. For example, select <em>Status: Under Maintenance</em> AND <em>Zone: NSW</em> to view broken tools specifically in New South Wales.</li>
+                    <li><strong>Resetting Views:</strong> Click the clear filter icon to immediately restore the full inventory grid.</li>
                 </ul>
 
-                <h2>4. Operaciones Masivas (Mover muchos equipos a la vez)</h2>
-                <p>Si necesitas mover 20 equipos de una sola vez hacia una nueva bodega, no tienes que hacerlo uno por uno.</p>
-                <ul class="step-list">
-                    <li>A la izquierda de cada fila en la tabla, verás una pequeña casilla de verificación (checkbox). <strong>Selecciona los equipos que quieras modificar</strong>. (También puedes marcar la casilla de hasta arriba para seleccionarlos todos).</li>
-                    <li>Aparecerá una barra oscura flotando en la pantalla con las opciones de "Acciones Masivas".</li>
-                    <li>Haz clic en <strong>"Cambiar Zona"</strong>, <strong>"Cambiar Estado"</strong> o la acción que necesites, elige la nueva opción, ¡y listo! Todos se actualizarán al mismo tiempo.</li>
+                <h3><span class="step-badge">9</span> Asset Profile & Immutable Audit Trail</h3>
+                <p>Every asset maintains a detailed, tamper-proof historical ledger. Click on any row in the main table to open the right-side Asset Details Drawer.</p>
+                <ul>
+                    <li><strong>Media Gallery:</strong> Inspect all photographs submitted by field technicians via WhatsApp, timestamped and linked to user profiles.</li>
+                    <li><strong>Activity History (Audit Trail):</strong> An immutable chronological log recording every status change, zone transfer, and maintenance note, including the exact authorizing PIN and timestamp.</li>
                 </ul>
-                <div class="manual-img-placeholder">
-                    <i class="fa-solid fa-list-check"></i>
-                    <span>[Insertar captura de las casillas de verificación seleccionadas y la barra de acciones masivas]</span>
+                <div class="manual-img-box">
+                    <img src="images/drawer.png" alt="Asset Details Drawer" onerror="this.src='LOGOTYPE-WHITE.png'; this.style.padding='40px'; this.style.background='#111';">
+                    <div class="caption">Figure 2.2 - The Asset Details Drawer revealing photographic evidence and complete audit trails.</div>
                 </div>
 
-                <div class="manual-alert">
-                    <i class="fa-solid fa-bolt"></i>
-                    <div>
-                        <strong>Sincronización en Tiempo Real</strong><br>
-                        <span style="color:var(--text-2); font-size: 13px; line-height: 1.5; display: block; margin-top: 6px;">Todo lo que los técnicos hagan en WhatsApp aparecerá mágicamente en este Dashboard al instante, sin necesidad de recargar la página. De igual forma, cualquier cambio masivo que hagas aquí, será la nueva verdad para cuando los técnicos pregunten en terreno.</span>
-                    </div>
+                <h3><span class="step-badge">10</span> Administrative Override & Calibration Tracking</h3>
+                <p>Administrators possess supreme override authority to correct field errors or update statutory testing schedules.</p>
+                <ul>
+                    <li><strong>Edit Mode:</strong> Click the pencil icon on any asset row or within the details drawer to unlock field editing.</li>
+                    <li><strong>Test & Tag Calibration:</strong> Update the <em>Last Tested</em> and <em>Next Test Due</em> dates. Tools past their due date automatically trigger compliance warnings across the system.</li>
+                    <li><strong>Commit Changes:</strong> Always click the blue <strong>Save Changes</strong> button to persist overrides directly into the PostgreSQL database.</li>
+                </ul>
+
+                <h3><span class="step-badge">11</span> High-Volume Bulk Operations</h3>
+                <p>When reorganizing warehouses or reallocating entire fleets to a new project team, use bulk execution to avoid repetitive manual updates.</p>
+                <ul>
+                    <li><strong>Selection:</strong> Check the boxes (<code>☑</code>) on the left column of the table for desired assets, or use the master header checkbox to select all filtered items.</li>
+                    <li><strong>Bulk Actions Bar:</strong> A floating dark command bar appears at the top of the grid once items are selected.</li>
+                    <li><strong>Execution:</strong> Choose <em>Change Zone</em>, <em>Change Status</em>, <em>Change Category</em>, or <em>Change Team</em>, select the target parameter, and apply. Dozens of records update simultaneously.</li>
+                </ul>
+                <div class="manual-img-box">
+                    <img src="images/bulk_actions.png" alt="Bulk Actions Bar" onerror="this.src='LOGOTYPE-WHITE.png'; this.style.padding='40px'; this.style.background='#111';">
+                    <div class="caption">Figure 2.3 - Executing simultaneous multi-asset updates using the floating Bulk Actions bar.</div>
                 </div>
 
+                <h3><span class="step-badge">12</span> Manual Asset Ingestion & System Sync</h3>
+                <p>While field personnel can ingest basic tools, administrators initialize complete, high-value asset profiles.</p>
+                <ul>
+                    <li><strong>Creation Protocol:</strong> Click the <strong>+ Add Asset</strong> button in the top header. Complete all mandatory fields including Category, Serial Number, Initial Zone, and Calibration schedule.</li>
+                    <li><strong>Real-Time Synchronization:</strong> All modifications executed in the dashboard are instantly pushed to the API. If a technician queries the tool via WhatsApp 1 second later, they receive the newly updated data.</li>
+                </ul>
             </div>
 
         </div>
@@ -389,7 +414,8 @@
         const theme = localStorage.getItem('theme') || 'dark';
         if(theme === 'light') {
             document.documentElement.setAttribute('data-theme', 'light');
-            document.getElementById('logoImg').src = 'LOGOTYPE-BLUE.png';
+            const logo = document.getElementById('logoImg');
+            if(logo) logo.src = 'LOGOTYPE-BLUE.png';
         }
     </script>
 </body>

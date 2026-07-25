@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Entelso - System Visual Walkthrough (Video Demo)</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { background-color: #0d1117; color: #c9d1d9; font-family: 'Inter', sans-serif; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; padding: 20px; }
+        .video-container { width: 100%; max-width: 1000px; background: #161b22; border: 1px solid #30363d; border-radius: 12px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.5); display: flex; flex-direction: column; }
+        .header { padding: 16px 24px; background: #21262d; border-bottom: 1px solid #30363d; display: flex; justify-content: space-between; align-items: center; }
+        .header h1 { font-size: 18px; color: #58a6ff; display: flex; align-items: center; gap: 10px; }
+        .screen-area { position: relative; width: 100%; height: 560px; background: #000; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+        .slide-img { max-width: 100%; max-height: 100%; object-fit: contain; display: none; animation: fade 0.5s ease-in-out; }
+        .slide-img.active { display: block; }
+        @keyframes fade { from { opacity: 0; transform: scale(0.98); } to { opacity: 1; transform: scale(1); } }
+        
+        /* Subtitles bar */
+        .subtitles-bar { position: absolute; bottom: 24px; left: 50%; transform: translateX(-50%); width: 85%; background: rgba(0, 0, 0, 0.85); border: 1px solid #58a6ff; padding: 14px 24px; border-radius: 8px; text-align: center; font-size: 16px; color: #fff; font-weight: 500; box-shadow: 0 4px 15px rgba(0,0,0,0.6); transition: all 0.3s ease; }
+        
+        /* Controls */
+        .controls { padding: 16px 24px; background: #21262d; border-top: 1px solid #30363d; display: flex; align-items: center; justify-content: space-between; gap: 20px; }
+        .progress-bar { flex: 1; height: 6px; background: #30363d; border-radius: 3px; overflow: hidden; cursor: pointer; position: relative; }
+        .progress-fill { height: 100%; background: #58a6ff; width: 0%; transition: width 0.1s linear; }
+        .btn-group { display: flex; gap: 12px; }
+        .btn { background: #30363d; border: 1px solid #484f58; color: #c9d1d9; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 14px; font-weight: 600; display: flex; align-items: center; gap: 8px; transition: 0.2s; }
+        .btn:hover { background: #484f58; color: #fff; }
+        .btn.primary { background: #1f6feb; border-color: #388bfd; color: #fff; }
+        .btn.primary:hover { background: #388bfd; }
+        .step-indicator { font-size: 14px; color: #8b949e; font-weight: 600; }
+    </style>
+</head>
+<body>
+
+<div class="video-container">
+    <div class="header">
+        <h1><i class="fa-solid fa-video"></i> Entelso Visual Walkthrough (Silent Video Demo)</h1>
+        <a href="manual.html" class="btn" style="text-decoration:none;"><i class="fa-solid fa-book"></i> Read Guide</a>
+    </div>
+    
+    <div class="screen-area">
+        <img src="images/whatsapp_query.png" class="slide-img active" id="slide-0">
+        <img src="images/whatsapp_maint.png" class="slide-img" id="slide-1">
+        <img src="images/main_table.png" class="slide-img" id="slide-2">
+        <img src="images/drawer.png" class="slide-img" id="slide-3">
+        <img src="images/bulk_actions.png" class="slide-img" id="slide-4">
+        
+        <div class="subtitles-bar" id="subtitles">
+            1/5. Field technicians can instantly query equipment location, status, and assigned personnel via the Entelso WhatsApp Bot.
+        </div>
+    </div>
+    
+    <div class="controls">
+        <div class="btn-group">
+            <button class="btn primary" id="playBtn" onclick="togglePlay()"><i class="fa-solid fa-pause"></i> Pause</button>
+            <button class="btn" onclick="prevSlide()"><i class="fa-solid fa-backward-step"></i> Prev</button>
+            <button class="btn" onclick="nextSlide()">Next <i class="fa-solid fa-forward-step"></i></button>
+        </div>
+        <div class="progress-bar" onclick="seek(event)">
+            <div class="progress-fill" id="progress"></div>
+        </div>
+        <div class="step-indicator" id="stepCounter">Step 1 of 5</div>
+    </div>
+</div>
+
+<script>
+    const slides = [
+        { id: 0, time: 5000, sub: "1/5. Field technicians can instantly query equipment location, status, and assigned personnel via the Entelso WhatsApp Bot." },
+        { id: 1, time: 5000, sub: "2/5. Reporting damaged tools in field operations immediately shifts asset status to 'Under Maintenance', alerting warehouse managers." },
+        { id: 2, time: 5000, sub: "3/5. Administrators monitor global inventory KPIs, apply real-time filters, and search serial numbers from the Web Dashboard." },
+        { id: 3, time: 5000, sub: "4/5. Clicking any record reveals the Asset Details Drawer, displaying photographic evidence and immutable audit trails." },
+        { id: 4, time: 5000, sub: "5/5. High-volume fleet reorganizations are executed seamlessly using the checkboxes and floating Bulk Actions bar." }
+    ];
+    
+    let current = 0;
+    let isPlaying = true;
+    let timer = null;
+    let progressTimer = null;
+    let elapsed = 0;
+    const interval = 100;
+    
+    function showSlide(index) {
+        document.querySelectorAll('.slide-img').forEach(el => el.classList.remove('active'));
+        document.getElementById(`slide-${index}`).classList.add('active');
+        document.getElementById('subtitles').innerHTML = slides[index].sub;
+        document.getElementById('stepCounter').innerText = `Step ${index + 1} of ${slides.length}`;
+        current = index;
+        elapsed = 0;
+        updateProgress();
+    }
+    
+    function nextSlide() {
+        let next = (current + 1) % slides.length;
+        showSlide(next);
+    }
+    
+    function prevSlide() {
+        let prev = (current - 1 + slides.length) % slides.length;
+        showSlide(prev);
+    }
+    
+    function updateProgress() {
+        let pct = (elapsed / slides[current].time) * 100;
+        document.getElementById('progress').style.width = pct + '%';
+    }
+    
+    function tick() {
+        if (!isPlaying) return;
+        elapsed += interval;
+        updateProgress();
+        if (elapsed >= slides[current].time) {
+            nextSlide();
+        }
+    }
+    
+    function togglePlay() {
+        isPlaying = !isPlaying;
+        const btn = document.getElementById('playBtn');
+        if (isPlaying) {
+            btn.innerHTML = '<i class="fa-solid fa-pause"></i> Pause';
+            btn.classList.add('primary');
+        } else {
+            btn.innerHTML = '<i class="fa-solid fa-play"></i> Play';
+            btn.classList.remove('primary');
+        }
+    }
+    
+    function seek(e) {
+        const rect = e.currentTarget.getBoundingClientRect();
+        const clickX = e.clientX - rect.left;
+        const width = rect.width;
+        let targetIdx = Math.floor((clickX / width) * slides.length);
+        if (targetIdx >= slides.length) targetIdx = slides.length - 1;
+        showSlide(targetIdx);
+    }
+    
+    setInterval(tick, interval);
+</script>
+</body>
+</html>
