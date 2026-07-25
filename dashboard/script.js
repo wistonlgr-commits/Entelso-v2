@@ -51,7 +51,8 @@ async function apiFetch(path, options = {}) {
     ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
     ...(options.headers || {}),
   };
-  const res = await fetch(`${API_BASE}${path}`, { ...options, headers });
+  const fetchOptions = { cache: 'no-store', ...options, headers };
+  const res = await fetch(`${API_BASE}${path}`, fetchOptions);
   if (res.status === 401) {
     // Token expirado o inválido → forzar re-login
     session.clear();
