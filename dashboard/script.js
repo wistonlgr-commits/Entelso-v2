@@ -58,6 +58,9 @@ async function apiFetch(path, options = {}) {
     mostrarLogin();
     throw new Error('SESION_EXPIRADA');
   }
+  if (!res.ok) {
+    throw new Error('Error ' + res.status);
+  }
   return res;
 }
 
@@ -2131,7 +2134,8 @@ const msg = msgTemplate.replace('{id}', newId).replace('{equipo}', newItem.equip
 
 // Exponer la funcion global para el boton de mantenimiento
 window.marcarMantenimientoAtendido = async function(id) {
-  if (!await window.customConfirm(`¿Estás seguro de marcar el equipo ${id} como atendido/disponible?`)) return;
+  const confirmMsg = (window.i18n?.t('mantenimiento.confirm_atendido') || '¿Estás seguro de marcar el equipo {0} como atendido/disponible?').replace('{0}', id);
+  if (!await window.customConfirm(confirmMsg)) return;
   try {
     const act = inventoryData.find(a => a.id === id);
     if (!act) return;
