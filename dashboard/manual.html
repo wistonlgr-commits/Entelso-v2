@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark">
+<html lang="es" data-theme="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Entelso - System Documentation</title>
+    <title>Entelso - Guía del Sistema</title>
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
@@ -114,7 +114,7 @@
             font-weight: 600;
             margin-top: 32px;
             margin-bottom: 12px;
-            color: var(--text-1);
+            color: var(--accent-blue);
         }
 
         .manual-container p, .manual-container ul, .manual-container ol {
@@ -158,6 +158,26 @@
         .manual-alert.warning i {
             color: var(--accent-yellow);
         }
+        
+        .manual-img-placeholder {
+            width: 100%;
+            min-height: 200px;
+            background-color: var(--bg-hover);
+            border: 2px dashed var(--border);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-3);
+            margin: 20px 0;
+            text-align: center;
+            padding: 20px;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .manual-img-placeholder i {
+            font-size: 32px;
+        }
 
         .manual-code {
             background-color: var(--bg-panel);
@@ -174,6 +194,34 @@
             top: 32px;
             right: 48px;
         }
+        
+        .step-list {
+            list-style: none;
+            padding-left: 0;
+            counter-reset: step-counter;
+        }
+        .step-list li {
+            position: relative;
+            padding-left: 35px;
+            margin-bottom: 20px;
+        }
+        .step-list li::before {
+            counter-increment: step-counter;
+            content: counter(step-counter);
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 24px;
+            height: 24px;
+            background: var(--accent-blue);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: bold;
+        }
     </style>
 </head>
 <body>
@@ -185,137 +233,141 @@
 
         <div class="manual-nav-item active" onclick="switchTab('tecnicos')">
             <i class="fa-brands fa-whatsapp"></i>
-            Field Operations
+            Operaciones en Terreno
         </div>
         <div class="manual-nav-item" onclick="switchTab('dashboard')">
             <i class="fa-solid fa-desktop"></i>
-            System Administration
+            Sistema de Administración
         </div>
     </div>
 
     <div class="manual-content-wrapper">
         
         <a href="index.html" class="btn btn-secondary back-btn" style="text-decoration:none;">
-            <i class="fa-solid fa-arrow-left"></i> Return to System
+            <i class="fa-solid fa-arrow-left"></i> Volver al Sistema
         </a>
 
         <div class="manual-container">
             
             <!-- SECTION: FIELD OPERATIONS -->
             <div id="tecnicos" class="manual-section active">
-                <h1>Field Operations Guide</h1>
-                <p>This document outlines the standard operating procedures for utilizing the Entelso WhatsApp Integration for inventory management. The system provides real-time access to the database for field personnel, with all operations executed via direct messaging.</p>
+                <h1>Guía de Operaciones en Terreno (WhatsApp)</h1>
+                <p>Este documento explica paso a paso cómo usar el sistema de inventario a través de WhatsApp. Está diseñado para que cualquier persona, sin importar su nivel de capacitación técnica, pueda registrar movimientos de equipos desde su teléfono de forma rápida y sencilla.</p>
                 
                 <div class="manual-alert warning">
                     <i class="fa-solid fa-shield-halved"></i>
                     <div>
-                        <strong>Security & Authentication (PIN Authorization)</strong><br>
-                        <span style="color:var(--text-2); font-size: 13px; line-height: 1.5; display: block; margin-top: 6px;">A 6-digit Security PIN is strictly required for any operation that modifies asset status, location, or condition. This PIN serves as a digital signature and permanently logs the transaction against the assigned technician profile.</span>
+                        <strong>Seguridad y PIN de Autorización</strong><br>
+                        <span style="color:var(--text-2); font-size: 13px; line-height: 1.5; display: block; margin-top: 6px;">Para hacer cualquier cambio (mover un equipo, reportar un daño, etc.), el sistema te pedirá siempre tu <strong>PIN de seguridad de 6 dígitos</strong>. Este PIN es tu firma digital y asegura que nadie más pueda hacer movimientos a tu nombre.</span>
                     </div>
                 </div>
 
-                <h2>Supported Operations</h2>
+                <h2>¿Cómo usar el sistema en WhatsApp?</h2>
 
-                <h3>1. Asset Query</h3>
-                <p>Retrieve the current location, status, and assignment details of any registered asset.</p>
-                <ul>
-                    <li><strong>Procedure:</strong> Send a query containing the asset ID (e.g., <em>"Locate asset 27367"</em> or <em>"Where is DW-20V-459?"</em>).</li>
-                    <li><strong>Required Data:</strong> Asset ID.</li>
+                <h3>1. Consultar un Equipo (Saber dónde está)</h3>
+                <p>¿Necesitas saber a quién se le asignó un equipo o en qué bodega está? Solo pregúntale al bot de WhatsApp.</p>
+                <ul class="step-list">
+                    <li>Abre el chat de Entelso en WhatsApp.</li>
+                    <li>Escribe un mensaje natural como: <em>"¿Dónde está el equipo 27367?"</em> o <em>"Búscame el ID DW-20V"</em>.</li>
+                    <li>El sistema te responderá en segundos con la ubicación actual, el estado y el nombre de la persona que lo tiene.</li>
                 </ul>
+                <div class="manual-img-placeholder">
+                    <i class="fa-brands fa-whatsapp"></i>
+                    <span>[Insertar foto del chat de WhatsApp consultando un equipo]</span>
+                </div>
 
-                <h3>2. Asset Reassignment (Checkout/Transfer)</h3>
-                <p>Log the transfer of an asset from the warehouse to a specific zone, or between zones.</p>
-                <ul>
-                    <li><strong>Procedure:</strong> Specify the asset, the destination zone, and provide authorization. (e.g., <em>"Transferring asset 27367 to NSW zone, PIN 123456"</em>).</li>
-                    <li><strong>Required Data:</strong> Asset ID, Destination Zone, 6-digit PIN.</li>
+                <h3>2. Trasladar o Asignar un Equipo (Checkout/Transfer)</h3>
+                <p>Si vas a sacar una herramienta de la bodega o se la vas a pasar a otro técnico, debes registrarlo en el sistema para no perder el rastro.</p>
+                <ul class="step-list">
+                    <li>Escribe al WhatsApp indicando qué equipo mueves y hacia dónde. Por ejemplo: <em>"Voy a transferir el equipo 27367 a la zona NSW"</em>.</li>
+                    <li>Incluye tu PIN en el mensaje para autorizarlo: <em>"Mover 27367 a NSW, PIN 123456"</em>.</li>
+                    <li>El sistema te confirmará que el equipo ahora está asignado a la nueva ubicación.</li>
                 </ul>
+                <div class="manual-img-placeholder">
+                    <i class="fa-solid fa-truck-fast"></i>
+                    <span>[Insertar foto del chat de WhatsApp transfiriendo un equipo]</span>
+                </div>
 
-                <h3>3. Maintenance & Damage Reporting</h3>
-                <p>Log a fault report to immediately flag an asset for maintenance and prevent further deployment.</p>
-                <ul>
-                    <li><strong>Procedure:</strong> Describe the fault and authorize the report. (e.g., <em>"Asset DW-20V has a damaged power cord. PIN 123456"</em>).</li>
-                    <li><strong>Required Data:</strong> Asset ID, Fault Description, 6-digit PIN.</li>
+                <h3>3. Reportar un Equipo Dañado o en Mantenimiento</h3>
+                <p>Si encuentras que una herramienta está fallando o se rompió, repórtalo de inmediato para que nadie más la use por error.</p>
+                <ul class="step-list">
+                    <li>Envía un mensaje indicando el problema y tu PIN. Ejemplo: <em>"El equipo DW-20V tiene el cable roto. PIN 123456"</em>.</li>
+                    <li>El sistema cambiará el estado del equipo a "En Mantenimiento" y notificará a los administradores en el panel de control.</li>
                 </ul>
-
-                <h3>4. Asset Ingestion</h3>
-                <p>Register newly acquired equipment into the active inventory database.</p>
-                <ul>
-                    <li><strong>Procedure:</strong> State the intent to register, providing the new ID and description. (e.g., <em>"Register new asset. ID: 88899, Description: Cordless Drill"</em>).</li>
-                    <li><strong>Required Data:</strong> Asset ID, Description.</li>
+                
+                <h3>4. Subir Fotos como Evidencia</h3>
+                <p>Al sacar o devolver un equipo de alto valor, debes enviar una foto de su estado físico.</p>
+                <ul class="step-list">
+                    <li>Toma la foto directamente desde WhatsApp.</li>
+                    <li>En el <strong>comentario de la foto</strong> (antes de enviarla), escribe el ID del equipo y tu PIN. Ejemplo: <em>"Evidencia equipo 27367, PIN 123456"</em>.</li>
+                    <li>Si vas a mandar varias fotos del mismo equipo, solo pon el PIN en la primera foto; el sistema agrupará las demás automáticamente.</li>
                 </ul>
-
-                <h3>5. Photographic Documentation</h3>
-                <p>Upload visual evidence of an asset's condition upon checkout or return. This procedure is mandatory for high-value equipment.</p>
-                <ul>
-                    <li><strong>Procedure:</strong> Send the photograph through WhatsApp. Include the Asset ID and PIN in the image caption. (e.g., <em>"Evidence for 27367, PIN 123456"</em>).</li>
-                    <li><strong>Required Data:</strong> Image attachment, Asset ID, 6-digit PIN.</li>
-                    <li><strong>Batch Uploads:</strong> When submitting multiple photographs sequentially, authorization is only required on the initial image. Subsequent images will be automatically associated with the active session.</li>
-                </ul>
-
-                <h2>System Guidelines</h2>
-                <ul>
-                    <li><strong>Input Processing:</strong> The integration processes natural language. Rigid command structures are not required.</li>
-                    <li><strong>Media Support:</strong> The system currently supports text and image payloads exclusively. Voice memos and document attachments are not processed.</li>
-                    <li><strong>QR Integration:</strong> Scanning a physical asset's QR code will automatically initiate a pre-formatted query protocol in WhatsApp.</li>
-                </ul>
+                <div class="manual-img-placeholder">
+                    <i class="fa-solid fa-camera"></i>
+                    <span>[Insertar captura de WhatsApp enviando una foto con el comentario]</span>
+                </div>
             </div>
 
             <!-- SECTION: SYSTEM ADMINISTRATION -->
             <div id="dashboard" class="manual-section">
-                <h1>Administrative Dashboard Guide</h1>
-                <p>The Entelso Web Dashboard provides centralized control and visibility over the entire asset lifecycle, enabling real-time tracking, auditing, and bulk management for administrative personnel.</p>
+                <h1>Guía del Panel de Administración (Dashboard Web)</h1>
+                <p>El Dashboard es el "centro de mando". Aquí los administradores pueden ver todos los equipos de la empresa, gestionar a los trabajadores y tener control total sobre el inventario en tiempo real, sin depender de hojas de cálculo lentas y desactualizadas.</p>
                 
-                <h2>1. Interface & Analytics</h2>
-                <p>The primary interface provides a consolidated view of inventory metrics and status distributions.</p>
-                <ul>
-                    <li><strong>Global Metrics:</strong> Real-time calculation of asset availability and maintenance ratios.</li>
-                    <li><strong>Data Filtering:</strong> Dynamic table filtering by Status, Operational Zone, and Assigned Team.</li>
-                    <li><strong>Search Indexing:</strong> Instant querying against asset serial numbers and descriptions.</li>
+                <h2>1. Conociendo la Pantalla Principal</h2>
+                <p>La pantalla principal te muestra un resumen rápido y la lista completa de tu inventario.</p>
+                <ul class="step-list">
+                    <li><strong>Métricas Globales (Arriba):</strong> Verás recuadros con números totales: cuántos equipos hay, cuántos están dañados o en mantenimiento, y cuántas alertas hay pendientes.</li>
+                    <li><strong>Barra de Búsqueda:</strong> Si buscas un número de serie o un nombre de herramienta específico, escríbelo en la lupa de arriba y la tabla se filtrará instantáneamente.</li>
+                    <li><strong>Filtros:</strong> Arriba de la tabla hay botones desplegables para filtrar. Por ejemplo, puedes pedirle que solo muestre equipos "En Mantenimiento" o solo los de la zona "NSW".</li>
+                </ul>
+                <div class="manual-img-placeholder">
+                    <i class="fa-solid fa-table-list"></i>
+                    <span>[Insertar captura de pantalla de la tabla principal y filtros del Dashboard]</span>
+                </div>
+
+                <h2>2. Ver el Historial y Detalles de un Equipo</h2>
+                <p>¿Quieres saber por dónde ha pasado un taladro en los últimos 3 meses? Puedes ver todo su historial.</p>
+                <ul class="step-list">
+                    <li>En la tabla principal, haz clic en <strong>cualquier fila</strong> (sobre el nombre del equipo).</li>
+                    <li>Se abrirá un panel lateral a la derecha (Asset Details).</li>
+                    <li><strong>Galería de Fotos:</strong> Verás las fotos que los técnicos enviaron por WhatsApp.</li>
+                    <li><strong>Historial de Actividad (Audit Trail):</strong> Abajo verás una lista inmodificable de todos los movimientos: quién lo movió, a qué hora y hacia dónde.</li>
+                    <li><strong>Código QR:</strong> En este panel también hay un botón para ver o imprimir el Código QR del equipo, ideal para pegárselo físicamente a la herramienta.</li>
+                </ul>
+                <div class="manual-img-placeholder">
+                    <i class="fa-solid fa-file-invoice"></i>
+                    <span>[Insertar captura del panel lateral (Drawer) con las fotos y el historial]</span>
+                </div>
+
+                <h2>3. Modificar un Equipo (Solo Administradores)</h2>
+                <p>Si hubo un error en campo o necesitas actualizar las fechas de calibración (Test and Tag), puedes hacerlo directamente.</p>
+                <ul class="step-list">
+                    <li>Haz clic en el ícono de <strong>Lápiz (Editar)</strong> al lado derecho de un equipo en la tabla.</li>
+                    <li>Se abrirá una ventana donde podrás cambiar manualmente a quién está asignado, su zona, o su estado.</li>
+                    <li><strong>Fechas de Calibración:</strong> En esta misma ventana, puedes actualizar la <em>Última Calibración</em> y la fecha del <em>Próximo Test</em>.</li>
+                    <li>No olvides darle al botón azul de <strong>Guardar Cambios</strong> al terminar.</li>
                 </ul>
 
-                <h2>2. Asset Profile Management</h2>
-                <p>Selecting any record from the primary table opens the Asset Details Panel, providing a comprehensive audit trail and management interface.</p>
-                
-                <h3>Details Panel Components</h3>
-                <ul>
-                    <li><strong>QR Generation:</strong> Export and print unique QR identifiers for physical tagging and tracking.</li>
-                    <li><strong>Media Gallery:</strong> Review photographic evidence submitted by field technicians.</li>
-                    <li><strong>Audit Trail (Activity History):</strong> An immutable ledger logging all status changes, location transfers, and the respective authorizing personnel.</li>
+                <h2>4. Operaciones Masivas (Mover muchos equipos a la vez)</h2>
+                <p>Si necesitas mover 20 equipos de una sola vez hacia una nueva bodega, no tienes que hacerlo uno por uno.</p>
+                <ul class="step-list">
+                    <li>A la izquierda de cada fila en la tabla, verás una pequeña casilla de verificación (checkbox). <strong>Selecciona los equipos que quieras modificar</strong>. (También puedes marcar la casilla de hasta arriba para seleccionarlos todos).</li>
+                    <li>Aparecerá una barra oscura flotando en la pantalla con las opciones de "Acciones Masivas".</li>
+                    <li>Haz clic en <strong>"Cambiar Zona"</strong>, <strong>"Cambiar Estado"</strong> o la acción que necesites, elige la nueva opción, ¡y listo! Todos se actualizarán al mismo tiempo.</li>
                 </ul>
+                <div class="manual-img-placeholder">
+                    <i class="fa-solid fa-list-check"></i>
+                    <span>[Insertar captura de las casillas de verificación seleccionadas y la barra de acciones masivas]</span>
+                </div>
 
-                <h3>Record Modification</h3>
-                <p>Administrative users possess override capabilities for all asset parameters. Access the modification interface via the Edit icon.</p>
-                <ul>
-                    <li><strong>Calibration Tracking:</strong> Update <em>'Last Tested'</em> and <em>'Next Test Due'</em> timestamps.</li>
-                    <li><strong>Manual Reassignment:</strong> Force-update asset locations or assignments independently of field reports.</li>
-                    <li><strong>Media Management:</strong> Upload new documentation or deprecate obsolete images.</li>
-                </ul>
                 <div class="manual-alert">
-                    <i class="fa-solid fa-server"></i>
+                    <i class="fa-solid fa-bolt"></i>
                     <div>
-                        <strong>Data Persistence</strong><br>
-                        <span style="color:var(--text-2); font-size: 13px; line-height: 1.5; display: block; margin-top: 6px;">Modifications made within the details panel remain local to the client session until explicitly committed to the database via the <em>Save Changes</em> protocol.</span>
+                        <strong>Sincronización en Tiempo Real</strong><br>
+                        <span style="color:var(--text-2); font-size: 13px; line-height: 1.5; display: block; margin-top: 6px;">Todo lo que los técnicos hagan en WhatsApp aparecerá mágicamente en este Dashboard al instante, sin necesidad de recargar la página. De igual forma, cualquier cambio masivo que hagas aquí, será la nueva verdad para cuando los técnicos pregunten en terreno.</span>
                     </div>
                 </div>
 
-                <h2>3. Bulk Operations</h2>
-                <p>For high-volume inventory management, the system supports simultaneous multi-record updates.</p>
-                <ol>
-                    <li>Select the target assets using the primary table checkboxes (<span class="manual-code">☑</span>).</li>
-                    <li>Access the <strong>Bulk Actions</strong> control bar that appears above the grid.</li>
-                    <li>Execute localized updates for Category, Zone, Status, or Team across all selected entities simultaneously.</li>
-                </ol>
-
-                <h2>4. Manual Asset Creation</h2>
-                <p>While field technicians can perform basic ingestion, administrators can initialize complete asset profiles with extended parameters.</p>
-                <ol>
-                    <li>Initiate the <strong>Add Asset</strong> protocol from the primary navigation header.</li>
-                    <li>Populate the comprehensive technical profile, including scheduling parameters and initial deployment status.</li>
-                    <li>Commit the record to generate the unique database identifier.</li>
-                </ol>
-
-                <h2>5. System Telemetry</h2>
-                <p>The dashboard receives synchronous updates from the WhatsApp integration. All field reports, transfers, and media uploads executed by technicians are reflected instantaneously in the active table and corresponding audit trails, requiring no manual reconciliation.</p>
             </div>
 
         </div>
