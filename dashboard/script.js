@@ -921,9 +921,9 @@ function renderizarGraficos() {
   // Chart donut de estados
   const disponible  = inventoryData.filter(a => ['disponible','calibrado','en_funcionamiento'].includes(a.status)).length;
   const enUso       = inventoryData.filter(a => a.status === 'en_uso').length;
-  const mantenim    = inventoryData.filter(a => a.status === 'en_mantenimiento').length;
+  const mantenim    = inventoryData.filter(a => ['en_mantenimiento','fuera_de_servicio','danado'].includes(a.status)).length;
   const calibPend   = inventoryData.filter(a => a.status === 'calibracion_pendiente').length;
-  const otros       = inventoryData.filter(a => ['fuera_de_servicio','danado','desconocido'].includes(a.status)).length;
+  const otros       = inventoryData.filter(a => ['desconocido'].includes(a.status)).length;
 
   const { t } = window.i18n;
   const donutLabels = [t('estado.disponible'), t('estado.en_uso'), t('nav.mantenimiento'), t('kpi.calibracion'), t('kpi.otros') || 'Otros'];

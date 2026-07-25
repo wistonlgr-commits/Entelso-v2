@@ -188,6 +188,7 @@ const TRANSLATIONS = {
     // ── Mantenimiento ──
     'maint.atencion':      'Equipment requiring attention',
     'maint.agendar':       'Schedule Maintenance',
+    'mantenimiento.marcar_atendido': 'Mark as Resolved',
     'maint.equipo_label':  'Equipment (ID or Name) *',
     'maint.fecha_label':   'Maintenance Date *',
     'maint.observaciones': 'Observations',
@@ -488,6 +489,7 @@ const TRANSLATIONS = {
     'teams.nuevo_nombre':   'New team name...',
     'teams.btn_agregar':    'Add',
     'teams.sin_teams':      'No teams yet. Add one above.',
+    'teams.sin_team':       'No Team',
     'teams.toast_creado':   'Team created successfully.',
     'teams.no_teams':       'No teams found.',
 
@@ -677,6 +679,7 @@ const TRANSLATIONS = {
     // ── Mantenimiento ──
     'maint.atencion':      'Equipos que requieren atención',
     'maint.agendar':       'Agendar Mantenimiento',
+    'mantenimiento.marcar_atendido': 'Marcar Atendido',
     'maint.equipo_label':  'Equipo (ID o Nombre) *',
     'maint.fecha_label':   'Fecha de Mantenimiento *',
     'maint.observaciones': 'Observaciones',
@@ -975,6 +978,7 @@ const TRANSLATIONS = {
     'teams.nuevo_nombre':   'Nombre del nuevo team...',
     'teams.btn_agregar':    'Agregar',
     'teams.sin_teams':      'No hay teams aún. Agrega uno arriba.',
+    'teams.sin_team':       'Sin Team',
 
     // ── Tema ──
     'tema.cambiar':         'Cambiar tema',

@@ -100,13 +100,8 @@ exports.update = async (id, patch) => {
 };
 
 exports.remove = async (id) => {
-  // Check for dependencies first
-  const { rows } = await db.query('SELECT id FROM movimientos WHERE activo_id = $1 LIMIT 1', [id]);
-  if (rows.length > 0) {
-    // Soft delete: mark as fuera_de_servicio if has history
-    await db.query(`UPDATE activos SET estado='fuera_de_servicio', usuario_actual_id=NULL WHERE id=$1`, [id]);
-    return { soft: true };
-  }
+  await db.query('DELETE FROM mantenimientos WHERE activo_id=$1', [id]);
+  await db.query('DELETE FROM movimientos WHERE activo_id=$1', [id]);
   await db.query('DELETE FROM activos WHERE id=$1', [id]);
   return { soft: false };
 };
