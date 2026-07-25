@@ -3177,11 +3177,11 @@ document.getElementById('bulkDeleteSelectedBtn')?.addEventListener('click', asyn
   const ids = Array.from(checked).map(cb => cb.value);
   try {
     await apiFetch('/api/activos/bulk/delete', { method: 'POST', body: JSON.stringify({ ids }) });
-    window.customAlert('Equipos eliminados.');
+    window.customAlert(window.i18n.t('bulk.ok_delete') || 'Equipos eliminados.');
     await cargarActivos();
     document.getElementById('selectAllCheckbox').checked = false;
     window.updateBulkActionsState();
-  } catch (err) { window.customAlert('Error: ' + err.message); }
+  } catch (err) { window.customAlert((window.i18n.t('api.error_prefix') || 'Error: ') + err.message); }
 });
 
 // Move Category
@@ -3211,7 +3211,7 @@ document.getElementById('confirmBulkCategoryBtn')?.addEventListener('click', asy
     await cargarActivos();
     document.getElementById('selectAllCheckbox').checked = false;
     window.updateBulkActionsState();
-  } catch (err) { window.customAlert('Error: ' + err.message); }
+  } catch (err) { window.customAlert((window.i18n.t('api.error_prefix') || 'Error: ') + err.message); }
 });
 
 // Bulk Status
@@ -3236,7 +3236,7 @@ document.getElementById('confirmBulkStatusBtn')?.addEventListener('click', async
     await cargarActivos();
     document.getElementById('selectAllCheckbox').checked = false;
     window.updateBulkActionsState();
-  } catch (err) { window.customAlert('Error: ' + err.message); }
+  } catch (err) { window.customAlert((window.i18n.t('api.error_prefix') || 'Error: ') + err.message); }
 });
 
 // Bulk Zone
@@ -3267,7 +3267,7 @@ document.getElementById('confirmBulkZonaBtn')?.addEventListener('click', async (
     await cargarActivos();
     document.getElementById('selectAllCheckbox').checked = false;
     window.updateBulkActionsState();
-  } catch (err) { window.customAlert('Error: ' + err.message); }
+  } catch (err) { window.customAlert((window.i18n.t('api.error_prefix') || 'Error: ') + err.message); }
 });
 
 // Bulk Team
@@ -3298,7 +3298,7 @@ document.getElementById('confirmBulkTeamBtn')?.addEventListener('click', async (
     await cargarActivos();
     document.getElementById('selectAllCheckbox').checked = false;
     window.updateBulkActionsState();
-  } catch (err) { window.customAlert('Error: ' + err.message); }
+  } catch (err) { window.customAlert((window.i18n.t('api.error_prefix') || 'Error: ') + err.message); }
 });
 
 // Category Management
@@ -3333,7 +3333,7 @@ const renderManageCatList = () => {
       const res = await apiFetch('/api/items');
       const json = await res.json();
       if(json.success) { systemCategories = json.data; renderManageCatList(); renderizarFiltrosCategorias(); }
-    } catch (err) { window.customAlert('Error: ' + err.message); }
+    } catch (err) { window.customAlert((window.i18n.t('api.error_prefix') || 'Error: ') + err.message); }
   });
 
 window.deleteCategory = async function(id) {
@@ -3343,7 +3343,7 @@ window.deleteCategory = async function(id) {
     const res = await apiFetch('/api/items');
     const json = await res.json();
     if(json.success) { systemCategories = json.data; renderManageCatList(); renderizarFiltrosCategorias(); }
-  } catch (err) { window.customAlert('Error: ' + err.message); }
+  } catch (err) { window.customAlert((window.i18n.t('api.error_prefix') || 'Error: ') + err.message); }
 };
 
 
