@@ -574,7 +574,7 @@ function renderMaintenanceTable(tbody, data) {
       <td><span class="motive-tag">${escapeHTML(item.motivo)}</span></td>
       <td>${statusPill(item.status)}</td>
       <td class="col-right">${formatearFecha(item.fecha)}</td>
-      <td class="col-right"><button class="btn-ghost" style="font-size: 12px; padding: 4px 8px; color: var(--accent-green);" onclick="marcarMantenimientoAtendido('${item.id}')">Marcar Atendido</button></td>
+      <td class="col-right"><button class="btn-ghost" style="font-size: 12px; padding: 4px 8px; color: var(--accent-green);" onclick="marcarMantenimientoAtendido('${item.id}')">${window.i18n.t('mantenimiento.marcar_atendido') || 'Marcar Atendido'}</button></td>
     `;
     tbody.appendChild(tr);
   });
@@ -3242,7 +3242,7 @@ document.getElementById('bulkSetZonaBtn')?.addEventListener('click', () => {
   if(!checked.length) return;
   selectedIdsForZona = Array.from(checked).map(cb => cb.value);
   const select = document.getElementById('bulkZonaSelect');
-  select.innerHTML = '<option value="">-- ' + (window.i18n?.t('usuarios.sin_team') || 'No Zone') + ' --</option>';
+  select.innerHTML = '<option value="">-- ' + (window.i18n?.t('usuarios.sin_zona') || 'No Zone') + ' --</option>';
   if (window.zonasList) {
     window.zonasList.forEach(z => {
       select.innerHTML += `<option value="${z.id}">${z.nombre_ubicacion}</option>`;
