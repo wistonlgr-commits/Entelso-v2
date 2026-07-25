@@ -189,6 +189,7 @@ const TRANSLATIONS = {
     'maint.atencion':      'Equipment requiring attention',
     'maint.agendar':       'Schedule Maintenance',
     'mantenimiento.marcar_atendido': 'Mark as Resolved',
+    'mantenimiento.confirm_atendido': 'Are you sure you want to mark equipment {0} as resolved/available?',
     'maint.equipo_label':  'Equipment (ID or Name) *',
     'maint.fecha_label':   'Maintenance Date *',
     'maint.observaciones': 'Observations',
@@ -199,6 +200,8 @@ const TRANSLATIONS = {
     'maint.err_no_encontrado': 'Equipment not found in inventory. Check the ID or name.',
     'maint.registrando':   'Scheduling...',
     'maint.btn_agendar':   'Schedule Maintenance',
+    'maint.atendido_ok':   'Equipment {0} marked as resolved successfully.',
+    'maint.err_atendido':  'Error marking equipment as resolved.',
 
     // ── Modal registro ──
     'modal.titulo':        'Register Equipment',
@@ -681,6 +684,7 @@ const TRANSLATIONS = {
     'maint.atencion':      'Equipos que requieren atención',
     'maint.agendar':       'Agendar Mantenimiento',
     'mantenimiento.marcar_atendido': 'Marcar Atendido',
+    'mantenimiento.confirm_atendido': '¿Estás seguro de marcar el equipo {0} como atendido/disponible?',
     'maint.equipo_label':  'Equipo (ID o Nombre) *',
     'maint.fecha_label':   'Fecha de Mantenimiento *',
     'maint.observaciones': 'Observaciones',
@@ -691,6 +695,8 @@ const TRANSLATIONS = {
     'maint.err_no_encontrado': 'Equipo no encontrado en el inventario. Verifique el ID o nombre.',
     'maint.registrando':   'Agendando...',
     'maint.btn_agendar':   'Agendar Mantenimiento',
+    'maint.atendido_ok':   'Equipo {0} marcado como atendido con éxito.',
+    'maint.err_atendido':  'Error al marcar el equipo como atendido.',
 
     // ── Modal registro ──
     'modal.titulo':        'Registrar Equipo',
