@@ -1,95 +1,76 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
+    <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Entelso — Operations &amp; Help Manual</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <title>Entelso — Enterprise Operations & Help Manual</title>
     <style>
         :root {
-            --bg-page: #0a0c10;
-            --bg-sidebar: #0f1218;
-            --bg-card: #12161f;
-            --border-color: #1e2330;
-            --border-hover: #2c3345;
-            --text-primary: #f9fafb;
-            --text-secondary: #9ca3af;
-            --text-muted: #6b7280;
+            --bg-dark: #0a0e1a;
+            --card-bg: #131a29;
+            --border-color: #1e293b;
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
             --brand-blue: #2563eb;
             --brand-blue-hover: #1d4ed8;
-            --sidebar-width: 280px;
-            --header-height: 68px;
+            --brand-accent: #3b82f6;
+            --success-color: #10b981;
+            --warning-color: #f59e0b;
+            --danger-color: #ef4444;
         }
 
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
         }
 
         body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            background-color: var(--bg-page);
+            background-color: var(--bg-dark);
             color: var(--text-primary);
-            line-height: 1.65;
-            display: flex;
-            min-height: 100vh;
-            overflow-x: hidden;
+            line-height: 1.6;
+            padding-bottom: 80px;
             font-size: 15px;
-            -webkit-font-smoothing: antialiased;
         }
 
-        /* ── Header ── */
-        .sop-header {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: var(--header-height);
-            background: rgba(10, 12, 16, 0.9);
-            backdrop-filter: blur(12px);
+        /* Top Navigation Bar */
+        .top-navbar {
+            background-color: #0f1623;
             border-bottom: 1px solid var(--border-color);
+            padding: 14px 40px;
             display: flex;
-            align-items: center;
             justify-content: space-between;
-            padding: 0 28px;
+            align-items: center;
+            position: sticky;
+            top: 0;
             z-index: 1000;
         }
 
-        .header-brand {
+        .brand-section {
             display: flex;
             align-items: center;
-            gap: 14px;
-            text-decoration: none;
+            gap: 16px;
         }
 
         .brand-logo-img {
-            height: 32px;
+            height: 36px;
             width: auto;
             object-fit: contain;
         }
 
-        .brand-title {
-            font-weight: 700;
-            font-size: 17px;
+        .doc-title {
+            font-size: 18px;
+            font-weight: 600;
             color: var(--text-primary);
-            letter-spacing: -0.02em;
+            border-left: 2px solid var(--border-color);
+            padding-left: 16px;
         }
 
-        .brand-subtitle {
-            font-size: 12px;
-            color: var(--text-muted);
-            margin-left: 8px;
-            padding-left: 8px;
-            border-left: 1px solid var(--border-color);
-            font-weight: 500;
-        }
-
-        .header-actions {
+        .nav-actions {
             display: flex;
-            align-items: center;
             gap: 12px;
+            align-items: center;
         }
 
         .btn {
@@ -99,850 +80,700 @@
             padding: 8px 16px;
             border-radius: 6px;
             font-size: 13px;
-            font-weight: 500;
+            font-weight: 600;
+            cursor: pointer;
             text-decoration: none;
             transition: all 0.2s ease;
-            cursor: pointer;
-            border: 1px solid transparent;
+            border: 1px solid var(--border-color);
+            background: #1e293b;
+            color: #f8fafc;
+        }
+
+        .btn:hover {
+            background: #334155;
+            border-color: #475569;
         }
 
         .btn-primary {
-            background-color: var(--brand-blue);
-            color: #ffffff;
+            background: var(--brand-blue);
+            border-color: #3b82f6;
+            color: white;
         }
+
         .btn-primary:hover {
-            background-color: var(--brand-blue-hover);
-            box-shadow: 0 0 15px rgba(37, 99, 235, 0.3);
+            background: var(--brand-blue-hover);
         }
 
-        .btn-pdf {
-            background-color: #1e3a8a;
-            color: #ffffff;
-            border: 1px solid #3b82f6;
-        }
-        .btn-pdf:hover {
-            background-color: #2563eb;
-            box-shadow: 0 0 15px rgba(59, 130, 246, 0.4);
+        /* Main Container */
+        .main-container {
+            max-width: 1150px;
+            margin: 40px auto;
+            padding: 0 24px;
         }
 
-        .btn-secondary {
-            background-color: transparent;
-            color: var(--text-secondary);
-            border-color: var(--border-color);
-        }
-        .btn-secondary:hover {
-            color: var(--text-primary);
-            border-color: var(--border-hover);
-            background-color: rgba(255, 255, 255, 0.03);
-        }
-
-        /* ── Sidebar Navigation ── */
-        .sop-sidebar {
-            width: var(--sidebar-width);
-            background-color: var(--bg-sidebar);
-            border-right: 1px solid var(--border-color);
-            position: fixed;
-            top: var(--header-height);
-            bottom: 0;
-            left: 0;
-            overflow-y: auto;
-            padding: 28px 20px;
-            z-index: 900;
-        }
-
-        .sidebar-section-title {
-            font-size: 11px;
-            text-transform: uppercase;
-            letter-spacing: 0.08em;
-            color: var(--text-muted);
-            font-weight: 600;
-            margin-bottom: 12px;
-            padding-left: 10px;
-        }
-
-        .sidebar-nav {
-            list-style: none;
-            display: flex;
-            flex-direction: column;
-            gap: 2px;
-        }
-
-        .nav-link {
-            display: flex;
-            align-items: center;
-            padding: 8px 12px;
-            border-radius: 6px;
-            color: var(--text-secondary);
-            text-decoration: none;
-            font-size: 13.5px;
-            font-weight: 500;
-            transition: all 0.15s ease;
-        }
-
-        .nav-link:hover {
-            color: var(--text-primary);
-            background-color: rgba(255, 255, 255, 0.04);
-        }
-
-        .nav-link.active {
-            color: #60a5fa;
-            background-color: rgba(37, 99, 235, 0.12);
-            font-weight: 600;
-            border-left: 3px solid var(--brand-blue);
-        }
-
-        /* ── Main Layout ── */
-        .sop-main {
-            margin-left: var(--sidebar-width);
-            margin-top: var(--header-height);
-            flex: 1;
-            padding: 48px 64px 96px 64px;
-            max-width: calc(100vw - var(--sidebar-width));
-        }
-
-        .content-container {
-            max-width: 920px;
-            margin: 0 auto;
-        }
-
-        .doc-header {
-            margin-bottom: 32px;
+        .header-section {
+            text-align: left;
+            margin-bottom: 36px;
             border-bottom: 1px solid var(--border-color);
             padding-bottom: 24px;
         }
 
-        .doc-title {
+        .header-section h1 {
             font-size: 32px;
             font-weight: 700;
             color: var(--text-primary);
-            letter-spacing: -0.03em;
-            margin-bottom: 10px;
+            margin-bottom: 12px;
         }
 
-        .doc-lead {
-            font-size: 16px;
+        .header-section p {
             color: var(--text-secondary);
+            font-size: 16px;
             max-width: 800px;
         }
 
-        /* ── High-Contrast Role Cards Switcher ── */
-        .role-selector-header {
-            margin-top: 10px;
-            margin-bottom: 16px;
-        }
-        .role-selector-title {
-            font-size: 18px;
-            font-weight: 700;
-            color: #f8fafc;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin-bottom: 6px;
-        }
-        .role-selector-desc {
-            font-size: 14px;
-            color: #94a3b8;
-        }
-
-        .role-cards-container {
+        /* Persona Switcher Cards - Sober Corporate Style */
+        .persona-switcher {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 20px;
             margin-bottom: 40px;
         }
 
-        .role-card {
-            background: #0f141f;
-            border: 2px solid var(--border-color);
-            border-radius: 14px;
-            padding: 22px;
+        .persona-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 24px;
             cursor: pointer;
-            transition: all 0.25s ease;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
+            transition: all 0.2s ease;
             position: relative;
-            overflow: hidden;
         }
 
-        .role-card:hover {
-            transform: translateY(-3px);
-            border-color: #3b82f6;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+        .persona-card:hover {
+            border-color: #475569;
+            background: #162032;
         }
 
-        .role-card.active#card-web {
-            background: linear-gradient(145deg, #101d38 0%, #0f141f 100%);
-            border-color: #3b82f6;
-            box-shadow: 0 0 25px rgba(59, 130, 246, 0.25);
+        .persona-card.active {
+            border-color: var(--brand-accent);
+            background: #162238;
         }
 
-        .role-card.active#card-wa {
-            background: linear-gradient(145deg, #0d2920 0%, #0f141f 100%);
-            border-color: #10b981;
-            box-shadow: 0 0 25px rgba(16, 185, 129, 0.25);
-        }
-
-        .role-icon-box {
-            width: 48px;
-            height: 48px;
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 24px;
-            margin-bottom: 16px;
-        }
-        .role-icon-box.blue { background: rgba(59, 130, 246, 0.15); color: #60a5fa; }
-        .role-icon-box.green { background: rgba(16, 185, 129, 0.15); color: #34d399; }
-
-        .role-title {
-            font-size: 16px;
-            font-weight: 700;
-            color: #ffffff;
+        .persona-card h3 {
+            font-size: 17px;
+            font-weight: 600;
+            color: white;
             margin-bottom: 8px;
-            letter-spacing: 0.3px;
-        }
-
-        .role-desc {
-            font-size: 13.5px;
-            color: #94a3b8;
-            line-height: 1.5;
-            margin-bottom: 20px;
-        }
-
-        .role-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            font-size: 12px;
-            font-weight: 700;
-            padding: 6px 12px;
-            border-radius: 20px;
-            width: fit-content;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-        .role-card#card-web .role-badge { background: #1e293b; color: #94a3b8; }
-        .role-card.active#card-web .role-badge { background: #2563eb; color: #ffffff; }
-
-        .role-card#card-wa .role-badge { background: #1e293b; color: #94a3b8; }
-        .role-card.active#card-wa .role-badge { background: #059669; color: #ffffff; }
-
-        /* ── Role Active Banner ── */
-        .role-active-banner {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-            padding: 18px 24px;
-            border-radius: 12px;
-            margin-bottom: 30px;
-            font-size: 14.5px;
-        }
-        .role-active-banner.blue {
-            background: rgba(30, 58, 138, 0.3);
-            border: 1px solid #3b82f6;
-            color: #e2e8f0;
-        }
-        .role-active-banner.blue i { color: #60a5fa; font-size: 24px; }
-
-        .role-active-banner.green {
-            background: rgba(6, 78, 59, 0.3);
-            border: 1px solid #10b981;
-            color: #e2e8f0;
-        }
-        .role-active-banner.green i { color: #34d399; font-size: 26px; }
-
-        /* ── Module Sections ── */
-        .module-section {
-            display: none;
-        }
-        .module-section.active {
-            display: block;
-            animation: fadeIn 0.35s ease;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(8px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .module-title {
-            font-size: 22px;
-            font-weight: 700;
-            color: var(--text-primary);
-            margin-bottom: 24px;
             display: flex;
             align-items: center;
             gap: 10px;
         }
 
-        .step-card {
-            background-color: var(--bg-card);
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            padding: 32px;
-            margin-bottom: 28px;
-            transition: border-color 0.2s ease;
-            scroll-margin-top: 90px;
-        }
-
-        .step-card:hover {
-            border-color: var(--border-hover);
-        }
-
-        .step-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
+        .persona-card p {
+            font-size: 13.5px;
+            color: var(--text-secondary);
+            line-height: 1.5;
             margin-bottom: 16px;
         }
 
+        .role-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            background: #1e293b;
+            color: #cbd5e1;
+            border: 1px solid #334155;
+        }
+
+        .persona-card.active .role-badge {
+            background: var(--brand-blue);
+            color: white;
+            border-color: #3b82f6;
+        }
+
+        /* Content Sections */
+        .role-content {
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .role-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(6px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .role-header-banner {
+            background: #111827;
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 20px 24px;
+            margin-bottom: 32px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .banner-info h2 {
+            font-size: 20px;
+            font-weight: 600;
+            color: white;
+            margin-bottom: 4px;
+        }
+
+        .banner-info p {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        /* Step Cards */
+        .step-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 28px;
+            margin-bottom: 28px;
+        }
+
         .step-title {
-            font-size: 18px;
+            font-size: 20px;
             font-weight: 600;
             color: var(--text-primary);
+            margin-bottom: 14px;
             display: flex;
             align-items: center;
             gap: 12px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 12px;
         }
 
         .step-num {
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            width: 28px;
-            height: 28px;
+            width: 32px;
+            height: 32px;
+            background: #1e293b;
+            color: var(--brand-accent);
             border-radius: 6px;
-            background-color: rgba(37, 99, 235, 0.15);
-            color: #60a5fa;
-            font-size: 13px;
+            font-size: 15px;
             font-weight: 700;
         }
 
         .step-desc {
-            color: var(--text-secondary);
+            color: #cbd5e1;
             font-size: 15px;
             margin-bottom: 20px;
         }
 
-        .asset-frame {
+        .step-desc b {
+            color: white;
+        }
+
+        .img-container {
+            margin: 20px 0;
+            border-radius: 8px;
+            overflow: hidden;
+            border: 1px solid var(--border-color);
+            background: #090d16;
+            text-align: center;
+        }
+
+        .img-container img {
+            width: 100%;
+            max-width: 950px;
+            height: auto;
+            display: block;
+            margin: 0 auto;
+        }
+
+        .img-caption {
+            background: #0f1623;
+            padding: 10px 16px;
+            font-size: 12.5px;
+            color: var(--text-secondary);
+            border-top: 1px solid var(--border-color);
+            text-align: left;
+        }
+
+        /* Feature Grid & Cheatsheets */
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+            margin-top: 20px;
+        }
+
+        .feature-item {
+            background: #0f1623;
+            border: 1px solid var(--border-color);
+            padding: 16px;
+            border-radius: 8px;
+        }
+
+        .feature-item h4 {
+            font-size: 15px;
+            color: var(--brand-accent);
+            margin-bottom: 6px;
+            font-weight: 600;
+        }
+
+        .feature-item p {
+            font-size: 13.5px;
+            color: #94a3b8;
+        }
+
+        .cheatsheet-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 16px;
+            background: #0f1623;
             border: 1px solid var(--border-color);
             border-radius: 8px;
             overflow: hidden;
-            background-color: #0a0c10;
-            margin-top: 16px;
+            font-size: 13.5px;
         }
 
-        .asset-frame img {
-            width: 100%;
-            height: auto;
-            display: block;
-        }
-
-        /* ── Tables & Command Boxes ── */
-        .cmd-table-wrapper {
-            overflow-x: auto;
-            margin: 20px 0;
-            border: 1px solid var(--border-color);
-            border-radius: 10px;
-            background: #0a0c10;
-        }
-
-        .cmd-table {
-            width: 100%;
-            border-collapse: collapse;
+        .cheatsheet-table th {
+            background: #162032;
             text-align: left;
-            font-size: 14px;
-        }
-
-        .cmd-table th {
-            background: rgba(30, 41, 59, 0.9);
-            padding: 14px 18px;
+            padding: 12px 16px;
+            color: white;
             font-weight: 600;
-            color: #f8fafc;
             border-bottom: 1px solid var(--border-color);
-            text-transform: uppercase;
-            font-size: 12px;
-            letter-spacing: 0.5px;
         }
 
-        .cmd-table td {
-            padding: 16px 18px;
+        .cheatsheet-table td {
+            padding: 12px 16px;
             border-bottom: 1px solid var(--border-color);
-            vertical-align: top;
-            color: var(--text-secondary);
+            color: #cbd5e1;
         }
 
-        .cmd-table tr:last-child td {
+        .cheatsheet-table tr:last-child td {
             border-bottom: none;
         }
 
-        .cmd-table tr:hover td {
-            background: rgba(255, 255, 255, 0.02);
-            color: #f8fafc;
-        }
-
-        .cmd-code {
-            display: inline-block;
+        code {
             background: #1e293b;
+            color: #60a5fa;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 13px;
+        }
+
+        .interactive-video-banner {
+            background: #111827;
             border: 1px solid #334155;
-            color: #38bdf8;
-            padding: 4px 8px;
-            border-radius: 6px;
-            font-family: 'Courier New', Courier, monospace;
-            font-weight: 600;
-            font-size: 13px;
-        }
-
-        .note-box {
-            display: flex;
-            align-items: flex-start;
-            gap: 14px;
-            padding: 16px 18px;
             border-radius: 10px;
-            margin: 20px 0;
-            font-size: 14px;
-            line-height: 1.6;
-        }
-
-        .note-box.tip {
-            background: rgba(37, 99, 235, 0.08);
-            border: 1px solid rgba(59, 130, 246, 0.3);
-            color: #93c5fd;
-        }
-        .note-box.tip i { color: #60a5fa; font-size: 18px; margin-top: 2px; }
-
-        .note-box.warn {
-            background: rgba(245, 158, 11, 0.08);
-            border: 1px solid rgba(245, 158, 11, 0.3);
-            color: #fde68a;
-        }
-        .note-box.warn i { color: #f59e0b; font-size: 18px; margin-top: 2px; }
-
-        /* ── Footer ── */
-        .sop-footer {
-            margin-top: 72px;
-            padding-top: 28px;
-            border-top: 1px solid var(--border-color);
-            color: var(--text-muted);
-            font-size: 13px;
+            padding: 24px;
+            margin: 24px 0;
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
 
-        @media print {
-            body { background: white !important; color: #0f172a !important; font-size: 12pt !important; }
-            .sop-header, .sop-sidebar, .role-cards-container, .role-selector-header, .header-actions { display: none !important; }
-            .sop-main { margin-left: 0 !important; padding: 0 !important; max-width: 100% !important; }
-            .module-section { display: block !important; }
-            .step-card { background: white !important; border: 1px solid #cbd5e1 !important; box-shadow: none !important; color: #0f172a !important; page-break-inside: avoid; margin-bottom: 20px !important; padding: 20px !important; }
-            .step-title, .module-title, .doc-title, .role-active-banner strong { color: #0f172a !important; }
-            .step-desc, .cmd-table td { color: #1e293b !important; }
-            .cmd-table th { background: #1e293b !important; color: white !important; -webkit-print-color-adjust: exact; }
-            .note-box, .role-active-banner { background: #f8fafc !important; border: 1px solid #94a3b8 !important; color: #0f172a !important; -webkit-print-color-adjust: exact; }
+        .iv-text h4 {
+            font-size: 17px;
+            color: white;
+            margin-bottom: 6px;
         }
 
-        @media (max-width: 1100px) {
-            .sop-sidebar { display: none; }
-            .sop-main { margin-left: 0; padding: 32px 24px; max-width: 100vw; }
-            .brand-subtitle { display: none; }
-            .role-cards-container { grid-template-columns: 1fr; }
+        .iv-text p {
+            font-size: 14px;
+            color: #94a3b8;
+            max-width: 650px;
+        }
+
+        /* Note box */
+        .note-box {
+            background: rgba(37, 99, 235, 0.1);
+            border-left: 4px solid var(--brand-blue);
+            padding: 16px 20px;
+            border-radius: 0 8px 8px 0;
+            margin: 20px 0;
+            font-size: 14px;
+            color: #e2e8f0;
+        }
+
+        /* Print styles */
+        @media print {
+            body { background: white !important; color: #0f172a !important; }
+            .top-navbar, .nav-actions, .persona-switcher, .btn { display: none !important; }
+            .step-card { background: white !important; border: 1px solid #cbd5e1 !important; page-break-inside: avoid; }
+            .step-title { color: #0f172a !important; border-bottom: 2px solid #0f172a !important; }
+            .step-desc, .feature-item p, .cheatsheet-table td { color: #334155 !important; }
+            .feature-item, .cheatsheet-table { background: #f8fafc !important; border: 1px solid #cbd5e1 !important; }
+            .cheatsheet-table th { background: #e2e8f0 !important; color: #0f172a !important; }
+            .img-container { background: white !important; border: 1px solid #cbd5e1 !important; }
+            .img-caption { background: #f1f5f9 !important; color: #475569 !important; }
+            .role-content { display: block !important; }
         }
     </style>
 </head>
 <body>
 
-    <!-- ── Header ── -->
-    <header class="sop-header">
-        <a href="./" class="header-brand">
-            <img src="LOGOTYPE-BLUE.png" alt="Entelso Logo" class="brand-logo-img">
-            <div>
-                <span class="brand-title">Entelso</span>
-                <span class="brand-subtitle">Operations &amp; Help Manual</span>
-            </div>
-        </a>
-        <div class="header-actions">
-            <a href="Entelso_Operations_Manual.pdf" target="_blank" download="Entelso_Operations_Manual.pdf" class="btn btn-pdf">
-                <i class="fa-solid fa-file-pdf"></i> Download PDF Manual
+    <!-- Top Navigation Bar -->
+    <header class="top-navbar">
+        <div class="brand-section">
+            <img src="LOGOTYPE-BLUE.png" alt="Entelso Logo" class="brand-logo-img" onerror="this.src='logo-blue.png'">
+            <span class="doc-title">Enterprise Operations & Help Manual</span>
+        </div>
+        <div class="nav-actions">
+            <a href="Entelso_Enterprise_Operations_Manual.pdf" download class="btn btn-primary" title="Download Complete Combined Manual PDF">
+                Download Complete PDF
             </a>
-            <button onclick="window.print()" class="btn btn-secondary">
-                <i class="fa-solid fa-print"></i> Print Guide
+            <button onclick="window.print()" class="btn" title="Print this HTML guide directly">
+                Print Guide
             </button>
-            <a href="video_demo.html" class="btn btn-secondary" style="border-color:#388bfd; color:#58a6ff;">
-                <i class="fa-solid fa-play" style="font-size:12px;"></i> Watch Video Walkthrough
+            <a href="video_dashboard.html" class="btn" title="Watch interactive web dashboard simulation">
+                Watch Video Walkthrough
             </a>
-            <a href="index.html" class="btn btn-secondary">
-                <i class="fa-solid fa-arrow-left" style="font-size:12px;"></i> Dashboard
+            <a href="index.html" class="btn">
+                ← Dashboard
             </a>
         </div>
     </header>
 
-    <!-- ── Sidebar Navigation ── -->
-    <aside class="sop-sidebar">
-        <div class="sidebar-section-title">Navigation Index</div>
-        <ul class="sidebar-nav" id="sidebarNav"></ul>
+    <!-- Main Container -->
+    <main class="main-container">
         
-        <div class="sidebar-section-title" style="margin-top: 32px;">Quick Links</div>
-        <ul class="sidebar-nav">
-            <li><a href="Entelso_Operations_Manual.pdf" target="_blank" class="nav-link"><i class="fa-solid fa-file-arrow-down" style="width:16px; color:#60a5fa;"></i> PDF Corporate Manual</a></li>
-            <li><a href="video_demo.html" class="nav-link"><i class="fa-solid fa-film" style="width:16px; color:#38bdf8;"></i> Video Walkthrough</a></li>
-            <li><a href="index.html" class="nav-link"><i class="fa-solid fa-desktop" style="width:16px;"></i> Live Dashboard</a></li>
-        </ul>
-    </aside>
+        <div class="header-section">
+            <h1>Enterprise Operations & Help Manual</h1>
+            <p>Review standardized operational procedures tailored for Entelso technical inventory tracking. Select your role below to display specialized instructions for desktop inventory administration or mobile WhatsApp Bot field operations.</p>
+        </div>
 
-    <!-- ── Main Layout ── -->
-    <main class="sop-main" id="doc-top">
-        <div class="content-container">
+        <!-- Role Switcher -->
+        <div class="persona-switcher">
+            <div class="persona-card active" id="card-admin" onclick="switchRole('admin')">
+                <h3>WAREHOUSE ADMIN (WEB DASHBOARD)</h3>
+                <p>For warehouse managers & supervisors: KPI live monitoring, 4-category equipment grid, Excel bulk photo import, zone custody tracking, team PIN management, and alerts.</p>
+                <span class="role-badge">ACTIVE VIEW</span>
+            </div>
+            <div class="persona-card" id="card-whatsapp" onclick="switchRole('whatsapp')">
+                <h3>WHATSAPP BOT (FIELD ENGINEERING)</h3>
+                <p>For on-site engineers: Instant tool status lookup, command cheat sheet, geolocation verification, 6-digit PIN authentication, and custody transfers via WhatsApp Bot.</p>
+                <span class="role-badge">CLICK TO VIEW</span>
+            </div>
+        </div>
 
-            <div class="doc-header">
-                <h1 class="doc-title">Enterprise Operations Manual</h1>
-                <p class="doc-lead">
-                    Review standardized operational procedures tailored for Entelso technical inventory tracking. Select your role below to display specialized instructions for either web dashboard administration or mobile WhatsApp field operations.
-                </p>
+        <!-- ==========================================
+             PERSONA 1: WAREHOUSE ADMIN (WEB DASHBOARD)
+        =========================================== -->
+        <section class="role-content active" id="content-admin">
+            
+            <div class="role-header-banner">
+                <div class="banner-info">
+                    <h2>WAREHOUSE ADMINISTRATION MANUAL (WEB DASHBOARD)</h2>
+                    <p>Standard operating procedures for desktop inventory management, batch imports, zone tracking, and compliance auditing.</p>
+                </div>
+                <div>
+                    <a href="Entelso_Dashboard_Administration_Manual.pdf" download class="btn" style="background:#1e293b; border-color:#334155;">
+                        Download Dashboard PDF
+                    </a>
+                </div>
             </div>
 
-            <!-- ── High-Contrast Role Cards Switcher ── -->
-            <div class="role-selector-header">
-                <h2 class="role-selector-title"><i class="fa-solid fa-users-gear" style="color:#60a5fa;"></i> Select Your Operational Role</h2>
-                <p class="role-selector-desc">Click a card below to switch the documentation view. Each role features dedicated workflows, command cheatsheets, and system screenshots.</p>
-            </div>
-
-            <div class="role-cards-container">
-                <div class="role-card active" id="card-web" onclick="switchPersona('web')">
-                    <div>
-                        <div class="role-icon-box blue"><i class="fa-solid fa-desktop"></i></div>
-                        <div class="role-title">🖥️ WAREHOUSE ADMIN (WEB DASHBOARD)</div>
-                        <div class="role-desc">For warehouse managers &amp; supervisors: KPI live monitoring, Excel photo bulk import, multi-parameter filtering, and alert management.</div>
+            <!-- STEP 1: Executive KPI Monitoring -->
+            <div class="step-card">
+                <div class="step-title">
+                    <span class="step-num">1</span>
+                    Executive KPI Monitoring & Live Analytics
+                </div>
+                <div class="step-desc">
+                    Upon signing into the web dashboard, warehouse supervisors receive an immediate overview of global equipment stock, financial valuation, calibration compliance ratios, and urgent operational alerts. All KPI metrics synchronize dynamically with Supabase to reflect real-time field checkouts.
+                </div>
+                <div class="img-container">
+                    <img src="images/imagen_panel_principal_dashboard.png" alt="Web Dashboard Main Table and KPIs" onerror="this.src='images/main_table.png'">
+                    <div class="img-caption"><b>Figure 1.1:</b> Executive KPI Overview displaying total inventory items, total asset valuation, active field assignments, and maintenance status counters.</div>
+                </div>
+                <div class="feature-grid">
+                    <div class="feature-item">
+                        <h4>Total Valuation Tracking</h4>
+                        <p>Automatically calculates aggregate replacement value across all registered assets in USD/CLP, updating instantly upon batch Excel imports.</p>
                     </div>
-                    <div class="role-badge"><i class="fa-solid fa-circle-check"></i> ACTIVE GUIDE</div>
+                    <div class="feature-item">
+                        <h4>Calibration Health Index</h4>
+                        <p>Monitors the ratio of certified tools versus instruments requiring immediate calibration or vendor recertification.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- STEP 2: Inventory Grid & Category Filtering -->
+            <div class="step-card">
+                <div class="step-title">
+                    <span class="step-num">2</span>
+                    Inventory Grid & Official Category Filtering
+                </div>
+                <div class="step-desc">
+                    The core inventory grid organizes technical assets into 4 official enterprise categories: <b>Hand Tools</b>, <b>Electrical Tools</b>, <b>RF Tools</b>, and <b>Consumables</b>. Supervisors can filter by category, search by serial number or brand, and inspect real-time stock levels and operational status badges.
+                </div>
+                <div class="img-container">
+                    <img src="images/all_equipamients.png" alt="Inventory Table and Category Filtering Grid" onerror="this.src='images/main_table.png'">
+                    <div class="img-caption"><b>Figure 1.2:</b> Comprehensive inventory table displaying official category filters, item codes, serial numbers, stock quantities, and assigned zones.</div>
+                </div>
+                <div class="feature-grid">
+                    <div class="feature-item">
+                        <h4>Official 4-Category Taxonomy</h4>
+                        <p>Strictly enforces standard categorization: Hand Tools (mechanical wrenches, pliers), Electrical Tools (multimeters, fusion splicers), RF Tools (site masters, spectrum analyzers), and Consumables (connectors, tape).</p>
+                    </div>
+                    <div class="feature-item">
+                        <h4>Real-Time Status Badges</h4>
+                        <p>Visual status pills indicate whether equipment is currently <b>In Warehouse</b>, checked out via WhatsApp by a field engineer (<b>In Terreno</b>), or undergoing <b>Maintenance</b>.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- STEP 3: Bulk Excel Import & Photo Extraction -->
+            <div class="step-card">
+                <div class="step-title">
+                    <span class="step-num">3</span>
+                    Bulk Multi-Asset Import & Embedded Excel Photo Extraction
+                </div>
+                <div class="step-desc">
+                    Supervisors can populate or update hundreds of tools in seconds using the <b>Excel Bulk Import</b> utility. The system ingests standard spreadsheets (such as <code>Equipment Register.xlsx</code>), automatically detects embedded cell images, extracts them as clean PNG files, and uploads them directly to Supabase storage.
+                </div>
+                <div class="img-container">
+                    <img src="images/bulk_actions.png" alt="Excel Bulk Import Modal and Photo Extraction" onerror="this.src='images/main_table.png'">
+                    <div class="img-caption"><b>Figure 1.3:</b> Bulk import modal allowing drag-and-drop spreadsheet ingestion with automated cell photo extraction and serial number mapping.</div>
+                </div>
+                <div class="note-box">
+                    <b>Pro Tip for Batch Imports:</b> Ensure your Excel spreadsheet contains column headers matching standard Entelso attributes: <i>Item Code, Description, Brand, Model, Serial Number, Category, Quantity, and Price</i>. Embedded images in column 1 or column 11 are automatically mapped to the corresponding asset row.
+                </div>
+            </div>
+
+            <!-- STEP 4: Asset Audit Drawer -->
+            <div class="step-card">
+                <div class="step-title">
+                    <span class="step-num">4</span>
+                    Asset Detailed Audit Drawer & Specification Management
+                </div>
+                <div class="step-desc">
+                    Clicking any equipment row opens the slide-out <b>Audit Drawer</b>. This detailed panel displays high-resolution tool photographs, complete technical specifications, custody transfer histories, calibration certificates, and location coordinates.
+                </div>
+                <div class="img-container">
+                    <img src="images/drawer.png" alt="Asset Detailed Audit Drawer">
+                    <div class="img-caption"><b>Figure 1.4:</b> Slide-out audit drawer revealing full asset metadata, location history, calibration logs, and high-resolution photo attachments.</div>
+                </div>
+            </div>
+
+            <!-- STEP 5: Alert Management & Expiration Tracking -->
+            <div class="step-card">
+                <div class="step-title">
+                    <span class="step-num">5</span>
+                    Alert Management & Expiration Tracking
+                </div>
+                <div class="step-desc">
+                    The alert management module monitors equipment health across the enterprise. It highlights tools with overdue calibration certificates, consumable items below minimum stock thresholds, and assets checked out by field engineers beyond their authorized return dates.
+                </div>
+                <div class="img-container">
+                    <img src="images/alerts.png" alt="Alert Management and Expiration Tracking Table" onerror="this.src='images/main_table.png'">
+                    <div class="img-caption"><b>Figure 1.5:</b> Dedicated alert tracking interface displaying calibration warning flags, stock deficit alerts, and maintenance reminders.</div>
+                </div>
+            </div>
+
+            <!-- STEP 6: Real-Time Zone & Geolocation Tracking -->
+            <div class="step-card">
+                <div class="step-title">
+                    <span class="step-num">6</span>
+                    Real-Time Zone & Geolocation Asset Tracking
+                </div>
+                <div class="step-desc">
+                    Entelso operations span multiple geographic regions and field warehouses. The <b>Zonas / Terreno</b> tracking view allows warehouse administrators to monitor equipment distribution across specific operational zones, track custody transfers between field teams, and audit GPS check-in tags generated via WhatsApp Bot.
+                </div>
+                <div class="img-container">
+                    <img src="images/zones.png" alt="Zone and Terreno Asset Tracking View" onerror="this.src='images/main_table.png'">
+                    <div class="img-caption"><b>Figure 1.6:</b> Operational zone tracking view showing asset distribution across regional storage centers and active field locations.</div>
+                </div>
+            </div>
+
+            <!-- STEP 7: Team & Security PIN Management -->
+            <div class="step-card">
+                <div class="step-title">
+                    <span class="step-num">7</span>
+                    Team & Security PIN Management
+                </div>
+                <div class="step-desc">
+                    To ensure strict security and prevent unauthorized equipment checkouts, administrators manage field personnel in the <b>Teams & PIN Management</b> section. Each field engineer is assigned a registered WhatsApp cellular number and a secure 6-digit authentication PIN required for mobile tool checkouts.
+                </div>
+                <div class="img-container">
+                    <img src="images/teams.png" alt="Team and Employee Management View" onerror="this.src='images/main_table.png'">
+                    <div class="img-caption"><b>Figure 1.7:</b> Team management directory where supervisors register field engineers, assign mobile numbers, and generate secure 6-digit WhatsApp PINs.</div>
+                </div>
+                <div class="feature-grid">
+                    <div class="feature-item">
+                        <h4>6-Digit Security PINs</h4>
+                        <p>Encrypts field access. Engineers must input their unique 6-digit PIN when requesting asset transfers via WhatsApp Bot, creating an immutable custody signature.</p>
+                    </div>
+                    <div class="feature-item">
+                        <h4>Custody Audit Trail</h4>
+                        <p>Logs every checkout, transfer, and return event against the engineer's profile, providing 100% accountability for high-value RF and electrical instruments.</p>
+                    </div>
+                </div>
+            </div>
+
+        </section>
+
+        <!-- ==========================================
+             PERSONA 2: WHATSAPP BOT (FIELD ENGINEERING)
+        =========================================== -->
+        <section class="role-content" id="content-whatsapp">
+            
+            <div class="role-header-banner">
+                <div class="banner-info">
+                    <h2>WHATSAPP BOT OPERATIONS MANUAL (FIELD ENGINEERING)</h2>
+                    <p>Standard operating procedures for on-site engineers using the Entelso WhatsApp Bot for mobile tool checkouts, location verification, and custody transfers.</p>
+                </div>
+                <div>
+                    <a href="Entelso_WhatsApp_Bot_Manual.pdf" download class="btn" style="background:#1e293b; border-color:#334155;">
+                        Download WhatsApp PDF
+                    </a>
+                </div>
+            </div>
+
+            <!-- STEP 1: Instant Field Operations via WhatsApp Bot -->
+            <div class="step-card">
+                <div class="step-title">
+                    <span class="step-num">1</span>
+                    Instant Field Operations via WhatsApp Bot
+                </div>
+                <div class="step-desc">
+                    Field engineers do not require specialized mobile applications or VPN installations to interact with the Entelso inventory system. The official <b>Entelso WhatsApp Bot</b> serves as an intelligent, real-time bridge to the core database, allowing engineers to verify equipment safety, check out tools, report locations, and log maintenance in seconds directly from their mobile phones.
                 </div>
                 
-                <div class="role-card" id="card-wa" onclick="switchPersona('wa')">
-                    <div>
-                        <div class="role-icon-box green"><i class="fa-brands fa-whatsapp"></i></div>
-                        <div class="role-title">💬 FIELD TECHNICIAN (WHATSAPP ASSISTANT)</div>
-                        <div class="role-desc">For on-site engineers: Instant tool status lookup, command cheat sheet, geolocation verification, and custody transfers via WhatsApp.</div>
+                <!-- Interactive Simulation CTA Banner -->
+                <div class="interactive-video-banner">
+                    <div class="iv-text">
+                        <h4>📱 Test the Live WhatsApp Bot Simulator</h4>
+                        <p>Experience the exact mobile workflow used by on-site engineers. Practice sending commands, inputting 6-digit security PINs, and querying tool specifications in our interactive sandbox.</p>
                     </div>
-                    <div class="role-badge"><i class="fa-solid fa-circle-check"></i> CLICK TO VIEW</div>
+                    <div>
+                        <a href="video_whatsapp.html" class="btn btn-primary" style="padding:12px 20px; font-size:14px;">
+                            Launch WhatsApp Simulator →
+                        </a>
+                    </div>
+                </div>
+
+                <div class="img-container">
+                    <img src="images/whatsapp_query.png" alt="WhatsApp Bot Status Query Workflow">
+                    <div class="img-caption"><b>Figure 2.1:</b> On-site engineer querying asset status and calibration health by transmitting serial numbers directly to the official Entelso WhatsApp Bot.</div>
                 </div>
             </div>
 
-            <!-- ════════════════════════════════════════════
-                 PERSONA 1: WAREHOUSE ADMIN & DASHBOARD
-            ════════════════════════════════════════════ -->
-            <section class="module-section active" id="module-web">
-                <div class="role-active-banner blue">
-                    <i class="fa-solid fa-shield-halved"></i>
-                    <div>
-                        <strong>CURRENTLY VIEWING: WAREHOUSE ADMINISTRATOR (WEB DASHBOARD) MANUAL</strong><br/>
-                        <span>You are reading standard operating procedures for desktop inventory management, batch imports, and compliance auditing.</span>
+            <!-- STEP 2: WhatsApp Command Cheatsheet -->
+            <div class="step-card">
+                <div class="step-title">
+                    <span class="step-num">2</span>
+                    WhatsApp Command Cheatsheet Table
+                </div>
+                <div class="step-desc">
+                    Engineers communicate with the bot using intuitive hashtag commands or by scanning equipment QR/NFC tags. Below is the official command reference for field operations:
+                </div>
+                
+                <table class="cheatsheet-table">
+                    <thead>
+                        <tr>
+                            <th style="width: 25%;">Command / Action</th>
+                            <th style="width: 35%;">Syntax Example</th>
+                            <th>Operational Function & System Response</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><b>Status Query</b></td>
+                            <td><code>#STATUS [Serial/Code]</code><br/><i>e.g., #STATUS ENT-EL-004</i></td>
+                            <td>Returns real-time equipment availability, calibration expiry date, current assigned zone, and technical specifications.</td>
+                        </tr>
+                        <tr>
+                            <td><b>Asset Checkout</b></td>
+                            <td><code>#CHECKOUT [Code] [PIN]</code><br/><i>e.g., #CHECKOUT ENT-RF-001 849201</i></td>
+                            <td>Assigns custody of the tool to the engineer's profile, timestamps checkout date, and updates dashboard status to <b>In Terreno</b>.</td>
+                        </tr>
+                        <tr>
+                            <td><b>Custody Return</b></td>
+                            <td><code>#RETURN [Code] [PIN]</code><br/><i>e.g., #RETURN ENT-RF-001 849201</i></td>
+                            <td>Releases tool custody, marks item as available in warehouse, and prompts for optional condition feedback.</td>
+                        </tr>
+                        <tr>
+                            <td><b>Zone Transfer</b></td>
+                            <td><code>#TRANSFER [Code] [Zone] [PIN]</code><br/><i>e.g., #TRANSFER ENT-004 ZONA-NORTH 849201</i></td>
+                            <td>Transfers tool custody directly between regional zones or field sites without requiring a return to base warehouse.</td>
+                        </tr>
+                        <tr>
+                            <td><b>QR / NFC Scanning</b></td>
+                            <td><i>Scan physical asset tag</i></td>
+                            <td>Automatically inputs asset serial code into WhatsApp chat and displays interactive checkout/return action buttons.</td>
+                        </tr>
+                        <tr>
+                            <td><b>Maintenance Report</b></td>
+                            <td><code>#REPORT [Code] [Issue]</code><br/><i>e.g., #REPORT ENT-004 Screen cracked</i></td>
+                            <td>Opens an immediate maintenance ticket, alerts warehouse supervisors on web dashboard, and requests photo attachment.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- STEP 3: Security PIN & Custody Verification -->
+            <div class="step-card">
+                <div class="step-title">
+                    <span class="step-num">3</span>
+                    Security PIN & Custody Verification
+                </div>
+                <div class="step-desc">
+                    Every asset checkout or transfer requires 2-factor authentication via the engineer's registered mobile number and their assigned <b>6-digit Security PIN</b>. This prevents unauthorized checkouts and ensures an auditable chain of custody for valuable instrumentation.
+                </div>
+                <div class="feature-grid">
+                    <div class="feature-item">
+                        <h4>PIN Verification Protocol</h4>
+                        <p>If an invalid PIN is entered 3 consecutive times, the bot temporarily locks field checkouts for that cellular number and notifies the warehouse supervisor.</p>
+                    </div>
+                    <div class="feature-item">
+                        <h4>Automated Geolocation Tagging</h4>
+                        <p>When executing field transfers, the bot prompts engineers to share their WhatsApp GPS location to verify physical tool presence at the job site.</p>
                     </div>
                 </div>
+            </div>
 
-                <div class="step-card" id="web-step-1">
-                    <div class="step-header">
-                        <h3 class="step-title"><span class="step-num">1.</span> Executive KPI Monitoring &amp; Live Analytics</h3>
-                    </div>
-                    <p class="step-desc">
-                        Upon signing into the web dashboard, warehouse supervisors receive an immediate overview of global equipment health via real-time Key Performance Indicators (KPIs). The top metrics banner aggregates total active fleet count, field deployment ratios, available stock ready for dispatch, and critical compliance alerts across all operational depots.
-                    </p>
-                    <div class="asset-frame">
-                        <img src="images/main_table.png" alt="Web Dashboard Main Table">
-                    </div>
+            <!-- STEP 4: Maintenance Incident Logging -->
+            <div class="step-card">
+                <div class="step-title">
+                    <span class="step-num">4</span>
+                    Maintenance Incident Logging & Photo Attachments
                 </div>
-
-                <div class="step-card" id="web-step-2">
-                    <div class="step-header">
-                        <h3 class="step-title"><span class="step-num">2.</span> Inventory Grid &amp; Multi-Parameter Filtering</h3>
-                    </div>
-                    <p class="step-desc">
-                        The central inventory table organizes all instruments and tools into structured columns. Utilize the top search bar and category dropdowns to filter assets instantaneously by operational status (<b>Available</b>, <b>In Use</b>, <b>Under Maintenance</b>, or <b>Quarantined</b>), assigned engineering personnel, or geographical zone without page reloads.
-                    </p>
+                <div class="step-desc">
+                    If an engineer discovers equipment damage, calibration drift, or wear in the field, they can file an instant incident report via WhatsApp Bot. Attaching photos directly in the chat embeds the images into the dashboard audit drawer for supervisor review.
                 </div>
-
-                <div class="step-card" id="web-step-3">
-                    <div class="step-header">
-                        <h3 class="step-title"><span class="step-num">3.</span> Bulk Multi-Asset Import &amp; Embedded Excel Photo Extraction</h3>
-                    </div>
-                    <p class="step-desc">
-                        Entelso features an advanced spreadsheet ingestion engine capable of processing enterprise spreadsheets (such as <code>Equipment Register.xlsx</code>). Unlike traditional systems that strip out visual elements, Entelso extracts physical photographs embedded as floating drawing objects across columns (e.g., <i>Photo 1</i>, <i>Photo 2</i>).
-                    </p>
-                    <p class="step-desc">
-                        <b>Automated Ingestion Workflow:</b> When a spreadsheet is imported, the system intelligently correlates the row anchors of floating images with the equipment serial numbers (e.g., <code>EQ-01</code> through <code>EQ-29</code>). Photographs are compressed, uploaded to secure cloud storage (<b>Supabase entelso-media bucket</b>), and permanently bound to the asset database records.
-                    </p>
-                    <div class="note-box tip">
-                        <i class="fa-solid fa-lightbulb"></i>
-                        <div><b>Pro-Tip — Excel Photo Alignment:</b> When preparing spreadsheets for ingestion, ensure that the top-left anchor of each photograph sits inside its corresponding equipment row. If an asset row has no embedded image in Excel, its photo gallery can be easily populated later from the dashboard or via WhatsApp uploads.</div>
-                    </div>
+                <div class="img-container">
+                    <img src="images/whatsapp_maint.png" alt="WhatsApp Bot Maintenance Ticket Creation">
+                    <div class="img-caption"><b>Figure 2.2:</b> Engineer submitting a field maintenance report with photographic evidence of instrument wear directly through WhatsApp Bot.</div>
                 </div>
+            </div>
 
-                <div class="step-card" id="web-step-4">
-                    <div class="step-header">
-                        <h3 class="step-title"><span class="step-num">4.</span> Asset Detailed Audit Drawer &amp; Specification Management</h3>
-                    </div>
-                    <p class="step-desc">
-                        Clicking any equipment row in the main table opens the <b>Detailed Audit Drawer</b> on the right-hand side of the screen. This inspection panel displays complete hardware specifications, brand/model numbers, warranty expiration dates, current custodian assignment, and high-resolution photo galleries.
-                    </p>
-                    <div class="asset-frame">
-                        <img src="images/drawer.png" alt="Asset Detailed Audit Drawer">
-                    </div>
-                </div>
+        </section>
 
-                <div class="step-card" id="web-step-5">
-                    <div class="step-header">
-                        <h3 class="step-title"><span class="step-num">5.</span> Alert Management &amp; Expiration Tracking</h3>
-                    </div>
-                    <p class="step-desc">
-                        Safety compliance is strictly enforced across fall-protection equipment (harnesses, lanyards) and RF testing instruments. The system dynamically monitors calibration schedules and NFC tag inspection dates, categorizing assets into visual color-coded tiers:
-                    </p>
-                    <p class="step-desc">
-                        • <b>🔴 Critical / Expired (Calibración / Tag Vencido):</b> Mandatory safety certifications have expired. The asset is highlighted in red and must be immediately withdrawn from field deployment.<br/>
-                        • <b>🟡 Warning / Due Soon (Próximo a Vencer):</b> Equipment approaching inspection limits within 30 to 60 days, prompting supervisors to schedule preventive maintenance.<br/>
-                        • <b>🟢 Compliant / Certified:</b> Fully calibrated instruments approved for field assignment.
-                    </p>
-                </div>
-
-                <div class="step-card" id="web-step-6">
-                    <div class="step-header">
-                        <h3 class="step-title"><span class="step-num">6.</span> Real-Time Telemetry &amp; Immutable Audit History</h3>
-                    </div>
-                    <p class="step-desc">
-                        Inside the Audit Drawer, switch to the <b>History</b> tab to review the immutable chronological audit trail. Every operation performed on an asset—whether checked out via WhatsApp by a field technician, transferred between zones, or edited by an admin—is recorded with an exact timestamp, location coordinates, and user identity verification.
-                    </p>
-                </div>
-
-                <div class="step-card" id="web-step-7">
-                    <div class="step-header">
-                        <h3 class="step-title"><span class="step-num">7.</span> Bulk Multi-Asset Operations &amp; Batch Reassignment</h3>
-                    </div>
-                    <p class="step-desc">
-                        When reorganizing depots or conducting quarterly audits, use the <b>Bulk Multi-Asset Operations</b> toolbar. Select multiple checkboxes on the left side of the table rows to display the floating batch action bar. From here, you can reassign dozens of tools to a new zone simultaneously or batch-generate QR labels.
-                    </p>
-                </div>
-
-                <div class="step-card" id="web-step-8">
-                    <div class="step-header">
-                        <h3 class="step-title"><span class="step-num">8.</span> Automated Export &amp; Regulatory Compliance Reporting</h3>
-                    </div>
-                    <p class="step-desc">
-                        To fulfill internal safety governance or external regulatory audits (ISO 9001, OSHA), click the <b>Export Data</b> button in the top toolbar. You can instantly download structured spreadsheets (<code>.xlsx</code>), CSV files, or PDF summaries containing calibration schedules and inspection compliance certificates.
-                    </p>
-                    <div class="note-box warn">
-                        <i class="fa-solid fa-triangle-exclamation"></i>
-                        <div><b>Compliance Notice:</b> Any equipment showing an expired calibration date must be withdrawn from field deployment until recertified by an authorized quality control engineer.</div>
-                    </div>
-                </div>
-            </section>
-
-            <!-- ════════════════════════════════════════════
-                 PERSONA 2: FIELD TECHNICIANS (WHATSAPP)
-            ════════════════════════════════════════════ -->
-            <section class="module-section" id="module-wa">
-                <div class="role-active-banner green">
-                    <i class="fa-brands fa-whatsapp"></i>
-                    <div>
-                        <strong>CURRENTLY VIEWING: FIELD TECHNICIAN (WHATSAPP ASSISTANT) MANUAL</strong><br/>
-                        <span>You are reading standard operating procedures for mobile on-site asset lookup, checkout commands, and GPS verification.</span>
-                    </div>
-                </div>
-
-                <div class="step-card" id="wa-step-1">
-                    <div class="step-header">
-                        <h3 class="step-title"><span class="step-num">1.</span> Instant Field Operations via WhatsApp Assistant</h3>
-                    </div>
-                    <p class="step-desc">
-                        Field technicians do not require specialized applications or VPN installations to interact with the Entelso inventory system. The official <b>Entelso WhatsApp Assistant</b> serves as an intelligent, real-time bridge to the core database, allowing engineers to verify equipment safety, report locations, and transfer custody in seconds directly from their mobile phones.
-                    </p>
-                </div>
-
-                <div class="step-card" id="wa-step-2">
-                    <div class="step-header">
-                        <h3 class="step-title"><span class="step-num">2.</span> WhatsApp Command Cheatsheet Table</h3>
-                    </div>
-                    <p class="step-desc">
-                        To interact with the assistant, send formatted commands directly to the Entelso WhatsApp bot number. The system recognizes both English and Spanish terminology:
-                    </p>
-                    <div class="cmd-table-wrapper">
-                        <table class="cmd-table">
-                            <thead>
-                                <tr>
-                                    <th style="width: 25%;">Command / Action</th>
-                                    <th style="width: 35%;">Syntax Example</th>
-                                    <th style="width: 40%;">System Response &amp; Workflow</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td><b>Asset Query</b><br/>(Check Status)</td>
-                                    <td><span class="cmd-code">EQ-01</span><br/>or<br/><span class="cmd-code">STATUS EQ-01</span></td>
-                                    <td>Returns complete asset profile: Description, brand, condition, calibration compliance status, assigned custodian, and physical photos.</td>
-                                </tr>
-                                <tr>
-                                    <td><b>Checkout / Take Custody</b><br/>(Assign to Self)</td>
-                                    <td><span class="cmd-code">CHECKOUT EQ-01</span><br/>or<br/><span class="cmd-code">TOMAR EQ-01</span></td>
-                                    <td>Assigns the tool to your user account, sets status to 'In Use', and logs the timestamp in the audit trail. Requires PIN verification.</td>
-                                </tr>
-                                <tr>
-                                    <td><b>Checkin / Return</b><br/>(Return to Warehouse)</td>
-                                    <td><span class="cmd-code">CHECKIN EQ-01</span><br/>or<br/><span class="cmd-code">DEVOLVER EQ-01</span></td>
-                                    <td>Releases personal custody, resets asset location to warehouse availability, and updates compliance metrics.</td>
-                                </tr>
-                                <tr>
-                                    <td><b>Report Incident</b><br/>(Flag Damage)</td>
-                                    <td><span class="cmd-code">REPORT EQ-01 broken strap</span><br/>or<br/><span class="cmd-code">DAÑO EQ-01 cable pelado</span></td>
-                                    <td>Immediately flags the asset as 'Under Maintenance / Damaged', triggers a priority alert on the supervisor dashboard, and logs the notes.</td>
-                                </tr>
-                                <tr>
-                                    <td><b>My Inventory</b><br/>(List Assigned Gear)</td>
-                                    <td><span class="cmd-code">MY ASSETS</span><br/>or<br/><span class="cmd-code">MIS EQUIPOS</span></td>
-                                    <td>Generates an itemized summary of all tools and instruments currently assigned to your personal custody.</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                    <div class="note-box warn">
-                        <i class="fa-solid fa-triangle-exclamation"></i>
-                        <div><b>Mandatory Safety Notice:</b> Before checking out fall-protection equipment (Harnesses, Safety Lines, Lanyards), technicians MUST review the expiration date returned by the bot. If the system reports 'Calibración Vencida' or 'Tag Vencido', DO NOT deploy the gear in the field.</div>
-                    </div>
-                </div>
-
-                <div class="step-card" id="wa-step-3">
-                    <div class="step-header">
-                        <h3 class="step-title"><span class="step-num">3.</span> Geolocation Verification &amp; Zone Tracking</h3>
-                    </div>
-                    <p class="step-desc">
-                        When operating across expansive client facilities or remote cell towers, maintaining geographical traceability is essential. Technicians can share their live location directly through WhatsApp to geo-tag equipment deployments:
-                    </p>
-                    <p class="step-desc">
-                        • <b>Step 1:</b> Query or check out the equipment via WhatsApp (e.g., send <span class="cmd-code">CHECKOUT EQ-09</span>).<br/>
-                        • <b>Step 2:</b> Tap the attachment icon (📎) in WhatsApp and select <b>Location → Send Your Current Location</b>.<br/>
-                        • <b>Step 3:</b> The system binds the GPS coordinates to the asset's active telemetry log, allowing supervisors to visualize field distribution across operational zones.
-                    </p>
-                </div>
-
-                <div class="step-card" id="wa-step-4">
-                    <div class="step-header">
-                        <h3 class="step-title"><span class="step-num">4.</span> Field Asset Custody Transfer &amp; Checkout</h3>
-                    </div>
-                    <p class="step-desc">
-                        To maintain strict accountability, every piece of hardware must be assigned to an active custodian. When you send a checkout command, the assistant initiates a secure custody handover protocol. Once authenticated, your full name and contact number are linked to the asset until you formally check it back in or transfer it to another engineer.
-                    </p>
-                </div>
-
-                <div class="step-card" id="wa-step-5">
-                    <div class="step-header">
-                        <h3 class="step-title"><span class="step-num">5.</span> Security PIN &amp; 2-Factor Authentication</h3>
-                    </div>
-                    <p class="step-desc">
-                        To prevent unauthorized asset transfers, sensitive operations require personal authentication. Every authorized field engineer is assigned a unique 4-digit Security PIN and a linked WhatsApp phone number:
-                    </p>
-                    <p class="step-desc">
-                        • <b>PIN Verification:</b> When attempting to transfer high-value instruments or report critical damage, the assistant will prompt: <i>'Please enter your 4-digit security PIN to confirm.'</i><br/>
-                        • <b>Account Identity Binding:</b> Commands are strictly validated against the sender's registered WhatsApp phone number. If an unrecognized phone number attempts to query inventory, access is denied and flagged for audit review.
-                    </p>
-                </div>
-
-                <div class="step-card" id="wa-step-6">
-                    <div class="step-header">
-                        <h3 class="step-title"><span class="step-num">6.</span> QR Code &amp; NFC Tag Scanning</h3>
-                    </div>
-                    <p class="step-desc">
-                        Physical tools are affixed with durable, industrial-grade QR code labels and NFC smart chips. Instead of typing serial numbers manually into WhatsApp, technicians can simply scan the QR sticker or tap their NFC-enabled smartphone against the equipment tag. This automatically triggers WhatsApp with pre-filled inventory queries for instant retrieval.
-                    </p>
-                </div>
-
-                <div class="step-card" id="wa-step-7">
-                    <div class="step-header">
-                        <h3 class="step-title"><span class="step-num">7.</span> Maintenance Incident Logging &amp; Photo Attachments</h3>
-                    </div>
-                    <p class="step-desc">
-                        If an instrument is damaged in transit or fails field calibration, technicians can document the incident immediately via WhatsApp. Send <span class="cmd-code">REPORT EQ-15 damaged connector</span>, then attach a physical photo of the damage to the chat. The system stores the photo in cloud storage, changes the asset status to <b>Under Maintenance</b>, and sends an urgent push alert to the warehouse supervisor.
-                    </p>
-                </div>
-            </section>
-
-            <footer class="sop-footer">
-                <div>&copy; 2026 Entelso Systems. Enterprise Documentation Division.</div>
-                <div>ISO/IEC 27001 Certified &bull; Version 2.0.5 &bull; Corporate Release</div>
-            </footer>
-
-        </div>
     </main>
 
     <script>
-        // Clean address bar immediately
-        if (window.location.pathname.endsWith('.html')) {
-            window.history.replaceState(null, '', window.location.pathname.replace(/\.html$/, '') + window.location.search + window.location.hash);
-        }
-
-        const webSteps = [
-            { id: 'web-step-1', label: '1. Executive KPI Analytics' },
-            { id: 'web-step-2', label: '2. Inventory Filtering' },
-            { id: 'web-step-3', label: '3. Excel Bulk Import & Photos' },
-            { id: 'web-step-4', label: '4. Asset Audit Drawer' },
-            { id: 'web-step-5', label: '5. Alert & Expiration Tracking' },
-            { id: 'web-step-6', label: '6. Telemetry & History' },
-            { id: 'web-step-7', label: '7. Bulk Batch Operations' },
-            { id: 'web-step-8', label: '8. Compliance Reporting' }
-        ];
-
-        const waSteps = [
-            { id: 'wa-step-1', label: '1. Instant Field Query' },
-            { id: 'wa-step-2', label: '2. Command Cheatsheet' },
-            { id: 'wa-step-3', label: '3. Geolocation & Zones' },
-            { id: 'wa-step-4', label: '4. Custody Checkout' },
-            { id: 'wa-step-5', label: '5. Security PIN & 2FA' },
-            { id: 'wa-step-6', label: '6. QR / NFC Scanning' },
-            { id: 'wa-step-7', label: '7. Incident Logging' }
-        ];
-
-        function renderSidebar(persona) {
-            const nav = document.getElementById('sidebarNav');
-            nav.innerHTML = '';
-            const steps = persona === 'web' ? webSteps : waSteps;
-
-            steps.forEach((s, idx) => {
-                const li = document.createElement('li');
-                li.innerHTML = `<a href="#${s.id}" class="nav-link ${idx === 0 ? 'active' : ''}">${s.label}</a>`;
-                li.querySelector('a').addEventListener('click', (e) => {
-                    e.preventDefault();
-                    const targetEl = document.getElementById(s.id);
-                    if (targetEl) {
-                        targetEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                        document.querySelectorAll('#sidebarNav .nav-link').forEach(l => l.classList.remove('active'));
-                        e.currentTarget.classList.add('active');
-                    }
-                });
-                nav.appendChild(li);
-            });
-        }
-
-        function switchPersona(persona) {
-            const cardWeb = document.getElementById('card-web');
-            const cardWa = document.getElementById('card-wa');
-            const modWeb = document.getElementById('module-web');
-            const modWa = document.getElementById('module-wa');
-
-            if (persona === 'web') {
-                cardWeb.classList.add('active');
-                cardWa.classList.remove('active');
-                modWeb.classList.add('active');
-                modWa.classList.remove('active');
+        function switchRole(role) {
+            document.querySelectorAll('.persona-card').forEach(c => c.classList.remove('active'));
+            document.querySelectorAll('.role-content').forEach(c => c.classList.remove('active'));
+            
+            if (role === 'admin') {
+                document.getElementById('card-admin').classList.add('active');
+                document.getElementById('content-admin').classList.add('active');
             } else {
-                cardWa.classList.add('active');
-                cardWeb.classList.remove('active');
-                modWa.classList.add('active');
-                modWeb.classList.remove('active');
+                document.getElementById('card-whatsapp').classList.add('active');
+                document.getElementById('content-whatsapp').classList.add('active');
             }
-            renderSidebar(persona);
-            window.scrollTo({ top: 0, behavior: 'smooth' });
+            window.scrollTo({ top: 120, behavior: 'smooth' });
         }
-
-        document.addEventListener('DOMContentLoaded', () => {
-            switchPersona('web');
-        });
     </script>
 </body>
 </html>

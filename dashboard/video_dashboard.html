@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Entelso — Real Web Dashboard Video Walkthrough</title>
+    <style>
+        :root {
+            --bg-dark: #0a0e1a;
+            --card-bg: #131a29;
+            --border-color: #1e293b;
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --brand-blue: #2563eb;
+            --brand-accent: #3b82f6;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            user-select: none;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-primary);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            padding: 24px;
+        }
+
+        /* Top Navigation */
+        .top-navbar {
+            width: 100%;
+            max-width: 1200px;
+            background-color: #0f1623;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 14px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        .brand-section {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .brand-logo-img {
+            height: 32px;
+            width: auto;
+        }
+
+        .doc-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: white;
+            border-left: 2px solid var(--border-color);
+            padding-left: 16px;
+        }
+
+        .nav-actions {
+            display: flex;
+            gap: 12px;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.2s;
+            border: 1px solid var(--border-color);
+            background: #1e293b;
+            color: #f8fafc;
+        }
+
+        .btn:hover { background: #334155; border-color: #475569; }
+        .btn-primary { background: var(--brand-blue); border-color: #3b82f6; color: white; }
+        .btn-primary:hover { background: #1d4ed8; }
+
+        /* Video Player Container */
+        .player-container {
+            width: 100%;
+            max-width: 1200px;
+            background: #0f141f;
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.7);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .player-header {
+            background: #162032;
+            padding: 14px 24px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .player-title {
+            font-size: 15px;
+            font-weight: 600;
+            color: #60a5fa;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .live-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 700;
+            background: rgba(239, 68, 68, 0.15);
+            color: #ef4444;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+
+        .live-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: #ef4444;
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(0.95); opacity: 1; }
+            50% { transform: scale(1.3); opacity: 0.6; }
+            100% { transform: scale(0.95); opacity: 1; }
+        }
+
+        /* Screen Display Area */
+        .screen-stage {
+            position: relative;
+            width: 100%;
+            height: 620px;
+            background: #080c14;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+
+        .screen-img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            transition: opacity 0.4s ease, transform 0.4s ease;
+        }
+
+        /* Animated Cursor */
+        .cursor-demo {
+            position: absolute;
+            width: 24px;
+            height: 24px;
+            z-index: 50;
+            pointer-events: none;
+            transition: top 0.8s cubic-bezier(0.25, 1, 0.5, 1), left 0.8s cubic-bezier(0.25, 1, 0.5, 1);
+            top: 50%;
+            left: 50%;
+        }
+
+        .cursor-demo svg {
+            width: 24px;
+            height: 24px;
+            filter: drop-shadow(0 4px 6px rgba(0,0,0,0.5));
+        }
+
+        .cursor-ring {
+            position: absolute;
+            top: -10px;
+            left: -10px;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            border: 2px solid #3b82f6;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        @keyframes clickPulse {
+            0% { transform: scale(0.4); opacity: 1; }
+            100% { transform: scale(2.2); opacity: 0; }
+        }
+
+        .clicking .cursor-ring {
+            animation: clickPulse 0.5s ease-out;
+        }
+
+        /* Highlight Tooltip Overlay */
+        .highlight-box {
+            position: absolute;
+            background: rgba(15, 23, 42, 0.95);
+            border: 1px solid #3b82f6;
+            border-radius: 8px;
+            padding: 12px 18px;
+            color: white;
+            font-size: 13.5px;
+            max-width: 340px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.8);
+            z-index: 40;
+            opacity: 0;
+            transform: translateY(10px);
+            transition: all 0.4s ease;
+            pointer-events: none;
+        }
+
+        .highlight-box.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .highlight-box h5 {
+            color: #60a5fa;
+            font-size: 14px;
+            margin-bottom: 4px;
+        }
+
+        /* Subtitle Bar */
+        .subtitle-bar {
+            background: #111827;
+            border-top: 1px solid var(--border-color);
+            padding: 18px 30px;
+            min-height: 70px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            font-size: 15px;
+            color: #e2e8f0;
+        }
+
+        .subtitle-bar b { color: #60a5fa; }
+
+        /* Controls Footer */
+        .player-footer {
+            background: #162032;
+            padding: 16px 24px;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .progress-track {
+            width: 100%;
+            height: 6px;
+            background: #1e293b;
+            border-radius: 3px;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: var(--brand-blue);
+            width: 0%;
+            transition: width 0.1s linear;
+        }
+
+        .controls-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .ctrl-group {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .step-indicators {
+            display: flex;
+            gap: 6px;
+        }
+
+        .step-dot {
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 600;
+            background: #1e293b;
+            color: #94a3b8;
+            cursor: pointer;
+            border: 1px solid transparent;
+            transition: all 0.2s;
+        }
+
+        .step-dot.active {
+            background: #1e3a8a;
+            color: white;
+            border-color: #3b82f6;
+        }
+
+        .timer-text {
+            font-size: 13px;
+            font-family: monospace;
+            color: #cbd5e1;
+        }
+    </style>
+</head>
+<body>
+
+    <nav class="top-navbar">
+        <div class="brand-section">
+            <img src="LOGOTYPE-BLUE.png" alt="Entelso Logo" class="brand-logo-img" onerror="this.src='logo-blue.png'">
+            <span class="doc-title">Real Web Dashboard Walkthrough</span>
+        </div>
+        <div class="nav-actions">
+            <a href="manual.html" class="btn">📖 User Manual</a>
+            <a href="video_whatsapp.html" class="btn">📱 WhatsApp Bot Demo</a>
+            <a href="index.html" class="btn btn-primary">⚡ Open Live Dashboard</a>
+        </div>
+    </nav>
+
+    <div class="player-container">
+        <div class="player-header">
+            <div class="player-title">
+                <span class="live-badge"><span class="live-dot"></span> LIVE WALKTHROUGH</span>
+                <span>Entelso Enterprise Web Dashboard — Interactive Operational Demonstration</span>
+            </div>
+            <div class="timer-text" id="timer-txt">00:00 / 00:56</div>
+        </div>
+
+        <div class="screen-stage" id="stage">
+            <img src="images/imagen_panel_principal_dashboard.png" alt="Dashboard View" id="screen-img" class="screen-img" onerror="this.src='images/main_table.png'">
+            
+            <div class="highlight-box" id="tooltip">
+                <h5 id="tt-title">Executive KPI Overview</h5>
+                <p id="tt-desc">Monitors global equipment stock, financial valuation in USD/CLP, and calibration compliance ratios.</p>
+            </div>
+
+            <div class="cursor-demo" id="cursor">
+                <div class="cursor-ring"></div>
+                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M5.5 3.21V20.8C5.5 21.43 6.22 21.79 6.72 21.4L11.45 16.66H18.5C19.16 16.66 19.53 15.88 19.11 15.38L5.5 3.21Z" fill="white" stroke="#0F172A" stroke-width="1.5"/>
+                </svg>
+            </div>
+        </div>
+
+        <div class="subtitle-bar" id="subtitles">
+            <b>0:01 / 0:56 — Executive KPI Monitoring:</b> Warehouse supervisors inspect real-time tool counts, total financial valuation, and active field checkouts synced with Supabase.
+        </div>
+
+        <div class="player-footer">
+            <div class="progress-track" onclick="seek(event)">
+                <div class="progress-bar" id="prog-bar"></div>
+            </div>
+
+            <div class="controls-row">
+                <div class="ctrl-group">
+                    <button class="btn btn-primary" id="btn-play" onclick="togglePlay()">⏸ Pause</button>
+                    <button class="btn" onclick="restart()">⏮ Restart</button>
+                </div>
+
+                <div class="step-indicators">
+                    <div class="step-dot active" id="dot-0" onclick="jumpToStep(0)">1. KPIs</div>
+                    <div class="step-dot" id="dot-1" onclick="jumpToStep(8)">2. Inventory</div>
+                    <div class="step-dot" id="dot-2" onclick="jumpToStep(16)">3. Bulk Import</div>
+                    <div class="step-dot" id="dot-3" onclick="jumpToStep(24)">4. Audit Drawer</div>
+                    <div class="step-dot" id="dot-4" onclick="jumpToStep(32)">5. Alerts</div>
+                    <div class="step-dot" id="dot-5" onclick="jumpToStep(40)">6. Zonas</div>
+                    <div class="step-dot" id="dot-6" onclick="jumpToStep(48)">7. Teams & PINs</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const totalDuration = 56;
+        let currentTime = 0;
+        let isPlaying = true;
+        let timer = null;
+
+        const screenImg = document.getElementById('screen-img');
+        const cursor = document.getElementById('cursor');
+        const tooltip = document.getElementById('tooltip');
+        const ttTitle = document.getElementById('tt-title');
+        const ttDesc = document.getElementById('tt-desc');
+        const subtitles = document.getElementById('subtitles');
+        const progBar = document.getElementById('prog-bar');
+        const timerTxt = document.getElementById('timer-txt');
+        const btnPlay = document.getElementById('btn-play');
+
+        const steps = [
+            { t: 0,  img: 'images/imagen_panel_principal_dashboard.png', name: 'Executive KPI Monitoring', sub: 'Warehouse supervisors inspect real-time tool counts, total financial valuation, and active field checkouts synced with Supabase.', cx: '30%', cy: '25%', tt: 'Executive KPI Cards', td: 'Displays aggregate inventory valuation and calibration compliance ratios in real-time.', ttx: '28%', tty: '32%', dot: 0 },
+            { t: 8,  img: 'images/all_equipamients.png', name: 'Inventory Grid & Official Categories', sub: 'The inventory table classifies assets into 4 official categories: Hand Tools, Electrical Tools, RF Tools, and Consumables.', cx: '25%', cy: '35%', tt: '4-Category Taxonomy', td: 'Filter instantly between Hand Tools, Electrical Tools, RF Instruments, and Consumables.', ttx: '25%', tty: '45%', dot: 1 },
+            { t: 16, img: 'images/bulk_actions.png', name: 'Bulk Multi-Asset Import & Photo Extraction', sub: 'Onboard hundreds of tools by ingesting Equipment Register.xlsx. Embedded cell photographs are extracted automatically to PNG files.', cx: '50%', cy: '50%', tt: 'Automated Photo Extraction', td: 'Detects images inside spreadsheet cells and links them to serial codes in Supabase.', ttx: '52%', tty: '55%', dot: 2 },
+            { t: 24, img: 'images/drawer.png', name: 'Asset Detailed Audit Drawer', sub: 'Clicking an equipment row slides open the Audit Drawer to reveal specifications, calibration certificates, and location notes.', cx: '70%', cy: '40%', tt: 'Complete Technical Spec', td: 'Inspect calibration certificate expiry dates and geolocation audit histories.', ttx: '45%', tty: '40%', dot: 3 },
+            { t: 32, img: 'images/alerts.png', name: 'Alert Management & Expiration Tracking', sub: 'Monitors enterprise health by highlighting overdue calibrations, consumable deficits, and delayed tool returns.', cx: '40%', cy: '30%', tt: 'Automated Warning System', td: 'Flags instruments requiring immediate vendor recertification or stock replenishment.', ttx: '42%', tty: '38%', dot: 4 },
+            { t: 40, img: 'images/zones.png', name: 'Real-Time Zone & Geolocation Tracking', sub: 'Monitors equipment distribution across regional storage centers and active field locations, auditing WhatsApp GPS check-in tags.', cx: '55%', cy: '35%', tt: 'Regional Custody Tracking', td: 'Audits tool movements between warehouse centers and field project sites.', ttx: '55%', tty: '45%', dot: 5 },
+            { t: 48, img: 'images/teams.png', name: 'Team Directory & Security PIN Management', sub: 'Register field engineers, assign cellular phone numbers, and generate secure 6-digit authentication PINs for WhatsApp checkouts.', cx: '60%', cy: '45%', tt: '6-Digit Security PINs', td: 'Enforces 2-factor authentication for every mobile tool checkout or custody transfer.', ttx: '35%', tty: '45%', dot: 6 }
+        ];
+
+        function startTimer() {
+            if (timer) clearInterval(timer);
+            timer = setInterval(() => {
+                if (!isPlaying) return;
+                currentTime++;
+                if (currentTime >= totalDuration) currentTime = 0;
+                updateDisplay();
+            }, 1000);
+        }
+
+        function updateDisplay() {
+            let s = currentTime < 10 ? '0' + currentTime : currentTime;
+            timerTxt.textContent = `00:${s} / 00:${totalDuration}`;
+            progBar.style.width = ((currentTime / totalDuration) * 100) + '%';
+
+            // Find current step
+            let step = steps[0];
+            for (let i = steps.length - 1; i >= 0; i--) {
+                if (currentTime >= steps[i].t) {
+                    step = steps[i];
+                    break;
+                }
+            }
+
+            // Update Image
+            if (!screenImg.src.endsWith(step.img)) {
+                screenImg.style.opacity = '0.3';
+                setTimeout(() => {
+                    screenImg.src = step.img;
+                    screenImg.style.opacity = '1';
+                }, 150);
+            }
+
+            // Update Subtitles
+            subtitles.innerHTML = `<b>00:${s} / 00:56 — ${step.name}:</b> ${step.sub}`;
+
+            // Update Cursor & Tooltip
+            cursor.style.left = step.cx;
+            cursor.style.top = step.cy;
+
+            if (currentTime % 8 === 1 || currentTime % 8 === 2) {
+                cursor.classList.add('clicking');
+                setTimeout(() => cursor.classList.remove('clicking'), 500);
+            }
+
+            if (currentTime % 8 >= 2 && currentTime % 8 <= 6) {
+                tooltip.style.left = step.ttx;
+                tooltip.style.top = step.tty;
+                ttTitle.textContent = step.tt;
+                ttDesc.textContent = step.td;
+                tooltip.classList.add('active');
+            } else {
+                tooltip.classList.remove('active');
+            }
+
+            // Update Dots
+            document.querySelectorAll('.step-dot').forEach((d, idx) => {
+                d.classList.toggle('active', idx === step.dot);
+            });
+        }
+
+        function togglePlay() {
+            isPlaying = !isPlaying;
+            btnPlay.textContent = isPlaying ? "⏸ Pause" : "▶ Play";
+            if (isPlaying) startTimer();
+        }
+
+        function restart() {
+            currentTime = 0;
+            isPlaying = true;
+            btnPlay.textContent = "⏸ Pause";
+            updateDisplay();
+            startTimer();
+        }
+
+        function jumpToStep(sec) {
+            currentTime = sec;
+            isPlaying = false;
+            btnPlay.textContent = "▶ Play";
+            updateDisplay();
+        }
+
+        function seek(e) {
+            const rect = e.currentTarget.getBoundingClientRect();
+            const pos = (e.clientX - rect.left) / rect.width;
+            currentTime = Math.floor(pos * totalDuration);
+            updateDisplay();
+        }
+
+        // Initialize
+        updateDisplay();
+        startTimer();
+    </script>
+</body>
+</html>
