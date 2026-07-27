@@ -7,11 +7,11 @@
     <title>Entelso — Inventory</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-    <link rel="stylesheet" href="style.css?v=7">
+    <link rel="stylesheet" href="style.css?v=9">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/xlsx-js-style@1.2.0/dist/xlsx.bundle.js"></script>
     <!-- i18n debe cargarse ANTES que script.js -->
-    <script src="i18n.js?v=8"></script>
+    <script src="i18n.js?v=9"></script>
 </head>
 <body>
 
@@ -1260,7 +1260,11 @@
     </div>
 </div>
 
-<script src="i18n.js?v=6"></script>
-<script src="script.js?v=6"></script>
+<script>
+if (window.location.pathname.endsWith('/index.html')) {
+    window.history.replaceState(null, '', window.location.pathname.replace(/\/index\.html$/, '/') + window.location.search + window.location.hash);
+}
+</script>
+<script src="script.js?v=9"></script>
 </body>
 </html>
