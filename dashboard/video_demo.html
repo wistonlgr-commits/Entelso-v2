@@ -123,17 +123,17 @@
             display: flex;
         }
 
-        /* Virtual Cursor */
+        /* Virtual Cursor (Inline SVG - Never fails or shows broken image) */
         .virtual-cursor {
             position: absolute;
             top: 150px;
             left: 200px;
-            width: 28px;
-            height: 28px;
+            width: 32px;
+            height: 32px;
             z-index: 9999;
             pointer-events: none;
             transition: top 0.8s cubic-bezier(0.25, 1, 0.5, 1), left 0.8s cubic-bezier(0.25, 1, 0.5, 1);
-            filter: drop-shadow(0 4px 8px rgba(0,0,0,0.5));
+            filter: drop-shadow(0 4px 8px rgba(0,0,0,0.6));
             display: block;
         }
         .virtual-cursor.click { animation: cursorClick 0.3s ease; }
@@ -147,7 +147,7 @@
             display: none;
             flex-direction: column;
             gap: 20px;
-            animation: viewFadeIn 0.5s ease;
+            animation: viewFadeIn 0.4s ease;
         }
         .sim-view.active { display: flex; }
         @keyframes viewFadeIn { from { opacity: 0; transform: scale(0.99); } to { opacity: 1; transform: scale(1); } }
@@ -178,8 +178,8 @@
             width: 400px; height: 100%;
             background: #111827;
             border-left: 2px solid #3b82f6;
-            box-shadow: -10px 0 30px rgba(0,0,0,0.6);
-            transition: right 0.5s cubic-bezier(0.25, 1, 0.5, 1);
+            box-shadow: -10px 0 30px rgba(0,0,0,0.7);
+            transition: right 0.4s cubic-bezier(0.25, 1, 0.5, 1);
             padding: 24px;
             display: flex; flex-direction: column; gap: 16px;
             z-index: 100;
@@ -262,8 +262,12 @@
         </div>
 
         <div class="stage" id="stage">
-            <!-- Animated Mouse Pointer -->
-            <img src="https://cdn-icons-png.flaticon.com/512/3553/3553581.png" class="virtual-cursor" id="cursor" alt="Virtual Cursor">
+            <!-- Virtual Cursor (Inline SVG - Zero network dependency) -->
+            <div class="virtual-cursor" id="cursor">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M5.5 3.21V20.8C5.5 21.45 6.27 21.8 6.76 21.36L11.44 17.15L15.22 23.36C15.54 23.88 16.22 24.04 16.74 23.72L18.42 22.7C18.94 22.38 19.1 21.7 18.78 21.18L15.06 15.02L21.3 14.36C21.95 14.29 22.21 13.46 21.68 13.06L5.5 3.21Z" fill="#FFFFFF" stroke="#000000" stroke-width="2" stroke-linejoin="round"/>
+                </svg>
+            </div>
 
             <!-- VIEW 1: WEB DASHBOARD -->
             <div class="sim-view active" id="view-dashboard">
@@ -452,11 +456,12 @@
             if (view === 'dash') {
                 viewDash.classList.add('active');
                 viewWa.classList.remove('active');
-                cursor.style.display = 'block'; // Mostrar cursor de mouse en administración Web Dashboard
+                cursor.style.display = 'block'; // Mostrar cursor en dashboard web
             } else {
                 viewWa.classList.add('active');
                 viewDash.classList.remove('active');
-                cursor.style.display = 'none'; // Ocultar cursor en vista móvil de WhatsApp (es táctil desde el tlf)
+                cursor.style.display = 'none'; // Ocultar cursor en móvil (es táctil desde el tlf)
+                drawer.classList.remove('open'); // Nunca mostrar drawer superpuesto a WhatsApp
             }
         }
 
@@ -474,14 +479,27 @@
         }
 
         function runStep(sec) {
-            // Update time
+            // Update time & progress bar
             timeCurr.textContent = (sec < 10 ? '0' : '') + sec + 's';
             progFill.style.width = ((sec / totalDuration) * 100) + '%';
 
+            // ── GLOBAL STATE ENFORCEMENT (Prevents overlapping when scrubbing timeline or looping) ──
+            if (sec < 16) {
+                if (!viewDash.classList.contains('active')) switchView('dash');
+                if (sec < 10 || sec >= 15) drawer.classList.remove('open');
+            } else if (sec < 36) {
+                if (!viewWa.classList.contains('active')) {
+                    switchView('wa');
+                    clearChat();
+                }
+                drawer.classList.remove('open'); // Force drawer closed in mobile view
+            } else {
+                if (!viewDash.classList.contains('active')) switchView('dash');
+                drawer.classList.remove('open');
+            }
+
             // ── STEP 1: (0s - 8s) DASHBOARD KPI & FILTERING ──
             if (sec === 0) {
-                switchView('dash');
-                drawer.classList.remove('open');
                 document.getElementById('row-1').classList.remove('highlight');
                 subtitles.innerHTML = "<b>1/5. Web Dashboard Overview:</b> Supervisors monitor real-time KPIs and fleet status synced with Supabase.";
                 stepLabel.textContent = "Step 1/5: Dashboard Overview";
@@ -516,17 +534,13 @@
 
             // ── STEP 3: (16s - 26s) WHATSAPP BOT QUERY ──
             if (sec === 16) {
-                switchView('wa');
-                clearChat();
                 subtitles.innerHTML = "<b>3/5. Instant Field Lookup:</b> Technicians in the field send asset serials or IDs via WhatsApp to instantly verify calibration safety.";
                 stepLabel.textContent = "Step 3/5: WhatsApp Asset Query";
-                setCursor(530, 480);
             }
             if (sec === 18) phoneTyped.innerHTML = "<b>STATUS EQ-01</b>";
             if (sec === 20) {
                 phoneTyped.innerHTML = `<span style="color:#64748b;">Type a message...</span>`;
                 addChat('user', '<b>STATUS EQ-01</b>');
-                setCursor(530, 620, true);
             }
             if (sec === 22) {
                 addChat('bot', `🔍 <b>Asset Status Profile:</b><br/>• <b>ID:</b> EQ-01 (Safety Line)<br/>• <b>Status:</b> 🟢 Available<br/>• <b>Calibration:</b> Valid (Dec 2026)<br/>• <b>Location:</b> NSW Warehouse`);
@@ -554,7 +568,6 @@
 
             // ── STEP 5: (36s - 45s) LIVE SYNC BACK TO DASHBOARD ──
             if (sec === 36) {
-                switchView('dash');
                 subtitles.innerHTML = "<b>5/5. Real-Time Cloud Synchronization:</b> Custody changes in WhatsApp instantly update the warehouse web dashboard!";
                 stepLabel.textContent = "Step 5/5: Real-Time Cloud Sync";
                 setCursor(180, 500);
