@@ -3,140 +3,624 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Entelso - System Visual Walkthrough (Video Demo)</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <title>Entelso — System Interactive Video Walkthrough</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Courier+New:wght@600&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
     <style>
+        :root {
+            --bg-page: #0a0c10;
+            --bg-card: #12161f;
+            --border-color: #1e2330;
+            --brand-blue: #2563eb;
+            --brand-blue-hover: #1d4ed8;
+            --text-primary: #f9fafb;
+            --text-secondary: #9ca3af;
+        }
         * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { background-color: #0d1117; color: #c9d1d9; font-family: 'Inter', sans-serif; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; padding: 20px; }
-        .video-container { width: 100%; max-width: 1000px; background: #161b22; border: 1px solid #30363d; border-radius: 12px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.5); display: flex; flex-direction: column; }
-        .header { padding: 16px 24px; background: #21262d; border-bottom: 1px solid #30363d; display: flex; justify-content: space-between; align-items: center; }
-        .header h1 { font-size: 18px; color: #58a6ff; display: flex; align-items: center; gap: 10px; }
-        .screen-area { position: relative; width: 100%; height: 560px; background: #000; display: flex; align-items: center; justify-content: center; overflow: hidden; }
-        .slide-img { max-width: 100%; max-height: 100%; object-fit: contain; display: none; animation: fade 0.5s ease-in-out; }
-        .slide-img.active { display: block; }
-        @keyframes fade { from { opacity: 0; transform: scale(0.98); } to { opacity: 1; transform: scale(1); } }
+        body {
+            background-color: var(--bg-page);
+            color: var(--text-primary);
+            font-family: 'Inter', -apple-system, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px 40px;
+        }
+
+        /* Top Header */
+        .page-header {
+            width: 100%;
+            max-width: 1150px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 0;
+            margin-bottom: 20px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .header-brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+            color: white;
+            font-weight: 700;
+            font-size: 18px;
+        }
+        .header-actions { display: flex; gap: 12px; }
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 13.5px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.2s;
+            cursor: pointer;
+            border: 1px solid var(--border-color);
+            background: #1e293b;
+            color: #f8fafc;
+        }
+        .btn:hover { background: #334155; border-color: #475569; }
+        .btn-primary { background: var(--brand-blue); border-color: #3b82f6; color: white; }
+        .btn-primary:hover { background: var(--brand-blue-hover); }
+
+        /* Video Simulation Container */
+        .sim-container {
+            width: 100%;
+            max-width: 1150px;
+            background: #0f141f;
+            border: 1px solid #2e3c54;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.7);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .sim-topbar {
+            background: #161e2e;
+            padding: 14px 24px;
+            border-bottom: 1px solid #2e3c54;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .sim-title {
+            font-size: 15px;
+            font-weight: 600;
+            color: #60a5fa;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .live-badge {
+            background: rgba(239, 68, 68, 0.2);
+            color: #f87171;
+            border: 1px solid #ef4444;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            text-transform: uppercase;
+        }
+        .live-dot { width: 8px; height: 8px; background: #ef4444; border-radius: 50%; animation: pulse 1s infinite; }
+        @keyframes pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.4; transform: scale(1.3); } }
+
+        /* The Screen Stage */
+        .stage {
+            position: relative;
+            width: 100%;
+            height: 600px;
+            background: #07090e;
+            overflow: hidden;
+            display: flex;
+        }
+
+        /* Virtual Cursor */
+        .virtual-cursor {
+            position: absolute;
+            top: 150px;
+            left: 200px;
+            width: 28px;
+            height: 28px;
+            z-index: 9999;
+            pointer-events: none;
+            transition: top 0.8s cubic-bezier(0.25, 1, 0.5, 1), left 0.8s cubic-bezier(0.25, 1, 0.5, 1);
+            filter: drop-shadow(0 4px 8px rgba(0,0,0,0.5));
+            display: block;
+        }
+        .virtual-cursor.click { animation: cursorClick 0.3s ease; }
+        @keyframes cursorClick { 0%, 100% { transform: scale(1); } 50% { transform: scale(0.85); } }
+
+        /* View 1: Web Dashboard Simulation */
+        .sim-view {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            padding: 24px;
+            display: none;
+            flex-direction: column;
+            gap: 20px;
+            animation: viewFadeIn 0.5s ease;
+        }
+        .sim-view.active { display: flex; }
+        @keyframes viewFadeIn { from { opacity: 0; transform: scale(0.99); } to { opacity: 1; transform: scale(1); } }
+
+        .dash-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #1e293b; padding-bottom: 16px; }
+        .dash-kpis { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+        .kpi-box { background: #111827; border: 1px solid #1f2937; border-radius: 10px; padding: 16px; }
+        .kpi-val { font-size: 26px; font-weight: 700; color: #60a5fa; margin-top: 4px; transition: all 0.3s; }
         
-        /* Subtitles bar */
-        .subtitles-bar { position: absolute; bottom: 24px; left: 50%; transform: translateX(-50%); width: 85%; background: rgba(0, 0, 0, 0.85); border: 1px solid #58a6ff; padding: 14px 24px; border-radius: 8px; text-align: center; font-size: 16px; color: #fff; font-weight: 500; box-shadow: 0 4px 15px rgba(0,0,0,0.6); transition: all 0.3s ease; }
-        
-        /* Controls */
-        .controls { padding: 16px 24px; background: #21262d; border-top: 1px solid #30363d; display: flex; align-items: center; justify-content: space-between; gap: 20px; }
-        .progress-bar { flex: 1; height: 6px; background: #30363d; border-radius: 3px; overflow: hidden; cursor: pointer; position: relative; }
-        .progress-fill { height: 100%; background: #58a6ff; width: 0%; transition: width 0.1s linear; }
-        .btn-group { display: flex; gap: 12px; }
-        .btn { background: #30363d; border: 1px solid #484f58; color: #c9d1d9; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 14px; font-weight: 600; display: flex; align-items: center; gap: 8px; transition: 0.2s; }
-        .btn:hover { background: #484f58; color: #fff; }
-        .btn.primary { background: #1f6feb; border-color: #388bfd; color: #fff; }
-        .btn.primary:hover { background: #388bfd; }
-        .step-indicator { font-size: 14px; color: #8b949e; font-weight: 600; }
+        .dash-table-container { background: #111827; border: 1px solid #1f2937; border-radius: 10px; flex: 1; overflow: hidden; display: flex; flex-direction: column; }
+        .dash-toolbar { padding: 12px 16px; background: #161f30; border-bottom: 1px solid #1f2937; display: flex; justify-content: space-between; align-items: center; }
+        .filter-pill { background: #1f2937; border: 1px solid #374151; color: #d1d5db; padding: 6px 12px; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+        .filter-pill.active { background: #2563eb; color: white; border-color: #3b82f6; }
+
+        .sim-table { width: 100%; border-collapse: collapse; text-align: left; font-size: 13.5px; }
+        .sim-table th { padding: 12px 16px; background: #161f30; color: #9ca3af; font-weight: 600; font-size: 12px; text-transform: uppercase; border-bottom: 1px solid #1f2937; }
+        .sim-table td { padding: 14px 16px; border-bottom: 1px solid #1f2937; color: #e5e7eb; transition: background 0.3s; }
+        .sim-table tr.highlight td { background: rgba(59, 130, 246, 0.15); }
+        .status-badge { padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; }
+        .status-badge.avail { background: rgba(16, 185, 129, 0.2); color: #34d399; }
+        .status-badge.use { background: rgba(59, 130, 246, 0.2); color: #60a5fa; }
+        .status-badge.maint { background: rgba(245, 158, 11, 0.2); color: #fbbf24; }
+
+        /* Simulated Drawer */
+        .sim-drawer {
+            position: absolute;
+            top: 0; right: -420px;
+            width: 400px; height: 100%;
+            background: #111827;
+            border-left: 2px solid #3b82f6;
+            box-shadow: -10px 0 30px rgba(0,0,0,0.6);
+            transition: right 0.5s cubic-bezier(0.25, 1, 0.5, 1);
+            padding: 24px;
+            display: flex; flex-direction: column; gap: 16px;
+            z-index: 100;
+        }
+        .sim-drawer.open { right: 0; }
+
+        /* View 2: WhatsApp Phone Simulation */
+        .phone-stage { display: flex; justify-content: center; align-items: center; width: 100%; height: 100%; background: radial-gradient(circle at center, #1e293b 0%, #0a0c10 100%); }
+        .phone-frame { width: 360px; height: 550px; background: #0b141a; border: 4px solid #334155; border-radius: 30px; display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 20px 40px rgba(0,0,0,0.8); }
+        .phone-header { background: #202c33; padding: 14px 18px; display: flex; align-items: center; gap: 12px; border-bottom: 1px solid #2a3942; }
+        .phone-avatar { width: 36px; height: 36px; background: #10b981; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 18px; color: white; }
+        .phone-body { flex: 1; padding: 16px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; background: #0b141a; }
+        .chat-bubble { max-width: 85%; padding: 10px 14px; border-radius: 12px; font-size: 13.5px; line-height: 1.4; position: relative; animation: bubbleIn 0.3s ease; }
+        @keyframes bubbleIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .chat-bubble.bot { background: #202c33; color: #e9edef; align-self: flex-start; border-top-left-radius: 2px; }
+        .chat-bubble.user { background: #005c4b; color: #e9edef; align-self: flex-end; border-top-right-radius: 2px; }
+        .chat-bubble .time { font-size: 10px; color: #8696a0; text-align: right; margin-top: 4px; }
+        .phone-input { background: #202c33; padding: 12px 16px; display: flex; align-items: center; gap: 10px; }
+        .phone-input-box { flex: 1; background: #2a3942; padding: 10px 14px; border-radius: 20px; font-size: 13.5px; color: white; min-height: 38px; display: flex; align-items: center; }
+
+        /* Subtitle Banner */
+        .subtitle-bar {
+            position: absolute;
+            bottom: 20px; left: 50%; transform: translateX(-50%);
+            width: 88%;
+            background: rgba(15, 23, 42, 0.95);
+            border: 1px solid #3b82f6;
+            padding: 14px 24px;
+            border-radius: 10px;
+            text-align: center;
+            font-size: 15px;
+            color: #f8fafc;
+            font-weight: 600;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.6);
+            z-index: 500;
+            transition: all 0.3s ease;
+        }
+
+        /* Controls Bottom Bar */
+        .sim-controls {
+            background: #161e2e;
+            padding: 16px 24px;
+            border-top: 1px solid #2e3c54;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+        }
+        .progress-bar-container { flex: 1; display: flex; align-items: center; gap: 12px; }
+        .progress-track { flex: 1; height: 8px; background: #1e293b; border-radius: 4px; overflow: hidden; cursor: pointer; position: relative; }
+        .progress-fill { height: 100%; background: var(--brand-blue); width: 0%; transition: width 0.1s linear; }
+        .time-label { font-size: 13px; font-family: 'Courier New', monospace; color: #9ca3af; width: 45px; }
+        .ctrl-btns { display: flex; gap: 10px; }
+        .ctrl-btn { background: #1e293b; border: 1px solid #334155; color: #f8fafc; padding: 8px 16px; border-radius: 6px; font-size: 13.5px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: 0.2s; }
+        .ctrl-btn:hover { background: #334155; }
+        .ctrl-btn.primary { background: var(--brand-blue); border-color: #3b82f6; }
+        .ctrl-btn.primary:hover { background: var(--brand-blue-hover); }
     </style>
 </head>
 <body>
 
-<div class="video-container">
-    <div class="header">
-        <h1><i class="fa-solid fa-video"></i> Entelso Visual Walkthrough (Silent Video Demo)</h1>
-        <a href="manual.html" class="btn" style="text-decoration:none;"><i class="fa-solid fa-book"></i> Read Guide</a>
-    </div>
-    
-    <div class="screen-area">
-        <img src="images/whatsapp_query.png" class="slide-img active" id="slide-0">
-        <img src="images/whatsapp_maint.png" class="slide-img" id="slide-1">
-        <img src="images/main_table.png" class="slide-img" id="slide-2">
-        <img src="images/drawer.png" class="slide-img" id="slide-3">
-        <img src="images/bulk_actions.png" class="slide-img" id="slide-4">
-        
-        <div class="subtitles-bar" id="subtitles">
-            1/5. Field technicians can instantly query equipment location, status, and assigned personnel via the Entelso WhatsApp Bot.
+    <header class="page-header">
+        <a href="./" class="header-brand">
+            <i class="fa-solid fa-satellite-dish" style="color:#60a5fa; font-size:24px;"></i>
+            <span>Entelso — Interactive System Walkthrough</span>
+        </a>
+        <div class="header-actions">
+            <a href="./manual" class="btn btn-primary"><i class="fa-solid fa-book"></i> Read Operations Manual</a>
+            <a href="./" class="btn"><i class="fa-solid fa-arrow-left"></i> Live Dashboard</a>
         </div>
-    </div>
-    
-    <div class="controls">
-        <div class="btn-group">
-            <button class="btn primary" id="playBtn" onclick="togglePlay()"><i class="fa-solid fa-pause"></i> Pause</button>
-            <button class="btn" onclick="prevSlide()"><i class="fa-solid fa-backward-step"></i> Prev</button>
-            <button class="btn" onclick="nextSlide()">Next <i class="fa-solid fa-forward-step"></i></button>
-        </div>
-        <div class="progress-bar" onclick="seek(event)">
-            <div class="progress-fill" id="progress"></div>
-        </div>
-        <div class="step-indicator" id="stepCounter">Step 1 of 5</div>
-    </div>
-</div>
+    </header>
 
-<script>
-    const slides = [
-        { id: 0, time: 5000, sub: "1/5. Field technicians can instantly query equipment location, status, and assigned personnel via the Entelso WhatsApp Bot." },
-        { id: 1, time: 5000, sub: "2/5. Reporting damaged tools in field operations immediately shifts asset status to 'Under Maintenance', alerting warehouse managers." },
-        { id: 2, time: 5000, sub: "3/5. Administrators monitor global inventory KPIs, apply real-time filters, and search serial numbers from the Web Dashboard." },
-        { id: 3, time: 5000, sub: "4/5. Clicking any record reveals the Asset Details Drawer, displaying photographic evidence and immutable audit trails." },
-        { id: 4, time: 5000, sub: "5/5. High-volume fleet reorganizations are executed seamlessly using the checkboxes and floating Bulk Actions bar." }
-    ];
-    
-    let current = 0;
-    let isPlaying = true;
-    let timer = null;
-    let progressTimer = null;
-    let elapsed = 0;
-    const interval = 100;
-    
-    function showSlide(index) {
-        document.querySelectorAll('.slide-img').forEach(el => el.classList.remove('active'));
-        document.getElementById(`slide-${index}`).classList.add('active');
-        document.getElementById('subtitles').innerHTML = slides[index].sub;
-        document.getElementById('stepCounter').innerText = `Step ${index + 1} of ${slides.length}`;
-        current = index;
-        elapsed = 0;
-        updateProgress();
-    }
-    
-    function nextSlide() {
-        let next = (current + 1) % slides.length;
-        showSlide(next);
-    }
-    
-    function prevSlide() {
-        let prev = (current - 1 + slides.length) % slides.length;
-        showSlide(prev);
-    }
-    
-    function updateProgress() {
-        let pct = (elapsed / slides[current].time) * 100;
-        document.getElementById('progress').style.width = pct + '%';
-    }
-    
-    function tick() {
-        if (!isPlaying) return;
-        elapsed += interval;
-        updateProgress();
-        if (elapsed >= slides[current].time) {
-            nextSlide();
+    <div class="sim-container">
+        <div class="sim-topbar">
+            <div class="sim-title">
+                <i class="fa-solid fa-clapperboard"></i>
+                <span>Automated Software Simulation (Web Dashboard &amp; WhatsApp Assistant)</span>
+            </div>
+            <div class="live-badge"><div class="live-dot"></div> LIVE SIMULATION ACTIVE</div>
+        </div>
+
+        <div class="stage" id="stage">
+            <!-- Animated Mouse Pointer -->
+            <img src="https://cdn-icons-png.flaticon.com/512/3553/3553581.png" class="virtual-cursor" id="cursor" alt="Virtual Cursor">
+
+            <!-- VIEW 1: WEB DASHBOARD -->
+            <div class="sim-view active" id="view-dashboard">
+                <div class="dash-header">
+                    <div>
+                        <h2 style="font-size:18px; color:white;">Global Inventory Control &amp; Telemetry</h2>
+                        <span style="font-size:13px; color:#9ca3af;">Real-time sync with Supabase PostgreSQL cloud database</span>
+                    </div>
+                    <div style="display:flex; gap:10px;">
+                        <span class="filter-pill" style="background:#1e3a8a; border-color:#3b82f6; color:white;"><i class="fa-solid fa-file-excel"></i> Bulk Excel Ingest</span>
+                        <span class="filter-pill" style="background:#059669; border-color:#10b981; color:white;"><i class="fa-solid fa-plus"></i> New Record</span>
+                    </div>
+                </div>
+
+                <div class="dash-kpis">
+                    <div class="kpi-box">
+                        <div style="font-size:12px; color:#9ca3af;">TOTAL ASSET FLEET</div>
+                        <div class="kpi-val" id="kpi-total">22</div>
+                    </div>
+                    <div class="kpi-box">
+                        <div style="font-size:12px; color:#9ca3af;">AVAILABLE STOCK</div>
+                        <div class="kpi-val" id="kpi-avail" style="color:#34d399;">18</div>
+                    </div>
+                    <div class="kpi-box">
+                        <div style="font-size:12px; color:#9ca3af;">DEPLOYED IN FIELD</div>
+                        <div class="kpi-val" id="kpi-use" style="color:#60a5fa;">3</div>
+                    </div>
+                    <div class="kpi-box">
+                        <div style="font-size:12px; color:#9ca3af;">UNDER MAINTENANCE</div>
+                        <div class="kpi-val" id="kpi-maint" style="color:#fbbf24;">1</div>
+                    </div>
+                </div>
+
+                <div class="dash-table-container">
+                    <div class="dash-toolbar">
+                        <div style="display:flex; gap:8px;">
+                            <span class="filter-pill active" id="pill-all">All Assets (22)</span>
+                            <span class="filter-pill" id="pill-use">In Use (3)</span>
+                            <span class="filter-pill" id="pill-maint">Alerts (1)</span>
+                        </div>
+                        <span style="font-size:12px; color:#60a5fa;"><i class="fa-solid fa-rotate"></i> Auto-refreshing 1s</span>
+                    </div>
+                    <table class="sim-table">
+                        <thead>
+                            <tr>
+                                <th>Asset ID</th>
+                                <th>Equipment Description</th>
+                                <th>Serial Number</th>
+                                <th>Zone / Location</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr id="row-1">
+                                <td><b>EQ-01</b></td>
+                                <td>Safety Line (Fall Protection)</td>
+                                <td>BSPS050270920</td>
+                                <td>NSW - Main Warehouse</td>
+                                <td><span class="status-badge avail" id="badge-1">Available</span></td>
+                            </tr>
+                            <tr id="row-2">
+                                <td><b>EQ-02</b></td>
+                                <td>Full Body Harness C/w Front/Rear</td>
+                                <td>BHPS0329420920</td>
+                                <td>VIC - Field Operations</td>
+                                <td><span class="status-badge use">In Use</span></td>
+                            </tr>
+                            <tr id="row-3">
+                                <td><b>EQ-09</b></td>
+                                <td>Safety Line (Fall Protection)</td>
+                                <td>BSPS0150090920</td>
+                                <td>QLD - Regional Depot</td>
+                                <td><span class="status-badge avail" id="badge-3">Available</span></td>
+                            </tr>
+                            <tr id="row-4">
+                                <td><b>EQ-15</b></td>
+                                <td>PIM Analyzer (RF Diagnostics)</td>
+                                <td>TX2152400189</td>
+                                <td>WA - Perth Station</td>
+                                <td><span class="status-badge maint">Under Maintenance</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Simulated Drawer -->
+                <div class="sim-drawer" id="drawer">
+                    <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #1f2937; padding-bottom:12px;">
+                        <strong style="font-size:16px; color:white;">AUDIT DRAWER: EQ-01</strong>
+                        <span style="cursor:pointer; color:#9ca3af;">✕</span>
+                    </div>
+                    <div style="background:#1f2937; height:180px; border-radius:8px; display:flex; align-items:center; justify-content:center; overflow:hidden; border:1px solid #374151;">
+                        <div style="text-align:center;">
+                            <i class="fa-solid fa-shield-halved" style="font-size:48px; color:#34d399; margin-bottom:8px;"></i>
+                            <div style="font-size:13px; color:white; font-weight:600;">Safety Line (BSPS050270920)</div>
+                            <div style="font-size:11px; color:#34d399;">✓ Extracted from Equipment Register.xlsx</div>
+                        </div>
+                    </div>
+                    <div style="font-size:13px; color:#d1d5db; display:flex; flex-direction:column; gap:8px;">
+                        <div><b>Brand / Model:</b> Industrial Fall Protection</div>
+                        <div><b>Calibration Status:</b> <span style="color:#34d399;">Compliant (Valid to Dec 2026)</span></div>
+                        <div><b>NFC Chip ID:</b> TAG-99201A</div>
+                        <div><b>Custodian:</b> Unassigned (Warehouse Storage)</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- VIEW 2: WHATSAPP PHONE SIMULATION -->
+            <div class="sim-view phone-stage" id="view-whatsapp">
+                <div class="phone-frame">
+                    <div class="phone-header">
+                        <div class="phone-avatar"><i class="fa-solid fa-robot"></i></div>
+                        <div>
+                            <div style="font-size:14px; font-weight:700; color:white;">Entelso Asset Assistant</div>
+                            <div style="font-size:11px; color:#34d399;">● Online &amp; Database Connected</div>
+                        </div>
+                    </div>
+                    <div class="phone-body" id="chat-box">
+                        <div class="chat-bubble bot">
+                            Welcome to Entelso Field Bot! Send an asset code (e.g. <b>EQ-01</b>) or command (<b>CHECKOUT EQ-09</b>) to interact with inventory.
+                            <div class="time">10:14 AM</div>
+                        </div>
+                    </div>
+                    <div class="phone-input">
+                        <div class="phone-input-box" id="phone-typed"><span style="color:#64748b;">Type a message...</span></div>
+                        <div style="width:36px; height:36px; background:#00a884; border-radius:50%; display:flex; align-items:center; justify-content:center; color:white;"><i class="fa-solid fa-paper-plane"></i></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Dynamic Subtitle Bar -->
+            <div class="subtitle-bar" id="subtitles">
+                Initializing simulation... Watch the automated mouse pointer demonstrate core system workflows.
+            </div>
+        </div>
+
+        <!-- Video Controls Bar -->
+        <div class="sim-controls">
+            <div class="ctrl-btns">
+                <button class="ctrl-btn primary" id="playBtn" onclick="togglePlay()"><i class="fa-solid fa-pause"></i> Pause Demo</button>
+                <button class="ctrl-btn" onclick="restartDemo()"><i class="fa-solid fa-rotate-right"></i> Restart</button>
+            </div>
+            <div class="progress-bar-container">
+                <span class="time-label" id="time-curr">00s</span>
+                <div class="progress-track" onclick="jumpProgress(event)">
+                    <div class="progress-fill" id="prog-fill"></div>
+                </div>
+                <span class="time-label">45s</span>
+            </div>
+            <div style="font-size:13px; color:#60a5fa; font-weight:600;" id="step-label">Step 1/5: Dashboard Analytics</div>
+        </div>
+    </div>
+
+    <script>
+        // Clean address bar immediately
+        if (window.location.pathname.endsWith('.html')) {
+            window.history.replaceState(null, '', window.location.pathname.replace(/\.html$/, '') + window.location.search + window.location.hash);
         }
-    }
-    
-    function togglePlay() {
-        isPlaying = !isPlaying;
-        const btn = document.getElementById('playBtn');
-        if (isPlaying) {
-            btn.innerHTML = '<i class="fa-solid fa-pause"></i> Pause';
-            btn.classList.add('primary');
-        } else {
-            btn.innerHTML = '<i class="fa-solid fa-play"></i> Play';
-            btn.classList.remove('primary');
+
+        let isPlaying = true;
+        let elapsed = 0;
+        const totalDuration = 45; // 45 seconds total demo loop
+        let timer = null;
+
+        const cursor = document.getElementById('cursor');
+        const viewDash = document.getElementById('view-dashboard');
+        const viewWa = document.getElementById('view-whatsapp');
+        const subtitles = document.getElementById('subtitles');
+        const progFill = document.getElementById('prog-fill');
+        const timeCurr = document.getElementById('time-curr');
+        const stepLabel = document.getElementById('step-label');
+        const drawer = document.getElementById('drawer');
+        const chatBox = document.getElementById('chat-box');
+        const phoneTyped = document.getElementById('phone-typed');
+
+        function setCursor(top, left, click=false) {
+            cursor.style.top = top + 'px';
+            cursor.style.left = left + 'px';
+            if (click) {
+                cursor.classList.add('click');
+                setTimeout(() => cursor.classList.remove('click'), 300);
+            }
         }
-    }
-    
-    function seek(e) {
-        const rect = e.currentTarget.getBoundingClientRect();
-        const clickX = e.clientX - rect.left;
-        const width = rect.width;
-        let targetIdx = Math.floor((clickX / width) * slides.length);
-        if (targetIdx >= slides.length) targetIdx = slides.length - 1;
-        showSlide(targetIdx);
-    }
-    
-    setInterval(tick, interval);
-</script>
+
+        function switchView(view) {
+            if (view === 'dash') {
+                viewDash.classList.add('active');
+                viewWa.classList.remove('active');
+            } else {
+                viewWa.classList.add('active');
+                viewDash.classList.remove('active');
+            }
+        }
+
+        function addChat(sender, text) {
+            const div = document.createElement('div');
+            div.className = `chat-bubble ${sender}`;
+            div.innerHTML = `${text}<div class="time">Just now</div>`;
+            chatBox.appendChild(div);
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+
+        function clearChat() {
+            chatBox.innerHTML = `<div class="chat-bubble bot">Welcome to Entelso Field Bot! Send an asset code (e.g. <b>EQ-01</b>) or command (<b>CHECKOUT EQ-09</b>) to interact with inventory.<div class="time">10:14 AM</div></div>`;
+            phoneTyped.innerHTML = `<span style="color:#64748b;">Type a message...</span>`;
+        }
+
+        function runStep(sec) {
+            // Update time
+            timeCurr.textContent = (sec < 10 ? '0' : '') + sec + 's';
+            progFill.style.width = ((sec / totalDuration) * 100) + '%';
+
+            // ── STEP 1: (0s - 8s) DASHBOARD KPI & FILTERING ──
+            if (sec === 0) {
+                switchView('dash');
+                drawer.classList.remove('open');
+                document.getElementById('row-1').classList.remove('highlight');
+                subtitles.innerHTML = "<b>1/5. Web Dashboard Overview:</b> Supervisors monitor real-time KPIs and fleet status synced with Supabase.";
+                stepLabel.textContent = "Step 1/5: Dashboard Overview";
+                setCursor(180, 250);
+            }
+            if (sec === 3) {
+                setCursor(350, 210, true);
+                document.getElementById('pill-use').classList.add('active');
+                document.getElementById('pill-all').classList.remove('active');
+            }
+            if (sec === 6) {
+                document.getElementById('pill-all').classList.add('active');
+                document.getElementById('pill-use').classList.remove('active');
+                setCursor(220, 600);
+            }
+
+            // ── STEP 2: (8s - 16s) EXCEL PHOTO & AUDIT DRAWER ──
+            if (sec === 8) {
+                subtitles.innerHTML = "<b>2/5. Audit Drawer &amp; Excel Photos:</b> Clicking any inventory row opens specifications and embedded photos extracted from Excel.";
+                stepLabel.textContent = "Step 2/5: Audit Drawer & Photos";
+                setCursor(300, 200, true);
+                document.getElementById('row-1').classList.add('highlight');
+            }
+            if (sec === 10) {
+                drawer.classList.add('open');
+                setCursor(200, 850);
+            }
+            if (sec === 15) {
+                drawer.classList.remove('open');
+                document.getElementById('row-1').classList.remove('highlight');
+            }
+
+            // ── STEP 3: (16s - 26s) WHATSAPP BOT QUERY ──
+            if (sec === 16) {
+                switchView('wa');
+                clearChat();
+                subtitles.innerHTML = "<b>3/5. Instant Field Lookup:</b> Technicians in the field send asset serials or IDs via WhatsApp to instantly verify calibration safety.";
+                stepLabel.textContent = "Step 3/5: WhatsApp Asset Query";
+                setCursor(530, 480);
+            }
+            if (sec === 18) phoneTyped.innerHTML = "<b>STATUS EQ-01</b>";
+            if (sec === 20) {
+                phoneTyped.innerHTML = `<span style="color:#64748b;">Type a message...</span>`;
+                addChat('user', '<b>STATUS EQ-01</b>');
+                setCursor(530, 620, true);
+            }
+            if (sec === 22) {
+                addChat('bot', `🔍 <b>Asset Status Profile:</b><br/>• <b>ID:</b> EQ-01 (Safety Line)<br/>• <b>Status:</b> 🟢 Available<br/>• <b>Calibration:</b> Valid (Dec 2026)<br/>• <b>Location:</b> NSW Warehouse`);
+            }
+
+            // ── STEP 4: (26s - 36s) WHATSAPP CUSTODY CHECKOUT ──
+            if (sec === 26) {
+                subtitles.innerHTML = "<b>4/5. Custody Checkout &amp; PIN Verification:</b> Sending <code>CHECKOUT EQ-09</code> transfers custody to the technician in real-time.";
+                stepLabel.textContent = "Step 4/5: WhatsApp Custody Transfer";
+            }
+            if (sec === 28) phoneTyped.innerHTML = "<b>CHECKOUT EQ-09</b>";
+            if (sec === 30) {
+                phoneTyped.innerHTML = `<span style="color:#64748b;">Type a message...</span>`;
+                addChat('user', '<b>CHECKOUT EQ-09</b>');
+            }
+            if (sec === 32) {
+                addChat('bot', `⚠️ Please enter your 4-digit Security PIN to confirm custody transfer of <b>EQ-09</b>.`);
+            }
+            if (sec === 33) {
+                addChat('user', '<b>1234</b>');
+            }
+            if (sec === 35) {
+                addChat('bot', `✅ <b>Transfer Authorized!</b><br/>Asset <b>EQ-09</b> is now assigned to your field custody. Database audit log updated.`);
+            }
+
+            // ── STEP 5: (36s - 45s) LIVE SYNC BACK TO DASHBOARD ──
+            if (sec === 36) {
+                switchView('dash');
+                subtitles.innerHTML = "<b>5/5. Real-Time Cloud Synchronization:</b> Custody changes in WhatsApp instantly update the warehouse web dashboard!";
+                stepLabel.textContent = "Step 5/5: Real-Time Cloud Sync";
+                setCursor(180, 500);
+            }
+            if (sec === 38) {
+                // Animate KPI update!
+                document.getElementById('kpi-avail').textContent = '17';
+                document.getElementById('kpi-use').textContent = '4';
+                document.getElementById('badge-3').className = 'status-badge use';
+                document.getElementById('badge-3').textContent = 'In Use (Field)';
+                document.getElementById('row-3').classList.add('highlight');
+            }
+            if (sec === 44) {
+                document.getElementById('row-3').classList.remove('highlight');
+                // Reset for loop
+                document.getElementById('kpi-avail').textContent = '18';
+                document.getElementById('kpi-use').textContent = '3';
+                document.getElementById('badge-3').className = 'status-badge avail';
+                document.getElementById('badge-3').textContent = 'Available';
+            }
+        }
+
+        function togglePlay() {
+            const btn = document.getElementById('playBtn');
+            if (isPlaying) {
+                isPlaying = false;
+                clearInterval(timer);
+                btn.innerHTML = `<i class="fa-solid fa-play"></i> Play Demo`;
+                btn.style.background = '#059669';
+            } else {
+                isPlaying = true;
+                startTimer();
+                btn.innerHTML = `<i class="fa-solid fa-pause"></i> Pause Demo`;
+                btn.style.background = '#2563eb';
+            }
+        }
+
+        function restartDemo() {
+            elapsed = 0;
+            runStep(0);
+            if (!isPlaying) togglePlay();
+        }
+
+        function startTimer() {
+            clearInterval(timer);
+            timer = setInterval(() => {
+                if (!isPlaying) return;
+                elapsed++;
+                if (elapsed >= totalDuration) {
+                    elapsed = 0;
+                }
+                runStep(elapsed);
+            }, 1000);
+        }
+
+        function jumpProgress(e) {
+            const rect = e.currentTarget.getBoundingClientRect();
+            const clickX = e.clientX - rect.left;
+            const width = rect.width;
+            const percentage = clickX / width;
+            elapsed = Math.floor(percentage * totalDuration);
+            runStep(elapsed);
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            runStep(0);
+            startTimer();
+        });
+    </script>
 </body>
 </html>
