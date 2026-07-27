@@ -242,13 +242,13 @@
 <body>
 
     <header class="page-header">
-        <a href="./" class="header-brand">
+        <a href="index.html" class="header-brand">
             <i class="fa-solid fa-satellite-dish" style="color:#60a5fa; font-size:24px;"></i>
             <span>Entelso — Interactive System Walkthrough</span>
         </a>
         <div class="header-actions">
-            <a href="./manual" class="btn btn-primary"><i class="fa-solid fa-book"></i> Read Operations Manual</a>
-            <a href="./" class="btn"><i class="fa-solid fa-arrow-left"></i> Live Dashboard</a>
+            <a href="manual.html" class="btn btn-primary"><i class="fa-solid fa-book"></i> Read Operations Manual</a>
+            <a href="index.html" class="btn"><i class="fa-solid fa-arrow-left"></i> Live Dashboard</a>
         </div>
     </header>
 
@@ -452,9 +452,11 @@
             if (view === 'dash') {
                 viewDash.classList.add('active');
                 viewWa.classList.remove('active');
+                cursor.style.display = 'block'; // Mostrar cursor de mouse en administración Web Dashboard
             } else {
                 viewWa.classList.add('active');
                 viewDash.classList.remove('active');
+                cursor.style.display = 'none'; // Ocultar cursor en vista móvil de WhatsApp (es táctil desde el tlf)
             }
         }
 
