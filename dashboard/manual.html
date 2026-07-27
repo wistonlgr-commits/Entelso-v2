@@ -412,18 +412,93 @@
             color: #1e3a8a;
         }
 
-        /* Print styles */
+        /* Print styles - Robust pagination preventing blank pages */
         @media print {
-            body { background: white !important; color: #0f172a !important; }
-            .top-navbar, .nav-actions, .persona-switcher, .btn { display: none !important; }
-            .step-card { background: white !important; border: 1px solid #cbd5e1 !important; page-break-inside: avoid; }
-            .step-title { color: #0f172a !important; border-bottom: 2px solid #0f172a !important; }
-            .step-desc, .feature-item p, .cheatsheet-table td { color: #334155 !important; }
-            .feature-item, .cheatsheet-table { background: #f8fafc !important; border: 1px solid #cbd5e1 !important; }
-            .cheatsheet-table th { background: #e2e8f0 !important; color: #0f172a !important; }
-            .img-container { background: white !important; border: 1px solid #cbd5e1 !important; }
-            .img-caption { background: #f1f5f9 !important; color: #475569 !important; }
-            .role-content { display: block !important; }
+            * {
+                overflow: visible !important;
+            }
+            body, html {
+                background: white !important;
+                color: #0f172a !important;
+                height: auto !important;
+                overflow: visible !important;
+                padding: 0 !important;
+                margin: 0 !important;
+            }
+            .top-navbar, .nav-actions, .persona-switcher, .btn, .interactive-video-banner, .video-demos-box {
+                display: none !important;
+            }
+            .main-container {
+                max-width: 100% !important;
+                margin: 0 !important;
+                padding: 0 10px !important;
+            }
+            .step-card {
+                background: white !important;
+                border: 1px solid #cbd5e1 !important;
+                margin-bottom: 24px !important;
+                padding: 20px !important;
+                page-break-inside: auto !important;
+                break-inside: auto !important;
+                box-shadow: none !important;
+            }
+            .step-title {
+                color: #0f172a !important;
+                border-bottom: 2px solid #0f172a !important;
+                page-break-after: avoid !important;
+                break-after: avoid !important;
+            }
+            .step-desc {
+                color: #334155 !important;
+                page-break-after: auto !important;
+            }
+            .feature-grid {
+                page-break-inside: auto !important;
+                break-inside: auto !important;
+            }
+            .feature-item, .cheatsheet-table {
+                background: #f8fafc !important;
+                border: 1px solid #cbd5e1 !important;
+                page-break-inside: avoid !important;
+                break-inside: avoid !important;
+            }
+            .cheatsheet-table th {
+                background: #e2e8f0 !important;
+                color: #0f172a !important;
+            }
+            .cheatsheet-table tr {
+                page-break-inside: avoid !important;
+                break-inside: avoid !important;
+            }
+            .img-container {
+                background: white !important;
+                border: 1px solid #cbd5e1 !important;
+                page-break-inside: avoid !important;
+                break-inside: avoid !important;
+                margin: 16px 0 !important;
+                overflow: visible !important;
+            }
+            .img-container img {
+                max-width: 100% !important;
+                max-height: 420px !important;
+                width: auto !important;
+                object-fit: contain !important;
+                display: block !important;
+                margin: 0 auto !important;
+            }
+            .img-caption {
+                background: #f1f5f9 !important;
+                color: #475569 !important;
+            }
+            .role-content {
+                display: block !important;
+                height: auto !important;
+                overflow: visible !important;
+            }
+            #content-whatsapp {
+                page-break-before: always !important;
+                break-before: page !important;
+            }
         }
     </style>
 </head>
@@ -460,7 +535,7 @@
         </div>
 
         <!-- Video Demos Selector Box -->
-        <div style="background:#ffffff; border:1px solid #cbd5e1; border-radius:12px; padding:24px; margin-bottom:36px; box-shadow:0 2px 4px rgba(0,0,0,0.02);">
+        <div class="video-demos-box" style="background:#ffffff; border:1px solid #cbd5e1; border-radius:12px; padding:24px; margin-bottom:36px; box-shadow:0 2px 4px rgba(0,0,0,0.02);">
             <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:16px;">
                 <div>
                     <h3 style="font-size:18px; font-weight:700; color:#0f172a; margin-bottom:6px; display:flex; align-items:center; gap:10px;">
