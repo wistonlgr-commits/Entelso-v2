@@ -1017,7 +1017,7 @@ function aplicarTema(theme) {
 ───────────────────────────────────────── */
 function actualizarBotonIdioma() {
   const lang    = window.i18n.getLang();
-  const otroLang = lang === 'es' ? 'EN' : 'ES';
+  const otroLang = lang === 'es' ? 'ES' : 'EN';
   const langLabel = document.getElementById('langLabel');
   if (langLabel) langLabel.textContent = otroLang;
   const loginLangLabel = document.getElementById('loginLangLabel');

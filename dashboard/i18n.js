@@ -347,7 +347,7 @@ const TRANSLATIONS = {
     'alertas.equipo_zona':  'Equipment / Zone',
     'alertas.reportado':    'Reported',
     'alertas.accion': 'Action',
-    'alertas.vencida': 'Calibration Expired',
+    'alertas.vencida': '{label} Expired',
     'alertas.fuera_zona': 'Out of Zone',
         'alertas.resolver': 'Open / Update',
     'alertas.calibracion': 'Calibration',
@@ -496,6 +496,25 @@ const TRANSLATIONS = {
     'teams.sin_team':       'No Team',
     'teams.toast_creado':   'Team created successfully.',
     'teams.no_teams':       'No teams found.',
+
+    // ── Additional & Missing Keys ──
+    'alertas.en_dias':         '{label} due in {days} days',
+    'api.success':             'Success: ',
+    'btn.creando':             'Creating...',
+    'bulk.btn_eliminar':       'Delete',
+    'bulk.ok_delete':          'Assets deleted successfully.',
+    'drawer.no_encontrado':    'Asset not found in inventory.',
+    'import.items':            'items.',
+    'import.success':          'Successfully imported',
+    'modal.subir_foto_error':  'Error uploading photo',
+    'perfil.err_guardar':      'Error saving profile',
+    'simulacion.exito':        'Simulation Successful!\n\nA new report has been detected:\nID: {id}\nEquipment: {equipo}\nStatus: {estado}\n\nPanels, KPIs, and tables have been automatically updated.',
+    'teams.confirm_delete':    'Delete this team?',
+    'usuarios.confirm_delete': 'Delete user {0}?',
+    'usuarios.eliminado':      'User deleted successfully.',
+    'usuarios.err_cargar':     'Error loading user.',
+    'usuarios.err_eliminar':   'Error deleting user.',
+    'usuarios.err_registrar':  'Error creating user.',
 
     // ── Tema ──
     'tema.cambiar':         'Toggle theme',
@@ -838,9 +857,9 @@ const TRANSLATIONS = {
     'alertas.titulo':       'Centro de Mando de Alertas',
     'alertas.gravedad':     'Gravedad',
     'alertas.equipo_zona':  'Equipo / Zona',
-    'alertas.reportado':    'Reported',
+    'alertas.reportado':    'Reportado',
     'alertas.accion': 'Acción',
-    'alertas.vencida': 'Calibración Vencida',
+    'alertas.vencida': '{label} Vencida',
     'alertas.fuera_zona': 'Fuera de Zona',
         'alertas.resolver': 'Abrir / Actualizar',
     'alertas.calibracion': 'Calibración',
@@ -988,6 +1007,31 @@ const TRANSLATIONS = {
     'teams.sin_teams':      'No hay teams aún. Agrega uno arriba.',
     'teams.sin_team':       'Sin Team',
 
+    // ── Additional & Missing Keys ──
+    'alertas.en_dias':         '{label} en {days} días',
+    'api.success':             'Éxito: ',
+    'btn.creando':             'Creando...',
+    'bulk.btn_eliminar':       'Eliminar',
+    'bulk.ok_delete':          'Equipos eliminados.',
+    'drawer.meta_ulti_cal':    'Última Calibración',
+    'drawer.meta_ulti_tag':    'DOM / Último Tag',
+    'drawer.no_encontrado':    'No se encontró el equipo en el inventario.',
+    'import.col_dom':          'DOM (Fecha de Fab.)',
+    'import.col_expiry':       'Vencimiento / Exp. Tag',
+    'import.col_last_cal':     'Última Calibración / Inspección',
+    'import.col_next_cal':     'Próx. Vencimiento / Calibración',
+    'import.items':            'ítems.',
+    'import.success':          'Importados',
+    'modal.subir_foto_error':  'Error subiendo foto',
+    'perfil.err_guardar':      'Error al guardar perfil',
+    'simulacion.exito':        '¡Simulación Exitosa!\n\nSe ha detectado un nuevo reporte:\nID: {id}\nEquipo: {equipo}\nEstado: {estado}\n\nLos paneles, KPIs y tablas se han actualizado automáticamente.',
+    'teams.confirm_delete':    '¿Eliminar este team?',
+    'usuarios.confirm_delete': '¿Eliminar usuario {0}?',
+    'usuarios.eliminado':      'Usuario eliminado',
+    'usuarios.err_cargar':     'Error cargando usuario.',
+    'usuarios.err_eliminar':   'Error al eliminar',
+    'usuarios.err_registrar':  'Error al crear usuario',
+
     // ── Tema ──
     'tema.cambiar':         'Cambiar tema',
     'tema.idioma':          'Cambiar idioma',
@@ -995,7 +1039,12 @@ const TRANSLATIONS = {
 };
 
 /* ── i18n Engine ─────────────────────────────────────── */
-let _currentLang = localStorage.getItem('entelso_lang') || 'es';
+let _currentLang = localStorage.getItem('entelso_lang') || 'en';
+if (!localStorage.getItem('entelso_lang_set_v7')) {
+  _currentLang = 'en';
+  localStorage.setItem('entelso_lang', 'en');
+  localStorage.setItem('entelso_lang_set_v7', '1');
+}
 
 /** Translate a key. If not found, returns the key itself */
 function t(key) {
