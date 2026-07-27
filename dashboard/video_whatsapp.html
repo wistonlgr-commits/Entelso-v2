@@ -8,12 +8,12 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
     <style>
         :root {
-            --bg-page: #0a0c10;
-            --border-color: #1e2330;
-            --brand-green: #22c55e;
-            --brand-green-hover: #16a34a;
-            --text-primary: #f9fafb;
-            --text-secondary: #9ca3af;
+            --bg-page: #f8fafc;
+            --border-color: #cbd5e1;
+            --brand-green: #16a34a;
+            --brand-green-hover: #15803d;
+            --text-primary: #0f172a;
+            --text-secondary: #475569;
         }
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body {
@@ -29,21 +29,24 @@
         .page-header {
             width: 100%;
             max-width: 1150px;
+            background-color: #ffffff;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 16px 0;
-            margin-bottom: 20px;
-            border-bottom: 1px solid var(--border-color);
+            padding: 14px 24px;
+            margin-bottom: 24px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.03);
         }
         .header-brand {
             display: flex;
             align-items: center;
             gap: 12px;
             text-decoration: none;
-            color: white;
+            color: #0f172a;
             font-weight: 700;
-            font-size: 18px;
+            font-size: 16px;
         }
         .header-actions { display: flex; gap: 12px; }
         .btn {
@@ -58,10 +61,11 @@
             transition: all 0.2s;
             cursor: pointer;
             border: 1px solid var(--border-color);
-            background: #1e293b;
-            color: #f8fafc;
+            background: #ffffff;
+            color: #1e293b;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
         }
-        .btn:hover { background: #334155; border-color: #475569; }
+        .btn:hover { background: #f1f5f9; border-color: #94a3b8; }
         .btn-green { background: var(--brand-green); border-color: #16a34a; color: white; }
         .btn-green:hover { background: var(--brand-green-hover); }
 
@@ -69,18 +73,18 @@
         .sim-container {
             width: 100%;
             max-width: 1150px;
-            background: #0f141f;
-            border: 1px solid #2e3c54;
+            background: #ffffff;
+            border: 1px solid var(--border-color);
             border-radius: 16px;
             overflow: hidden;
-            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.7);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.06);
             display: flex;
             flex-direction: column;
         }
         .sim-topbar {
-            background: #161e2e;
+            background: #f1f5f9;
             padding: 14px 24px;
-            border-bottom: 1px solid #2e3c54;
+            border-bottom: 1px solid var(--border-color);
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -88,7 +92,7 @@
         .sim-title {
             font-size: 15px;
             font-weight: 600;
-            color: #22c55e;
+            color: #15803d;
             display: flex;
             align-items: center;
             gap: 10px;
@@ -101,15 +105,15 @@
             border-radius: 20px;
             font-size: 11px;
             font-weight: 700;
-            background: rgba(34, 197, 94, 0.15);
-            color: #22c55e;
-            border: 1px solid rgba(34, 197, 94, 0.3);
+            background: rgba(22, 163, 74, 0.15);
+            color: #16a34a;
+            border: 1px solid rgba(22, 163, 74, 0.3);
         }
         .live-dot {
             width: 6px;
             height: 6px;
             border-radius: 50%;
-            background: #22c55e;
+            background: #16a34a;
             animation: pulse 1s infinite;
         }
         @keyframes pulse {
@@ -122,22 +126,23 @@
             position: relative;
             width: 100%;
             height: 600px;
-            background: #0b0f17;
+            background: #f8fafc;
             display: flex;
             justify-content: center;
             align-items: center;
             padding: 20px;
             overflow: hidden;
+            border-bottom: 1px solid var(--border-color);
         }
 
         /* Smartphone Frame (No Mouse!) */
         .phone-frame {
             width: 340px;
             height: 560px;
-            background: #000000;
-            border: 8px solid #27272a;
+            background: #ffffff;
+            border: 8px solid #334155;
             border-radius: 36px;
-            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.8), inset 0 0 0 2px #3f3f46;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2), inset 0 0 0 2px #64748b;
             display: flex;
             flex-direction: column;
             overflow: hidden;
@@ -146,7 +151,7 @@
         .phone-notch {
             width: 120px;
             height: 20px;
-            background: #27272a;
+            background: #334155;
             border-radius: 0 0 12px 12px;
             margin: 0 auto;
             position: absolute;
@@ -155,9 +160,9 @@
             z-index: 10;
         }
 
-        /* WhatsApp UI */
+        /* WhatsApp UI - Authentic Light Mode */
         .wa-header {
-            background: #075e54;
+            background: #008069;
             padding: 24px 16px 12px 16px;
             display: flex;
             align-items: center;
@@ -178,12 +183,12 @@
         }
         .wa-info { display: flex; flex-direction: column; }
         .wa-name { font-size: 14.5px; font-weight: 600; display: flex; align-items: center; gap: 6px; }
-        .wa-status { font-size: 11px; color: #a7f3d0; }
+        .wa-status { font-size: 11px; color: #d1fae5; }
 
         .wa-chat {
             flex: 1;
-            background-color: #0d1418;
-            background-image: radial-gradient(#1f2c34 1px, transparent 1px);
+            background-color: #efeae2;
+            background-image: radial-gradient(#cbd5e1 1px, transparent 1px);
             background-size: 16px 16px;
             padding: 16px;
             overflow-y: auto;
@@ -206,48 +211,52 @@
         }
         .bubble-user {
             align-self: flex-end;
-            background: #056162;
-            color: white;
+            background: #d9fdd3;
+            color: #111b21;
             border-bottom-right-radius: 2px;
+            box-shadow: 0 1px 1px rgba(0,0,0,0.1);
         }
         .bubble-bot {
             align-self: flex-start;
-            background: #262d31;
-            color: #e2e8f0;
+            background: #ffffff;
+            color: #111b21;
             border-bottom-left-radius: 2px;
-            border: 1px solid #374151;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 1px 1px rgba(0,0,0,0.08);
         }
         .bubble-time {
             font-size: 10px;
-            color: #9ca3af;
+            color: #64748b;
             text-align: right;
             margin-top: 4px;
             display: block;
         }
 
         .wa-footer {
-            background: #1e2428;
+            background: #f0f2f5;
             padding: 10px 12px;
             display: flex;
             align-items: center;
             gap: 8px;
+            border-top: 1px solid #e2e8f0;
         }
         .wa-input-box {
             flex: 1;
-            background: #2a3942;
+            background: #ffffff;
             border-radius: 20px;
             padding: 8px 14px;
             font-size: 13px;
-            color: white;
+            color: #64748b;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            border: 1px solid #cbd5e1;
         }
         .wa-send-btn {
             width: 36px;
             height: 36px;
             border-radius: 50%;
-            background: #00a884;
+            background: #008069;
             color: white;
             display: flex;
             align-items: center;
@@ -257,9 +266,8 @@
 
         /* Bottom Control Bar */
         .sim-controls {
-            background: #161e2e;
+            background: #f1f5f9;
             padding: 16px 24px;
-            border-top: 1px solid #2e3c54;
             display: flex;
             flex-direction: column;
             gap: 12px;
@@ -267,7 +275,7 @@
         .progress-track {
             width: 100%;
             height: 6px;
-            background: #1e293b;
+            background: #cbd5e1;
             border-radius: 3px;
             overflow: hidden;
             position: relative;
@@ -285,20 +293,8 @@
         }
         .subtitles {
             font-size: 14px;
-            color: #e2e8f0;
+            color: #1e3a8a;
             font-weight: 500;
-        }
-        .btn-play {
-            background: #1e293b;
-            border: 1px solid #334155;
-            color: white;
-            padding: 6px 14px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 13px;
-            display: flex;
-            align-items: center;
-            gap: 6px;
         }
     </style>
 </head>
@@ -306,157 +302,152 @@
 
     <header class="page-header">
         <a href="index.html" class="header-brand">
-            <i class="fa-brands fa-whatsapp" style="color:var(--brand-green); font-size:24px;"></i>
-            <span>ENTELSO WHATSAPP BOT — FIELD ENGINEERING SIMULATION</span>
+            <img src="LOGOTYPE-BLUE.png" alt="Entelso Logo" style="height:28px;" onerror="this.src='logo-blue.png'">
+            <span>WhatsApp Bot — Mobile Operations Walkthrough</span>
         </a>
         <div class="header-actions">
-            <a href="manual.html" class="btn btn-green"><i class="fa-solid fa-book"></i> Read Operations Manual</a>
-            <a href="video_dashboard.html" class="btn"><i class="fa-solid fa-desktop" style="color:#60a5fa;"></i> Dashboard Video</a>
-            <a href="index.html" class="btn"><i class="fa-solid fa-arrow-left"></i> Live Dashboard</a>
+            <a href="manual.html" class="btn"><i class="fa-solid fa-book"></i> User Manual</a>
+            <a href="video_dashboard.html" class="btn"><i class="fa-solid fa-desktop"></i> Dashboard Walkthrough</a>
+            <a href="index.html" class="btn btn-green"><i class="fa-solid fa-bolt"></i> Open Dashboard</a>
         </div>
     </header>
 
     <div class="sim-container">
         <div class="sim-topbar">
             <div class="sim-title">
-                <i class="fa-solid fa-mobile-screen"></i>
-                <span>Module 2: Field Engineer WhatsApp Operations (Zero Mouse Interface)</span>
+                <span class="live-badge"><span class="live-dot"></span> LIVE MOBILE DEMO</span>
+                <span>Field Engineer Status Query & Custody Transfer Simulation</span>
             </div>
-            <div class="live-badge"><div class="live-dot"></div> SMARTPHONE RECORDING</div>
+            <div style="font-size:13px; font-family:monospace; color:#475569; font-weight:600;" id="timerTxt">00:00 / 00:36</div>
         </div>
 
-        <div class="stage" id="stage">
+        <div class="stage">
+            <!-- Mobile Phone Interface -->
             <div class="phone-frame">
                 <div class="phone-notch"></div>
                 <div class="wa-header">
-                    <div class="wa-avatar"><i class="fa-solid fa-robot"></i></div>
+                    <div class="wa-avatar"><i class="fa-brands fa-whatsapp"></i></div>
                     <div class="wa-info">
-                        <div class="wa-name">Entelso Bot (Engineers) <i class="fa-solid fa-circle-check" style="color:#38bdf8; font-size:12px;"></i></div>
-                        <div class="wa-status">🟢 Online — Connected to Supabase DB</div>
+                        <div class="wa-name">Entelso Bot <i class="fa-solid fa-circle-check" style="color:#60a5fa; font-size:12px;"></i></div>
+                        <div class="wa-status">Online — Enterprise Inventory Service</div>
                     </div>
                 </div>
 
-                <div class="wa-chat" id="chat-box">
-                    <!-- Dynamic chat messages appear here -->
+                <div class="wa-chat" id="chatArea">
+                    <!-- Dynamic Messages injected here -->
                 </div>
 
                 <div class="wa-footer">
                     <div class="wa-input-box">
-                        <span id="typed-text" style="color:#9ca3af;">Message...</span>
-                        <i class="fa-solid fa-paperclip" style="color:#9ca3af;"></i>
+                        <span id="inputTxt" style="color:#0f172a;">Message...</span>
+                        <i class="fa-solid fa-camera" style="color:#64748b;"></i>
                     </div>
                     <div class="wa-send-btn"><i class="fa-solid fa-paper-plane"></i></div>
                 </div>
             </div>
         </div>
 
-        <!-- Video Scrub Controls -->
         <div class="sim-controls">
-            <div class="progress-track"><div class="progress-bar" id="prog-bar"></div></div>
+            <div class="progress-track">
+                <div class="progress-bar" id="progBar"></div>
+            </div>
             <div class="control-row">
-                <div class="subtitles" id="subtitles"><b>0:00 / 0:28</b> — Initializing Mobile WhatsApp Bot Walkthrough...</div>
-                <div style="display:flex; gap:10px; align-items:center;">
-                    <span style="font-size:13px; color:#22c55e; font-family:'Courier New',monospace;" id="timer-txt">00:00</span>
-                    <button class="btn-play" id="btn-toggle"><i class="fa-solid fa-pause"></i> Pause Video</button>
+                <div style="display:flex; gap:10px;">
+                    <button class="btn btn-green" id="playBtn" onclick="togglePlay()"><i class="fa-solid fa-pause"></i> Pause</button>
+                    <button class="btn" onclick="restart()"><i class="fa-solid fa-rotate-left"></i> Restart</button>
+                </div>
+                <div class="subtitles" id="subTxt">
+                    <b>00:01</b> — Field engineer queries tool specifications via mobile WhatsApp Bot.
                 </div>
             </div>
         </div>
     </div>
 
     <script>
+        const totalTime = 36;
+        let curTime = 0;
         let isPlaying = true;
-        let currentTime = 0;
-        const totalDuration = 28; // 28 seconds loop
-        const chatBox = document.getElementById('chat-box');
-        const typedText = document.getElementById('typed-text');
-        const progBar = document.getElementById('prog-bar');
-        const timerTxt = document.getElementById('timer-txt');
-        const subtitles = document.getElementById('subtitles');
+        let timer = null;
 
-        function addChat(sender, text) {
-            const div = document.createElement('div');
-            div.className = 'bubble ' + (sender === 'user' ? 'bubble-user' : 'bubble-bot');
-            const now = new Date();
-            const timeStr = now.getHours() + ':' + (now.getMinutes()<10?'0':'') + now.getMinutes();
-            div.innerHTML = text + `<span class="bubble-time">${timeStr}</span>`;
-            chatBox.appendChild(div);
-            chatBox.scrollTop = chatBox.scrollHeight;
+        const chatArea = document.getElementById('chatArea');
+        const inputTxt = document.getElementById('inputTxt');
+        const timerTxt = document.getElementById('timerTxt');
+        const progBar = document.getElementById('progBar');
+        const subTxt = document.getElementById('subTxt');
+        const playBtn = document.getElementById('playBtn');
+
+        const scriptEvents = [
+            { t: 1, sub: 'Field engineer inputs command #STATUS ENT-EL-004 to query tool availability.', inTxt: '#STATUS ENT-EL-004' },
+            { t: 3, sub: 'Command transmitted to Entelso WhatsApp Bot.', action: 'userMsg', text: '#STATUS ENT-EL-004', inTxt: 'Message...' },
+            { t: 5, sub: 'Bot returns real-time specs, calibration health, and current assigned zone.', action: 'botMsg', text: '🔍 <b>Asset Found:</b> Fusion Splicer Fujikura 90S<br>📦 <b>Code:</b> ENT-EL-004<br>🟢 <b>Status:</b> Available in Warehouse<br>📅 <b>Calibration:</b> Valid (Oct 2026)<br>📍 <b>Zone:</b> ZONA-NORTH' },
+            { t: 12, sub: 'Engineer initiates checkout using secure 6-digit authentication PIN.', inTxt: '#CHECKOUT ENT-EL-004 849201' },
+            { t: 15, sub: 'PIN 849201 transmitted for 2-factor verification.', action: 'userMsg', text: '#CHECKOUT ENT-EL-004 849201', inTxt: 'Message...' },
+            { t: 18, sub: 'Bot validates PIN and requests GPS location check-in to confirm field presence.', action: 'botMsg', text: '🔐 <b>PIN Verified (Ing. Leor)</b><br>⚡ Please transmit your current WhatsApp GPS location to authorize field custody transfer.' },
+            { t: 25, sub: 'Engineer shares live GPS coordinates from job site.', action: 'userMsg', text: '📍 <i>Location Shared: -33.4372, -70.6506 (Santiago Site B)</i>', inTxt: 'Message...' },
+            { t: 28, sub: 'Custody transfer complete! Dashboard status updates instantly to In Terreno.', action: 'botMsg', text: '✅ <b>CUSTODY TRANSFER CONFIRMED</b><br>🛠️ Asset ENT-EL-004 assigned to your field profile.<br>📊 Web Dashboard status updated to <b>In Terreno</b>.' }
+        ];
+
+        function startTimer() {
+            if (timer) clearInterval(timer);
+            timer = setInterval(() => {
+                if (!isPlaying) return;
+                curTime++;
+                if (curTime >= totalTime) {
+                    restart();
+                    return;
+                }
+                updateFrame();
+            }, 1000);
         }
 
-        function clearChat() {
-            chatBox.innerHTML = '';
+        function updateFrame() {
+            let s = curTime < 10 ? '0' + curTime : curTime;
+            timerTxt.textContent = `00:${s} / 00:${totalTime}`;
+            progBar.style.width = ((curTime / totalTime) * 100) + '%';
+
+            // Check events
+            scriptEvents.forEach(ev => {
+                if (ev.t === curTime) {
+                    if (ev.sub) subTxt.innerHTML = `<b>00:${s}</b> — ${ev.sub}`;
+                    if (ev.inTxt !== undefined) inputTxt.textContent = ev.inTxt;
+                    
+                    if (ev.action === 'userMsg') {
+                        const d = document.createElement('div');
+                        d.className = 'bubble bubble-user';
+                        d.innerHTML = ev.text + '<span class="bubble-time">14:02 <i class="fa-solid fa-check-double" style="color:#53bdeb;"></i></span>';
+                        chatArea.appendChild(d);
+                        chatArea.scrollTop = chatArea.scrollHeight;
+                    } else if (ev.action === 'botMsg') {
+                        const d = document.createElement('div');
+                        d.className = 'bubble bubble-bot';
+                        d.innerHTML = ev.text + '<span class="bubble-time">14:02</span>';
+                        chatArea.appendChild(d);
+                        chatArea.scrollTop = chatArea.scrollHeight;
+                    }
+                }
+            });
         }
 
-        function updateStep(sec) {
-            let m = Math.floor(sec / 60);
-            let s = sec % 60;
-            timerTxt.textContent = `00:${s < 10 ? '0'+s : s}`;
-            progBar.style.width = ((sec / totalDuration) * 100) + '%';
-
-            if (sec === 0) {
-                clearChat();
-                typedText.style.color = '#9ca3af';
-                typedText.textContent = 'Message...';
-                subtitles.innerHTML = "<b>0:01 / 0:28 — Step 1: Asset Lookup:</b> Engineer types serial number or ID directly into WhatsApp.";
-                addChat('bot', '👋 Welcome to <b>Entelso Engineering Bot</b>. Send an Asset ID (e.g. <code>EQ-0101</code>) to check calibration status or take custody.');
-            }
-            else if (sec === 2) typedText.style.color = '#ffffff';
-            else if (sec === 3) typedText.textContent = 'STATUS EQ-0101';
-            else if (sec === 5) {
-                typedText.style.color = '#9ca3af';
-                typedText.textContent = 'Message...';
-                addChat('user', '<b>STATUS EQ-0101</b>');
-            }
-            else if (sec === 7) {
-                addChat('bot', `🔍 <b>Asset Profile Verified:</b><br/>• <b>Model:</b> Fluke 87V Multimeter<br/>• <b>Category:</b> Electrical Tools<br/>• <b>Status:</b> 🟢 Available<br/>• <b>Calibration:</b> Compliant (Nov 2026)<br/>• <b>Location:</b> Main Warehouse`);
-                subtitles.innerHTML = "<b>0:07 / 0:28 — Real-time Telemetry:</b> The bot queries Supabase and returns calibration compliance & photos.";
-            }
-            else if (sec === 10) {
-                subtitles.innerHTML = "<b>0:10 / 0:28 — Step 2: Custody Checkout:</b> Engineer requests custody checkout for field deployment.";
-                typedText.style.color = '#ffffff';
-                typedText.textContent = 'CHECKOUT EQ-0102';
-            }
-            else if (sec === 12) {
-                typedText.style.color = '#9ca3af';
-                typedText.textContent = 'Message...';
-                addChat('user', '<b>CHECKOUT EQ-0102</b>');
-            }
-            else if (sec === 14) {
-                addChat('bot', `⚠️ To confirm custody transfer of <b>Anritsu Site Master (RF Tools)</b>, please reply with your <b>6-digit Security PIN</b>.`);
-                subtitles.innerHTML = "<b>0:14 / 0:28 — 2-Factor Authentication:</b> Bot enforces 6-digit PIN verification to bind accountability.";
-            }
-            else if (sec === 17) {
-                typedText.style.color = '#ffffff';
-                typedText.textContent = '849201';
-            }
-            else if (sec === 18) {
-                typedText.style.color = '#9ca3af';
-                typedText.textContent = 'Message...';
-                addChat('user', '<b>849201</b>');
-            }
-            else if (sec === 20) {
-                addChat('bot', `✅ <b>Custody Assigned:</b> EQ-0102 is now logged to your engineering profile. Status updated to 🔵 Deployed in Field.`);
-            }
-            else if (sec === 22) {
-                subtitles.innerHTML = "<b>0:22 / 0:28 — Step 3: Geolocation Tagging:</b> Engineer shares live GPS coordinates via WhatsApp attachment.";
-                addChat('user', '📍 <i>[Shared Live GPS Location: -33.8688, 151.2093]</i>');
-            }
-            else if (sec === 25) {
-                addChat('bot', `📍 <b>Location Tagged:</b> Coordinates bound to telemetry log for EQ-0102. Safe deployment! 🛠️`);
-                subtitles.innerHTML = "<b>0:25 / 0:28 — Workflow Complete:</b> Telemetry log recorded in cloud database.";
-            }
-        }
-
-        setInterval(() => {
-            if (!isPlaying) return;
-            currentTime = (currentTime + 1) % totalDuration;
-            updateStep(currentTime);
-        }, 1000);
-
-        document.getElementById('btn-toggle').addEventListener('click', function() {
+        function togglePlay() {
             isPlaying = !isPlaying;
-            this.innerHTML = isPlaying ? '<i class="fa-solid fa-pause"></i> Pause Video' : '<i class="fa-solid fa-play"></i> Play Video';
-        });
+            playBtn.innerHTML = isPlaying ? '<i class="fa-solid fa-pause"></i> Pause' : '<i class="fa-solid fa-play"></i> Play';
+            if (isPlaying) startTimer();
+        }
+
+        function restart() {
+            curTime = 0;
+            isPlaying = true;
+            playBtn.innerHTML = '<i class="fa-solid fa-pause"></i> Pause';
+            chatArea.innerHTML = '';
+            inputTxt.textContent = 'Message...';
+            subTxt.innerHTML = '<b>00:00</b> — Field engineer queries tool specifications via mobile WhatsApp Bot.';
+            updateFrame();
+            startTimer();
+        }
+
+        // Init
+        updateFrame();
+        startTimer();
     </script>
 </body>
 </html>
