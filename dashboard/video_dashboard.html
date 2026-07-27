@@ -6,8 +6,11 @@
     <meta name="robots" content="noindex, nofollow">
     <title>Entelso — Real Web Dashboard Video Walkthrough</title>
     <script>
-        if (!sessionStorage.getItem('entelso_token')) {
-            window.location.replace('index.html');
+        if (!sessionStorage.getItem('entelso_token') && !localStorage.getItem('entelso_token')) {
+            window.location.replace('index.html?redirect=' + encodeURIComponent(window.location.pathname.split('/').pop()));
+        } else if (!sessionStorage.getItem('entelso_token') && localStorage.getItem('entelso_token')) {
+            sessionStorage.setItem('entelso_token', localStorage.getItem('entelso_token'));
+            if (localStorage.getItem('entelso_user')) sessionStorage.setItem('entelso_user', localStorage.getItem('entelso_user'));
         }
     </script>
     <style>
@@ -371,7 +374,7 @@
         </div>
 
         <div class="subtitle-bar" id="subtitles">
-            <b>0:01 / 0:56 — Executive KPI Monitoring:</b> Warehouse supervisors inspect real-time tool counts, total financial valuation, and active field checkouts synced with Supabase.
+            <b>00:00 / 00:56 — Executive KPI Monitoring:</b> Warehouse supervisors inspect real-time tool counts, total financial valuation, and active field checkouts synced with Supabase.
         </div>
 
         <div class="player-footer">

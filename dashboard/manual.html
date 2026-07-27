@@ -6,8 +6,11 @@
     <meta name="robots" content="noindex, nofollow">
     <title>Entelso — Enterprise Operations & Help Manual</title>
     <script>
-        if (!sessionStorage.getItem('entelso_token')) {
-            window.location.replace('index.html');
+        if (!sessionStorage.getItem('entelso_token') && !localStorage.getItem('entelso_token')) {
+            window.location.replace('index.html?redirect=' + encodeURIComponent(window.location.pathname.split('/').pop()));
+        } else if (!sessionStorage.getItem('entelso_token') && localStorage.getItem('entelso_token')) {
+            sessionStorage.setItem('entelso_token', localStorage.getItem('entelso_token'));
+            if (localStorage.getItem('entelso_user')) sessionStorage.setItem('entelso_user', localStorage.getItem('entelso_user'));
         }
     </script>
     <style>

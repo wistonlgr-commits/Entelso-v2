@@ -6,8 +6,11 @@
     <meta name="robots" content="noindex, nofollow">
     <title>Entelso — WhatsApp Bot Mobile Simulation</title>
     <script>
-        if (!sessionStorage.getItem('entelso_token')) {
-            window.location.replace('index.html');
+        if (!sessionStorage.getItem('entelso_token') && !localStorage.getItem('entelso_token')) {
+            window.location.replace('index.html?redirect=' + encodeURIComponent(window.location.pathname.split('/').pop()));
+        } else if (!sessionStorage.getItem('entelso_token') && localStorage.getItem('entelso_token')) {
+            sessionStorage.setItem('entelso_token', localStorage.getItem('entelso_token'));
+            if (localStorage.getItem('entelso_user')) sessionStorage.setItem('entelso_user', localStorage.getItem('entelso_user'));
         }
     </script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Courier+New:wght@600&display=swap" rel="stylesheet">
@@ -363,7 +366,7 @@
                     <button class="btn" onclick="restart()"><i class="fa-solid fa-rotate-left"></i> Restart</button>
                 </div>
                 <div class="subtitles" id="subTxt">
-                    <b>00:01</b> — Field engineer queries tool specifications via mobile WhatsApp Bot.
+                    <b>00:00</b> — Field engineer queries tool specifications via mobile WhatsApp Bot.
                 </div>
             </div>
         </div>
@@ -385,10 +388,10 @@
         const scriptEvents = [
             { t: 1, sub: 'Field engineer inputs command #STATUS ENT-EL-004 to query tool availability.', inTxt: '#STATUS ENT-EL-004' },
             { t: 3, sub: 'Command transmitted to Entelso WhatsApp Bot.', action: 'userMsg', text: '#STATUS ENT-EL-004', inTxt: 'Message...' },
-            { t: 5, sub: 'Bot returns real-time specs, calibration health, and current assigned zone.', action: 'botMsg', text: '🔍 <b>Asset Found:</b> Fusion Splicer Fujikura 90S<br>📦 <b>Code:</b> ENT-EL-004<br>🟢 <b>Status:</b> Available in Warehouse<br>📅 <b>Calibration:</b> Valid (Oct 2026)<br>📍 <b>Zone:</b> ZONA-NORTH' },
+            { t: 5, sub: 'Bot returns real-time specs, calibration health, and current assigned zone.', action: 'botMsg', text: '🔍 <b>Asset Found:</b> Fusion Splicer Fujikura 90S<br>📦 <b>Code:</b> ENT-EL-004<br>🟢 <b>Status:</b> Available in Warehouse<br>📅 <b>Calibration:</b> Valid (Oct 2026)<br>📍 <b>Zone:</b> ZONE-NORTH' },
             { t: 12, sub: 'Engineer initiates checkout using secure 6-digit authentication PIN.', inTxt: '#CHECKOUT ENT-EL-004 849201' },
             { t: 15, sub: 'PIN 849201 transmitted for 2-factor verification.', action: 'userMsg', text: '#CHECKOUT ENT-EL-004 849201', inTxt: 'Message...' },
-            { t: 18, sub: 'Bot validates PIN and requests GPS location check-in to confirm field presence.', action: 'botMsg', text: '🔐 <b>PIN Verified (Ing. Leor)</b><br>⚡ Please transmit your current WhatsApp GPS location to authorize field custody transfer.' },
+            { t: 18, sub: 'Bot validates PIN and requests GPS location check-in to confirm field presence.', action: 'botMsg', text: '🔐 <b>PIN Verified (Eng. Leor)</b><br>⚡ Please transmit your current WhatsApp GPS location to authorize field custody transfer.' },
             { t: 25, sub: 'Engineer shares live GPS coordinates from job site.', action: 'userMsg', text: '📍 <i>Location Shared: -33.4372, -70.6506 (Santiago Site B)</i>', inTxt: 'Message...' },
             { t: 28, sub: 'Custody transfer complete! Dashboard status updates instantly to In Use.', action: 'botMsg', text: '✅ <b>CUSTODY TRANSFER CONFIRMED</b><br>🛠️ Asset ENT-EL-004 assigned to your field profile.<br>📊 Web Dashboard status updated to <b>In Use</b>.' }
         ];

@@ -48,12 +48,28 @@ window.getAssetCategory = function(item) {
    GESTIÓN DE SESIÓN (JWT en sessionStorage)
 ───────────────────────────────────────── */
 const session = {
-  getToken:   ()        => sessionStorage.getItem('entelso_token'),
-  getUser:    ()        => JSON.parse(sessionStorage.getItem('entelso_user') || 'null'),
-  save:       (t, u)    => { sessionStorage.setItem('entelso_token', t); sessionStorage.setItem('entelso_user', JSON.stringify(u)); },
-  clear:      ()        => { sessionStorage.removeItem('entelso_token'); sessionStorage.removeItem('entelso_user'); },
-  isLoggedIn: ()        => !!sessionStorage.getItem('entelso_token'),
+  getToken:   ()        => sessionStorage.getItem('entelso_token') || localStorage.getItem('entelso_token'),
+  getUser:    ()        => JSON.parse(sessionStorage.getItem('entelso_user') || localStorage.getItem('entelso_user') || 'null'),
+  save:       (t, u)    => { 
+    sessionStorage.setItem('entelso_token', t); sessionStorage.setItem('entelso_user', JSON.stringify(u)); 
+    localStorage.setItem('entelso_token', t); localStorage.setItem('entelso_user', JSON.stringify(u)); 
+  },
+  clear:      ()        => { 
+    sessionStorage.removeItem('entelso_token'); sessionStorage.removeItem('entelso_user'); 
+    localStorage.removeItem('entelso_token'); localStorage.removeItem('entelso_user'); 
+  },
+  isLoggedIn: ()        => !!(sessionStorage.getItem('entelso_token') || localStorage.getItem('entelso_token')),
 };
+
+// Sincronizar sesiones entre pestañas (sessionStorage <-> localStorage)
+if (sessionStorage.getItem('entelso_token')) {
+  localStorage.setItem('entelso_token', sessionStorage.getItem('entelso_token'));
+  if (sessionStorage.getItem('entelso_user')) localStorage.setItem('entelso_user', sessionStorage.getItem('entelso_user'));
+} else if (localStorage.getItem('entelso_token')) {
+  sessionStorage.setItem('entelso_token', localStorage.getItem('entelso_token'));
+  if (localStorage.getItem('entelso_user')) sessionStorage.setItem('entelso_user', localStorage.getItem('entelso_user'));
+}
+
 
 /**
  * Decodifica el JWT en el cliente y verifica que no haya vencido.
@@ -125,6 +141,12 @@ window.addEventListener('DOMContentLoaded', () => {
   const token = session.getToken();
   if (token && tokenEsValido(token)) {
     actualizarInfoUsuario(session.getUser());
+    const urlParams = new URLSearchParams(window.location.search);
+    const redirectUrl = urlParams.get('redirect');
+    if (redirectUrl && ['manual.html', 'video_dashboard.html', 'video_whatsapp.html'].includes(redirectUrl)) {
+      window.location.href = redirectUrl;
+      return;
+    }
     mostrarApp();
   } else {
     // Token expirado o inexistente → limpiar y mostrar login
@@ -181,6 +203,12 @@ document.getElementById('loginForm').addEventListener('submit', async (e) => {
     session.save(data.data.token, data.data.usuario);
     actualizarInfoUsuario(data.data.usuario);
     registrarAuditLog('Inició sesión en el sistema');
+    const urlParams = new URLSearchParams(window.location.search);
+    const redirectUrl = urlParams.get('redirect');
+    if (redirectUrl && ['manual.html', 'video_dashboard.html', 'video_whatsapp.html'].includes(redirectUrl)) {
+      window.location.href = redirectUrl;
+      return;
+    }
     mostrarApp();
 
   } catch (err) {
