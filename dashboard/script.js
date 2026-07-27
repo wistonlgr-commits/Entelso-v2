@@ -15,6 +15,34 @@ const API_BASE = (!window.location.hostname || window.location.hostname === 'loc
   ? 'http://localhost:3001'
   : 'https://rlffb3uv162ja9sjunyx9meb.167.86.70.193.sslip.io';
 
+window.OFFICIAL_CATEGORIES = [
+  { id: 'Hand Tools', label: 'Hand Tools', icon: 'fa-toolbox', desc: 'Manual tools, safety lines, harnesses, ladders, toolsets' },
+  { id: 'Electrical Tools', label: 'Electrical Tools', icon: 'fa-plug-circle-bolt', desc: 'Power tools, drills, grinders, vacuums, lasers, battery chargers' },
+  { id: 'RF Tools', label: 'RF Tools', icon: 'fa-tower-cell', desc: 'PIM testers, OTDRs, CW testers, site master cable analyzers, scanners' },
+  { id: 'Consumables', label: 'Consumables', icon: 'fa-box-open', desc: 'Ferrule crimper kits, spare parts, labels, tapes, extinguishers' }
+];
+
+window.getAssetCategory = function(item) {
+  if (!item) return 'Hand Tools';
+  if (item.categoria && window.OFFICIAL_CATEGORIES.some(c => c.id.toLowerCase() === item.categoria.toLowerCase())) {
+    return window.OFFICIAL_CATEGORIES.find(c => c.id.toLowerCase() === item.categoria.toLowerCase()).id;
+  }
+  if (item.tipo && window.OFFICIAL_CATEGORIES.some(c => c.id.toLowerCase() === item.tipo.toLowerCase())) {
+    return window.OFFICIAL_CATEGORIES.find(c => c.id.toLowerCase() === item.tipo.toLowerCase()).id;
+  }
+  const name = (item.nombre_item || item.equipo || item.descripcion || item.tipo || '').toLowerCase();
+  if (name.includes('rf') || name.includes('pim') || name.includes('cw ') || name.includes('scanner') || name.includes('opti') || name.includes('viavi') || name.includes('multimeter') || name.includes('explorer') || name.includes('consultix')) {
+    return 'RF Tools';
+  }
+  if (name.includes('drill') || name.includes('grinder') || name.includes('battery') || name.includes('charger') || name.includes('electrical') || name.includes('vacuum') || name.includes('laser') || name.includes('printer') || name.includes('adapter') || name.includes('dewalt') || name.includes('hilti') || name.includes('fluke')) {
+    return 'Electrical Tools';
+  }
+  if (name.includes('consumable') || name.includes('consumible') || name.includes('ferrule') || name.includes('tape') || name.includes('label') || name.includes('extinguisher') || name.includes('spare')) {
+    return 'Consumables';
+  }
+  return 'Hand Tools';
+};
+
 
 /* ─────────────────────────────────────────
    GESTIÓN DE SESIÓN (JWT en sessionStorage)
@@ -312,6 +340,7 @@ async function cargarActivos(silent = false) {
       id:          a.numero_serie,
       equipo:      a.nombre_item,
       tipo_item:   (function(t) { const map = { herramienta:'Tool', equipo:'Equipment', instrumento:'Instrument', vehiculo:'Vehicle', consumible:'Consumable' }; return map[t] || t || '—'; })(a.tipo),
+      categoria:   window.getAssetCategory(a),
       zona:        a.nombre_ubicacion || '—',
       team:        a.usuario_team || a.team || '—',
       status:      a.estado,
@@ -1886,6 +1915,7 @@ function inicializarModal() {
   document.getElementById('submitNewItem').addEventListener('click', async () => {
     const numSerie  = document.getElementById('modalNumSerie').value.trim();
     const desc      = document.getElementById('modalDesc').value.trim();
+    const categoriaVal = document.getElementById('modalCategoria')?.value || 'Hand Tools';
     const itemIdVal = document.getElementById('modalItemId')?.value;   // populated dynamically
     const zonaVal   = document.getElementById('modalZona').value;
     const team      = document.getElementById('modalTeam').value;
@@ -1919,6 +1949,8 @@ function inicializarModal() {
         numero_serie:        numSerie,
         item_id:             itemId,
         descripcion:         desc,
+        categoria:           categoriaVal,
+        tipo:                categoriaVal,
         ubicacion_actual_id: ubicacionId,
         estado,
         team: team || null,
@@ -1946,6 +1978,7 @@ function inicializarModal() {
         btn.querySelector('span').textContent = window.i18n.t('modal.registrar');
         document.getElementById('modalNumSerie').value = '';
         document.getElementById('modalDesc').value     = '';
+        if(document.getElementById('modalCategoria')) document.getElementById('modalCategoria').value = 'Hand Tools';
         window.uploadedPhotos = [];
         const gallery = document.getElementById('modalFotosGallery');
         if (gallery) gallery.innerHTML = '';
@@ -2197,12 +2230,12 @@ function renderizarCategoriasUI() {
 function renderizarFiltrosCategorias() {
   const container = document.getElementById('inventoryCategoryChips');
   if (!container) return;
-  container.innerHTML = `<button class="chip active" data-filter="all" data-i18n="dash.filter.todos">${window.i18n.t('dash.filter.todos')}</button>`;
-  systemCategories.forEach(cat => {
+  container.innerHTML = `<button class="chip active" data-filter="all" data-i18n="dash.filter.todos">${window.i18n.t('dash.filter.todos') || 'All Equipment'}</button>`;
+  window.OFFICIAL_CATEGORIES.forEach(cat => {
     const btn = document.createElement('button');
     btn.className = 'chip';
-    btn.dataset.filter = cat.nombre;
-    btn.textContent = cat.nombre;
+    btn.dataset.filter = cat.id;
+    btn.innerHTML = `<i class="fa-solid ${cat.icon}" style="margin-right: 6px;"></i>${cat.label}`;
     container.appendChild(btn);
   });
 
@@ -2215,7 +2248,7 @@ function renderizarFiltrosCategorias() {
       
       let filteredData = inventoryData;
       if (filterVal !== 'all') {
-        window.currentFilteredData = inventoryData.filter(item => item.equipo === filterVal);
+        window.currentFilteredData = inventoryData.filter(item => item.categoria === filterVal || window.getAssetCategory(item) === filterVal);
       } else {
         window.currentFilteredData = inventoryData;
       }
@@ -3193,8 +3226,8 @@ document.getElementById('bulkMoveCategoryBtn')?.addEventListener('click', () => 
   selectedIdsForMove = Array.from(checked).map(cb => cb.value);
   const select = document.getElementById('bulkCategorySelect');
   select.innerHTML = '<option value="">-- ' + (window.i18n.t('cat.seleccionar') || 'Seleccionar') + ' --</option>';
-  systemCategories.forEach(c => {
-    select.innerHTML += `<option value="${c.id}">${c.nombre}</option>`;
+  window.OFFICIAL_CATEGORIES.forEach(c => {
+    select.innerHTML += `<option value="${c.id}">${c.label}</option>`;
   });
   document.getElementById('bulkCategoryModal').style.display = 'flex';
 });
@@ -3306,10 +3339,16 @@ const renderManageCatList = () => {
   const ul = document.getElementById('manageCategoriesList');
   if(!ul) return;
   ul.innerHTML = '';
-  systemCategories.forEach(c => {
-    ul.innerHTML += `<li style="display:flex; justify-content:space-between; padding:8px 12px; border-bottom:1px solid var(--border);">
-      <span>${c.nombre} <small style="color:var(--text-2)">(${c.tipo})</small></span>
-      <button class="icon-btn" onclick="deleteCategory(${c.id})" title="Delete"><i class="fa-solid fa-trash" style="color:var(--accent-red)"></i></button>
+  window.OFFICIAL_CATEGORIES.forEach(c => {
+    ul.innerHTML += `<li style="display:flex; justify-content:space-between; align-items:center; padding:12px 16px; border-bottom:1px solid var(--border);">
+      <div style="display:flex; align-items:center; gap:12px;">
+        <i class="fa-solid ${c.icon}" style="font-size:18px; color:var(--accent-blue);"></i>
+        <div>
+          <strong style="color:white; font-size:14px;">${c.label}</strong>
+          <div style="font-size:12px; color:var(--text-2);">${c.desc}</div>
+        </div>
+      </div>
+      <span class="status-badge avail" style="font-size:11px;">Active</span>
     </li>`;
   });
 };
@@ -3422,6 +3461,7 @@ window.verDetallesActivo = function(id) {
   document.getElementById('detId').textContent = activo.numero_serie || '--';
   document.getElementById('detEstado').innerHTML = statusPill(activo.estado);
   document.getElementById('detEquipo').textContent = activo.nombre_item || activo.descripcion || '--';
+  if (document.getElementById('detCategoria')) document.getElementById('detCategoria').textContent = activo.categoria || window.getAssetCategory(activo) || '--';
   document.getElementById('detZona').textContent = activo.nombre_ubicacion || window.i18n.t('api.sin_asignar');
   document.getElementById('detTeam').textContent = activo.team || '--';
   document.getElementById('detAsignado').textContent = activo.nombre_usuario || window.i18n.t('api.sin_asignar');

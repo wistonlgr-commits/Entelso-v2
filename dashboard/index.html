@@ -821,9 +821,20 @@
                 <label data-i18n="modal.inv">Inventory No.</label>
                 <input type="text" id="modalNumSerie" class="form-input" data-i18n-ph="modal.inv.ph" placeholder="INV-XXXX">
             </div>
-            <div class="form-group">
-                <label data-i18n="modal.desc">Equipment / Description</label>
-                <input type="text" id="modalDesc" class="form-input" data-i18n-ph="modal.desc.ph" placeholder="ej. Fluke 87V Multimeter">
+            <div class="form-row">
+                <div class="form-group">
+                    <label data-i18n="modal.desc">Equipment / Description</label>
+                    <input type="text" id="modalDesc" class="form-input" data-i18n-ph="modal.desc.ph" placeholder="ej. Fluke 87V Multimeter">
+                </div>
+                <div class="form-group">
+                    <label data-i18n="modal.cat">Category</label>
+                    <select id="modalCategoria" class="form-input">
+                        <option value="Hand Tools">Hand Tools</option>
+                        <option value="Electrical Tools">Electrical Tools</option>
+                        <option value="RF Tools">RF Tools</option>
+                        <option value="Consumables">Consumables</option>
+                    </select>
+                </div>
             </div>
             <div class="form-row">
                 <div class="form-group">
@@ -907,6 +918,10 @@
                 <div style="grid-column: 1 / -1;">
                     <div style="font-size: 12px; color: var(--text-2);" data-i18n="col.equipo">Equipment</div>
                     <div id="detEquipo" style="font-size: 16px; font-weight: bold;"></div>
+                </div>
+                <div>
+                    <div style="font-size: 12px; color: var(--text-2);" data-i18n="col.cat">Category</div>
+                    <div id="detCategoria" style="font-weight: 600; color: var(--accent-blue);"></div>
                 </div>
                 <div>
                     <div style="font-size: 12px; color: var(--text-2);" data-i18n="col.zona">Zone</div>
