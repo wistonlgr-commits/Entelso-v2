@@ -16,31 +16,22 @@ const API_BASE = (!window.location.hostname || window.location.hostname === 'loc
   : 'https://rlffb3uv162ja9sjunyx9meb.167.86.70.193.sslip.io';
 
 window.OFFICIAL_CATEGORIES = [
-  { id: 'Hand Tools', label: 'Hand Tools', icon: 'fa-toolbox', desc: 'Manual tools, safety lines, harnesses, ladders, toolsets' },
-  { id: 'Electrical Tools', label: 'Electrical Tools', icon: 'fa-plug-circle-bolt', desc: 'Power tools, drills, grinders, vacuums, lasers, battery chargers' },
-  { id: 'RF Tools', label: 'RF Tools', icon: 'fa-tower-cell', desc: 'PIM testers, OTDRs, CW testers, site master cable analyzers, scanners' },
-  { id: 'Consumables', label: 'Consumables', icon: 'fa-box-open', desc: 'Ferrule crimper kits, spare parts, labels, tapes, extinguishers' }
+  { id: 'WalkTest Kits', label: 'WalkTest Kits', icon: 'fa-person-walking' },
+  { id: 'PIM Testers', label: 'PIM Testers', icon: 'fa-wave-square' },
+  { id: 'Handy Tools', label: 'Handy Tools', icon: 'fa-toolbox' },
+  { id: 'Safety & PPE', label: 'Safety & PPE', icon: 'fa-hard-hat' },
+  { id: 'CAM Keys', label: 'CAM Keys', icon: 'fa-key', hidden: true },
+  { id: 'Levelling Kits', label: 'Levelling Kits', icon: 'fa-ruler-combined', hidden: true },
+  { id: 'CW Testers', label: 'CW Testers', icon: 'fa-broadcast-tower', hidden: true },
+  { id: 'Sweep Testers', label: 'Sweep Testers', icon: 'fa-chart-line', hidden: true },
+  { id: 'Consumables', label: 'Consumables', icon: 'fa-box-open', hidden: true }
 ];
 
 window.getAssetCategory = function(item) {
-  if (!item) return 'Hand Tools';
-  if (item.categoria && window.OFFICIAL_CATEGORIES.some(c => c.id.toLowerCase() === item.categoria.toLowerCase())) {
-    return window.OFFICIAL_CATEGORIES.find(c => c.id.toLowerCase() === item.categoria.toLowerCase()).id;
-  }
-  if (item.tipo && window.OFFICIAL_CATEGORIES.some(c => c.id.toLowerCase() === item.tipo.toLowerCase())) {
-    return window.OFFICIAL_CATEGORIES.find(c => c.id.toLowerCase() === item.tipo.toLowerCase()).id;
-  }
-  const name = (item.nombre_item || item.equipo || item.descripcion || item.tipo || '').toLowerCase();
-  if (name.includes('rf') || name.includes('pim') || name.includes('cw ') || name.includes('scanner') || name.includes('opti') || name.includes('viavi') || name.includes('multimeter') || name.includes('explorer') || name.includes('consultix')) {
-    return 'RF Tools';
-  }
-  if (name.includes('drill') || name.includes('grinder') || name.includes('battery') || name.includes('charger') || name.includes('electrical') || name.includes('vacuum') || name.includes('laser') || name.includes('printer') || name.includes('adapter') || name.includes('dewalt') || name.includes('hilti') || name.includes('fluke')) {
-    return 'Electrical Tools';
-  }
-  if (name.includes('consumable') || name.includes('consumible') || name.includes('ferrule') || name.includes('tape') || name.includes('label') || name.includes('extinguisher') || name.includes('spare')) {
-    return 'Consumables';
-  }
-  return 'Hand Tools';
+  if (!item) return 'Handy Tools';
+  if (item.categoria_padre) return item.categoria_padre;
+  if (item.categoria) return item.categoria;
+  return 'Handy Tools';
 };
 
 
@@ -2259,7 +2250,9 @@ function renderizarFiltrosCategorias() {
   const container = document.getElementById('inventoryCategoryChips');
   if (!container) return;
   container.innerHTML = `<button class="chip active" data-filter="all" data-i18n="dash.filter.todos">${window.i18n.t('dash.filter.todos') || 'All Equipment'}</button>`;
-  window.OFFICIAL_CATEGORIES.forEach(cat => {
+  
+  // Render main ones
+  window.OFFICIAL_CATEGORIES.filter(c => !c.hidden).forEach(cat => {
     const btn = document.createElement('button');
     btn.className = 'chip';
     btn.dataset.filter = cat.id;
@@ -2267,16 +2260,79 @@ function renderizarFiltrosCategorias() {
     container.appendChild(btn);
   });
 
-  // Attach event listeners for chips
-  container.querySelectorAll('.chip').forEach(chip => {
-    chip.addEventListener('click', () => {
-      container.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
-      chip.classList.add('active');
-      const filterVal = chip.dataset.filter;
+  // Render "More..." dropdown
+  const hiddenCats = window.OFFICIAL_CATEGORIES.filter(c => c.hidden);
+  if (hiddenCats.length > 0) {
+    const dropdownWrap = document.createElement('div');
+    dropdownWrap.className = 'custom-dropdown';
+    dropdownWrap.style.position = 'relative';
+    dropdownWrap.style.display = 'inline-block';
+
+    const moreBtn = document.createElement('button');
+    moreBtn.className = 'chip';
+    moreBtn.innerHTML = `Más... <i class="fa-solid fa-chevron-down" style="margin-left:4px;"></i>`;
+    
+    const menu = document.createElement('div');
+    menu.className = 'more-menu';
+    menu.style.display = 'none';
+    menu.style.position = 'absolute';
+    menu.style.top = '100%';
+    menu.style.left = '0';
+    menu.style.backgroundColor = 'var(--bg-card)';
+    menu.style.border = '1px solid var(--border)';
+    menu.style.borderRadius = '8px';
+    menu.style.boxShadow = '0 4px 12px rgba(0,0,0,0.1)';
+    menu.style.zIndex = '100';
+    menu.style.minWidth = '150px';
+    menu.style.marginTop = '4px';
+    menu.style.padding = '8px 0';
+
+    hiddenCats.forEach(cat => {
+      const item = document.createElement('div');
+      item.dataset.filter = cat.id;
+      item.className = 'more-menu-item';
+      item.style.padding = '8px 16px';
+      item.style.cursor = 'pointer';
+      item.style.color = 'var(--text-2)';
+      item.style.fontSize = '13px';
+      item.innerHTML = `<i class="fa-solid ${cat.icon}" style="margin-right: 8px;"></i>${cat.label}`;
+      item.onmouseover = () => item.style.backgroundColor = 'var(--bg-body)';
+      item.onmouseout = () => item.style.backgroundColor = 'transparent';
+      menu.appendChild(item);
+    });
+
+    moreBtn.onclick = (e) => {
+      e.stopPropagation();
+      menu.style.display = menu.style.display === 'none' ? 'block' : 'none';
+    };
+    
+    document.addEventListener('click', () => { menu.style.display = 'none'; });
+
+    dropdownWrap.appendChild(moreBtn);
+    dropdownWrap.appendChild(menu);
+    container.appendChild(dropdownWrap);
+  }
+
+  // Attach event listeners
+  container.querySelectorAll('.chip[data-filter], .more-menu-item').forEach(el => {
+    el.addEventListener('click', () => {
+      container.querySelectorAll('.chip, .more-menu-item').forEach(c => {
+         if(c.classList) c.classList.remove('active');
+         if(c.style && c.classList.contains('more-menu-item')) c.style.color = 'var(--text-2)';
+      });
+      
+      if (el.classList.contains('more-menu-item')) {
+         el.style.color = 'var(--accent-blue)';
+         el.closest('.custom-dropdown').querySelector('.chip').classList.add('active');
+      } else {
+         el.classList.add('active');
+      }
+
+      const filterVal = el.dataset.filter;
       
       let filteredData = inventoryData;
       if (filterVal !== 'all') {
-        window.currentFilteredData = inventoryData.filter(item => item.categoria === filterVal || window.getAssetCategory(item) === filterVal);
+        window.currentFilteredData = inventoryData.filter(item => item.categoria_padre === filterVal || window.getAssetCategory(item) === filterVal);
       } else {
         window.currentFilteredData = inventoryData;
       }

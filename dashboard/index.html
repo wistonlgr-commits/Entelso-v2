@@ -697,7 +697,7 @@
                     <input type="password" id="addUserPassword" class="form-input" required placeholder="Mínimo 4 caracteres" data-i18n-ph="usuarios.min_chars">
                 </div>
             </div>
-            <button class="btn-primary btn-full" id="confirmAddUserBtn" style="margin-top:20px;">
+            <button class="btn-primary btn-full" id="confirmAddUserBtn" style="margin-top:20px;" data-i18n="usuarios.btn_add_user">
                 Crear Usuario
             </button>
         </div>
@@ -760,11 +760,11 @@
                     <label>Status</label>
                     <select id="advFilterStatus" class="select">
                         <option value="" data-i18n="filter.cualquier">Any status</option>
-                        <option value="disponible">Disponible</option>
-                        <option value="en_uso">En Uso</option>
-                        <option value="calibracion_pendiente">Calibration Pending</option>
-                        <option value="en_mantenimiento">Under Maintenance</option>
-                        <option value="fuera_de_servicio">Fuera de Servicio</option>
+                        <option value="disponible" data-i18n="estado.disponible">Disponible</option>
+                        <option value="en_uso" data-i18n="estado.en_uso">En Uso</option>
+                        <option value="calibracion_pendiente" data-i18n="estado.calibracion_pendiente">Calibration Pending</option>
+                        <option value="en_mantenimiento" data-i18n="estado.en_mantenimiento">Under Maintenance</option>
+                        <option value="fuera_de_servicio" data-i18n="estado.fuera_de_servicio">Fuera de Servicio</option>
                     </select>
                 </div>
             </div>
@@ -829,9 +829,14 @@
                 <div class="form-group">
                     <label data-i18n="modal.cat">Category</label>
                     <select id="modalCategoria" class="form-input">
-                        <option value="Hand Tools">Hand Tools</option>
-                        <option value="Electrical Tools">Electrical Tools</option>
-                        <option value="RF Tools">RF Tools</option>
+                        <option value="WalkTest Kits">WalkTest Kits</option>
+                        <option value="PIM Testers">PIM Testers</option>
+                        <option value="Handy Tools">Handy Tools</option>
+                        <option value="Safety & PPE">Safety & PPE</option>
+                        <option value="CAM Keys">CAM Keys</option>
+                        <option value="Levelling Kits">Levelling Kits</option>
+                        <option value="CW Testers">CW Testers</option>
+                        <option value="Sweep Testers">Sweep Testers</option>
                         <option value="Consumables">Consumables</option>
                     </select>
                 </div>
