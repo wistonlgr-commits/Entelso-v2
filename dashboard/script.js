@@ -2278,11 +2278,11 @@ function renderizarFiltrosCategorias() {
     menu.style.position = 'absolute';
     menu.style.top = '100%';
     menu.style.left = '0';
-    menu.style.backgroundColor = 'var(--bg-card)';
+    menu.style.backgroundColor = 'var(--bg-panel)';
     menu.style.border = '1px solid var(--border)';
     menu.style.borderRadius = '8px';
     menu.style.boxShadow = '0 4px 12px rgba(0,0,0,0.1)';
-    menu.style.zIndex = '100';
+    menu.style.zIndex = '9999';
     menu.style.minWidth = '150px';
     menu.style.marginTop = '4px';
     menu.style.padding = '8px 0';
