@@ -2295,7 +2295,10 @@ function renderizarFiltrosCategorias() {
       item.style.cursor = 'pointer';
       item.style.color = 'var(--text-2)';
       item.style.fontSize = '13px';
-      item.innerHTML = `<i class="fa-solid ${cat.icon}" style="margin-right: 8px;"></i>${cat.label}`;
+      item.style.display = 'flex';
+      item.style.alignItems = 'center';
+      item.style.whiteSpace = 'nowrap';
+      item.innerHTML = `<i class="fa-solid ${cat.icon}" style="margin-right: 8px; width: 16px; text-align: center;"></i>${cat.label}`;
       item.onmouseover = () => item.style.backgroundColor = 'var(--bg-body)';
       item.onmouseout = () => item.style.backgroundColor = 'transparent';
       menu.appendChild(item);
