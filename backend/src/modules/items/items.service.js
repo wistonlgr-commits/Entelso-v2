@@ -1,8 +1,8 @@
-const db = require('../../config/database');
+﻿const db = require('../../config/database');
 
 exports.getAll = async (tipo = null) => {
   const { rows } = await db.query(
-    `SELECT id, nombre, tipo, stock_global_consumibles FROM items
+    `SELECT id, nombre, tipo, stock_global_consumibles, categoria_padre FROM items
      ${tipo ? 'WHERE tipo=$1' : ''} ORDER BY nombre ASC`,
     tipo ? [tipo] : []
   );
@@ -11,7 +11,7 @@ exports.getAll = async (tipo = null) => {
 
 exports.getById = async (id) => {
   const { rows } = await db.query(
-    'SELECT id, nombre, tipo, stock_global_consumibles FROM items WHERE id=$1', [id]
+    'SELECT id, nombre, tipo, stock_global_consumibles, categoria_padre FROM items WHERE id=$1', [id]
   );
   return rows[0] ?? null;
 };
@@ -40,7 +40,7 @@ exports.updateStock = async (id, cantidad, operacion) => {
 
 exports.remove = async (id) => {
   const check = await db.query('SELECT id FROM activos WHERE item_id = $1 LIMIT 1', [id]);
-  if (check.rows.length > 0) throw Object.assign(new Error('No se puede eliminar porque hay equipos asignados a esta categor�a.'), { isOperational: true });
+  if (check.rows.length > 0) throw Object.assign(new Error('No se puede eliminar porque hay equipos asignados a esta categoría.'), { isOperational: true });
   await db.query('DELETE FROM items WHERE id = $1', [id]);
 };
 

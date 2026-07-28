@@ -6,7 +6,7 @@ const ASSET_SELECT = `
          a.fecha_ultima_cali, a.fecha_prox_cali,
          a.fecha_ultimo_tag,  a.fecha_prox_tag,
          a.fotos,
-         i.id   AS item_id,       i.nombre AS nombre_item, i.tipo AS tipo,
+         i.id   AS item_id,       i.nombre AS nombre_item, i.tipo AS tipo, i.categoria_padre AS categoria_padre,
          u.id   AS usuario_id,    u.nombre AS nombre_usuario, u.telefono_whatsapp, u.team AS usuario_team,
          ub.id  AS ubicacion_id,  ub.nombre_ubicacion
   FROM   activos a
