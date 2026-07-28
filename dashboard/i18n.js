@@ -95,6 +95,7 @@ const TRANSLATIONS = {
     'dash.filter.todos':   'All',
     'dash.filter.disp':    'Available',
     'dash.filter.alertas': 'Alerts',
+    'dash.filter.mas':     'More...',
 
     // ── Tabla ──
     'col.id':              'Serial / Tag',
@@ -609,6 +610,7 @@ const TRANSLATIONS = {
     'dash.filter.todos':   'Todos',
     'dash.filter.disp':    'Disponibles',
     'dash.filter.alertas': 'Alertas',
+    'dash.filter.mas':     'Más...',
 
     // ── Tabla ──
     'col.id':              'Serial / Tag',

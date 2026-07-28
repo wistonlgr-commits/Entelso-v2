@@ -2270,7 +2270,8 @@ function renderizarFiltrosCategorias() {
 
     const moreBtn = document.createElement('button');
     moreBtn.className = 'chip';
-    moreBtn.innerHTML = `Más... <i class="fa-solid fa-chevron-down" style="margin-left:4px;"></i>`;
+    const moreText = window.i18n ? (window.i18n.t('dash.filter.mas') || 'More...') : 'More...';
+    moreBtn.innerHTML = `${moreText} <i class="fa-solid fa-chevron-down" style="margin-left:4px;"></i>`;
     
     const menu = document.createElement('div');
     menu.className = 'more-menu';
