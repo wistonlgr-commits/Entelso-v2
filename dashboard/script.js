@@ -1934,7 +1934,7 @@ function inicializarModal() {
   document.getElementById('submitNewItem').addEventListener('click', async () => {
     const numSerie  = document.getElementById('modalNumSerie').value.trim();
     const desc      = document.getElementById('modalDesc').value.trim();
-    const categoriaVal = document.getElementById('modalCategoria')?.value || 'Hand Tools';
+    const categoriaVal = document.getElementById('modalCategoria')?.value || 'Handy Tools';
     const itemIdVal = document.getElementById('modalItemId')?.value;   // populated dynamically
     const zonaVal   = document.getElementById('modalZona').value;
     const team      = document.getElementById('modalTeam').value;
@@ -1997,7 +1997,7 @@ function inicializarModal() {
         btn.querySelector('span').textContent = window.i18n.t('modal.registrar');
         document.getElementById('modalNumSerie').value = '';
         document.getElementById('modalDesc').value     = '';
-        if(document.getElementById('modalCategoria')) document.getElementById('modalCategoria').value = 'Hand Tools';
+        if(document.getElementById('modalCategoria')) document.getElementById('modalCategoria').value = 'WalkTest Kits';
         window.uploadedPhotos = [];
         const gallery = document.getElementById('modalFotosGallery');
         if (gallery) gallery.innerHTML = '';
