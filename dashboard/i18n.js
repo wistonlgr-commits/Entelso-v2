@@ -97,7 +97,7 @@ const TRANSLATIONS = {
     'dash.filter.alertas': 'Alerts',
 
     // ── Tabla ──
-    'col.id':              'ID',
+    'col.id':              'Serial / Tag',
     'col.nombre':          'Name',
     'col.email':           'Email',
     'col.equipo':          'Equipment',
@@ -611,7 +611,7 @@ const TRANSLATIONS = {
     'dash.filter.alertas': 'Alertas',
 
     // ── Tabla ──
-    'col.id':              'ID',
+    'col.id':              'Serial / Tag',
     'col.nombre':          'Nombre',
     'col.email':           'Email',
     'col.equipo':          'Equipo / Dispositivo',

@@ -531,7 +531,7 @@ function renderInventoryTable(tbody, data, groupByKey = null) {
   const renderRow = (item) => {
     if (isDash) {
       return `
-        <td class="id-cell">${escapeHTML(item.id)}</td>
+        <td><span class="id-cell" style="display:inline-block; max-width:140px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; font-family: 'Courier New', Courier, monospace; font-weight: 600; font-size: 13px; color: var(--text);" title="${escapeHTML(item.id)}">${escapeHTML(item.id)}</span></td>
         <td>${escapeHTML(item.equipo)}</td>
         <td>${escapeHTML(item.zona)}</td>
         <td style="color:var(--text-2)">${escapeHTML(item.team)}</td>
@@ -541,7 +541,7 @@ function renderInventoryTable(tbody, data, groupByKey = null) {
     } else {
       return `
         <td style="text-align:center;"><input type="checkbox" class="row-checkbox" value="${item.db_id}" onclick="event.stopPropagation(); updateBulkActionsState()"></td>
-        <td class="id-cell">${escapeHTML(item.id)}</td>
+        <td><span class="id-cell" style="display:inline-block; max-width:140px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; font-family: 'Courier New', Courier, monospace; font-weight: 600; font-size: 13px; color: var(--text);" title="${escapeHTML(item.id)}">${escapeHTML(item.id)}</span></td>
         <td>${escapeHTML(item.equipo)}</td>
         <td>${escapeHTML(item.zona)}</td>
         <td>${escapeHTML(item.asignado)}</td>
@@ -620,7 +620,7 @@ function renderMaintenanceTable(tbody, data) {
   data.forEach(item => {
     const tr = document.createElement('tr');
     tr.innerHTML = `
-      <td class="id-cell">${escapeHTML(item.id)}</td>
+      <td><span class="id-cell" style="display:inline-block; max-width:140px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; font-family: 'Courier New', Courier, monospace; font-weight: 600; font-size: 13px; color: var(--text);" title="${escapeHTML(item.id)}">${escapeHTML(item.id)}</span></td>
       <td>${escapeHTML(item.equipo)}</td>
       <td>${escapeHTML(item.zona)}</td>
       <td><span class="motive-tag">${escapeHTML(item.motivo)}</span></td>
@@ -852,7 +852,7 @@ function renderizarAlertas(data) {
           <i class="fa-solid ${a.icon}"></i>
         </div>
       </td>
-      <td class="id-cell">${escapeHTML(a.id)}</td>
+      <td><span class="id-cell" style="display:inline-block; max-width:140px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; font-family: 'Courier New', Courier, monospace; font-weight: 600; font-size: 13px; color: var(--text);" title="${escapeHTML(a.id)}">${escapeHTML(a.id)}</span></td>
       <td>
         <strong>${escapeHTML(a.equipo)}</strong><br>
         <span style="font-size:12px;color:var(--text-2); display:block; margin-top:2px;">${a.zona}</span>
@@ -1734,7 +1734,7 @@ function inicializarImportModal() {
       parsedData.slice(0, 5).forEach(item => {
         const tr = document.createElement('tr');
         tr.innerHTML = `
-          <td><span class="id-cell">${escapeHTML(item.numero_serie)}</span></td>
+          <td><span class="id-cell" style="display:inline-block; max-width:140px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; font-family: 'Courier New', Courier, monospace; font-weight: 600; font-size: 13px; color: var(--text);" title="${escapeHTML(item.numero_serie)}">${escapeHTML(item.numero_serie)}</span></td>
           <td>${escapeHTML(item.descripcion)}</td>
           <td>${escapeHTML(item.zona || '—')}</td>
         `;
