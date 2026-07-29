@@ -569,7 +569,12 @@ function renderInventoryTable(tbody, data, groupByKey = null) {
   if (groupByKey) {
     const groups = {};
     data.forEach(item => {
-      const key = item[groupByKey] || (window.i18n.t('api.sin_asignar') || 'Sin Asignar');
+      let key;
+      if (groupByKey === 'zona') {
+        key = getNormalizedZone(item.zona);
+      } else {
+        key = item[groupByKey] || (window.i18n.t('api.sin_asignar') || 'Sin Asignar');
+      }
       if (!groups[key]) groups[key] = [];
       groups[key].push(item);
     });
@@ -680,6 +685,16 @@ function renderizarEmpleados(data) {
   });
 }
 
+const VALID_ZONES = ['VIC', 'NSW', 'QLD', 'SA', 'WA'];
+
+function getNormalizedZone(zonaStr) {
+  if (!zonaStr) return 'Unknown';
+  const trimmed = String(zonaStr).trim();
+  if (!trimmed || trimmed === '—' || trimmed === '-' || trimmed.toLowerCase() === 'sin zona') return 'Unknown';
+  const matched = VALID_ZONES.find(z => z.toLowerCase() === trimmed.toLowerCase());
+  return matched || 'Unknown';
+}
+
 /* ─────────────────────────────────────────
    RENDER: ZONAS GRID
 ───────────────────────────────────────── */
@@ -688,16 +703,23 @@ function renderizarZonas() {
   if (!grid) return;
   grid.innerHTML = '';
 
-  // Agrupar activos por zona
+  // Agrupar activos por zona (VIC, NSW, QLD, SA, WA y lo demás a Unknown)
   const zonaMap = {};
   inventoryData.forEach(a => {
-    const z = a.zona || 'Sin Zona';
+    const z = getNormalizedZone(a.zona);
     if (!zonaMap[z]) zonaMap[z] = { total:0, disponibles:0 };
     zonaMap[z].total++;
     if (['disponible','calibrado','en_funcionamiento'].includes(a.status)) zonaMap[z].disponibles++;
   });
 
-  Object.entries(zonaMap).forEach(([nombre, stats]) => {
+  const sortedKeys = Object.keys(zonaMap).sort((a, b) => {
+    if (a === 'Unknown') return 1;
+    if (b === 'Unknown') return -1;
+    return a.localeCompare(b);
+  });
+
+  sortedKeys.forEach(nombre => {
+    const stats = zonaMap[nombre];
     const pct = stats.total > 0 ? Math.round((stats.disponibles / stats.total) * 100) : 0;
     const card = document.createElement('div');
     card.className = 'zone-card';
@@ -712,14 +734,13 @@ function renderizarZonas() {
     
     // Al hacer clic, filtrar la tabla de inventario y redirigir
     card.addEventListener('click', () => {
-      // Filtrar la tabla
-      const filtered = inventoryData.filter(i => (i.zona || 'Sin Zona') === nombre);
+      // Filtrar la tabla por zona normalizada
+      const filtered = inventoryData.filter(i => getNormalizedZone(i.zona) === nombre);
       renderInventoryTable(document.getElementById('inventTableBody'), filtered);
       
       // Actualizar el valor del modal de filtro avanzado para mantener sincronía
       const advFilterZona = document.getElementById('advFilterZona');
       if (advFilterZona) {
-        // Asegurarnos de que la opción exista, si no, crearla
         let optionExists = Array.from(advFilterZona.options).some(opt => opt.value === nombre);
         if (!optionExists) {
           const newOpt = new Option(nombre, nombre);
@@ -934,14 +955,14 @@ function renderizarGraficos() {
   Chart.defaults.font.family = "'Inter', system-ui, sans-serif";
   Chart.defaults.font.size   = 11;
 
-  // Datos por zona
-  const zonaMap = {};
+  // Datos por zona (Agrupando a VIC, NSW, QLD, SA, WA y el resto en Unknown)
+  const zonaMap = { 'VIC': 0, 'NSW': 0, 'QLD': 0, 'SA': 0, 'WA': 0, 'Unknown': 0 };
   inventoryData.forEach(a => {
-    const z = a.zona || 'Sin Zona';
+    const z = getNormalizedZone(a.zona);
     zonaMap[z] = (zonaMap[z] || 0) + 1;
   });
-  const zonasLabels = Object.keys(zonaMap);
-  const zonasValues = Object.values(zonaMap);
+  const zonasLabels = Object.keys(zonaMap).filter(k => zonaMap[k] > 0);
+  const zonasValues = zonasLabels.map(k => zonaMap[k]);
 
   // Chart de barras por zona
   const ctxZona = document.getElementById('zonaChart')?.getContext('2d');
@@ -1630,9 +1651,17 @@ function inicializarImportModal() {
   const submitBtn = document.getElementById('submitImportBtn');
   const msgEl = document.getElementById('importMsg');
 
+  const dropzone = document.getElementById('importFileDropzone');
+  const dropzoneText = document.getElementById('importDropzoneText');
+
+  const resetDropzoneText = () => {
+    if (dropzoneText) dropzoneText.innerHTML = window.i18n.t('import.dropzone_text') || 'Choose a file or drag & drop here';
+  };
+
   const openModal = () => {
     overlay.classList.add('open');
     fileInput.value = '';
+    resetDropzoneText();
     previewArea.style.display = 'none';
     msgEl.style.display = 'none';
     submitBtn.disabled = true;
@@ -1645,9 +1674,36 @@ function inicializarImportModal() {
   document.getElementById('closeImportModal')?.addEventListener('click', closeModal);
   document.getElementById('cancelImportModal')?.addEventListener('click', closeModal);
 
+  if (dropzone) {
+    dropzone.addEventListener('click', () => fileInput.click());
+    dropzone.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      dropzone.style.borderColor = 'var(--accent-purple)';
+      dropzone.style.background = 'var(--bg-hover)';
+    });
+    dropzone.addEventListener('dragleave', (e) => {
+      e.preventDefault();
+      dropzone.style.borderColor = 'var(--border)';
+      dropzone.style.background = 'var(--bg-input)';
+    });
+    dropzone.addEventListener('drop', (e) => {
+      e.preventDefault();
+      dropzone.style.borderColor = 'var(--border)';
+      dropzone.style.background = 'var(--bg-input)';
+      if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+        fileInput.files = e.dataTransfer.files;
+        fileInput.dispatchEvent(new Event('change'));
+      }
+    });
+  }
+
   fileInput.addEventListener('change', async (e) => {
     const file = e.target.files[0];
     if (!file) return;
+
+    if (dropzoneText) {
+      dropzoneText.innerHTML = `<strong>${file.name}</strong>`;
+    }
 
     msgEl.style.display = 'none';
     previewArea.style.display = 'none';
@@ -1670,7 +1726,7 @@ function inicializarImportModal() {
       // Convert to Array of Arrays
       const rows = XLSX.utils.sheet_to_json(worksheet, { header: 1, raw: false });
       if (rows.length < 2) {
-        throw new Error('El archivo está vacío o no tiene encabezados.');
+        throw new Error('The file is empty or missing headers.');
       }
 
       const headers = rows[0].map(h => String(h).toLowerCase().trim());
@@ -1725,7 +1781,7 @@ function inicializarImportModal() {
       }
 
       if (parsedData.length === 0) {
-        throw new Error('No hay datos válidos para importar.');
+        throw new Error('No valid data to import.');
       }
 
       // Pre-visualizar

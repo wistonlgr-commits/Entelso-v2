@@ -27,6 +27,8 @@ const TRANSLATIONS = {
     'import.col_dom':      'DOM (Date of Manufacture)',
     'import.col_expiry':   'Expiry / Tag Expiry',
     'import.seleccionar':  'Select File',
+    'import.dropzone_text':'Choose a file or drag & drop here',
+    'import.dropzone_sub': 'Supports Excel (.xlsx, .xls) and CSV (.csv)',
     'import.preview_title':'Preview',
     'import.btn_upload':   'Import Data',
     'import.err_empty':    'The file is empty or invalid.',

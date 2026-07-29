@@ -1078,7 +1078,12 @@
 
                 <div class="form-group">
                     <label data-i18n="import.seleccionar">Select File</label>
-                    <input type="file" id="importFileInput" accept=".xlsx, .xls, .csv" class="form-input" style="padding: 8px;">
+                    <div id="importFileDropzone" style="border: 2px dashed var(--border); border-radius: var(--radius-md); padding: 24px 16px; text-align: center; cursor: pointer; background: var(--bg-input); transition: all 0.2s ease;">
+                        <input type="file" id="importFileInput" accept=".xlsx, .xls, .csv" style="display: none;">
+                        <i class="fa-solid fa-cloud-arrow-up" style="font-size: 28px; color: var(--accent-purple); margin-bottom: 8px;"></i>
+                        <div id="importDropzoneText" style="font-size: 14px; font-weight: 500; margin-bottom: 4px;" data-i18n="import.dropzone_text">Choose a file or drag & drop here</div>
+                        <div style="font-size: 12px; color: var(--text-2);" data-i18n="import.dropzone_sub">Supports Excel (.xlsx, .xls) and CSV (.csv)</div>
+                    </div>
                 </div>
 
                 <div id="importMsg" class="modal-msg" style="display: none; margin-top: 12px;"></div>
