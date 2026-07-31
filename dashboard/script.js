@@ -94,9 +94,6 @@ async function apiFetch(path, options = {}) {
     mostrarLogin();
     throw new Error('SESION_EXPIRADA');
   }
-  if (!res.ok) {
-    throw new Error('Error ' + res.status);
-  }
   return res;
 }
 
