@@ -570,7 +570,7 @@ function renderInventoryTable(tbody, data, groupByKey = null) {
       if (groupByKey === 'zona') {
         key = getNormalizedZone(item.zona);
       } else {
-        key = item[groupByKey] || (window.i18n.t('api.sin_asignar') || 'Sin Asignar');
+        key = item[groupByKey] || (window.i18n.t('api.sin_asignar') || 'Unassigned');
       }
       if (!groups[key]) groups[key] = [];
       groups[key].push(item);
@@ -628,7 +628,7 @@ function renderMaintenanceTable(tbody, data) {
       <td><span class="motive-tag">${escapeHTML(item.motivo)}</span></td>
       <td>${statusPill(item.status)}</td>
       <td class="col-right">${formatearFecha(item.fecha)}</td>
-      <td class="col-right"><button class="btn-ghost" style="font-size: 12px; padding: 4px 8px; color: var(--accent-green);" onclick="marcarMantenimientoAtendido('${item.id}')">${window.i18n.t('mantenimiento.marcar_atendido') || 'Marcar Atendido'}</button></td>
+      <td class="col-right"><button class="btn-ghost" style="font-size: 12px; padding: 4px 8px; color: var(--accent-green);" onclick="marcarMantenimientoAtendido('${item.id}')">${window.i18n.t('mantenimiento.marcar_atendido') || 'Mark as Resolved'}</button></td>
     `;
     tbody.appendChild(tr);
   });
@@ -658,7 +658,7 @@ function renderizarEmpleados(data) {
       </td>
               <td>
         <select class="form-input" style="padding: 4px 20px 4px 8px; font-size: 13px; border: 1px solid var(--border); border-radius: 4px; width: 140px; appearance: auto;" onchange="updateWorkerTeam(${emp.db_id}, this.value)">
-            <option value="" ${!emp.team || emp.team === '-' ? 'selected' : ''}>${window.i18n.t('teams.sin_team') || 'Sin Team'}</option>
+            <option value="" ${!emp.team || emp.team === '-' ? 'selected' : ''}>${window.i18n.t('teams.sin_team') || 'No Team'}</option>
           ${window.teamsList.map(t => `<option value="${t.nombre}" ${emp.team === t.nombre ? 'selected' : ''}>${t.nombre}</option>`).join('')}
         </select>
       </td>
@@ -675,7 +675,7 @@ function renderizarEmpleados(data) {
       <td style="color:var(--text-2)">${emp.retorno}</td>
       <td>${empStatusPill(emp.estado)}</td>
       <td>
-        <button class="icon-btn" title="${window.i18n.t('drawer.editar') || 'Editar'}" onclick="window.editarEmpleado(${emp.db_id})"><i class="fa-solid fa-pen"></i></button>
+        <button class="icon-btn" title="${window.i18n.t('drawer.editar') || 'Edit Asset'}" onclick="window.editarEmpleado(${emp.db_id})"><i class="fa-solid fa-pen"></i></button>
       </td>
     `;
     tbody.appendChild(tr);
@@ -726,7 +726,7 @@ function renderizarZonas() {
       <div class="zone-stat"><span>${window.i18n.t('kpi.total')}</span><strong>${stats.total}</strong></div>
       <div class="zone-stat"><span>${window.i18n.t('kpi.disponibles')}</span><strong style="color:var(--accent-green)">${stats.disponibles}</strong></div>
       <div class="zone-bar"><div class="zone-bar-fill" style="width:${pct}%"></div></div>
-      <div style="font-size:11px;color:var(--text-2);margin-top:4px;">${pct}% ${window.i18n.t('kpi.disponibilidad') || 'disponibilidad'}</div>
+      <div style="font-size:11px;color:var(--text-2);margin-top:4px;">${pct}% ${window.i18n.t('kpi.disponibilidad') || 'Availability'}</div>
     `;
     
     // Al hacer clic, filtrar la tabla de inventario y redirigir
@@ -879,7 +879,7 @@ function renderizarAlertas(data) {
       <td class="col-right">${formatearFecha(a.fecha)}</td>
       <td class="col-right">
         <button class="btn-ghost" onclick="window.openDrawerAsset('${a.id}')" style="padding:4px 8px;font-size:12px;border:1px solid var(--primary);color:var(--primary);">
-          <i class="fa-solid fa-arrow-up-right-from-square"></i> ${window.i18n.t('alertas.resolver') || 'Abrir / Actualizar'}
+          <i class="fa-solid fa-arrow-up-right-from-square"></i> ${window.i18n.t('alertas.resolver') || 'Open / Update'}
         </button>
       </td>
     `;
@@ -996,7 +996,7 @@ function renderizarGraficos() {
   const otros       = inventoryData.filter(a => ['desconocido'].includes(a.status)).length;
 
   const { t } = window.i18n;
-  const donutLabels = [t('estado.disponible'), t('estado.en_uso'), t('nav.mantenimiento'), t('kpi.calibracion'), t('kpi.otros') || 'Otros'];
+  const donutLabels = [t('estado.disponible'), t('estado.en_uso'), t('nav.mantenimiento'), t('kpi.calibracion'), t('kpi.otros') || 'Other'];
   const donutColors = ['#3fb950','#58a6ff','#d29922','#7c6ff7','#8b949e'];
   const donutData   = [disponible, enUso, mantenim, calibPend, otros];
 
@@ -1147,9 +1147,31 @@ function inicializarPerfil() {
         document.getElementById('perfilNombre').value = u.nombre || '';
         document.getElementById('perfilTelefono').value = u.telefono_whatsapp || '';
         document.getElementById('perfilEmail').value = u.email || '';
-        if (document.getElementById('perfilAvatarBig')) {
+        
+        const savedPic = localStorage.getItem('profile_pic');
+        if (savedPic) {
+          const bgUpdate = `url('${savedPic}')`;
+          if (document.getElementById('perfilAvatarBig')) {
+            document.getElementById('perfilAvatarBig').style.backgroundImage = bgUpdate;
+            document.getElementById('perfilAvatarBig').textContent = '';
+          }
+          if (document.getElementById('userAvatar')) {
+            document.getElementById('userAvatar').style.backgroundImage = bgUpdate;
+            document.getElementById('userAvatar').style.backgroundSize = 'cover';
+            document.getElementById('userAvatar').style.backgroundPosition = 'center';
+            document.getElementById('userAvatar').textContent = '';
+          }
+          if (document.getElementById('profileDropAvatar')) {
+            document.getElementById('profileDropAvatar').style.backgroundImage = bgUpdate;
+            document.getElementById('profileDropAvatar').style.backgroundSize = 'cover';
+            document.getElementById('profileDropAvatar').style.backgroundPosition = 'center';
+            document.getElementById('profileDropAvatar').textContent = '';
+          }
+        } else if (document.getElementById('perfilAvatarBig')) {
           document.getElementById('perfilAvatarBig').textContent = u.nombre ? u.nombre[0].toUpperCase() : 'U';
+          document.getElementById('perfilAvatarBig').style.backgroundImage = 'none';
         }
+
         const pref = u.preferencias || {};
         const chkCal = document.getElementById('prefCalibracion');
         const chkAsig = document.getElementById('prefAsignacion');
@@ -1161,6 +1183,42 @@ function inicializarPerfil() {
     } catch (e) {
       console.error('Error cargando perfil:', e);
     }
+  }
+
+  const btnCambiarFoto = document.getElementById('btnCambiarFoto');
+  const fotoInput = document.getElementById('fotoInput');
+  if (btnCambiarFoto && fotoInput) {
+    btnCambiarFoto.addEventListener('click', () => {
+      fotoInput.click();
+    });
+    fotoInput.addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = (ev) => {
+          const b64 = ev.target.result;
+          localStorage.setItem('profile_pic', b64);
+          const bgUpdate = `url('${b64}')`;
+          if (document.getElementById('perfilAvatarBig')) {
+            document.getElementById('perfilAvatarBig').style.backgroundImage = bgUpdate;
+            document.getElementById('perfilAvatarBig').textContent = '';
+          }
+          if (document.getElementById('userAvatar')) {
+            document.getElementById('userAvatar').style.backgroundImage = bgUpdate;
+            document.getElementById('userAvatar').style.backgroundSize = 'cover';
+            document.getElementById('userAvatar').style.backgroundPosition = 'center';
+            document.getElementById('userAvatar').textContent = '';
+          }
+          if (document.getElementById('profileDropAvatar')) {
+            document.getElementById('profileDropAvatar').style.backgroundImage = bgUpdate;
+            document.getElementById('profileDropAvatar').style.backgroundSize = 'cover';
+            document.getElementById('profileDropAvatar').style.backgroundPosition = 'center';
+            document.getElementById('profileDropAvatar').textContent = '';
+          }
+        };
+        reader.readAsDataURL(file);
+      }
+    });
   }
 
   const btnGuardarPerfil = document.getElementById('btnGuardarPerfil');
@@ -1205,9 +1263,13 @@ function inicializarPerfil() {
           if (document.getElementById('userDisplayName')) document.getElementById('userDisplayName').textContent = updatedName;
           if (document.getElementById('profileDropName')) document.getElementById('profileDropName').textContent = updatedName;
           if (document.getElementById('profileDropEmail')) document.getElementById('profileDropEmail').textContent = updatedEmail;
-          if (document.getElementById('userAvatar')) document.getElementById('userAvatar').textContent = initial;
-          if (document.getElementById('profileDropAvatar')) document.getElementById('profileDropAvatar').textContent = initial;
-          if (document.getElementById('perfilAvatarBig')) document.getElementById('perfilAvatarBig').textContent = initial;
+          
+          const savedPic = localStorage.getItem('profile_pic');
+          if (!savedPic) {
+            if (document.getElementById('userAvatar')) document.getElementById('userAvatar').textContent = initial;
+            if (document.getElementById('profileDropAvatar')) document.getElementById('profileDropAvatar').textContent = initial;
+            if (document.getElementById('perfilAvatarBig')) document.getElementById('perfilAvatarBig').textContent = initial;
+          }
           
         } else {
           const errorMsg = json.message || (json.error && json.error.message) || JSON.stringify(json.error) || 'Unknown';
@@ -1260,8 +1322,8 @@ function inicializarPerfil() {
             <td>${u.email}</td>
             <td><span class="status-badge status-${u.rol}">${window.i18n.t('usuarios.role_' + u.rol) || u.rol}</span></td>
             <td>
-              <button class="icon-btn" title="${window.i18n.t('drawer.editar') || 'Editar'}" onclick="window.editarEmpleado(${u.id})"><i class="fa-solid fa-pen"></i></button>
-              <button class="icon-btn" title="${window.i18n.t('bulk.btn_eliminar') || 'Eliminar'}" onclick="eliminarUsuario(${u.id})"><i class="fa-solid fa-trash" style="color:var(--accent-red)"></i></button>
+              <button class="icon-btn" title="${window.i18n.t('drawer.editar') || 'Edit Asset'}" onclick="window.editarEmpleado(${u.id})"><i class="fa-solid fa-pen"></i></button>
+              <button class="icon-btn" title="${window.i18n.t('bulk.btn_eliminar') || 'Delete'}" onclick="eliminarUsuario(${u.id})"><i class="fa-solid fa-trash" style="color:var(--accent-red)"></i></button>
             </td>
           `;
           tbody.appendChild(tr);
@@ -1276,7 +1338,7 @@ function inicializarPerfil() {
   }
 
   window.eliminarUsuario = async function(id) {
-    if (!await window.customConfirm((window.i18n.t('usuarios.confirm_delete') || '¿Eliminar usuario {0}?').replace('{0}', id))) return;
+    if (!await window.customConfirm((window.i18n.t('usuarios.confirm_delete') || 'Delete user {0}?').replace('{0}', id))) return;
     try {
       const res = await apiFetch(`/api/usuarios/${id}`, { method: 'DELETE' });
       if (res.ok) {
@@ -1329,7 +1391,7 @@ function inicializarPerfil() {
     }
 
     btn.disabled = true;
-    btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> ${window.i18n.t('btn.creando') || 'Creando...'}`;
+    btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> ${window.i18n.t('btn.creando') || 'Creating...'}`;
 
     try {
       const payload = { nombre, email: email || undefined, telefono_whatsapp: telefono || undefined, rol, team: team || undefined, password };
@@ -1341,7 +1403,7 @@ function inicializarPerfil() {
       const data = await res.json();
       
       if (res.ok && data.success) {
-        msgEl.textContent = window.i18n.t('usuarios.creado_ok') || '✓ Usuario creado exitosamente.';
+        msgEl.textContent = window.i18n.t('usuarios.creado_ok') || '✓ User created successfully.';
         msgEl.className = 'modal-msg success';
         msgEl.style.display = 'block';
         
@@ -1358,10 +1420,10 @@ function inicializarPerfil() {
           cargarUsuarios();
         }, 1500);
       } else {
-        throw new Error(data.message || window.i18n.t('usuarios.err_registrar') || 'Error al crear usuario');
+        throw new Error(data.message || window.i18n.t('usuarios.err_registrar') || 'Error creating user.');
       }
     } catch (err) {
-      msgEl.textContent = err.message || window.i18n.t('usuarios.err_conexion') || 'Error de conexión al servidor.';
+      msgEl.textContent = err.message || window.i18n.t('usuarios.err_conexion') || 'Server connection error.';
       msgEl.className = 'modal-msg error';
       msgEl.style.display = 'block';
       btn.disabled = false;
@@ -1741,7 +1803,7 @@ function inicializarImportModal() {
       const expiryIndex = headers.findIndex(h => h.includes('expiry') || h.includes('expire'));
 
       if (invIndex === -1 || eqIndex === -1) {
-        msgEl.textContent = window.i18n.t('import.err_req_fields') || 'Required columns missing.';
+        msgEl.textContent = window.i18n.t('import.err_req_fields') || 'Required columns are missing (Asset ID and Description).';
         msgEl.className = 'modal-msg error';
         msgEl.style.display = 'block';
         return;
@@ -1802,7 +1864,7 @@ function inicializarImportModal() {
 
     } catch (err) {
       console.error(err);
-      msgEl.textContent = window.i18n.t('import.err_parse') || 'Error al procesar el archivo.';
+      msgEl.textContent = window.i18n.t('import.err_parse') || 'Error parsing the file.';
       msgEl.className = 'modal-msg error';
       msgEl.style.display = 'block';
     }
@@ -1811,7 +1873,7 @@ function inicializarImportModal() {
   submitBtn.addEventListener('click', async () => {
     if (!importFileData || importFileData.length === 0) return;
     submitBtn.disabled = true;
-    submitBtn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> <span>${window.i18n.t('import.importando') || 'Importando...'}</span>`;
+    submitBtn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> <span>${window.i18n.t('import.importando') || 'Importing...'}</span>`;
 
     try {
       const res = await apiFetch('/api/activos/bulk', {
@@ -1830,14 +1892,14 @@ function inicializarImportModal() {
         msgEl.className = 'modal-msg error';
         msgEl.style.display = 'block';
         submitBtn.disabled = false;
-        submitBtn.innerHTML = '<i class="fa-solid fa-cloud-arrow-up"></i> <span data-i18n="import.btn_upload">' + (window.i18n.t('import.btn_upload') || 'Importar') + '</span>';
+        submitBtn.innerHTML = '<i class="fa-solid fa-cloud-arrow-up"></i> <span data-i18n="import.btn_upload">' + (window.i18n.t('import.btn_upload') || 'Import Data') + '</span>';
       }
     } catch (err) {
-      msgEl.textContent = window.i18n.t('drawer.err_red') || 'Error de conexión.';
+      msgEl.textContent = window.i18n.t('drawer.err_red') || 'Network Error';
       msgEl.className = 'modal-msg error';
       msgEl.style.display = 'block';
       submitBtn.disabled = false;
-      submitBtn.innerHTML = '<i class="fa-solid fa-cloud-arrow-up"></i> <span data-i18n="import.btn_upload">' + (window.i18n.t('import.btn_upload') || 'Importar') + '</span>';
+      submitBtn.innerHTML = '<i class="fa-solid fa-cloud-arrow-up"></i> <span data-i18n="import.btn_upload">' + (window.i18n.t('import.btn_upload') || 'Import Data') + '</span>';
     }
   });
 }
@@ -1921,14 +1983,14 @@ function inicializarModal() {
         msgEl.className = 'modal-msg error';
         msgEl.style.display = 'block';
         btn.disabled = false;
-        btn.textContent = window.i18n.t('maint.btn_agendar') || 'Agendar Mantenimiento';
+        btn.textContent = window.i18n.t('maint.btn_agendar') || 'Schedule Maintenance';
       }
     } else {
       msgEl.textContent = window.i18n.t('maint.err_no_encontrado');
       msgEl.className = 'modal-msg error';
       msgEl.style.display = 'block';
       btn.disabled = false;
-      btn.textContent = window.i18n.t('maint.btn_agendar') || 'Agendar Mantenimiento';
+      btn.textContent = window.i18n.t('maint.btn_agendar') || 'Schedule Maintenance';
     }
   });
   document.getElementById('closeModal').addEventListener('click', closeModal);
@@ -1944,7 +2006,7 @@ function inicializarModal() {
       const file = e.target.files[0];
       if (!file) return;
 
-      fotoStatus.textContent = window.i18n.t('modal.subiendo_foto') || 'Subiendo...';
+      fotoStatus.textContent = window.i18n.t('modal.subiendo_foto') || 'Uploading...';
       const formData = new FormData();
       formData.append('foto', file);
 
@@ -2070,7 +2132,14 @@ function inicializarModal() {
         msgEl.style.display = 'block';
       }
     } catch (err) {
-      msgEl.textContent   = window.i18n.t('modal.err_conexion');
+      console.error('Error registering equipment:', err);
+      if (err.message === 'SESION_EXPIRADA') {
+        msgEl.textContent = window.i18n.t('err.TOKEN_EXPIRED') || 'Session expired. Please log in again.';
+      } else if (err instanceof SyntaxError) {
+        msgEl.textContent = window.i18n.t('err.INTERNAL_SERVER_ERROR') || 'Internal server error.';
+      } else {
+        msgEl.textContent = window.i18n.t('modal.err_conexion') + (err.message ? ` (${err.message})` : '');
+      }
       msgEl.className     = 'modal-msg error';
       msgEl.style.display = 'block';
     } finally {
@@ -2240,7 +2309,7 @@ const msg = msgTemplate.replace('{id}', newId).replace('{equipo}', newItem.equip
 
 // Exponer la funcion global para el boton de mantenimiento
 window.marcarMantenimientoAtendido = async function(id) {
-  const confirmMsg = (window.i18n?.t('mantenimiento.confirm_atendido') || '¿Estás seguro de marcar el equipo {0} como atendido/disponible?').replace('{0}', id);
+  const confirmMsg = (window.i18n?.t('mantenimiento.confirm_atendido') || 'Are you sure you want to mark equipment {0} as resolved/available?').replace('{0}', id);
   if (!await window.customConfirm(confirmMsg)) return;
   try {
     const act = inventoryData.find(a => a.id === id);
@@ -2261,7 +2330,7 @@ window.marcarMantenimientoAtendido = async function(id) {
     
   } catch (err) {
     console.error('Error al marcar atendido:', err);
-    window.customAlert(window.i18n.t('maint.err_atendido') || 'Error al marcar el equipo como atendido.');
+    window.customAlert(window.i18n.t('maint.err_atendido') || 'Error marking equipment as resolved.');
   }
 };
 
@@ -2286,23 +2355,49 @@ async function cargarCategorias() {
 
 function renderizarCategoriasUI() {
   const ul = document.getElementById('categoriesListUI');
-  if (!ul) return;
-  ul.innerHTML = '';
+  
+  const modalCategoria = document.getElementById('modalCategoria');
+  const bulkCategorySelect = document.getElementById('bulkCategorySelect');
+  
+  if (modalCategoria) {
+    modalCategoria.innerHTML = '';
+  }
+  if (bulkCategorySelect) {
+    bulkCategorySelect.innerHTML = `<option value="" data-i18n="inv.actualizar">${window.i18n?.t('inv.actualizar') || '-- Set Status --'}</option>`;
+  }
+
+  if (ul) ul.innerHTML = '';
   systemCategories.forEach(cat => {
-    const li = document.createElement('li');
-    li.style.padding = '8px 12px';
-    li.style.borderBottom = '1px solid var(--border)';
-    li.style.display = 'flex';
-    li.style.justifyContent = 'space-between';
-    li.innerHTML = `<span>${cat.nombre}</span> <span style="color:var(--text-2); font-size:11px;">${cat.tipo}</span>`;
-    ul.appendChild(li);
+    if (ul) {
+      const li = document.createElement('li');
+      li.style.padding = '8px 12px';
+      li.style.borderBottom = '1px solid var(--border)';
+      li.style.display = 'flex';
+      li.style.justifyContent = 'space-between';
+      li.innerHTML = `<span>${cat.nombre}</span> <span style="color:var(--text-2); font-size:11px;">${cat.tipo}</span>`;
+      ul.appendChild(li);
+    }
+    
+    if (modalCategoria) {
+      const opt = document.createElement('option');
+      opt.value = cat.nombre;
+      opt.textContent = cat.nombre;
+      modalCategoria.appendChild(opt);
+    }
+    
+    if (bulkCategorySelect) {
+      const opt = document.createElement('option');
+      opt.value = cat.nombre;
+      opt.textContent = cat.nombre;
+      bulkCategorySelect.appendChild(opt);
+    }
   });
 }
 
 function renderizarFiltrosCategorias() {
   const container = document.getElementById('inventoryCategoryChips');
   if (!container) return;
-  container.innerHTML = `<button class="chip active" data-filter="all" data-i18n="dash.filter.todos">${window.i18n.t('dash.filter.todos') || 'All Equipment'}</button>`;
+  container.innerHTML = `<button class="chip active" data-filter="all" data-i18n="dash.filter.todos">${window.i18n.t('dash.filter.todos') || 'All'}</button>`;
   
   // Render main ones
   window.OFFICIAL_CATEGORIES.filter(c => !c.hidden).forEach(cat => {
@@ -2459,7 +2554,7 @@ function exportarExcel() {
     item.team || '—',
     (window.i18n.t('estado.' + item.status) || item.status || '—').replace(/_/g, ' ').toUpperCase(),
     item.calibracion ? item.calibracion.substring(0, 10) : '—',
-    item.asignado || (window.i18n.t('api.sin_asignar') || 'Sin asignar')
+    item.asignado || (window.i18n.t('api.sin_asignar') || 'Unassigned')
   ]);
 
   // ── Construir hoja con título de empresa ──
@@ -2537,7 +2632,7 @@ if (openManageCategoriesBtn && catDropdownContainer) {
 }
 
 window.eliminarActivo = async function(db_id) {
-    if(!await window.customConfirm(window.i18n.t('drawer.confirm_delete') || '¿Seguro que desea eliminar el activo?')) return;
+    if(!await window.customConfirm(window.i18n.t('drawer.confirm_delete') || 'Are you sure you want to delete this asset?')) return;
     try {
         await apiFetch(`/api/activos/${db_id}`, { method: 'DELETE' });
         window.customAlert(window.i18n.t('drawer.eliminado') || "Eliminado");
@@ -2602,7 +2697,7 @@ async function updateWorkerTeam(userId, newTeam) {
     });
     if (!res.ok) {
       const d = await res.json();
-      window.customAlert((window.i18n.t('drawer.err_actualizar_team') || 'Error actualizando team: {0}').replace('{0}', d.message || window.i18n.t('drawer.err_desconocido') || 'Error desconocido'));
+      window.customAlert((window.i18n.t('drawer.err_actualizar_team') || 'Error updating team: {0}').replace('{0}', d.message || window.i18n.t('drawer.err_desconocido') || 'Unknown error'));
     }
   } catch (err) {
     console.error('Error updateWorkerTeam', err);
@@ -2617,7 +2712,7 @@ window.editarEmpleado = async function(userId) {
   try {
     const res  = await apiFetch(`/api/usuarios/${userId}`);
     const json = await res.json();
-    if (!json.success || !json.data) return window.customAlert(window.i18n.t('usuarios.err_cargar') || 'No se pudo cargar el usuario.');
+    if (!json.success || !json.data) return window.customAlert(window.i18n.t('usuarios.err_cargar') || 'Error loading user.');
     const u = json.data;
 
     // Build modal dynamically
@@ -2628,33 +2723,33 @@ window.editarEmpleado = async function(userId) {
         <div class="modal-overlay open" id="editUserModal" style="z-index:9999">
             <div class="modal" style="max-width:440px">
               <div class="modal-header">
-                <span data-i18n="usuarios.edit_title">${window.i18n.t('usuarios.edit_title') || 'Editar Usuario'}</span>
+                <span data-i18n="usuarios.edit_title">${window.i18n.t('usuarios.edit_title') || 'Edit User'}</span>
                 <button class="icon-btn" onclick="document.getElementById('editUserModal').remove()"><i class="fa-solid fa-xmark"></i></button>
               </div>
               <div class="modal-body">
                 <div class="modal-msg" id="editUserMsg" style="display:none"></div>
-                <div class="form-group"><label data-i18n="usuarios.edit_name">${window.i18n.t('usuarios.edit_name') || 'Nombre'}</label><input type="text" id="editUserNombre" class="form-input"></div>
+                <div class="form-group"><label data-i18n="usuarios.edit_name">${window.i18n.t('usuarios.edit_name') || 'Name'}</label><input type="text" id="editUserNombre" class="form-input"></div>
                 <div class="form-group"><label data-i18n="usuarios.edit_email">${window.i18n.t('usuarios.edit_email') || 'Email'}</label><input type="email" id="editUserEmail" class="form-input"></div>
                 <div class="form-group"><label data-i18n="usuarios.edit_team">${window.i18n.t('usuarios.edit_team') || 'Team'}</label>
                   <select id="editUserTeam" class="form-input"></select>
                 </div>
-                <div class="form-group"><label data-i18n="usuarios.edit_rol">${window.i18n.t('usuarios.edit_rol') || 'Rol'}</label>
+                <div class="form-group"><label data-i18n="usuarios.edit_rol">${window.i18n.t('usuarios.edit_rol') || 'Role'}</label>
                   <select id="editUserRol" class="form-input">
-                    <option value="trabajador">${window.i18n.t('usuarios.edit_rol_trabajador') || 'Trabajador'}</option>
+                    <option value="trabajador">${window.i18n.t('usuarios.edit_rol_trabajador') || 'Worker'}</option>
                     <option value="supervisor">${window.i18n.t('usuarios.edit_rol_supervisor') || 'Supervisor'}</option>
-                    <option value="almacen">${window.i18n.t('usuarios.edit_rol_almacen') || 'Almacén'}</option>
+                    <option value="almacen">${window.i18n.t('usuarios.edit_rol_almacen') || 'Warehouse'}</option>
                     <option value="admin">${window.i18n.t('usuarios.edit_rol_admin') || 'Admin'}</option>
                   </select>
                 </div>
                 <div class="form-group" style="display:flex; align-items:center; gap:8px;">
                   <input type="checkbox" id="editUserTerreno">
-                  <label for="editUserTerreno" style="margin:0; font-size:13px; font-weight:normal;" data-i18n="usuarios.edit_terreno">${window.i18n.t('usuarios.edit_terreno') || 'Empleado en terreno (Manual)'}</label>
+                  <label for="editUserTerreno" style="margin:0; font-size:13px; font-weight:normal;" data-i18n="usuarios.edit_terreno">${window.i18n.t('usuarios.edit_terreno') || 'Field Worker (Manual)'}</label>
                 </div>
-                <div class="form-group"><label data-i18n="usuarios.edit_pin">${window.i18n.t('usuarios.edit_pin') || 'Nuevo PIN / Contraseña (dejar vacío para no cambiar)'}</label><input type="password" id="editUserPin" class="form-input" placeholder="${window.i18n.t('usuarios.edit_pin_ph') || 'Mínimo 4 caracteres'}"></div>
+                <div class="form-group"><label data-i18n="usuarios.edit_pin">${window.i18n.t('usuarios.edit_pin') || 'New PIN / Password (leave blank to keep current)'}</label><input type="password" id="editUserPin" class="form-input" placeholder="${window.i18n.t('usuarios.edit_pin_ph') || 'Min 4 characters'}"></div>
               </div>
               <div class="modal-footer">
-                <button class="btn-ghost" onclick="document.getElementById('editUserModal').remove()" data-i18n="modal.cancelar">${window.i18n.t('modal.cancelar') || 'Cancelar'}</button>
-                <button class="btn-primary" id="btnSaveEditUser" data-i18n="modal.guardar">${window.i18n.t('modal.guardar') || 'Guardar Cambios'}</button>
+                <button class="btn-ghost" onclick="document.getElementById('editUserModal').remove()" data-i18n="modal.cancelar">${window.i18n.t('modal.cancelar') || 'Cancel'}</button>
+                <button class="btn-primary" id="btnSaveEditUser" data-i18n="modal.guardar">${window.i18n.t('modal.guardar') || 'Save Changes'}</button>
               </div>
             </div>
           </div>
@@ -2696,19 +2791,19 @@ window.editarEmpleado = async function(userId) {
           cargarUsuarios();
         } else {
           const msgEl = document.getElementById('editUserMsg');
-          msgEl.textContent = d.message || window.i18n.t('drawer.err_guardar') || 'Error al guardar.';
+          msgEl.textContent = d.message || window.i18n.t('drawer.err_guardar') || 'Error saving.';
           msgEl.className = 'modal-msg error';
           msgEl.style.display = 'block';
         }
       } catch (e) {
         const msgEl = document.getElementById('editUserMsg');
-        msgEl.textContent = window.i18n.t('drawer.err_red') || 'Error de red.';
+        msgEl.textContent = window.i18n.t('drawer.err_red') || 'Network Error';
         msgEl.className = 'modal-msg error';
         msgEl.style.display = 'block';
       }
     };
   } catch (e) {
-    window.customAlert(window.i18n.t('usuarios.err_cargar') || 'Error cargando usuario.');
+    window.customAlert(window.i18n.t('usuarios.err_cargar') || 'Error loading user.');
   }
 };
 
@@ -2716,7 +2811,7 @@ window.editarEmpleado = async function(userId) {
    EDIT ASSET MODAL (Global)
 ----------------------------------------- */
 window.editarActivo = async function(item) {
-  if (!item || !item.db_id) return window.customAlert(window.i18n.t('drawer.sin_id') || 'Sin ID de activo.');
+  if (!item || !item.db_id) return window.customAlert(window.i18n.t('drawer.sin_id') || 'No Asset ID found.');
 
   let modal = document.getElementById('editAssetModal');
   if (modal) modal.remove();
@@ -2729,38 +2824,38 @@ window.editarActivo = async function(item) {
     <div class="modal-overlay open" id="editAssetModal" style="z-index:9999">
       <div class="modal" style="max-width:480px">
         <div class="modal-header">
-          <span>${window.i18n.t('drawer.editar') || 'Editar Activo'}: ${item.id}</span>
+          <span>${window.i18n.t('drawer.editar') || 'Edit Asset'}: ${item.id}</span>
           <button class="icon-btn" onclick="document.getElementById('editAssetModal').remove()"><i class="fa-solid fa-xmark"></i></button>
         </div>
         <div class="modal-body">
           <div class="modal-msg" id="editAssetMsg" style="display:none"></div>
-          <div class="form-group"><label>${window.i18n.t('col.estado') || 'Estado'}</label>
+          <div class="form-group"><label>${window.i18n.t('col.estado') || 'Status'}</label>
             <select id="editAssetEstado" class="form-input">
-              <option value="disponible" ${item.status==='disponible' || !item.status ?'selected':''}>${window.i18n.t('estado.disponible') || 'Disponible'}</option>
-              <option value="en_uso" ${item.status==='en_uso'?'selected':''}>${window.i18n.t('estado.en_uso') || 'En Uso'}</option>
-              <option value="en_mantenimiento" ${item.status==='en_mantenimiento'?'selected':''}>${window.i18n.t('estado.en_mantenimiento') || 'En Mantenimiento'}</option>
-              <option value="calibracion_pendiente" ${item.status==='calibracion_pendiente'?'selected':''}>${window.i18n.t('estado.calibracion_pendiente') || 'Calibración Pendiente'}</option>
-              <option value="fuera_de_servicio" ${item.status==='fuera_de_servicio'?'selected':''}>${window.i18n.t('estado.fuera_de_servicio') || 'Fuera de Servicio'}</option>
-              <option value="danado" ${item.status==='danado'?'selected':''}>${window.i18n.t('estado.danado') || 'Dañado'}</option>
-              <option value="calibrado" ${item.status==='calibrado'?'selected':''}>${window.i18n.t('estado.calibrado') || 'Calibrado'}</option>
+              <option value="disponible" ${item.status==='disponible' || !item.status ?'selected':''}>${window.i18n.t('estado.disponible') || 'Available'}</option>
+              <option value="en_uso" ${item.status==='en_uso'?'selected':''}>${window.i18n.t('estado.en_uso') || 'In Use'}</option>
+              <option value="en_mantenimiento" ${item.status==='en_mantenimiento'?'selected':''}>${window.i18n.t('estado.en_mantenimiento') || 'Under Maintenance'}</option>
+              <option value="calibracion_pendiente" ${item.status==='calibracion_pendiente'?'selected':''}>${window.i18n.t('estado.calibracion_pendiente') || 'Calibration Pending'}</option>
+              <option value="fuera_de_servicio" ${item.status==='fuera_de_servicio'?'selected':''}>${window.i18n.t('estado.fuera_de_servicio') || 'Out of Service'}</option>
+              <option value="danado" ${item.status==='danado'?'selected':''}>${window.i18n.t('estado.danado') || 'Damaged'}</option>
+              <option value="calibrado" ${item.status==='calibrado'?'selected':''}>${window.i18n.t('estado.calibrado') || 'Calibrated'}</option>
             </select>
           </div>
-          <div class="form-group"><label>${window.i18n.t('col.zona') || 'Ubicación / Zona'}</label>
+          <div class="form-group"><label>${window.i18n.t('col.zona') || 'Zone'}</label>
             <select id="editAssetUbicacion" class="form-input">
-              <option value="">${window.i18n.t('filter.todas_zonas') || 'Sin Ubicación'}</option>
+              <option value="">${window.i18n.t('filter.todas_zonas') || 'All Zones'}</option>
               ${ubOpts}
             </select>
           </div>
           <div class="form-group"><label>${window.i18n.t('col.team') || 'Team'}</label>
             <select id="editAssetTeam" class="form-input">
-              <option value="">${window.i18n.t('usuarios.sin_team') || 'Sin Team'}</option>
+              <option value="">${window.i18n.t('usuarios.sin_team') || 'No Team'}</option>
               ${window.teamsList.map(t => `<option value="${t.nombre}" ${item.team === t.nombre ? 'selected' : ''}>${t.nombre}</option>`).join('')}
             </select>
           </div>
           ${(item.id === 'EQ-15' || item.id === 'EQ-17') ? `
           <div class="form-row">
-            <div class="form-group"><label>${window.i18n.t('col.ulti_cal') || 'Fecha Últ. Calibración'}</label><input type="date" id="editAssetUltiCal" class="form-input" value="${item.ultima_calibracion?item.ultima_calibracion.substring(0,10):''}"></div>
-            <div class="form-group"><label>${window.i18n.t('col.prox_cal') || 'Fecha Próx. Calibración'}</label><input type="date" id="editAssetProxCal" class="form-input" value="${item.calibracion?item.calibracion.substring(0,10):''}"></div>
+            <div class="form-group"><label>${window.i18n.t('col.ulti_cal') || 'Last Cal / Tag'}</label><input type="date" id="editAssetUltiCal" class="form-input" value="${item.ultima_calibracion?item.ultima_calibracion.substring(0,10):''}"></div>
+            <div class="form-group"><label>${window.i18n.t('col.prox_cal') || 'Next Cal / Tag'}</label><input type="date" id="editAssetProxCal" class="form-input" value="${item.calibracion?item.calibracion.substring(0,10):''}"></div>
           </div>
           <div class="form-row">
             <div class="form-group"><label>${window.i18n.t('drawer.meta_ulti_tag') || 'DOM / Last Tag'}</label><input type="date" id="editAssetUltiTag" class="form-input" value="${item.ultimo_tag?item.ultimo_tag.substring(0,10):''}"></div>
@@ -2789,8 +2884,8 @@ window.editarActivo = async function(item) {
           </div>
         </div>
         <div class="modal-footer">
-          <button class="btn-ghost" onclick="document.getElementById('editAssetModal').remove()">${window.i18n.t('modal.cancelar') || 'Cancelar'}</button>
-          <button class="btn-primary" id="confirmEditAssetBtn">${window.i18n.t('modal.guardar') || 'Guardar Cambios'}</button>
+          <button class="btn-ghost" onclick="document.getElementById('editAssetModal').remove()">${window.i18n.t('modal.cancelar') || 'Cancel'}</button>
+          <button class="btn-primary" id="confirmEditAssetBtn">${window.i18n.t('modal.guardar') || 'Save Changes'}</button>
         </div>
       </div>
     </div>`;
@@ -2834,7 +2929,7 @@ window.editarActivo = async function(item) {
       const btn = fotoInput.nextElementSibling;
       btn.disabled = true;
       const originalText = btn.querySelector('span').textContent;
-      btn.querySelector('span').textContent = window.i18n.t('modal.subiendo_foto') || 'Subiendo...';
+      btn.querySelector('span').textContent = window.i18n.t('modal.subiendo_foto') || 'Uploading...';
       fotoStatus.textContent = '';
 
       const formData = new FormData();
@@ -2855,10 +2950,10 @@ window.editarActivo = async function(item) {
             fotoStatus.textContent = '';
           }
         } else {
-          fotoStatus.textContent = window.i18n.t('modal.subir_foto_error') || 'Error subiendo foto';
+          fotoStatus.textContent = window.i18n.t('modal.subir_foto_error') || 'Error uploading photo';
         }
       } catch (err) {
-        fotoStatus.textContent = window.i18n.t('seg.err_red') || 'Error de red';
+        fotoStatus.textContent = window.i18n.t('seg.err_red') || 'Network error';
       }
 
       btn.disabled = false;
@@ -2893,13 +2988,13 @@ window.editarActivo = async function(item) {
         await cargarActivos();
       } else {
         const msgEl = document.getElementById('editAssetMsg');
-        msgEl.textContent = d.message || window.i18n.t('drawer.err_guardar') || 'Error al guardar.';
+        msgEl.textContent = d.message || window.i18n.t('drawer.err_guardar') || 'Error saving.';
         msgEl.className = 'modal-msg error';
         msgEl.style.display = 'block';
       }
     } catch (e) {
       const msgEl = document.getElementById('editAssetMsg');
-      msgEl.textContent = window.i18n.t('drawer.err_red') || 'Error de red.';
+      msgEl.textContent = window.i18n.t('drawer.err_red') || 'Network Error';
       msgEl.className = 'modal-msg error';
       msgEl.style.display = 'block';
     }
@@ -3028,7 +3123,7 @@ if (twoFAOverlay) {
         msgEl.style.display = 'block';
       }
     } catch(e) {
-      msgEl.textContent = window.i18n.t('drawer.err_red') || 'Network error.';
+      msgEl.textContent = window.i18n.t('drawer.err_red') || 'Network Error';
       msgEl.className = 'modal-msg error';
       msgEl.style.display = 'block';
     }
@@ -3072,6 +3167,9 @@ function populateTeamSelects() {
     
     const mt = document.getElementById('modalTeam');
     if (mt) mt.innerHTML = `<option value="" data-i18n="usuarios.sin_team">${window.i18n.t('usuarios.sin_team')}</option>` + opts;
+
+    const bt = document.getElementById('bulkTeamSelect');
+    if (bt) bt.innerHTML = `<option value="" data-i18n="usuarios.sin_team">${window.i18n.t('usuarios.sin_team')}</option>` + opts;
 }
 
 // Ensure loadTeams is called on DOMContentLoaded or immediately if already loaded
@@ -3106,7 +3204,7 @@ if (teamsOverlay) {
                 input.value = '';
                 await loadTeams();
                 if (typeof showToast === 'function') {
-                    showToast(window.i18n.t('teams.toast_creado') || 'Team created successfully');
+                    showToast(window.i18n.t('teams.toast_creado') || 'Team created successfully.');
                 }
             } else {
                 window.customAlert(json.message);
@@ -3245,6 +3343,9 @@ function populateZonaSelects() {
     
     const fz = document.getElementById('filterZona');
     if (fz) fz.innerHTML = `<option value="" data-i18n="filter.todas_zonas">${window.i18n.t('filter.todas_zonas')}</option>` + opts;
+
+    const bz = document.getElementById('bulkZonaSelect');
+    if (bz) bz.innerHTML = `<option value="" data-i18n="usuarios.sin_zona">${window.i18n.t('usuarios.sin_zona') || 'No Zone'}</option>` + opts;
 }
 
 window.openManageZonas = function() {
@@ -3285,7 +3386,7 @@ if (document.getElementById('btnCreateZona')) {
             if (json.success) {
                 input.value = '';
                 await loadZonas();
-                showToast(window.i18n.t('zonas.toast_creada') || 'Zone created');
+                showToast(window.i18n.t('zonas.toast_creada') || 'Zone created successfully');
             } else {
                 showToast(json.message, 'error');
             }
@@ -3302,7 +3403,7 @@ window.deleteZona = async function(id) {
         const json = await res.json();
         if (json.success) {
             await loadZonas();
-            showToast(window.i18n.t('zonas.toast_eliminada') || 'Zone deleted');
+            showToast(window.i18n.t('zonas.toast_eliminada') || 'Zone deleted successfully');
         } else {
             showToast(json.message, 'error');
         }
@@ -3347,11 +3448,11 @@ document.getElementById('bulkDeleteSelectedBtn')?.addEventListener('click', asyn
   document.getElementById('bulkActionsMenu').style.display = 'none';
   const checked = document.querySelectorAll('.row-checkbox:checked');
   if(!checked.length) return;
-  if(!await window.customConfirm(window.i18n.t('drawer.confirm_delete') || 'Seguro que desea eliminar los seleccionados?')) return;
+  if(!await window.customConfirm(window.i18n.t('drawer.confirm_delete') || 'Are you sure you want to delete this asset?')) return;
   const ids = Array.from(checked).map(cb => cb.value);
   try {
     await apiFetch('/api/activos/bulk/delete', { method: 'POST', body: JSON.stringify({ ids }) });
-    window.customAlert(window.i18n.t('bulk.ok_delete') || 'Equipos eliminados.');
+    window.customAlert(window.i18n.t('bulk.ok_delete') || 'Assets deleted successfully.');
     await cargarActivos();
     document.getElementById('selectAllCheckbox').checked = false;
     window.updateBulkActionsState();
@@ -3366,7 +3467,7 @@ document.getElementById('bulkMoveCategoryBtn')?.addEventListener('click', () => 
   if(!checked.length) return;
   selectedIdsForMove = Array.from(checked).map(cb => cb.value);
   const select = document.getElementById('bulkCategorySelect');
-  select.innerHTML = '<option value="">-- ' + (window.i18n.t('cat.seleccionar') || 'Seleccionar') + ' --</option>';
+  select.innerHTML = '<option value="">-- ' + (window.i18n.t('cat.seleccionar') || 'Select Destination Category') + ' --</option>';
   window.OFFICIAL_CATEGORIES.forEach(c => {
     select.innerHTML += `<option value="${c.id}">${c.label}</option>`;
   });
@@ -3380,7 +3481,7 @@ document.getElementById('confirmBulkCategoryBtn')?.addEventListener('click', asy
   if(!item_id) return;
   try {
     await apiFetch('/api/activos/bulk/category', { method: 'PATCH', body: JSON.stringify({ ids: selectedIdsForMove, item_id }) });
-    window.customAlert(window.i18n.t('bulk.ok_cat') || 'Equipos movidos exitosamente.');
+    window.customAlert(window.i18n.t('bulk.ok_cat') || 'Categories updated successfully.');
     document.getElementById('bulkCategoryModal').style.display = 'none';
     await cargarActivos();
     document.getElementById('selectAllCheckbox').checked = false;
@@ -3405,7 +3506,7 @@ document.getElementById('confirmBulkStatusBtn')?.addEventListener('click', async
   if(!status) return;
   try {
     await apiFetch('/api/activos/bulk/status', { method: 'PATCH', body: JSON.stringify({ ids: selectedIdsForStatus, status }) });
-    window.customAlert(window.i18n.t('bulk.ok_estado') || 'Estados actualizados exitosamente.');
+    window.customAlert(window.i18n.t('bulk.ok_estado') || 'Statuses updated successfully.');
     document.getElementById('bulkStatusModal').style.display = 'none';
     await cargarActivos();
     document.getElementById('selectAllCheckbox').checked = false;
@@ -3436,7 +3537,7 @@ document.getElementById('confirmBulkZonaBtn')?.addEventListener('click', async (
   const zona_id = document.getElementById('bulkZonaSelect').value || null;
   try {
     await apiFetch('/api/activos/bulk/zona', { method: 'PATCH', body: JSON.stringify({ ids: selectedIdsForZona, zona_id }) });
-    window.customAlert(window.i18n.t('bulk.ok_zona') || 'Zonas actualizadas exitosamente.');
+    window.customAlert(window.i18n.t('bulk.ok_zona') || 'Zones updated successfully.');
     document.getElementById('bulkZonaModal').style.display = 'none';
     await cargarActivos();
     document.getElementById('selectAllCheckbox').checked = false;
@@ -3467,7 +3568,7 @@ document.getElementById('confirmBulkTeamBtn')?.addEventListener('click', async (
   const team_id = document.getElementById('bulkTeamSelect').value || null;
   try {
     await apiFetch('/api/activos/bulk/team', { method: 'PATCH', body: JSON.stringify({ ids: selectedIdsForTeam, team_id }) });
-    window.customAlert(window.i18n.t('bulk.ok_team') || 'Teams actualizados exitosamente.');
+    window.customAlert(window.i18n.t('bulk.ok_team') || 'Teams updated successfully.');
     document.getElementById('bulkTeamModal').style.display = 'none';
     await cargarActivos();
     document.getElementById('selectAllCheckbox').checked = false;

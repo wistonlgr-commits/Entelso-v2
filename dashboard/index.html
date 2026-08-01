@@ -493,8 +493,9 @@
                 <div style="display: flex; gap: 32px; align-items: flex-start;">
                     <!-- Avatar Column -->
                     <div style="display: flex; flex-direction: column; align-items: center; gap: 16px;">
-                        <div style="width: 120px; height: 120px; border-radius: 50%; background: var(--accent-blue); display: flex; align-items: center; justify-content: center; font-size: 40px; font-weight: bold; color: white;" id="perfilAvatarBig">A</div>
-                        <button class="btn-ghost" style="width: 100%;" data-i18n="perfil.cambiar_foto">Change Photo</button>
+                        <div style="width: 120px; height: 120px; border-radius: 50%; background: var(--accent-blue); display: flex; align-items: center; justify-content: center; font-size: 40px; font-weight: bold; color: white; background-size: cover; background-position: center;" id="perfilAvatarBig">A</div>
+                        <button class="btn-ghost" style="width: 100%;" id="btnCambiarFoto" data-i18n="perfil.cambiar_foto">Change Photo</button>
+                        <input type="file" id="fotoInput" style="display: none;" accept="image/*">
                     </div>
                     <!-- Form Column -->
                     <div style="flex: 1;">
@@ -516,9 +517,9 @@
                         <hr style="border: 0; border-top: 1px solid var(--border); margin: 32px 0;">
                         <h2 style="margin-bottom: 16px; font-size: 18px;" data-i18n="perfil.notif_pref">Notification Preferences</h2>
                                                 <div style="display: flex; flex-direction: column; gap: 12px; margin-bottom: 24px;">
-                            <label style="display: flex; align-items: center; gap: 8px;"><input type="checkbox" id="prefCalibracion"> <span data-i18n="perfil.pref_correo">Recibir correos sobre alertas de calibración</span></label>
-                            <label style="display: flex; align-items: center; gap: 8px;"><input type="checkbox" id="prefAsignacion"> <span data-i18n="perfil.pref_wa">Recibir mensajes de WhatsApp al asignar equipos</span></label>
-                            <label style="display: flex; align-items: center; gap: 8px;"><input type="checkbox" id="prefResumen"> <span data-i18n="perfil.pref_resumen">Resumen semanal de inventario</span></label>
+                            <label style="display: flex; align-items: center; gap: 8px;"><input type="checkbox" id="prefCalibracion"> <span data-i18n="perfil.pref_correo">Receive emails about calibration alerts</span></label>
+                            <label style="display: flex; align-items: center; gap: 8px;"><input type="checkbox" id="prefAsignacion"> <span data-i18n="perfil.pref_wa">Receive WhatsApp messages when equipment is assigned</span></label>
+                            <label style="display: flex; align-items: center; gap: 8px;"><input type="checkbox" id="prefResumen"> <span data-i18n="perfil.pref_resumen">Weekly inventory summary</span></label>
                         </div>
                         <button class="btn-primary" id="btnGuardarPerfil" data-i18n="perfil.guardar">Save Changes</button>
                     </div>
@@ -576,7 +577,7 @@
                                 <strong style="font-size: 14px;" data-i18n="seg.sesiones">Active Sessions</strong>
                                 <span style="color: var(--accent-blue); font-size: 12px; font-weight: bold;" data-i18n="seg.dispositivos">1 Device</span>
                             </div>
-                            <div style="font-size: 12px; color: var(--text-2); margin-bottom: 12px;">Windows PC · Chrome <br> Melbourne, AU · Activo ahora</div>
+                            <div style="font-size: 12px; color: var(--text-2); margin-bottom: 12px;">Windows PC · Chrome <br> Melbourne, AU · Active now</div>
                             <button class="btn-ghost" style="width: 100%; font-size: 13px; color: var(--accent-red);" data-i18n="seg.cerrar_sesiones">Close other sessions</button>
                         </div>
                     </div>
@@ -601,9 +602,9 @@
                     <table class="data-table">
                         <thead>
                             <tr>
-                                <th style="width: 150px;" data-i18n="audit.fecha">Fecha y Hora</th>
-                                <th data-i18n="audit.user">Usuario</th>
-                                <th data-i18n="audit.accion">Acción Realizada</th>
+                                <th style="width: 150px;" data-i18n="audit.fecha">Date and Time</th>
+                                <th data-i18n="audit.user">User</th>
+                                <th data-i18n="audit.accion">Action Performed</th>
                             </tr>
                         </thead>
                         <tbody id="auditTableBody">
@@ -624,7 +625,7 @@
                 </div>
                 <div class="header-actions">
                     <button class="btn-ghost" onclick="openBulkDelete('usuarios')" style="color:var(--accent-red)"><i class="fa-solid fa-trash-can"></i> <span data-i18n="bulk.btn_delete_all">Delete All</span></button>
-                    <button class="btn-primary" id="openAddUserModal"><i class="fa-solid fa-plus"></i> <span data-i18n="usuarios.btn_add_user">Añadir Usuario</span></button>
+                    <button class="btn-primary" id="openAddUserModal"><i class="fa-solid fa-plus"></i> <span data-i18n="usuarios.btn_add_user">Add User</span></button>
                 </div>
             </header>
             <div class="kpi-strip">
@@ -661,7 +662,7 @@
 <div class="modal-overlay" id="addUserModalOverlay">
     <div class="modal" id="addUserModal">
         <div class="modal-header">
-            <span><i class="fa-solid fa-user-plus"></i> <span data-i18n="usuarios.modal_title">Añadir Nuevo Usuario</span></span>
+            <span><i class="fa-solid fa-user-plus"></i> <span data-i18n="usuarios.modal_title">Add New User</span></span>
             <button class="icon-btn" id="closeAddUserModal"><i class="fa-solid fa-xmark"></i></button>
         </div>
         <div class="modal-body">
@@ -682,10 +683,10 @@
                 <div class="form-group">
                     <label data-i18n="usuarios.rol">Role</label>
                     <select id="addUserRole" class="form-input">
-                        <option value="trabajador" data-i18n="usuarios.role_trabajador">Trabajador</option>
+                        <option value="trabajador" data-i18n="usuarios.role_trabajador">Worker</option>
                         <option value="supervisor" data-i18n="usuarios.role_supervisor">Supervisor</option>
-                        <option value="almacen" data-i18n="usuarios.role_almacen">Almacén</option>
-                        <option value="admin" data-i18n="usuarios.role_admin">Administrador</option>
+                        <option value="almacen" data-i18n="usuarios.role_almacen">Warehouse</option>
+                        <option value="admin" data-i18n="usuarios.role_admin">Administrator</option>
                     </select>
                 </div>
                 <div class="form-group">
@@ -693,12 +694,12 @@
                     <select id="addUserTeam" class="form-input"><option value="" data-i18n="usuarios.sin_team">No Team</option></select>
                 </div>
                 <div class="form-group">
-                    <label data-i18n="usuarios.pass_label">Contraseña / PIN * <small style="color:var(--text-2)">(mín. 4 caracteres)</small></label>
-                    <input type="password" id="addUserPassword" class="form-input" required placeholder="Mínimo 4 caracteres" data-i18n-ph="usuarios.min_chars">
+                    <label data-i18n="usuarios.pass_label">Password / PIN * <small style="color:var(--text-2)">(min. 4 characters)</small></label>
+                    <input type="password" id="addUserPassword" class="form-input" required placeholder="Minimum 4 characters" data-i18n-ph="usuarios.min_chars">
                 </div>
             </div>
             <button class="btn-primary btn-full" id="confirmAddUserBtn" style="margin-top:20px;" data-i18n="usuarios.btn_add_user">
-                Crear Usuario
+                Create User
             </button>
         </div>
     </div>
