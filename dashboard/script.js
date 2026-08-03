@@ -363,6 +363,7 @@ async function cargarActivos(silent = false) {
       fecha:       a.fecha_registro || a.fecha_prox_tag || a.fecha_prox_cali || null,
       // Drawer fields
       serie:       a.numero_serie,
+      parent_activo_id: a.parent_activo_id || null,
       ultima_calibracion: a.fecha_ultima_cali || null,
       calibracion: a.fecha_prox_cali || null,
       ultimo_tag:  a.fecha_ultimo_tag || null,
@@ -375,6 +376,7 @@ async function cargarActivos(silent = false) {
       notas:       a.notas           || '',
       _raw:        a,
     }));
+    window.currentDataActivos = json.data || [];
     renderizarActivos();
     actualizarKPIs();
     renderizarGraficos();
@@ -543,7 +545,12 @@ function renderInventoryTable(tbody, data, groupByKey = null) {
       `;
     } else {
       return `
-        <td style="text-align:center;"><input type="checkbox" class="row-checkbox" value="${item.db_id}" onclick="event.stopPropagation(); updateBulkActionsState()"></td>
+        <td style="text-align:center;">
+          ${item.parent_activo_id 
+            ? `<i class="fa-solid fa-lock" style="color:var(--text-3); font-size:12px;" title="${window.i18n?.t('modal.err_already_in_kit') || 'In Kit'}"></i>` 
+            : `<input type="checkbox" class="row-checkbox" value="${item.db_id}" onclick="event.stopPropagation(); updateBulkActionsState()">`
+          }
+        </td>
         <td><span class="id-cell" style="display:inline-block; max-width:140px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; font-family: 'Courier New', Courier, monospace; font-weight: 600; font-size: 13px; color: var(--text);" title="${escapeHTML(item.id)}">${escapeHTML(item.id)}</span></td>
         <td>${escapeHTML(item.equipo)}</td>
         <td>${escapeHTML(item.zona)}</td>
@@ -3845,5 +3852,112 @@ window.verDetallesActivo = function(id) {
     noFotos.style.display = 'block';
   }
 
+  // Kit Logic
+  const kitSection = document.getElementById('detKitSection');
+  const catPadre = activo.categoria_padre ? activo.categoria_padre.toLowerCase() : '';
+  const isKit = activo.tipo === 'kit' || catPadre === 'kit';
+  
+  if (isKit) {
+    kitSection.style.display = 'block';
+    window.renderKitContents(activo.id);
+    document.getElementById('btnAddKitItem').onclick = () => window.promptAddKitItem(activo.id);
+  } else {
+    kitSection.style.display = 'none';
+  }
+
   document.getElementById('assetDetailsModalOverlay').classList.add('open');
+};
+
+window.renderKitContents = function(kitId) {
+  const container = document.getElementById('detKitItems');
+  container.innerHTML = '<div style="color: var(--text-2); font-size: 13px;">Loading...</div>';
+  
+  const children = window.currentDataActivos.filter(a => a.parent_activo_id === kitId);
+  
+  if (children.length === 0) {
+    container.innerHTML = '<div style="color: var(--text-2); font-size: 13px; font-style: italic;" data-i18n="modal.empty_kit">This kit is empty.</div>';
+    if(window.i18n) window.i18n.applyTranslations();
+    return;
+  }
+  
+  container.innerHTML = '';
+  children.forEach(child => {
+    const div = document.createElement('div');
+    div.style.display = 'flex';
+    div.style.alignItems = 'center';
+    div.style.justifyContent = 'space-between';
+    div.style.padding = '8px';
+    div.style.background = 'var(--surface-hover)';
+    div.style.borderRadius = 'var(--radius-sm)';
+    div.style.fontSize = '13px';
+    
+    div.innerHTML = `
+      <div style="display:flex; align-items:center; gap:8px;">
+        <i class="fa-solid fa-microchip" style="color:var(--text-3);"></i>
+        <div>
+          <div style="font-weight: 500; color: var(--text-1);">${escapeHTML(child.numero_serie)}</div>
+          <div style="font-size: 11px; color: var(--text-2);">${escapeHTML(child.nombre_item || child.descripcion || '--')}</div>
+        </div>
+      </div>
+      <button class="btn-icon" style="color: var(--status-error);" onclick="window.removeKitItem(${child.id}, ${kitId})" title="Remove from Kit"><i class="fa-solid fa-trash"></i></button>
+    `;
+    container.appendChild(div);
+  });
+};
+
+window.promptAddKitItem = async function(kitId) {
+  const serial = prompt(window.i18n.t('modal.prompt_kit_serial') || 'Enter the serial number of the asset to add to this kit:');
+  if (!serial) return;
+  
+  const child = window.currentDataActivos.find(a => a.numero_serie.toLowerCase() === serial.trim().toLowerCase());
+  if (!child) {
+    alert(window.i18n.t('modal.err_not_found') || 'Asset not found with that serial number.');
+    return;
+  }
+  if (child.id === kitId) {
+    alert('Cannot add a kit to itself.');
+    return;
+  }
+  if (child.parent_activo_id) {
+    alert(window.i18n.t('modal.err_already_in_kit') || 'Asset is already in a kit.');
+    return;
+  }
+  
+  try {
+    const res = await apiFetch('/api/activos/' + child.id, {
+      method: 'PATCH',
+      body: JSON.stringify({ parent_activo_id: kitId })
+    });
+    if (res.success) {
+      registrarAuditLog(`Added asset ${child.id} to kit ${kitId}`);
+      await cargarActivos(true); // force reload
+      window.renderKitContents(kitId);
+    } else {
+      alert(res.message);
+    }
+  } catch (err) {
+    console.error(err);
+    alert(window.i18n.t('api.error') || 'Error adding asset to kit.');
+  }
+};
+
+window.removeKitItem = async function(childId, kitId) {
+  if (!confirm(window.i18n.t('modal.confirm_remove_kit') || 'Remove this asset from the kit?')) return;
+  
+  try {
+    const res = await apiFetch('/api/activos/' + childId, {
+      method: 'PATCH',
+      body: JSON.stringify({ parent_activo_id: '' }) // Empty string or null to remove
+    });
+    if (res.success) {
+      registrarAuditLog(`Removed asset ${childId} from kit ${kitId}`);
+      await cargarActivos(true);
+      window.renderKitContents(kitId);
+    } else {
+      alert(res.message);
+    }
+  } catch (err) {
+    console.error(err);
+    alert(window.i18n.t('api.error') || 'Error removing asset from kit.');
+  }
 };

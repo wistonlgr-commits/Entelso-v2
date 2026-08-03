@@ -1,7 +1,7 @@
 const db = require('../../config/database');
 
 const ASSET_SELECT = `
-  SELECT a.id, a.numero_serie, a.estado, a.team,
+  SELECT a.id, a.numero_serie, a.estado, a.team, a.parent_activo_id,
          a.fecha_registro,
          a.fecha_ultima_cali, a.fecha_prox_cali,
          a.fecha_ultimo_tag,  a.fecha_prox_tag,
@@ -79,7 +79,7 @@ exports.create = async (data) => {
 
 exports.update = async (id, patch) => {
   const allowed = ['usuario_actual_id','ubicacion_actual_id','estado','team',
-                   'fecha_ultima_cali','fecha_prox_cali','fecha_ultimo_tag','fecha_prox_tag', 'fotos', 'notas'];
+                   'fecha_ultima_cali','fecha_prox_cali','fecha_ultimo_tag','fecha_prox_tag', 'fotos', 'notas', 'parent_activo_id'];
   const sets = []; const params = [];
   for (const k of allowed) {
     if (patch[k] !== undefined) { 
@@ -96,6 +96,28 @@ exports.update = async (id, patch) => {
   const { rows } = await db.query(
     `UPDATE activos SET ${sets.join(',')} WHERE id=$${params.length} RETURNING *`, params
   );
+
+  // Update children recursively if location/team changes
+  if (patch.team !== undefined || patch.ubicacion_actual_id !== undefined || patch.usuario_actual_id !== undefined) {
+    const childSets = [];
+    const childParams = [];
+    if (patch.team !== undefined) { childParams.push(patch.team === '' ? null : patch.team); childSets.push(`team=$${childParams.length}`); }
+    if (patch.ubicacion_actual_id !== undefined) { childParams.push(patch.ubicacion_actual_id === '' ? null : patch.ubicacion_actual_id); childSets.push(`ubicacion_actual_id=$${childParams.length}`); }
+    if (patch.usuario_actual_id !== undefined) { childParams.push(patch.usuario_actual_id === '' ? null : patch.usuario_actual_id); childSets.push(`usuario_actual_id=$${childParams.length}`); }
+    
+    if (childSets.length > 0) {
+      childParams.push(id);
+      await db.query(`
+        WITH RECURSIVE kit_hierarchy AS (
+          SELECT id FROM activos WHERE parent_activo_id = $${childParams.length}
+          UNION
+          SELECT a.id FROM activos a INNER JOIN kit_hierarchy k ON a.parent_activo_id = k.id
+        )
+        UPDATE activos SET ${childSets.join(',')} WHERE id IN (SELECT id FROM kit_hierarchy)
+      `, childParams);
+    }
+  }
+
   return rows[0];
 };
 
@@ -241,18 +263,39 @@ exports.bulkUpdateCategory = async (ids, item_id) => {
 
 exports.bulkUpdateStatus = async (ids, status) => {
   if (!ids || !ids.length) return 0;
-  const { rowCount } = await db.query('UPDATE activos SET estado = $1 WHERE id = ANY($2::int[])', [status, ids]);
+  const { rowCount } = await db.query(`
+    WITH RECURSIVE kit_hierarchy AS (
+      SELECT id FROM activos WHERE id = ANY($2::int[])
+      UNION
+      SELECT a.id FROM activos a INNER JOIN kit_hierarchy k ON a.parent_activo_id = k.id
+    )
+    UPDATE activos SET estado = $1 WHERE id IN (SELECT id FROM kit_hierarchy)
+  `, [status, ids]);
   return rowCount;
 };
 
 exports.bulkUpdateZona = async (ids, zona_id) => {
   if (!ids || !ids.length) return 0;
-  const { rowCount } = await db.query('UPDATE activos SET ubicacion_actual_id = $1 WHERE id = ANY($2::int[])', [zona_id, ids]);
+  const { rowCount } = await db.query(`
+    WITH RECURSIVE kit_hierarchy AS (
+      SELECT id FROM activos WHERE id = ANY($2::int[])
+      UNION
+      SELECT a.id FROM activos a INNER JOIN kit_hierarchy k ON a.parent_activo_id = k.id
+    )
+    UPDATE activos SET ubicacion_actual_id = $1 WHERE id IN (SELECT id FROM kit_hierarchy)
+  `, [zona_id, ids]);
   return rowCount;
 };
 
 exports.bulkUpdateTeam = async (ids, team) => {
   if (!ids || !ids.length) return 0;
-  const { rowCount } = await db.query('UPDATE activos SET team = $1 WHERE id = ANY($2::int[])', [team, ids]);
+  const { rowCount } = await db.query(`
+    WITH RECURSIVE kit_hierarchy AS (
+      SELECT id FROM activos WHERE id = ANY($2::int[])
+      UNION
+      SELECT a.id FROM activos a INNER JOIN kit_hierarchy k ON a.parent_activo_id = k.id
+    )
+    UPDATE activos SET team = $1 WHERE id IN (SELECT id FROM kit_hierarchy)
+  `, [team, ids]);
   return rowCount;
 };
