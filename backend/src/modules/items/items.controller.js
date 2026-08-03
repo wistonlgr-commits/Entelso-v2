@@ -1,4 +1,4 @@
-const svc = require('./items.service');
+ï»¿const svc = require('./items.service');
 const res = require('../../common/utils/apiResponse');
 
 exports.getAll = async (req, reply, next) => {
@@ -14,6 +14,9 @@ exports.getById = async (req, reply, next) => {
 exports.create = async (req, reply, next) => {
   try { reply.status(201).json(res.success(await svc.create(req.body))); } catch (e) { next(e); }
 };
+exports.update = async (req, reply, next) => {
+  try { reply.json(res.success(await svc.update(req.params.id, req.body))); } catch (e) { next(e); }
+};
 exports.updateStock = async (req, reply, next) => {
   try { reply.json(res.success(await svc.updateStock(req.params.id, req.body.cantidad, req.body.operacion))); }
   catch (e) { next(e); }
@@ -22,7 +25,6 @@ exports.updateStock = async (req, reply, next) => {
 exports.remove = async (req, reply, next) => {
   try {
     await svc.remove(req.params.id);
-    reply.json(res.success({ deleted: true }, 'Categoría eliminada.'));
+    reply.json(res.success({ deleted: true }, 'Categoria eliminada.'));
   } catch (e) { next(e); }
 };
-

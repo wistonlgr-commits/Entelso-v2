@@ -2,7 +2,7 @@ const { z } = require('zod');
 
 exports.createItemSchema = z.object({
   nombre: z.string().min(2).max(150),
-  tipo:   z.enum(['herramienta','consumible']),
+  tipo:   z.enum(['herramienta','consumible','kit']),
   stock_global_consumibles: z.number().int().nonnegative().optional(),
 });
 

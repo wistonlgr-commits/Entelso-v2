@@ -1,4 +1,4 @@
-﻿const db = require('../../config/database');
+const db = require('../../config/database');
 
 exports.getAll = async (tipo = null) => {
   const { rows } = await db.query(
@@ -20,6 +20,14 @@ exports.create = async ({ nombre, tipo, stock_global_consumibles }) => {
   const { rows } = await db.query(
     'INSERT INTO items (nombre, tipo, stock_global_consumibles) VALUES ($1,$2,$3) RETURNING *',
     [nombre, tipo, tipo === 'consumible' ? (stock_global_consumibles ?? 0) : 0]
+  );
+  return rows[0];
+};
+
+exports.update = async (id, { nombre, tipo }) => {
+  const { rows } = await db.query(
+    'UPDATE items SET nombre = COALESCE($1, nombre), tipo = COALESCE($2, tipo) WHERE id = $3 RETURNING *',
+    [nombre, tipo, id]
   );
   return rows[0];
 };

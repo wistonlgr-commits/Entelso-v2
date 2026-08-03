@@ -7,6 +7,7 @@ const { createItemSchema, updateStockSchema } = require('./items.validation');
 router.get('/',            requireAuth, ctrl.getAll);
 router.get('/:id',         requireAuth, ctrl.getById);
 router.post('/',           requireAuth, validate(createItemSchema), ctrl.create);
+router.put('/:id',         requireAuth, validate(createItemSchema), ctrl.update);
 router.patch('/:id/stock', requireAuth, validate(updateStockSchema), ctrl.updateStock);
 router.delete('/:id',      requireAuth, ctrl.remove);
 

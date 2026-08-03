@@ -20,7 +20,6 @@ window.OFFICIAL_CATEGORIES = [
   { id: 'PIM Testers', label: 'PIM Testers', icon: 'fa-wave-square' },
   { id: 'Handy Tools', label: 'Handy Tools', icon: 'fa-toolbox' },
   { id: 'Safety & PPE', label: 'Safety & PPE', icon: 'fa-hard-hat' },
-  { id: 'Kits', label: 'Kits', icon: 'fa-box' },
   { id: 'CAM Keys', label: 'CAM Keys', icon: 'fa-key', hidden: true },
   { id: 'Levelling Kits', label: 'Levelling Kits', icon: 'fa-ruler-combined', hidden: true },
   { id: 'CW Testers', label: 'CW Testers', icon: 'fa-broadcast-tower', hidden: true },
@@ -3650,18 +3649,58 @@ const renderManageCatList = () => {
   const ul = document.getElementById('manageCategoriesList');
   if(!ul) return;
   ul.innerHTML = '';
-  window.OFFICIAL_CATEGORIES.forEach(c => {
-    ul.innerHTML += `<li style="display:flex; justify-content:space-between; align-items:center; padding:12px 16px; border-bottom:1px solid var(--border);">
-      <div style="display:flex; align-items:center; gap:12px;">
-        <i class="fa-solid ${c.icon}" style="font-size:18px; color:var(--accent-blue);"></i>
-        <div>
-          <strong style="color:white; font-size:14px;">${c.label}</strong>
-          <div style="font-size:12px; color:var(--text-2);">${c.desc}</div>
+  
+  (systemCategories || []).forEach(c => {
+    let icon = 'fa-tag';
+    if(c.tipo === 'consumible') icon = 'fa-box';
+    if(c.tipo === 'kit') icon = 'fa-toolbox';
+
+    const li = document.createElement('li');
+    li.style = "display:flex; justify-content:space-between; align-items:center; padding:12px 16px; border-bottom:1px solid var(--border);";
+    li.innerHTML = `
+      <div style="display:flex; align-items:center; gap:12px; flex: 1;">
+        <i class="fa-solid ${icon}" style="font-size:18px; color:var(--accent-blue);"></i>
+        <div id="cat-view-${c.id}" style="display:block; flex:1;">
+          <strong style="color:white; font-size:14px;">${c.nombre}</strong>
+          <div style="font-size:12px; color:var(--text-2); text-transform: capitalize;">${c.tipo}</div>
+        </div>
+        <div id="cat-edit-${c.id}" style="display:none; flex:1; gap: 8px;">
+          <input type="text" id="cat-name-${c.id}" class="form-input" value="${c.nombre}" style="width: 50%;">
+          <select id="cat-type-${c.id}" class="form-input select" style="width: 40%;">
+            <option value="herramienta" ${c.tipo === 'herramienta' ? 'selected' : ''}>Tool</option>
+            <option value="consumible" ${c.tipo === 'consumible' ? 'selected' : ''}>Consumable</option>
+            <option value="kit" ${c.tipo === 'kit' ? 'selected' : ''}>Kit</option>
+          </select>
         </div>
       </div>
-      <span class="status-badge avail" style="font-size:11px;">Active</span>
-    </li>`;
+      <div style="display:flex; gap: 8px; align-items:center;">
+        <button class="icon-btn" id="cat-btn-edit-${c.id}" onclick="window.toggleCatEdit(${c.id})" style="color:var(--text-2);"><i class="fa-solid fa-pen"></i></button>
+        <button class="icon-btn" id="cat-btn-save-${c.id}" onclick="window.saveCatEdit(${c.id})" style="display:none; color:var(--accent-blue);"><i class="fa-solid fa-check"></i></button>
+        <button class="icon-btn" onclick="window.deleteCategory(${c.id})" style="color:var(--accent-red);"><i class="fa-solid fa-trash"></i></button>
+      </div>
+    `;
+    ul.appendChild(li);
   });
+};
+
+window.toggleCatEdit = (id) => {
+  const isEditing = document.getElementById(`cat-edit-${id}`).style.display === 'flex';
+  document.getElementById(`cat-view-${id}`).style.display = isEditing ? 'block' : 'none';
+  document.getElementById(`cat-edit-${id}`).style.display = isEditing ? 'none' : 'flex';
+  document.getElementById(`cat-btn-edit-${id}`).style.display = isEditing ? 'block' : 'none';
+  document.getElementById(`cat-btn-save-${id}`).style.display = isEditing ? 'none' : 'block';
+};
+
+window.saveCatEdit = async (id) => {
+  const newName = document.getElementById(`cat-name-${id}`).value.trim();
+  const newType = document.getElementById(`cat-type-${id}`).value;
+  if(!newName) return;
+  try {
+    await apiFetch(`/api/items/${id}`, { method: 'PUT', body: JSON.stringify({ nombre: newName, tipo: newType }) });
+    const res = await apiFetch('/api/items');
+    const json = await res.json();
+    if(json.success) { systemCategories = json.data; renderManageCatList(); renderizarFiltrosCategorias(); }
+  } catch (err) { window.customAlert((window.i18n.t('api.error_prefix') || 'Error: ') + err.message); }
 };
 
 // Ensure the event listeners are attached immediately
@@ -3676,9 +3715,10 @@ const renderManageCatList = () => {
 
   document.getElementById('addCategoryBtn')?.addEventListener('click', async () => {
     const name = document.getElementById('newCategoryName').value.trim();
+    const tipo = document.getElementById('newCategoryType')?.value || 'herramienta';
     if(!name) return;
     try {
-      await apiFetch('/api/items', { method: 'POST', body: JSON.stringify({ nombre: name, tipo: 'herramienta' }) });
+      await apiFetch('/api/items', { method: 'POST', body: JSON.stringify({ nombre: name, tipo }) });
       document.getElementById('newCategoryName').value = '';
       const res = await apiFetch('/api/items');
       const json = await res.json();

@@ -847,7 +847,6 @@
                         <option value="PIM Testers">PIM Testers</option>
                         <option value="Handy Tools">Handy Tools</option>
                         <option value="Safety &amp; PPE">Safety &amp; PPE</option>
-                        <option value="Kits">Kits</option>
                         <option value="CAM Keys">CAM Keys</option>
                         <option value="Levelling Kits">Levelling Kits</option>
                         <option value="CW Testers">CW Testers</option>
@@ -1203,7 +1202,12 @@
             </ul>
         </div>
         <div class="modal-footer" style="display: flex; gap: 8px;">
-            <input type="text" id="newCategoryName" class="form-input" placeholder="Nueva categoría..." style="flex: 1;" data-i18n-ph="cat.nueva_ph">
+            <input type="text" id="newCategoryName" class="form-input" placeholder="Nueva categoría..." style="flex: 2;" data-i18n-ph="cat.nueva_ph">
+            <select id="newCategoryType" class="form-input select" style="flex: 1;">
+                <option value="herramienta">Tool</option>
+                <option value="consumible">Consumable</option>
+                <option value="kit">Kit</option>
+            </select>
             <button class="btn-primary" id="addCategoryBtn"><i class="fa-solid fa-plus"></i></button>
         </div>
     </div>

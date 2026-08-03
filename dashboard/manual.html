@@ -596,6 +596,58 @@
                 </div>
             </div>
 
+            <!-- System Roles & Access Levels -->
+            <div class="step-card">
+                <div class="step-title">
+                    <i class="fa-solid fa-users" style="margin-right:8px; color:var(--accent-blue);"></i>
+                    System Roles & Access Levels
+                </div>
+                <div class="step-desc">
+                    Entelso implements strict role-based access control (RBAC) to ensure operational security and data integrity. Each user is assigned a specific role that dictates their capabilities across the Web Dashboard and the WhatsApp Bot.
+                </div>
+                
+                <div class="feature-grid" style="margin-top: 20px;">
+                    <div class="feature-item">
+                        <h4><span class="status-badge" style="background: rgba(220, 38, 38, 0.2); color: #ef4444;">Administrator</span></h4>
+                        <ul style="margin-top: 10px; padding-left: 20px; color: var(--text-2); font-size: 14px; line-height: 1.6;">
+                            <li>Full and unrestricted access to the entire system.</li>
+                            <li>Can register, edit, and decommission (delete) equipment.</li>
+                            <li>Can create new users, modify roles, and manage access privileges.</li>
+                            <li>Exclusive role with permission to view the immutable audit logs and movement history.</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="feature-item">
+                        <h4><span class="status-badge" style="background: rgba(234, 179, 8, 0.2); color: #eab308;">Warehouse</span></h4>
+                        <ul style="margin-top: 10px; padding-left: 20px; color: var(--text-2); font-size: 14px; line-height: 1.6;">
+                            <li>Operational owner of physical inventory and central warehouse logistics.</li>
+                            <li>Can register new equipment and assign/receive equipment from field personnel.</li>
+                            <li>Manages calibration alerts and maintenance scheduling.</li>
+                            <li><strong>Limitation:</strong> Cannot create new users, modify roles, or delete audit logs.</li>
+                        </ul>
+                    </div>
+
+                    <div class="feature-item">
+                        <h4><span class="status-badge" style="background: rgba(59, 130, 246, 0.2); color: #60a5fa;">Supervisor</span></h4>
+                        <ul style="margin-top: 10px; padding-left: 20px; color: var(--text-2); font-size: 14px; line-height: 1.6;">
+                            <li>Can view the complete global inventory, search for equipment, and monitor their crew.</li>
+                            <li>Can quickly reassign equipment between crew members or send them to maintenance.</li>
+                            <li><strong>Limitation:</strong> Cannot register new assets into the system or decommission existing equipment.</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="feature-item">
+                        <h4><span class="status-badge" style="background: rgba(34, 197, 94, 0.2); color: #4ade80;">Worker</span></h4>
+                        <ul style="margin-top: 10px; padding-left: 20px; color: var(--text-2); font-size: 14px; line-height: 1.6;">
+                            <li>Access is strictly focused on their own assigned inventory.</li>
+                            <li>Can search for equipment to verify status and check calibration dates.</li>
+                            <li>Can scan QR codes to confirm possession of an assigned asset.</li>
+                            <li><strong>Limitation:</strong> Cannot perform reassignments to other users or edit the main database.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
             <!-- STEP 1: Executive KPI Monitoring -->
             <div class="step-card">
                 <div class="step-title">
