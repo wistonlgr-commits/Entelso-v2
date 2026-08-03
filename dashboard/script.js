@@ -2999,12 +2999,12 @@ window.editarActivo = async function(item) {
             </select>
           </div>
           <div class="form-row">
-            <div class="form-group"><label>${window.i18n.t('col.ulti_cal') || 'Last Test / Tag'}</label><input type="date" lang="en" id="editAssetUltiCal" class="form-input" value="${item.ultima_calibracion?item.ultima_calibracion.substring(0,10):''}"></div>
-            <div class="form-group"><label>${window.i18n.t('col.prox_cal') || 'Next Test / Tag'}</label><input type="date" lang="en" id="editAssetProxCal" class="form-input" value="${item.calibracion?item.calibracion.substring(0,10):''}"></div>
+            <div class="form-group"><label>${window.i18n.t('col.ulti_cal') || 'Last Test / Tag'}</label><input type="text" data-type="date" id="editAssetUltiCal" class="form-input" value="${item.ultima_calibracion?item.ultima_calibracion.substring(0,10):''}"></div>
+            <div class="form-group"><label>${window.i18n.t('col.prox_cal') || 'Next Test / Tag'}</label><input type="text" data-type="date" id="editAssetProxCal" class="form-input" value="${item.calibracion?item.calibracion.substring(0,10):''}"></div>
           </div>
           <div class="form-row">
-            <div class="form-group"><label>${window.i18n.t('drawer.meta_ulti_tag') || 'DOM / Last Tag'}</label><input type="date" lang="en" id="editAssetUltiTag" class="form-input" value="${item.ultimo_tag?item.ultimo_tag.substring(0,10):''}"></div>
-            <div class="form-group"><label>${window.i18n.t('drawer.meta_tag') || 'Next Tag / Inspection'}</label><input type="date" lang="en" id="editAssetProxTag" class="form-input" value="${item.tag?item.tag.substring(0,10):''}"></div>
+            <div class="form-group"><label>${window.i18n.t('drawer.meta_ulti_tag') || 'DOM / Last Tag'}</label><input type="text" data-type="date" id="editAssetUltiTag" class="form-input" value="${item.ultimo_tag?item.ultimo_tag.substring(0,10):''}"></div>
+            <div class="form-group"><label>${window.i18n.t('drawer.meta_tag') || 'Next Tag / Inspection'}</label><input type="text" data-type="date" id="editAssetProxTag" class="form-input" value="${item.tag?item.tag.substring(0,10):''}"></div>
           </div>
           <div style="margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--border);">
             <label>${window.i18n.t('modal.fotos') || 'Photos'}</label>
@@ -4025,3 +4025,10 @@ window.removeKitItem = async function(childId, kitId) {
     alert(window.i18n.t('api.error') || 'Error removing asset from kit.');
   }
 };
+
+// Init Flatpickr globally
+const initFlatpickr = (node) => { if (node.querySelectorAll) { node.querySelectorAll('[data-type="date"]').forEach(el => { if (!el._flatpickr) { flatpickr(el, { dateFormat: 'Y-m-d', locale: 'en' }); } }); } };
+const observer = new MutationObserver((mutations) => { mutations.forEach(m => { m.addedNodes.forEach(node => { initFlatpickr(node); }); }); });
+observer.observe(document.body, { childList: true, subtree: true });
+document.addEventListener('DOMContentLoaded', () => initFlatpickr(document));
+

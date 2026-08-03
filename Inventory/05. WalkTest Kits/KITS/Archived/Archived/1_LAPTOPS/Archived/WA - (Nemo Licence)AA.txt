@@ -1,0 +1,543 @@
+SERIAL NUMBER                 	2572759262
+EXPIRATION                    	No expiration
+TS EXPIRATION                 	202711
+COUNTRY                       	Unlimited
+NETWORK                       	Unlimited
+OUTDOOR VOICE                 	99
+OUTDOOR DATA                  	99
+OUTDOOR PESQ                  	99
+OUTDOOR POLQA                 	99
+OUTDOOR POLQA v. 3.0          	99
+OUTDOOR ECHO                  	99
+OUTDOOR PEVQ-S                	99
+OUTDOOR STREAMING QUALITY     	99
+INVEX VOICE                   	99
+INVEX DATA                    	99
+INVEX PESQ                    	99
+INVEX POLQA                   	99
+INVEX ECHO                    	99
+INVEX PEVQ-S                  	99
+INVEX STREAMING QUALITY       	99
+INVEX CONNECTIONS             	99
+MEASUREMENT                   	ENABLED
+INDOOR                        	ENABLED
+BASIC DATA                    	ENABLED
+MULTI FILE EXPORT             	ENABLED
+REPORTING                     	ENABLED
+INVEX                         	ENABLED
+VOIP                          	ENABLED
+KODIAK                        	ENABLED
+DIAGNOSTIC DATA               	ENABLED
+PEVQ-S SERVER                 	ENABLED
+VDT                           	DISABLED
+NEMO CLOUD                    	ENABLED
+NEMO CLOUD BASIC              	ENABLED
+NEMO CLOUD PREMIUM            	ENABLED
+NEMO CLOUD AUTO               	ENABLED
+NEMO CLOUD WORKORDER          	ENABLED
+GOOGLE MAPS                   	ENABLED
+DEMO LICENSE                  	ENABLED
+NATA OVER ADB                 	DEPRECATED
+MSCORE                        	ENABLED
+TAP                           	DISABLED
+ATA                           	DISABLED
+Anritsu ML8720B               	ENABLED
+Anritsu ML8720C               	ENABLED
+Anritsu ML8740A               	ENABLED
+Anritsu MS2721B DVB-H         	ENABLED
+Anritsu MS2721B spectrum      	ENABLED
+Apple iPhone                  	ENABLED
+Application tester            	ENABLED
+Broadcom Forcing/Scanning     	ENABLED
+Broadcom GSM                  	ENABLED
+Broadcom HSPA                 	ENABLED
+Broadcom LTE FDD              	ENABLED
+Broadcom LTE TDD              	ENABLED
+Broadcom UMTS                 	ENABLED
+GPS NMEA                      	ENABLED
+GPS TAIP                      	ENABLED
+HANDLER 1                     	ENABLED
+HANDLER 10                    	ENABLED
+HANDLER 101                   	ENABLED
+HANDLER 104                   	ENABLED
+HANDLER 11                    	ENABLED
+HANDLER 118                   	ENABLED
+HANDLER 12                    	ENABLED
+HANDLER 128                   	ENABLED
+HANDLER 13                    	ENABLED
+HANDLER 139                   	ENABLED
+HANDLER 14                    	ENABLED
+HANDLER 143                   	ENABLED
+HANDLER 144                   	ENABLED
+HANDLER 15                    	ENABLED
+HANDLER 151                   	ENABLED
+HANDLER 16                    	ENABLED
+HANDLER 17                    	ENABLED
+HANDLER 172                   	ENABLED
+HANDLER 18                    	ENABLED
+HANDLER 19                    	ENABLED
+HANDLER 2                     	ENABLED
+HANDLER 20                    	ENABLED
+HANDLER 212                   	ENABLED
+HANDLER 22                    	ENABLED
+HANDLER 220                   	ENABLED
+HANDLER 221                   	ENABLED
+HANDLER 227                   	ENABLED
+HANDLER 228                   	ENABLED
+HANDLER 23                    	ENABLED
+HANDLER 24                    	ENABLED
+HANDLER 248                   	ENABLED
+HANDLER 25                    	ENABLED
+HANDLER 262                   	ENABLED
+HANDLER 265                   	ENABLED
+HANDLER 266                   	ENABLED
+HANDLER 267                   	ENABLED
+HANDLER 268                   	ENABLED
+HANDLER 269                   	ENABLED
+HANDLER 270                   	ENABLED
+HANDLER 271                   	ENABLED
+HANDLER 272                   	ENABLED
+HANDLER 273                   	ENABLED
+HANDLER 274                   	ENABLED
+HANDLER 275                   	ENABLED
+HANDLER 276                   	ENABLED
+HANDLER 277                   	ENABLED
+HANDLER 278                   	ENABLED
+HANDLER 279                   	ENABLED
+HANDLER 280                   	ENABLED
+HANDLER 281                   	ENABLED
+HANDLER 282                   	ENABLED
+HANDLER 283                   	ENABLED
+HANDLER 284                   	ENABLED
+HANDLER 285                   	ENABLED
+HANDLER 286                   	ENABLED
+HANDLER 287                   	ENABLED
+HANDLER 288                   	ENABLED
+HANDLER 289                   	ENABLED
+HANDLER 290                   	ENABLED
+HANDLER 291                   	ENABLED
+HANDLER 292                   	ENABLED
+HANDLER 293                   	ENABLED
+HANDLER 294                   	ENABLED
+HANDLER 295                   	ENABLED
+HANDLER 296                   	ENABLED
+HANDLER 297                   	ENABLED
+HANDLER 298                   	ENABLED
+HANDLER 299                   	ENABLED
+HANDLER 3                     	ENABLED
+HANDLER 32                    	ENABLED
+HANDLER 33                    	ENABLED
+HANDLER 34                    	ENABLED
+HANDLER 35                    	ENABLED
+HANDLER 39                    	ENABLED
+HANDLER 4                     	ENABLED
+HANDLER 40                    	ENABLED
+HANDLER 41                    	ENABLED
+HANDLER 42                    	ENABLED
+HANDLER 43                    	ENABLED
+HANDLER 44                    	ENABLED
+HANDLER 45                    	ENABLED
+HANDLER 47                    	ENABLED
+HANDLER 48                    	ENABLED
+HANDLER 5                     	ENABLED
+HANDLER 50                    	ENABLED
+HANDLER 51                    	ENABLED
+HANDLER 55                    	ENABLED
+HANDLER 57                    	ENABLED
+HANDLER 58                    	ENABLED
+HANDLER 59                    	ENABLED
+HANDLER 6                     	ENABLED
+HANDLER 68                    	ENABLED
+HANDLER 7                     	ENABLED
+HANDLER 73                    	ENABLED
+HANDLER 79                    	ENABLED
+HANDLER 8                     	ENABLED
+HANDLER 82                    	ENABLED
+HANDLER 84                    	ENABLED
+HANDLER 85                    	ENABLED
+HANDLER 88                    	ENABLED
+HANDLER 9                     	ENABLED
+HANDLER 91                    	ENABLED
+HANDLER 92                    	ENABLED
+HiSilicon B710 GSM/UMTS       	ENABLED
+HiSilicon B710 LTE            	ENABLED
+HiSilicon Balong 5000         	ENABLED
+HiSilicon Balong 5000 CA 5CC  	ENABLED
+HiSilicon Balong 5000 NR CA   	ENABLED
+HiSilicon Balong 5000 NR NSA  	ENABLED
+HiSilicon Balong 5000 NR SA   	ENABLED
+HiSilicon CA (category 4)     	ENABLED
+HiSilicon CA (category 6)     	ENABLED
+HiSilicon CA 3CC (category 6) 	ENABLED
+HiSilicon CA 3CC (category 9) 	ENABLED
+HiSilicon Kirin               	ENABLED
+HiSilicon Kirin CA 2CC        	ENABLED
+HiSilicon Kirin CA 3CC        	ENABLED
+HiSilicon Kirin CA 4CC        	ENABLED
+HiSilicon Kirin LTE           	ENABLED
+HiSilicon VoLTE               	ENABLED
+Keysight FieldFox             	ENABLED
+Keysight FieldFox Pilotscanning	ENABLED
+MediaTek                      	ENABLED
+MediaTek NR (non-standalone)  	ENABLED
+MediaTek NR (standalone)      	ENABLED
+MediaTek NR CA                	ENABLED
+NATA with Unknown Firmware    	ENABLED
+Nemo FSR1 CDMA                	ENABLED
+Nemo FSR1 GSM                 	ENABLED
+Nemo FSR1 LTE                 	ENABLED
+Nemo FSR1 Spectrumscan        	ENABLED
+Nemo FSR1 TD-SCDMA            	ENABLED
+Nemo FSR1 UMTS                	ENABLED
+Nemo FSR2                     	ENABLED
+Neul                          	ENABLED
+Neul NB-IoT                   	ENABLED
+Nokia 1xRTT                   	ENABLED
+Nokia 3500                    	ENABLED
+Nokia 500                     	ENABLED
+Nokia 6086                    	ENABLED
+Nokia 6120                    	ENABLED
+Nokia 6121                    	ENABLED
+Nokia 6125                    	ENABLED
+Nokia 6136                    	ENABLED
+Nokia 6230                    	ENABLED
+Nokia 6230 US                 	ENABLED
+Nokia 6230I                   	ENABLED
+Nokia 6280                    	ENABLED
+Nokia 6282                    	ENABLED
+Nokia 6630                    	ENABLED
+Nokia 6680                    	ENABLED
+Nokia 6720                    	ENABLED
+Nokia 6720 GSM only           	ENABLED
+Nokia 6720 US                 	ENABLED
+Nokia 7376                    	ENABLED
+Nokia C5                      	ENABLED
+Nokia C5 GSM only             	ENABLED
+Nokia C5-03                   	ENABLED
+Nokia C5-03 GSM only          	ENABLED
+Nokia C5-03 US                	ENABLED
+Nokia C5-04                   	ENABLED
+Nokia C7                      	ENABLED
+Nokia C7 GSM only             	ENABLED
+Nokia DVB-H                   	ENABLED
+Nokia E7                      	ENABLED
+Nokia E7 GSM only             	ENABLED
+Nokia N75                     	ENABLED
+Nokia N80 EA                  	ENABLED
+Nokia N80 US                  	ENABLED
+Nokia N85                     	ENABLED
+Nokia N85 GSM only            	ENABLED
+Nokia N85 US                  	ENABLED
+Nokia N92                     	ENABLED
+Nokia N95                     	ENABLED
+Nokia N95 US                  	ENABLED
+Nokia N96                     	ENABLED
+Nokia N96 US                  	ENABLED
+Nokia N97                     	ENABLED
+Nokia N97 US                  	ENABLED
+Nokia NoRM 6                  	ENABLED
+Nokia RD-3                    	ENABLED
+Nokia THR 880                 	ENABLED
+PCTel                         	ENABLED
+PCTel CX                      	ENABLED
+PCTel EX                      	ENABLED
+PCTel EX LTE                  	ENABLED
+PCTel EXflex                  	ENABLED
+PCTel Gflex                   	ENABLED
+PCTel Gflex NR                	ENABLED
+PCTel HBFlex                  	ENABLED
+PCTel IBflex                  	ENABLED
+PCTel IBflex NR               	ENABLED
+PCTel LTE NB-IoT              	ENABLED
+PCTel LX                      	ENABLED
+PCTel MX                      	ENABLED
+PCTel MX LTE                  	ENABLED
+PCTel MXflex                  	ENABLED
+PCTel MXflex NR               	ENABLED
+PCTel PCT                     	ENABLED
+PCTel TETRA                   	ENABLED
+Qualcomm                      	ENABLED
+Qualcomm 1xEVDO               	ENABLED
+Qualcomm 1xRTT                	ENABLED
+Qualcomm Binary Logging       	ENABLED
+Qualcomm CA (category 4)      	ENABLED
+Qualcomm CA (category 6)      	ENABLED
+Qualcomm CA 3CC (category 11) 	ENABLED
+Qualcomm CA 3CC (category 12) 	ENABLED
+Qualcomm CA 3CC (category 6)  	ENABLED
+Qualcomm CA 3CC (category 9)  	ENABLED
+Qualcomm CA 4CC               	ENABLED
+Qualcomm CA 5CC               	ENABLED
+Qualcomm CA 6CC               	ENABLED
+Qualcomm CA 7CC               	ENABLED
+Qualcomm DC-HSUPA             	ENABLED
+Qualcomm EVDO RevB            	ENABLED
+Qualcomm GSM                  	ENABLED
+Qualcomm HSDPA                	ENABLED
+Qualcomm HSPA+                	ENABLED
+Qualcomm HSPA+ DC             	ENABLED
+Qualcomm HSUPA                	ENABLED
+Qualcomm IP Diagnostic        	ENABLED
+Qualcomm LTE FDD              	ENABLED
+Qualcomm LTE M1               	ENABLED
+Qualcomm LTE NB-IoT           	ENABLED
+Qualcomm LTE TDD              	ENABLED
+Qualcomm NR                   	ENABLED
+Qualcomm NR (standalone)      	ENABLED
+Qualcomm NR CA                	ENABLED
+Qualcomm UL 2CC               	ENABLED
+Qualcomm UL 3CC               	ENABLED
+Qualcomm VoLTE                	ENABLED
+Qualcomm VoLTE video          	ENABLED
+Qualcomm X65                  	ENABLED
+Qualcomm X70                  	ENABLED
+Qualcomm position report      	ENABLED
+R&S TSMW radio channel data   	ENABLED
+Rohde & Schwarz LTE NB-IoT    	ENABLED
+Rohde & Schwarz TSME          	ENABLED
+Rohde & Schwarz TSME6         	ENABLED
+Rohde & Schwarz TSME6 NR      	ENABLED
+Rohde & Schwarz TSML C        	ENABLED
+Rohde & Schwarz TSML G        	ENABLED
+Rohde & Schwarz TSML GW       	ENABLED
+Rohde & Schwarz TSML W        	ENABLED
+Rohde & Schwarz TSMQ          	ENABLED
+Rohde & Schwarz TSMW          	ENABLED
+Sagem OT260                   	ENABLED
+Sagem OT290                   	ENABLED
+Sagem OT460                   	ENABLED
+Sagem OT490                   	ENABLED
+Sagem OT590                   	ENABLED
+Samsung Binary Logging        	ENABLED
+Samsung CA 2CC                	ENABLED
+Samsung CA 3CC                	ENABLED
+Samsung CA 4CC                	ENABLED
+Samsung CA 5CC                	ENABLED
+Samsung CA 8CC                	ENABLED
+Samsung GSM                   	ENABLED
+Samsung IP Diagnostic         	ENABLED
+Samsung LTE FDD               	ENABLED
+Samsung LTE TDD               	ENABLED
+Samsung NR                    	ENABLED
+Samsung NR (standalone)       	ENABLED
+Samsung NR CA                 	ENABLED
+Samsung Shannon 335           	ENABLED
+Samsung Shannon 355           	ENABLED
+Samsung Shannon 360           	ENABLED
+Samsung Shannon 5000          	ENABLED
+Samsung Shannon 5123          	ENABLED
+Samsung Shannon 5123A         	ENABLED
+Samsung Shannon 5133          	ENABLED
+Samsung Shannon 5300          	ENABLED
+Samsung UL 2CC                	ENABLED
+Samsung UL 3CC                	ENABLED
+Samsung UMTS                  	ENABLED
+Samsung VoLTE                 	ENABLED
+Samsung VoLTE video           	ENABLED
+Test handler                  	ENABLED
+Venture MRX                   	ENABLED
+ViWiFi                        	ENABLED
+VoWiFi                        	ENABLED
+W1314A/B                      	ENABLED
+eMBMS                         	ENABLED
+iOS NMR                       	ENABLED
+ATA SCRIPT 10                 	ENABLED
+ATA SCRIPT 100                	ENABLED
+ATA SCRIPT 101                	ENABLED
+ATA SCRIPT 102                	ENABLED
+ATA SCRIPT 103                	ENABLED
+ATA SCRIPT 104                	ENABLED
+ATA SCRIPT 105                	ENABLED
+ATA SCRIPT 106                	ENABLED
+ATA SCRIPT 107                	ENABLED
+ATA SCRIPT 108                	ENABLED
+ATA SCRIPT 109                	ENABLED
+ATA SCRIPT 11                 	ENABLED
+ATA SCRIPT 110                	ENABLED
+ATA SCRIPT 111                	ENABLED
+ATA SCRIPT 112                	ENABLED
+ATA SCRIPT 113                	ENABLED
+ATA SCRIPT 114                	ENABLED
+ATA SCRIPT 115                	ENABLED
+ATA SCRIPT 116                	ENABLED
+ATA SCRIPT 117                	ENABLED
+ATA SCRIPT 118                	ENABLED
+ATA SCRIPT 119                	ENABLED
+ATA SCRIPT 12                 	ENABLED
+ATA SCRIPT 120                	ENABLED
+ATA SCRIPT 121                	ENABLED
+ATA SCRIPT 122                	ENABLED
+ATA SCRIPT 123                	ENABLED
+ATA SCRIPT 124                	ENABLED
+ATA SCRIPT 125                	ENABLED
+ATA SCRIPT 126                	ENABLED
+ATA SCRIPT 127                	ENABLED
+ATA SCRIPT 128                	ENABLED
+ATA SCRIPT 129                	ENABLED
+ATA SCRIPT 13                 	ENABLED
+ATA SCRIPT 130                	ENABLED
+ATA SCRIPT 131                	ENABLED
+ATA SCRIPT 132                	ENABLED
+ATA SCRIPT 133                	ENABLED
+ATA SCRIPT 134                	ENABLED
+ATA SCRIPT 135                	ENABLED
+ATA SCRIPT 136                	ENABLED
+ATA SCRIPT 137                	ENABLED
+ATA SCRIPT 138                	ENABLED
+ATA SCRIPT 139                	ENABLED
+ATA SCRIPT 14                 	ENABLED
+ATA SCRIPT 140                	ENABLED
+ATA SCRIPT 141                	ENABLED
+ATA SCRIPT 142                	ENABLED
+ATA SCRIPT 143                	ENABLED
+ATA SCRIPT 144                	ENABLED
+ATA SCRIPT 145                	ENABLED
+ATA SCRIPT 146                	ENABLED
+ATA SCRIPT 147                	ENABLED
+ATA SCRIPT 148                	ENABLED
+ATA SCRIPT 149                	ENABLED
+ATA SCRIPT 15                 	ENABLED
+ATA SCRIPT 150                	ENABLED
+ATA SCRIPT 151                	ENABLED
+ATA SCRIPT 152                	ENABLED
+ATA SCRIPT 153                	ENABLED
+ATA SCRIPT 154                	ENABLED
+ATA SCRIPT 155                	ENABLED
+ATA SCRIPT 156                	ENABLED
+ATA SCRIPT 157                	ENABLED
+ATA SCRIPT 158                	ENABLED
+ATA SCRIPT 159                	ENABLED
+ATA SCRIPT 16                 	ENABLED
+ATA SCRIPT 160                	ENABLED
+ATA SCRIPT 161                	ENABLED
+ATA SCRIPT 162                	ENABLED
+ATA SCRIPT 163                	ENABLED
+ATA SCRIPT 164                	ENABLED
+ATA SCRIPT 165                	ENABLED
+ATA SCRIPT 166                	ENABLED
+ATA SCRIPT 167                	ENABLED
+ATA SCRIPT 168                	ENABLED
+ATA SCRIPT 169                	ENABLED
+ATA SCRIPT 17                 	ENABLED
+ATA SCRIPT 170                	ENABLED
+ATA SCRIPT 171                	ENABLED
+ATA SCRIPT 172                	ENABLED
+ATA SCRIPT 173                	ENABLED
+ATA SCRIPT 174                	ENABLED
+ATA SCRIPT 175                	ENABLED
+ATA SCRIPT 176                	ENABLED
+ATA SCRIPT 177                	ENABLED
+ATA SCRIPT 178                	ENABLED
+ATA SCRIPT 179                	ENABLED
+ATA SCRIPT 18                 	ENABLED
+ATA SCRIPT 180                	ENABLED
+ATA SCRIPT 181                	ENABLED
+ATA SCRIPT 182                	ENABLED
+ATA SCRIPT 183                	ENABLED
+ATA SCRIPT 184                	ENABLED
+ATA SCRIPT 185                	ENABLED
+ATA SCRIPT 186                	ENABLED
+ATA SCRIPT 187                	ENABLED
+ATA SCRIPT 188                	ENABLED
+ATA SCRIPT 189                	ENABLED
+ATA SCRIPT 19                 	ENABLED
+ATA SCRIPT 190                	ENABLED
+ATA SCRIPT 191                	ENABLED
+ATA SCRIPT 192                	ENABLED
+ATA SCRIPT 193                	ENABLED
+ATA SCRIPT 194                	ENABLED
+ATA SCRIPT 195                	ENABLED
+ATA SCRIPT 196                	ENABLED
+ATA SCRIPT 197                	ENABLED
+ATA SCRIPT 198                	ENABLED
+ATA SCRIPT 199                	ENABLED
+ATA SCRIPT 20                 	ENABLED
+ATA SCRIPT 21                 	ENABLED
+ATA SCRIPT 22                 	ENABLED
+ATA SCRIPT 23                 	ENABLED
+ATA SCRIPT 24                 	ENABLED
+ATA SCRIPT 25                 	ENABLED
+ATA SCRIPT 26                 	ENABLED
+ATA SCRIPT 27                 	ENABLED
+ATA SCRIPT 28                 	ENABLED
+ATA SCRIPT 29                 	ENABLED
+ATA SCRIPT 30                 	ENABLED
+ATA SCRIPT 31                 	ENABLED
+ATA SCRIPT 32                 	ENABLED
+ATA SCRIPT 33                 	ENABLED
+ATA SCRIPT 34                 	ENABLED
+ATA SCRIPT 35                 	ENABLED
+ATA SCRIPT 36                 	ENABLED
+ATA SCRIPT 37                 	ENABLED
+ATA SCRIPT 38                 	ENABLED
+ATA SCRIPT 39                 	ENABLED
+ATA SCRIPT 40                 	ENABLED
+ATA SCRIPT 41                 	ENABLED
+ATA SCRIPT 42                 	ENABLED
+ATA SCRIPT 43                 	ENABLED
+ATA SCRIPT 44                 	ENABLED
+ATA SCRIPT 45                 	ENABLED
+ATA SCRIPT 46                 	ENABLED
+ATA SCRIPT 47                 	ENABLED
+ATA SCRIPT 48                 	ENABLED
+ATA SCRIPT 49                 	ENABLED
+ATA SCRIPT 50                 	ENABLED
+ATA SCRIPT 51                 	ENABLED
+ATA SCRIPT 52                 	ENABLED
+ATA SCRIPT 53                 	ENABLED
+ATA SCRIPT 54                 	ENABLED
+ATA SCRIPT 55                 	ENABLED
+ATA SCRIPT 56                 	ENABLED
+ATA SCRIPT 57                 	ENABLED
+ATA SCRIPT 58                 	ENABLED
+ATA SCRIPT 59                 	ENABLED
+ATA SCRIPT 60                 	ENABLED
+ATA SCRIPT 61                 	ENABLED
+ATA SCRIPT 62                 	ENABLED
+ATA SCRIPT 63                 	ENABLED
+ATA SCRIPT 64                 	ENABLED
+ATA SCRIPT 65                 	ENABLED
+ATA SCRIPT 66                 	ENABLED
+ATA SCRIPT 67                 	ENABLED
+ATA SCRIPT 68                 	ENABLED
+ATA SCRIPT 69                 	ENABLED
+ATA SCRIPT 70                 	ENABLED
+ATA SCRIPT 71                 	ENABLED
+ATA SCRIPT 72                 	ENABLED
+ATA SCRIPT 73                 	ENABLED
+ATA SCRIPT 74                 	ENABLED
+ATA SCRIPT 75                 	ENABLED
+ATA SCRIPT 76                 	ENABLED
+ATA SCRIPT 77                 	ENABLED
+ATA SCRIPT 78                 	ENABLED
+ATA SCRIPT 79                 	ENABLED
+ATA SCRIPT 80                 	ENABLED
+ATA SCRIPT 81                 	ENABLED
+ATA SCRIPT 82                 	ENABLED
+ATA SCRIPT 83                 	ENABLED
+ATA SCRIPT 84                 	ENABLED
+ATA SCRIPT 85                 	ENABLED
+ATA SCRIPT 86                 	ENABLED
+ATA SCRIPT 87                 	ENABLED
+ATA SCRIPT 88                 	ENABLED
+ATA SCRIPT 89                 	ENABLED
+ATA SCRIPT 9                  	ENABLED
+ATA SCRIPT 90                 	ENABLED
+ATA SCRIPT 91                 	ENABLED
+ATA SCRIPT 92                 	ENABLED
+ATA SCRIPT 93                 	ENABLED
+ATA SCRIPT 94                 	ENABLED
+ATA SCRIPT 95                 	ENABLED
+ATA SCRIPT 96                 	ENABLED
+ATA SCRIPT 97                 	ENABLED
+ATA SCRIPT 98                 	ENABLED
+ATA SCRIPT 99                 	ENABLED
+ATA test script               	ENABLED
+Facebook Messenger ATA script 	ENABLED
+Facebook Reels videos ATA script	ENABLED
+Fast ATA script               	ENABLED
+Microsoft Teams ATA script    	ENABLED
+Snapchat ATA script           	ENABLED
+TikTok ATA script             	ENABLED
+YouTube ATA script            	ENABLED
+Zoom Call ATA script          	ENABLED

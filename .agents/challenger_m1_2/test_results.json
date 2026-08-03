@@ -1,0 +1,386 @@
+{
+  "authTests": [
+    {
+      "name": "Single role requireRoles('admin') with user 'admin'",
+      "passed": true,
+      "details": "Next called"
+    },
+    {
+      "name": "Single role requireRoles('admin') with user 'almacen'",
+      "passed": true,
+      "details": "403 FORBIDDEN returned"
+    },
+    {
+      "name": "Single role requireRoles('admin') with user 'supervisor'",
+      "passed": true,
+      "details": "403 FORBIDDEN returned"
+    },
+    {
+      "name": "Single role requireRoles('admin') with user 'trabajador'",
+      "passed": true,
+      "details": "403 FORBIDDEN returned"
+    },
+    {
+      "name": "Single role requireRoles('almacen') with user 'admin'",
+      "passed": true,
+      "details": "403 FORBIDDEN returned"
+    },
+    {
+      "name": "Single role requireRoles('almacen') with user 'almacen'",
+      "passed": true,
+      "details": "Next called"
+    },
+    {
+      "name": "Single role requireRoles('almacen') with user 'supervisor'",
+      "passed": true,
+      "details": "403 FORBIDDEN returned"
+    },
+    {
+      "name": "Single role requireRoles('almacen') with user 'trabajador'",
+      "passed": true,
+      "details": "403 FORBIDDEN returned"
+    },
+    {
+      "name": "Single role requireRoles('supervisor') with user 'admin'",
+      "passed": true,
+      "details": "403 FORBIDDEN returned"
+    },
+    {
+      "name": "Single role requireRoles('supervisor') with user 'almacen'",
+      "passed": true,
+      "details": "403 FORBIDDEN returned"
+    },
+    {
+      "name": "Single role requireRoles('supervisor') with user 'supervisor'",
+      "passed": true,
+      "details": "Next called"
+    },
+    {
+      "name": "Single role requireRoles('supervisor') with user 'trabajador'",
+      "passed": true,
+      "details": "403 FORBIDDEN returned"
+    },
+    {
+      "name": "Single role requireRoles('trabajador') with user 'admin'",
+      "passed": true,
+      "details": "403 FORBIDDEN returned"
+    },
+    {
+      "name": "Single role requireRoles('trabajador') with user 'almacen'",
+      "passed": true,
+      "details": "403 FORBIDDEN returned"
+    },
+    {
+      "name": "Single role requireRoles('trabajador') with user 'supervisor'",
+      "passed": true,
+      "details": "403 FORBIDDEN returned"
+    },
+    {
+      "name": "Single role requireRoles('trabajador') with user 'trabajador'",
+      "passed": true,
+      "details": "Next called"
+    },
+    {
+      "name": "Variadic requireRoles('admin', 'almacen') allows 'admin'",
+      "passed": true,
+      "details": ""
+    },
+    {
+      "name": "Variadic requireRoles('admin', 'almacen') allows 'almacen'",
+      "passed": true,
+      "details": ""
+    },
+    {
+      "name": "Variadic requireRoles('admin', 'almacen') denies 'supervisor'",
+      "passed": true,
+      "details": ""
+    },
+    {
+      "name": "Variadic requireRoles('admin', 'almacen') denies 'trabajador'",
+      "passed": true,
+      "details": ""
+    },
+    {
+      "name": "Variadic requireRoles('admin', 'almacen', 'supervisor') allows 'admin'",
+      "passed": true,
+      "details": ""
+    },
+    {
+      "name": "Variadic requireRoles('admin', 'almacen', 'supervisor') allows 'almacen'",
+      "passed": true,
+      "details": ""
+    },
+    {
+      "name": "Variadic requireRoles('admin', 'almacen', 'supervisor') allows 'supervisor'",
+      "passed": true,
+      "details": ""
+    },
+    {
+      "name": "Variadic requireRoles('admin', 'almacen', 'supervisor') denies 'trabajador'",
+      "passed": true,
+      "details": ""
+    },
+    {
+      "name": "Variadic requireRoles('almacen', 'supervisor') allows 'almacen'",
+      "passed": true,
+      "details": ""
+    },
+    {
+      "name": "Variadic requireRoles('almacen', 'supervisor') allows 'supervisor'",
+      "passed": true,
+      "details": ""
+    },
+    {
+      "name": "Variadic requireRoles('almacen', 'supervisor') denies 'admin'",
+      "passed": true,
+      "details": ""
+    },
+    {
+      "name": "Variadic requireRoles('almacen', 'supervisor') denies 'trabajador'",
+      "passed": true,
+      "details": ""
+    },
+    {
+      "name": "Variadic requireRoles('trabajador') allows 'trabajador'",
+      "passed": true,
+      "details": ""
+    },
+    {
+      "name": "Variadic requireRoles('trabajador') denies 'admin'",
+      "passed": true,
+      "details": ""
+    },
+    {
+      "name": "Variadic requireRoles('trabajador') denies 'almacen'",
+      "passed": true,
+      "details": ""
+    },
+    {
+      "name": "Variadic requireRoles('trabajador') denies 'supervisor'",
+      "passed": true,
+      "details": ""
+    },
+    {
+      "name": "Array requireRoles(['admin', 'almacen']) allows 'admin'",
+      "passed": true,
+      "details": ""
+    },
+    {
+      "name": "Array requireRoles(['admin', 'almacen']) allows 'almacen'",
+      "passed": true,
+      "details": ""
+    },
+    {
+      "name": "Array requireRoles(['admin', 'almacen']) denies 'supervisor'",
+      "passed": true,
+      "details": ""
+    },
+    {
+      "name": "Array requireRoles(['admin', 'almacen']) denies 'trabajador'",
+      "passed": true,
+      "details": ""
+    },
+    {
+      "name": "Array requireRoles(['admin', 'almacen', 'supervisor', 'trabajador']) allows 'admin'",
+      "passed": true,
+      "details": ""
+    },
+    {
+      "name": "Array requireRoles(['admin', 'almacen', 'supervisor', 'trabajador']) allows 'almacen'",
+      "passed": true,
+      "details": ""
+    },
+    {
+      "name": "Array requireRoles(['admin', 'almacen', 'supervisor', 'trabajador']) allows 'supervisor'",
+      "passed": true,
+      "details": ""
+    },
+    {
+      "name": "Array requireRoles(['admin', 'almacen', 'supervisor', 'trabajador']) allows 'trabajador'",
+      "passed": true,
+      "details": ""
+    },
+    {
+      "name": "Array requireRoles(['supervisor', 'trabajador']) allows 'supervisor'",
+      "passed": true,
+      "details": ""
+    },
+    {
+      "name": "Array requireRoles(['supervisor', 'trabajador']) allows 'trabajador'",
+      "passed": true,
+      "details": ""
+    },
+    {
+      "name": "Array requireRoles(['supervisor', 'trabajador']) denies 'admin'",
+      "passed": true,
+      "details": ""
+    },
+    {
+      "name": "Array requireRoles(['supervisor', 'trabajador']) denies 'almacen'",
+      "passed": true,
+      "details": ""
+    },
+    {
+      "name": "Mixed requireRoles(['admin', 'almacen'], 'supervisor') allows 'admin'",
+      "passed": true,
+      "details": ""
+    },
+    {
+      "name": "Mixed requireRoles(['admin', 'almacen'], 'supervisor') allows 'almacen'",
+      "passed": true,
+      "details": ""
+    },
+    {
+      "name": "Mixed requireRoles(['admin', 'almacen'], 'supervisor') allows 'supervisor'",
+      "passed": true,
+      "details": ""
+    },
+    {
+      "name": "Mixed requireRoles(['admin', 'almacen'], 'supervisor') denies 'trabajador'",
+      "passed": true,
+      "details": ""
+    },
+    {
+      "name": "Edge case: missing req.user returns 403",
+      "passed": true,
+      "details": ""
+    },
+    {
+      "name": "Edge case: req.user === null returns 403",
+      "passed": true,
+      "details": ""
+    },
+    {
+      "name": "Edge case: req.user.rol === null returns 403",
+      "passed": true,
+      "details": ""
+    },
+    {
+      "name": "Edge case: invalid user role returns 403",
+      "passed": true,
+      "details": ""
+    },
+    {
+      "name": "Edge case: empty requireRoles() denies all",
+      "passed": true,
+      "details": ""
+    },
+    {
+      "name": "Response body structure matches spec",
+      "passed": true,
+      "details": "{\"success\":false,\"error\":{\"code\":\"FORBIDDEN\",\"message\":\"Access denied. Required role not met.\"},\"timestamp\":\"2026-08-03T18:40:38.245Z\"}"
+    }
+  ],
+  "sqlTests": [
+    {
+      "name": "init.sql file read successfully",
+      "passed": true,
+      "details": "Length: 20980 bytes"
+    },
+    {
+      "name": "usuarios INSERT statement exists in init.sql",
+      "passed": true,
+      "details": ""
+    },
+    {
+      "name": "Extracted 8 seed user rows",
+      "passed": true,
+      "details": "Found 8 rows"
+    },
+    {
+      "name": "Seed users contain role 'admin'",
+      "passed": true,
+      "details": "Count: 1"
+    },
+    {
+      "name": "Seed users contain role 'almacen'",
+      "passed": true,
+      "details": "Count: 1"
+    },
+    {
+      "name": "Seed users contain role 'supervisor'",
+      "passed": true,
+      "details": "Count: 2"
+    },
+    {
+      "name": "Seed users contain role 'trabajador'",
+      "passed": true,
+      "details": "Count: 4"
+    },
+    {
+      "name": "Seed user admin@entelso.com exists with role admin",
+      "passed": true,
+      "details": ""
+    },
+    {
+      "name": "Seed user almacen@entelso.com exists with role almacen",
+      "passed": true,
+      "details": ""
+    },
+    {
+      "name": "All non-null seed user emails are unique",
+      "passed": true,
+      "details": "Total: 5, Unique: 5"
+    },
+    {
+      "name": "All non-null seed user phone numbers are unique",
+      "passed": true,
+      "details": "Total: 8, Unique: 8"
+    },
+    {
+      "name": "Bcrypt hash for user 'Carlos Admin' is valid",
+      "passed": false,
+      "details": "Invalid hash"
+    },
+    {
+      "name": "Bcrypt hash for user 'Juan Pérez' is valid",
+      "passed": false,
+      "details": "Invalid hash"
+    },
+    {
+      "name": "Bcrypt hash for user 'María González' is valid",
+      "passed": false,
+      "details": "Invalid hash"
+    },
+    {
+      "name": "Bcrypt hash for user 'Pedro Ramírez' is valid",
+      "passed": false,
+      "details": "Invalid hash"
+    },
+    {
+      "name": "Bcrypt hash for user 'Ana Torres' is valid",
+      "passed": false,
+      "details": "Invalid hash"
+    },
+    {
+      "name": "Bcrypt hash for user 'Luis Rodríguez' is valid",
+      "passed": false,
+      "details": "Invalid hash"
+    },
+    {
+      "name": "Bcrypt hash for user 'Supervisor NSW' is valid",
+      "passed": false,
+      "details": "Invalid hash"
+    },
+    {
+      "name": "Bcrypt hash for user 'Roberto Almacén' is valid",
+      "passed": false,
+      "details": "Invalid hash"
+    },
+    {
+      "name": "Found CREATE TYPE ENUM statements",
+      "passed": true,
+      "details": "Count: 3"
+    },
+    {
+      "name": "estado_activo_enum contains all required values",
+      "passed": true,
+      "details": "Values: disponible, en_uso, en_mantenimiento, calibracion_pendiente, fuera_de_servicio, calibrado, danado, en_funcionamiento, desconocido"
+    }
+  ],
+  "summary": {
+    "total": 75,
+    "passed": 67,
+    "failed": 8
+  }
+}

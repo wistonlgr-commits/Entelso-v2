@@ -1,0 +1,2516 @@
+{
+  "INVENTORY 2024.xlsx": {
+    "filePath": "c:\\Users\\Leor\\Desktop\\Entelso\\Inventory2\\INVENTORY 2024.xlsx",
+    "sheetNames": [
+      "SCANNERS",
+      "WT Kit Laptop",
+      "SIMCARDS",
+      "PHONES",
+      "KEYS",
+      "FIRE EXTINGUISHER",
+      "FIRST AID KIT"
+    ],
+    "sheets": {
+      "SCANNERS": {
+        "headers": [
+          "Updated : 05-02-2025",
+          "",
+          "",
+          "",
+          "",
+          ""
+        ],
+        "totalRawRows": 20,
+        "totalObjects": 14,
+        "first5RawRows": [
+          [
+            "",
+            "",
+            "",
+            "",
+            "",
+            ""
+          ],
+          [
+            "SCANNERS WT",
+            "",
+            "",
+            "",
+            "",
+            ""
+          ],
+          [
+            "State",
+            "Serial",
+            "Calibration Date",
+            "Warranty Expiration Date",
+            "License Expiration Date",
+            "Capability"
+          ],
+          [
+            "VIC",
+            "8190-7005",
+            "15/05/2020",
+            45080,
+            44724,
+            "570MHz-3800MHz"
+          ],
+          [
+            "NSW",
+            "8180-9043",
+            43231,
+            "20/11/2023",
+            "20/11/2018",
+            "10MHz-6000MHz"
+          ]
+        ],
+        "first5Objects": [
+          {
+            "Updated : 05-02-2025": "SCANNERS WT",
+            "__EMPTY": "",
+            "__EMPTY_1": "",
+            "__EMPTY_2": "",
+            "__EMPTY_3": "",
+            "__EMPTY_4": ""
+          },
+          {
+            "Updated : 05-02-2025": "State",
+            "__EMPTY": "Serial",
+            "__EMPTY_1": "Calibration Date",
+            "__EMPTY_2": "Warranty Expiration Date",
+            "__EMPTY_3": "License Expiration Date",
+            "__EMPTY_4": "Capability"
+          },
+          {
+            "Updated : 05-02-2025": "VIC",
+            "__EMPTY": "8190-7005",
+            "__EMPTY_1": "15/05/2020",
+            "__EMPTY_2": 45080,
+            "__EMPTY_3": 44724,
+            "__EMPTY_4": "570MHz-3800MHz"
+          },
+          {
+            "Updated : 05-02-2025": "NSW",
+            "__EMPTY": "8180-9043",
+            "__EMPTY_1": 43231,
+            "__EMPTY_2": "20/11/2023",
+            "__EMPTY_3": "20/11/2018",
+            "__EMPTY_4": "10MHz-6000MHz"
+          },
+          {
+            "Updated : 05-02-2025": "QLD",
+            "__EMPTY": "8150-1040",
+            "__EMPTY_1": "22/04/2020",
+            "__EMPTY_2": 45262,
+            "__EMPTY_3": "14/11/2022",
+            "__EMPTY_4": "570MHz-3800MHz"
+          }
+        ]
+      },
+      "WT Kit Laptop": {
+        "headers": [
+          "",
+          "",
+          "",
+          "",
+          "",
+          ""
+        ],
+        "totalRawRows": 49,
+        "totalObjects": 28,
+        "first5RawRows": [
+          [
+            "",
+            "Last Update 09/2023",
+            "",
+            "",
+            "",
+            ""
+          ],
+          [
+            "",
+            "",
+            "",
+            "",
+            "",
+            ""
+          ],
+          [
+            "WT Kit Equipment",
+            "",
+            "",
+            "",
+            "",
+            ""
+          ],
+          [
+            "",
+            "",
+            "",
+            "",
+            "",
+            ""
+          ],
+          [
+            "",
+            "",
+            "",
+            "",
+            "",
+            ""
+          ]
+        ],
+        "first5Objects": [
+          {
+            "__EMPTY": "",
+            "__EMPTY_1": "Last Update 09/2023",
+            "__EMPTY_2": "",
+            "__EMPTY_3": "",
+            "__EMPTY_4": "",
+            "__EMPTY_5": ""
+          },
+          {
+            "__EMPTY": "WT Kit Equipment",
+            "__EMPTY_1": "",
+            "__EMPTY_2": "",
+            "__EMPTY_3": "",
+            "__EMPTY_4": "",
+            "__EMPTY_5": ""
+          },
+          {
+            "__EMPTY": "",
+            "__EMPTY_1": "Brisbane, QLD",
+            "__EMPTY_2": "Melbourne, VIC",
+            "__EMPTY_3": "Sydney, NSW",
+            "__EMPTY_4": "Adelaide, SA",
+            "__EMPTY_5": "Perth, WA"
+          },
+          {
+            "__EMPTY": "SCANNER ",
+            "__EMPTY_1": "1x PCTEL IBFlex",
+            "__EMPTY_2": "PCTEL IBFlex",
+            "__EMPTY_3": "PCTEL IBFlex",
+            "__EMPTY_4": "PCTEL IBFlex",
+            "__EMPTY_5": "PCTEL IBFlex"
+          },
+          {
+            "__EMPTY": "SCANNER SERIAL",
+            "__EMPTY_1": "0000-0000-8150-1040",
+            "__EMPTY_2": "0000-0000-8140-8017",
+            "__EMPTY_3": "0000-0000-8180-9043",
+            "__EMPTY_4": "0000-0000-8190-7005",
+            "__EMPTY_5": "0000-0000-8190-2022"
+          }
+        ]
+      },
+      "SIMCARDS": {
+        "headers": [
+          "",
+          "",
+          "",
+          "",
+          "",
+          "NAME ",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          ""
+        ],
+        "totalRawRows": 39,
+        "totalObjects": 27,
+        "first5RawRows": [
+          [
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            ""
+          ],
+          [
+            "",
+            "Vodafone",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "Latest Update : 02/02/2024",
+            "",
+            "",
+            ""
+          ],
+          [
+            "D",
+            "",
+            "Per Account",
+            "0405 865 437",
+            "Sydney ",
+            "Diego Ardila",
+            "No Use",
+            "ESIM",
+            "",
+            "",
+            "",
+            "",
+            "",
+            ""
+          ],
+          [
+            "",
+            "",
+            "Per Account",
+            "0414 348 706",
+            "Sydney ",
+            "Diego Ardila",
+            "",
+            "ESIM",
+            "",
+            "",
+            "",
+            "",
+            "",
+            ""
+          ],
+          [
+            "",
+            "",
+            "Per Account",
+            "0415 207 568",
+            "Sydney ",
+            "Diego Ardila",
+            "",
+            "ESIM",
+            "",
+            "",
+            "",
+            "",
+            "",
+            ""
+          ]
+        ],
+        "first5Objects": [
+          {
+            "__EMPTY": "",
+            "__EMPTY_1": "Vodafone",
+            "__EMPTY_2": "",
+            "__EMPTY_3": "",
+            "__EMPTY_4": "",
+            "NAME ": "",
+            "__EMPTY_5": "",
+            "__EMPTY_6": "",
+            "__EMPTY_7": "",
+            "__EMPTY_8": "",
+            "__EMPTY_9": "Latest Update : 02/02/2024",
+            "__EMPTY_10": "",
+            "__EMPTY_11": "",
+            "__EMPTY_12": ""
+          },
+          {
+            "__EMPTY": "D",
+            "__EMPTY_1": "",
+            "__EMPTY_2": "Per Account",
+            "__EMPTY_3": "0405 865 437",
+            "__EMPTY_4": "Sydney ",
+            "NAME ": "Diego Ardila",
+            "__EMPTY_5": "No Use",
+            "__EMPTY_6": "ESIM",
+            "__EMPTY_7": "",
+            "__EMPTY_8": "",
+            "__EMPTY_9": "",
+            "__EMPTY_10": "",
+            "__EMPTY_11": "",
+            "__EMPTY_12": ""
+          },
+          {
+            "__EMPTY": "",
+            "__EMPTY_1": "",
+            "__EMPTY_2": "Per Account",
+            "__EMPTY_3": "0414 348 706",
+            "__EMPTY_4": "Sydney ",
+            "NAME ": "Diego Ardila",
+            "__EMPTY_5": "",
+            "__EMPTY_6": "ESIM",
+            "__EMPTY_7": "",
+            "__EMPTY_8": "",
+            "__EMPTY_9": "",
+            "__EMPTY_10": "",
+            "__EMPTY_11": "",
+            "__EMPTY_12": ""
+          },
+          {
+            "__EMPTY": "",
+            "__EMPTY_1": "",
+            "__EMPTY_2": "Per Account",
+            "__EMPTY_3": "0415 207 568",
+            "__EMPTY_4": "Sydney ",
+            "NAME ": "Diego Ardila",
+            "__EMPTY_5": "",
+            "__EMPTY_6": "ESIM",
+            "__EMPTY_7": "",
+            "__EMPTY_8": "",
+            "__EMPTY_9": "",
+            "__EMPTY_10": "",
+            "__EMPTY_11": "",
+            "__EMPTY_12": ""
+          },
+          {
+            "__EMPTY": "",
+            "__EMPTY_1": "",
+            "__EMPTY_2": "Entelso Account",
+            "__EMPTY_3": "0416 370 738",
+            "__EMPTY_4": "Sydney ",
+            "NAME ": "Diego Ardila",
+            "__EMPTY_5": "",
+            "__EMPTY_6": "ESIM",
+            "__EMPTY_7": "",
+            "__EMPTY_8": "",
+            "__EMPTY_9": "",
+            "__EMPTY_10": "",
+            "__EMPTY_11": "",
+            "__EMPTY_12": ""
+          }
+        ]
+      },
+      "PHONES": {
+        "headers": [
+          "",
+          "",
+          "Model",
+          "Serial",
+          "Comments"
+        ],
+        "totalRawRows": 20,
+        "totalObjects": 19,
+        "first5RawRows": [
+          [
+            "WA",
+            "Deicy",
+            "Samsung Galaxy 9 - SM - N9600",
+            "R28KA0AA9KR",
+            ""
+          ],
+          [
+            "",
+            "Deicy",
+            "Samsung S5 - SM-G900I",
+            "MMB29M.G900IDVU1CQD1",
+            ""
+          ],
+          [
+            "",
+            "Deicy",
+            "Samsung S7 - SM-G930F",
+            "R58J667NRGP",
+            ""
+          ],
+          [
+            "",
+            "",
+            "Model",
+            "Serial",
+            ""
+          ],
+          [
+            "WT KIT WA",
+            "",
+            "Samsung Galaxy 9 - SM - N9600",
+            "",
+            ""
+          ]
+        ],
+        "first5Objects": [
+          {
+            "__EMPTY": "WA",
+            "__EMPTY_1": "Deicy",
+            "Model": "Samsung Galaxy 9 - SM - N9600",
+            "Serial": "R28KA0AA9KR",
+            "Comments": ""
+          },
+          {
+            "__EMPTY": "",
+            "__EMPTY_1": "Deicy",
+            "Model": "Samsung S5 - SM-G900I",
+            "Serial": "MMB29M.G900IDVU1CQD1",
+            "Comments": ""
+          },
+          {
+            "__EMPTY": "",
+            "__EMPTY_1": "Deicy",
+            "Model": "Samsung S7 - SM-G930F",
+            "Serial": "R58J667NRGP",
+            "Comments": ""
+          },
+          {
+            "__EMPTY": "",
+            "__EMPTY_1": "",
+            "Model": "Model",
+            "Serial": "Serial",
+            "Comments": ""
+          },
+          {
+            "__EMPTY": "WT KIT WA",
+            "__EMPTY_1": "",
+            "Model": "Samsung Galaxy 9 - SM - N9600",
+            "Serial": "",
+            "Comments": ""
+          }
+        ]
+      },
+      "KEYS": {
+        "headers": [
+          "Location",
+          "Detail",
+          "Vodafone Long LI-7914",
+          "Vodafone Short LI-7914",
+          "Optus BAC2550M",
+          "3GIS",
+          "Key Holder",
+          "",
+          "",
+          ""
+        ],
+        "totalRawRows": 53,
+        "totalObjects": 17,
+        "first5RawRows": [
+          [
+            "NSW",
+            "CAM Key Set  (Jimmys)",
+            "CK 5002",
+            "CK 6402",
+            "",
+            "",
+            "Nutan Adhikari  M 0426851270",
+            "",
+            "",
+            ""
+          ],
+          [
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "LAST UPDATE ",
+            ""
+          ],
+          [
+            "NSW",
+            "CAM Key Set SA m2010",
+            "MK 6196",
+            "CK 6241",
+            "",
+            "",
+            "Edison Aguilar M 0415545609",
+            "",
+            "30/05/2024",
+            ""
+          ],
+          [
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            ""
+          ],
+          [
+            "NSW",
+            "CAM Key Set 3 ",
+            "-",
+            "-",
+            "",
+            "GMK.837 (White B649)",
+            "Edison Aguilar M 0415545609",
+            "",
+            "",
+            ""
+          ]
+        ],
+        "first5Objects": [
+          {
+            "Location": "NSW",
+            "Detail": "CAM Key Set  (Jimmys)",
+            "Vodafone Long LI-7914": "CK 5002",
+            "Vodafone Short LI-7914": "CK 6402",
+            "Optus BAC2550M": "",
+            "3GIS": "",
+            "Key Holder": "Nutan Adhikari  M 0426851270",
+            "__EMPTY": "",
+            "__EMPTY_1": "",
+            "__EMPTY_2": ""
+          },
+          {
+            "Location": "",
+            "Detail": "",
+            "Vodafone Long LI-7914": "",
+            "Vodafone Short LI-7914": "",
+            "Optus BAC2550M": "",
+            "3GIS": "",
+            "Key Holder": "",
+            "__EMPTY": "",
+            "__EMPTY_1": "LAST UPDATE ",
+            "__EMPTY_2": ""
+          },
+          {
+            "Location": "NSW",
+            "Detail": "CAM Key Set SA m2010",
+            "Vodafone Long LI-7914": "MK 6196",
+            "Vodafone Short LI-7914": "CK 6241",
+            "Optus BAC2550M": "",
+            "3GIS": "",
+            "Key Holder": "Edison Aguilar M 0415545609",
+            "__EMPTY": "",
+            "__EMPTY_1": "30/05/2024",
+            "__EMPTY_2": ""
+          },
+          {
+            "Location": "NSW",
+            "Detail": "CAM Key Set 3 ",
+            "Vodafone Long LI-7914": "-",
+            "Vodafone Short LI-7914": "-",
+            "Optus BAC2550M": "",
+            "3GIS": "GMK.837 (White B649)",
+            "Key Holder": "Edison Aguilar M 0415545609",
+            "__EMPTY": "",
+            "__EMPTY_1": "",
+            "__EMPTY_2": ""
+          },
+          {
+            "Location": "NSW",
+            "Detail": "CAM Key ",
+            "Vodafone Long LI-7914": "MK 5689",
+            "Vodafone Short LI-7914": "CK-5727",
+            "Optus BAC2550M": "",
+            "3GIS": "CM",
+            "Key Holder": "Edison Aguilar M 0415545609",
+            "__EMPTY": "",
+            "__EMPTY_1": "",
+            "__EMPTY_2": ""
+          }
+        ]
+      },
+      "FIRE EXTINGUISHER": {
+        "headers": [
+          " ",
+          "",
+          "",
+          "",
+          "",
+          ""
+        ],
+        "totalRawRows": 6,
+        "totalObjects": 5,
+        "first5RawRows": [
+          [
+            "Fire Extinguisher",
+            "Inspected",
+            "Next Inspection",
+            "Size",
+            "Classification",
+            "Comments."
+          ],
+          [
+            "Melbourne",
+            44986,
+            45170,
+            "4.3Kg",
+            "4A:40B:E",
+            "Compliant with Australian and New Zealand standard AS/NZ1841.5"
+          ],
+          [
+            "Melbourne",
+            44986,
+            45170,
+            "3.1Kg",
+            "2A:20B:E",
+            "Compliant with Australian and New Zealand standard AS/NZ1841.5"
+          ],
+          [
+            "Adelaide",
+            "",
+            " ",
+            "",
+            " ",
+            ""
+          ],
+          [
+            "Perth ",
+            "",
+            "",
+            "",
+            "",
+            ""
+          ]
+        ],
+        "first5Objects": [
+          {
+            " ": "Fire Extinguisher",
+            "__EMPTY": "Inspected",
+            "__EMPTY_1": "Next Inspection",
+            "__EMPTY_2": "Size",
+            "__EMPTY_3": "Classification",
+            "__EMPTY_4": "Comments."
+          },
+          {
+            " ": "Melbourne",
+            "__EMPTY": 44986,
+            "__EMPTY_1": 45170,
+            "__EMPTY_2": "4.3Kg",
+            "__EMPTY_3": "4A:40B:E",
+            "__EMPTY_4": "Compliant with Australian and New Zealand standard AS/NZ1841.5"
+          },
+          {
+            " ": "Melbourne",
+            "__EMPTY": 44986,
+            "__EMPTY_1": 45170,
+            "__EMPTY_2": "3.1Kg",
+            "__EMPTY_3": "2A:20B:E",
+            "__EMPTY_4": "Compliant with Australian and New Zealand standard AS/NZ1841.5"
+          },
+          {
+            " ": "Adelaide",
+            "__EMPTY": "",
+            "__EMPTY_1": " ",
+            "__EMPTY_2": "",
+            "__EMPTY_3": " ",
+            "__EMPTY_4": ""
+          },
+          {
+            " ": "Perth ",
+            "__EMPTY": "",
+            "__EMPTY_1": "",
+            "__EMPTY_2": "",
+            "__EMPTY_3": "",
+            "__EMPTY_4": ""
+          }
+        ]
+      },
+      "FIRST AID KIT": {
+        "headers": [],
+        "totalRawRows": 0,
+        "totalObjects": 0,
+        "first5RawRows": [],
+        "first5Objects": []
+      }
+    }
+  },
+  "INVENTORY 2025.xlsx": {
+    "filePath": "c:\\Users\\Leor\\Desktop\\Entelso\\Inventory2\\INVENTORY 2025.xlsx",
+    "sheetNames": [
+      "SCANNERS",
+      "WT Kit Laptop",
+      "SIMCARDS",
+      "PHONES",
+      "KEYS",
+      "FIRE EXTINGUISHER",
+      "FIRST AID KIT"
+    ],
+    "sheets": {
+      "SCANNERS": {
+        "headers": [
+          "Updated : 05-02-2025",
+          "",
+          "",
+          "",
+          "",
+          ""
+        ],
+        "totalRawRows": 20,
+        "totalObjects": 14,
+        "first5RawRows": [
+          [
+            "",
+            "",
+            "",
+            "",
+            "",
+            ""
+          ],
+          [
+            "SCANNERS WT",
+            "",
+            "",
+            "",
+            "",
+            ""
+          ],
+          [
+            "State",
+            "Serial",
+            "Calibration Date",
+            "Warranty Expiration Date",
+            "License Expiration Date",
+            "Capability"
+          ],
+          [
+            "VIC",
+            "8190-7005",
+            "15/05/2020",
+            45080,
+            44724,
+            "570MHz-3800MHz"
+          ],
+          [
+            "NSW",
+            "8180-9043",
+            43231,
+            "20/11/2023",
+            "20/11/2018",
+            "10MHz-6000MHz"
+          ]
+        ],
+        "first5Objects": [
+          {
+            "Updated : 05-02-2025": "SCANNERS WT",
+            "__EMPTY": "",
+            "__EMPTY_1": "",
+            "__EMPTY_2": "",
+            "__EMPTY_3": "",
+            "__EMPTY_4": ""
+          },
+          {
+            "Updated : 05-02-2025": "State",
+            "__EMPTY": "Serial",
+            "__EMPTY_1": "Calibration Date",
+            "__EMPTY_2": "Warranty Expiration Date",
+            "__EMPTY_3": "License Expiration Date",
+            "__EMPTY_4": "Capability"
+          },
+          {
+            "Updated : 05-02-2025": "VIC",
+            "__EMPTY": "8190-7005",
+            "__EMPTY_1": "15/05/2020",
+            "__EMPTY_2": 45080,
+            "__EMPTY_3": 44724,
+            "__EMPTY_4": "570MHz-3800MHz"
+          },
+          {
+            "Updated : 05-02-2025": "NSW",
+            "__EMPTY": "8180-9043",
+            "__EMPTY_1": 43231,
+            "__EMPTY_2": "20/11/2023",
+            "__EMPTY_3": "20/11/2018",
+            "__EMPTY_4": "10MHz-6000MHz"
+          },
+          {
+            "Updated : 05-02-2025": "QLD",
+            "__EMPTY": "8150-1040",
+            "__EMPTY_1": "22/04/2020",
+            "__EMPTY_2": 45262,
+            "__EMPTY_3": "14/11/2022",
+            "__EMPTY_4": "570MHz-3800MHz"
+          }
+        ]
+      },
+      "WT Kit Laptop": {
+        "headers": [
+          "",
+          "",
+          "",
+          "",
+          "",
+          ""
+        ],
+        "totalRawRows": 49,
+        "totalObjects": 28,
+        "first5RawRows": [
+          [
+            "",
+            "Last Update 09/2023",
+            "",
+            "",
+            "",
+            ""
+          ],
+          [
+            "",
+            "",
+            "",
+            "",
+            "",
+            ""
+          ],
+          [
+            "WT Kit Equipment",
+            "",
+            "",
+            "",
+            "",
+            ""
+          ],
+          [
+            "",
+            "",
+            "",
+            "",
+            "",
+            ""
+          ],
+          [
+            "",
+            "",
+            "",
+            "",
+            "",
+            ""
+          ]
+        ],
+        "first5Objects": [
+          {
+            "__EMPTY": "",
+            "__EMPTY_1": "Last Update 09/2023",
+            "__EMPTY_2": "",
+            "__EMPTY_3": "",
+            "__EMPTY_4": "",
+            "__EMPTY_5": ""
+          },
+          {
+            "__EMPTY": "WT Kit Equipment",
+            "__EMPTY_1": "",
+            "__EMPTY_2": "",
+            "__EMPTY_3": "",
+            "__EMPTY_4": "",
+            "__EMPTY_5": ""
+          },
+          {
+            "__EMPTY": "",
+            "__EMPTY_1": "Brisbane, QLD",
+            "__EMPTY_2": "Melbourne, VIC",
+            "__EMPTY_3": "Sydney, NSW",
+            "__EMPTY_4": "Adelaide, SA",
+            "__EMPTY_5": "Perth, WA"
+          },
+          {
+            "__EMPTY": "SCANNER ",
+            "__EMPTY_1": "1x PCTEL IBFlex",
+            "__EMPTY_2": "PCTEL IBFlex",
+            "__EMPTY_3": "PCTEL IBFlex",
+            "__EMPTY_4": "PCTEL IBFlex",
+            "__EMPTY_5": "PCTEL IBFlex"
+          },
+          {
+            "__EMPTY": "SCANNER SERIAL",
+            "__EMPTY_1": "0000-0000-8150-1040",
+            "__EMPTY_2": "0000-0000-8140-8017",
+            "__EMPTY_3": "0000-0000-8180-9043",
+            "__EMPTY_4": "0000-0000-8190-7005",
+            "__EMPTY_5": "0000-0000-8190-2022"
+          }
+        ]
+      },
+      "SIMCARDS": {
+        "headers": [
+          "",
+          "",
+          "",
+          "",
+          "",
+          "NAME ",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          "",
+          ""
+        ],
+        "totalRawRows": 39,
+        "totalObjects": 27,
+        "first5RawRows": [
+          [
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            ""
+          ],
+          [
+            "",
+            "Vodafone",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "Latest Update : 02/02/2024",
+            "",
+            "",
+            ""
+          ],
+          [
+            "D",
+            "",
+            "Per Account",
+            "0405 865 437",
+            "Sydney ",
+            "Diego Ardila",
+            "No Use",
+            "ESIM",
+            "",
+            "",
+            "",
+            "",
+            "",
+            ""
+          ],
+          [
+            "",
+            "",
+            "Per Account",
+            "0414 348 706",
+            "Sydney ",
+            "Diego Ardila",
+            "",
+            "ESIM",
+            "",
+            "",
+            "",
+            "",
+            "",
+            ""
+          ],
+          [
+            "",
+            "",
+            "Per Account",
+            "0415 207 568",
+            "Sydney ",
+            "Diego Ardila",
+            "",
+            "ESIM",
+            "",
+            "",
+            "",
+            "",
+            "",
+            ""
+          ]
+        ],
+        "first5Objects": [
+          {
+            "__EMPTY": "",
+            "__EMPTY_1": "Vodafone",
+            "__EMPTY_2": "",
+            "__EMPTY_3": "",
+            "__EMPTY_4": "",
+            "NAME ": "",
+            "__EMPTY_5": "",
+            "__EMPTY_6": "",
+            "__EMPTY_7": "",
+            "__EMPTY_8": "",
+            "__EMPTY_9": "Latest Update : 02/02/2024",
+            "__EMPTY_10": "",
+            "__EMPTY_11": "",
+            "__EMPTY_12": ""
+          },
+          {
+            "__EMPTY": "D",
+            "__EMPTY_1": "",
+            "__EMPTY_2": "Per Account",
+            "__EMPTY_3": "0405 865 437",
+            "__EMPTY_4": "Sydney ",
+            "NAME ": "Diego Ardila",
+            "__EMPTY_5": "No Use",
+            "__EMPTY_6": "ESIM",
+            "__EMPTY_7": "",
+            "__EMPTY_8": "",
+            "__EMPTY_9": "",
+            "__EMPTY_10": "",
+            "__EMPTY_11": "",
+            "__EMPTY_12": ""
+          },
+          {
+            "__EMPTY": "",
+            "__EMPTY_1": "",
+            "__EMPTY_2": "Per Account",
+            "__EMPTY_3": "0414 348 706",
+            "__EMPTY_4": "Sydney ",
+            "NAME ": "Diego Ardila",
+            "__EMPTY_5": "",
+            "__EMPTY_6": "ESIM",
+            "__EMPTY_7": "",
+            "__EMPTY_8": "",
+            "__EMPTY_9": "",
+            "__EMPTY_10": "",
+            "__EMPTY_11": "",
+            "__EMPTY_12": ""
+          },
+          {
+            "__EMPTY": "",
+            "__EMPTY_1": "",
+            "__EMPTY_2": "Per Account",
+            "__EMPTY_3": "0415 207 568",
+            "__EMPTY_4": "Sydney ",
+            "NAME ": "Diego Ardila",
+            "__EMPTY_5": "",
+            "__EMPTY_6": "ESIM",
+            "__EMPTY_7": "",
+            "__EMPTY_8": "",
+            "__EMPTY_9": "",
+            "__EMPTY_10": "",
+            "__EMPTY_11": "",
+            "__EMPTY_12": ""
+          },
+          {
+            "__EMPTY": "",
+            "__EMPTY_1": "",
+            "__EMPTY_2": "Entelso Account",
+            "__EMPTY_3": "0416 370 738",
+            "__EMPTY_4": "Sydney ",
+            "NAME ": "Diego Ardila",
+            "__EMPTY_5": "",
+            "__EMPTY_6": "ESIM",
+            "__EMPTY_7": "",
+            "__EMPTY_8": "",
+            "__EMPTY_9": "",
+            "__EMPTY_10": "",
+            "__EMPTY_11": "",
+            "__EMPTY_12": ""
+          }
+        ]
+      },
+      "PHONES": {
+        "headers": [
+          "",
+          "",
+          "Model",
+          "Serial",
+          "Comments"
+        ],
+        "totalRawRows": 20,
+        "totalObjects": 19,
+        "first5RawRows": [
+          [
+            "WA",
+            "Deicy",
+            "Samsung Galaxy 9 - SM - N9600",
+            "R28KA0AA9KR",
+            ""
+          ],
+          [
+            "",
+            "Deicy",
+            "Samsung S5 - SM-G900I",
+            "MMB29M.G900IDVU1CQD1",
+            ""
+          ],
+          [
+            "",
+            "Deicy",
+            "Samsung S7 - SM-G930F",
+            "R58J667NRGP",
+            ""
+          ],
+          [
+            "",
+            "",
+            "Model",
+            "Serial",
+            ""
+          ],
+          [
+            "WT KIT WA",
+            "",
+            "Samsung Galaxy 9 - SM - N9600",
+            "",
+            ""
+          ]
+        ],
+        "first5Objects": [
+          {
+            "__EMPTY": "WA",
+            "__EMPTY_1": "Deicy",
+            "Model": "Samsung Galaxy 9 - SM - N9600",
+            "Serial": "R28KA0AA9KR",
+            "Comments": ""
+          },
+          {
+            "__EMPTY": "",
+            "__EMPTY_1": "Deicy",
+            "Model": "Samsung S5 - SM-G900I",
+            "Serial": "MMB29M.G900IDVU1CQD1",
+            "Comments": ""
+          },
+          {
+            "__EMPTY": "",
+            "__EMPTY_1": "Deicy",
+            "Model": "Samsung S7 - SM-G930F",
+            "Serial": "R58J667NRGP",
+            "Comments": ""
+          },
+          {
+            "__EMPTY": "",
+            "__EMPTY_1": "",
+            "Model": "Model",
+            "Serial": "Serial",
+            "Comments": ""
+          },
+          {
+            "__EMPTY": "WT KIT WA",
+            "__EMPTY_1": "",
+            "Model": "Samsung Galaxy 9 - SM - N9600",
+            "Serial": "",
+            "Comments": ""
+          }
+        ]
+      },
+      "KEYS": {
+        "headers": [
+          "Location",
+          "Detail",
+          "Vodafone Long LI-7914",
+          "Vodafone Short LI-7914",
+          "Optus BAC2550M",
+          "3GIS",
+          "Key Holder",
+          "",
+          "",
+          ""
+        ],
+        "totalRawRows": 53,
+        "totalObjects": 17,
+        "first5RawRows": [
+          [
+            "NSW",
+            "CAM Key Set  (Jimmys)",
+            "CK 5002",
+            "CK 6402",
+            "",
+            "",
+            "Nutan Adhikari  M 0426851270",
+            "",
+            "",
+            ""
+          ],
+          [
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "LAST UPDATE ",
+            ""
+          ],
+          [
+            "NSW",
+            "CAM Key Set SA m2010",
+            "MK 6196",
+            "CK 6241",
+            "",
+            "",
+            "Edison Aguilar M 0415545609",
+            "",
+            "30/05/2024",
+            ""
+          ],
+          [
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            "",
+            ""
+          ],
+          [
+            "NSW",
+            "CAM Key Set 3 ",
+            "-",
+            "-",
+            "",
+            "GMK.837 (White B649)",
+            "Edison Aguilar M 0415545609",
+            "",
+            "",
+            ""
+          ]
+        ],
+        "first5Objects": [
+          {
+            "Location": "NSW",
+            "Detail": "CAM Key Set  (Jimmys)",
+            "Vodafone Long LI-7914": "CK 5002",
+            "Vodafone Short LI-7914": "CK 6402",
+            "Optus BAC2550M": "",
+            "3GIS": "",
+            "Key Holder": "Nutan Adhikari  M 0426851270",
+            "__EMPTY": "",
+            "__EMPTY_1": "",
+            "__EMPTY_2": ""
+          },
+          {
+            "Location": "",
+            "Detail": "",
+            "Vodafone Long LI-7914": "",
+            "Vodafone Short LI-7914": "",
+            "Optus BAC2550M": "",
+            "3GIS": "",
+            "Key Holder": "",
+            "__EMPTY": "",
+            "__EMPTY_1": "LAST UPDATE ",
+            "__EMPTY_2": ""
+          },
+          {
+            "Location": "NSW",
+            "Detail": "CAM Key Set SA m2010",
+            "Vodafone Long LI-7914": "MK 6196",
+            "Vodafone Short LI-7914": "CK 6241",
+            "Optus BAC2550M": "",
+            "3GIS": "",
+            "Key Holder": "Edison Aguilar M 0415545609",
+            "__EMPTY": "",
+            "__EMPTY_1": "30/05/2024",
+            "__EMPTY_2": ""
+          },
+          {
+            "Location": "NSW",
+            "Detail": "CAM Key Set 3 ",
+            "Vodafone Long LI-7914": "-",
+            "Vodafone Short LI-7914": "-",
+            "Optus BAC2550M": "",
+            "3GIS": "GMK.837 (White B649)",
+            "Key Holder": "Edison Aguilar M 0415545609",
+            "__EMPTY": "",
+            "__EMPTY_1": "",
+            "__EMPTY_2": ""
+          },
+          {
+            "Location": "NSW",
+            "Detail": "CAM Key ",
+            "Vodafone Long LI-7914": "MK 5689",
+            "Vodafone Short LI-7914": "CK-5727",
+            "Optus BAC2550M": "",
+            "3GIS": "CM",
+            "Key Holder": "Edison Aguilar M 0415545609",
+            "__EMPTY": "",
+            "__EMPTY_1": "",
+            "__EMPTY_2": ""
+          }
+        ]
+      },
+      "FIRE EXTINGUISHER": {
+        "headers": [
+          " ",
+          "",
+          "",
+          "",
+          "",
+          ""
+        ],
+        "totalRawRows": 6,
+        "totalObjects": 5,
+        "first5RawRows": [
+          [
+            "Fire Extinguisher",
+            "Inspected",
+            "Next Inspection",
+            "Size",
+            "Classification",
+            "Comments."
+          ],
+          [
+            "Melbourne",
+            44986,
+            45170,
+            "4.3Kg",
+            "4A:40B:E",
+            "Compliant with Australian and New Zealand standard AS/NZ1841.5"
+          ],
+          [
+            "Melbourne",
+            44986,
+            45170,
+            "3.1Kg",
+            "2A:20B:E",
+            "Compliant with Australian and New Zealand standard AS/NZ1841.5"
+          ],
+          [
+            "Adelaide",
+            "",
+            " ",
+            "",
+            " ",
+            ""
+          ],
+          [
+            "Perth ",
+            "",
+            "",
+            "",
+            "",
+            ""
+          ]
+        ],
+        "first5Objects": [
+          {
+            " ": "Fire Extinguisher",
+            "__EMPTY": "Inspected",
+            "__EMPTY_1": "Next Inspection",
+            "__EMPTY_2": "Size",
+            "__EMPTY_3": "Classification",
+            "__EMPTY_4": "Comments."
+          },
+          {
+            " ": "Melbourne",
+            "__EMPTY": 44986,
+            "__EMPTY_1": 45170,
+            "__EMPTY_2": "4.3Kg",
+            "__EMPTY_3": "4A:40B:E",
+            "__EMPTY_4": "Compliant with Australian and New Zealand standard AS/NZ1841.5"
+          },
+          {
+            " ": "Melbourne",
+            "__EMPTY": 44986,
+            "__EMPTY_1": 45170,
+            "__EMPTY_2": "3.1Kg",
+            "__EMPTY_3": "2A:20B:E",
+            "__EMPTY_4": "Compliant with Australian and New Zealand standard AS/NZ1841.5"
+          },
+          {
+            " ": "Adelaide",
+            "__EMPTY": "",
+            "__EMPTY_1": " ",
+            "__EMPTY_2": "",
+            "__EMPTY_3": " ",
+            "__EMPTY_4": ""
+          },
+          {
+            " ": "Perth ",
+            "__EMPTY": "",
+            "__EMPTY_1": "",
+            "__EMPTY_2": "",
+            "__EMPTY_3": "",
+            "__EMPTY_4": ""
+          }
+        ]
+      },
+      "FIRST AID KIT": {
+        "headers": [],
+        "totalRawRows": 0,
+        "totalObjects": 0,
+        "first5RawRows": [],
+        "first5Objects": []
+      }
+    }
+  },
+  "Equipment Calibration 2026.xlsx": {
+    "filePath": "c:\\Users\\Leor\\Desktop\\Entelso\\Inventory2\\Equipment Calibration 2026.xlsx",
+    "sheetNames": [
+      "Levelling",
+      "PIM Test",
+      "Sweep testers",
+      "Walk test Scanners"
+    ],
+    "sheets": {
+      "Levelling": {
+        "headers": [
+          "Equipment",
+          "SN",
+          "Calibration date ",
+          "",
+          ""
+        ],
+        "totalRawRows": 26,
+        "totalObjects": 6,
+        "first5RawRows": [
+          [
+            "Levelling NSW",
+            "",
+            "",
+            "",
+            ""
+          ],
+          [
+            "Levelling 5G NSW",
+            "KDF91721",
+            45894,
+            "COVERTEL PTY LTD ",
+            ""
+          ],
+          [
+            "Levelling 4G NSW ",
+            "DSU - JD745B – EFA41125",
+            "",
+            "",
+            "CAM?"
+          ],
+          [
+            "Levelling VIC",
+            "",
+            "",
+            "",
+            ""
+          ],
+          [
+            "Levelling 4G VIC",
+            "JD745B \r\nJDSU \r\nEFA41123 ",
+            "",
+            "",
+            "CAM"
+          ]
+        ],
+        "first5Objects": [
+          {
+            "Equipment": "Levelling NSW",
+            "SN": "",
+            "Calibration date ": "",
+            "__EMPTY": "",
+            "__EMPTY_1": ""
+          },
+          {
+            "Equipment": "Levelling 5G NSW",
+            "SN": "KDF91721",
+            "Calibration date ": 45894,
+            "__EMPTY": "COVERTEL PTY LTD ",
+            "__EMPTY_1": ""
+          },
+          {
+            "Equipment": "Levelling 4G NSW ",
+            "SN": "DSU - JD745B – EFA41125",
+            "Calibration date ": "",
+            "__EMPTY": "",
+            "__EMPTY_1": "CAM?"
+          },
+          {
+            "Equipment": "Levelling VIC",
+            "SN": "",
+            "Calibration date ": "",
+            "__EMPTY": "",
+            "__EMPTY_1": ""
+          },
+          {
+            "Equipment": "Levelling 4G VIC",
+            "SN": "JD745B \r\nJDSU \r\nEFA41123 ",
+            "Calibration date ": "",
+            "__EMPTY": "",
+            "__EMPTY_1": "CAM"
+          }
+        ]
+      },
+      "PIM Test": {
+        "headers": [
+          "Equipment",
+          "SN",
+          "Calibration date ",
+          ""
+        ],
+        "totalRawRows": 9,
+        "totalObjects": 8,
+        "first5RawRows": [
+          [
+            "PIM Testers NSW",
+            "",
+            "",
+            ""
+          ],
+          [
+            "PORTABLE IM TEST SET-1800MHz iPA-1800A",
+            "TX2152400196",
+            45754,
+            "Kaelus "
+          ],
+          [
+            "PORTABLE IM TEST SET-850MHz iPA-0850A",
+            "TX2152400189",
+            45754,
+            "Kaelus "
+          ],
+          [
+            "Anritsu Low Frequencies 850",
+            1433052,
+            "",
+            "Anristu "
+          ],
+          [
+            "Anristu High frequencies 1800",
+            1332040,
+            "",
+            "Anristu "
+          ]
+        ],
+        "first5Objects": [
+          {
+            "Equipment": "PIM Testers NSW",
+            "SN": "",
+            "Calibration date ": "",
+            "__EMPTY": ""
+          },
+          {
+            "Equipment": "PORTABLE IM TEST SET-1800MHz iPA-1800A",
+            "SN": "TX2152400196",
+            "Calibration date ": 45754,
+            "__EMPTY": "Kaelus "
+          },
+          {
+            "Equipment": "PORTABLE IM TEST SET-850MHz iPA-0850A",
+            "SN": "TX2152400189",
+            "Calibration date ": 45754,
+            "__EMPTY": "Kaelus "
+          },
+          {
+            "Equipment": "Anritsu Low Frequencies 850",
+            "SN": 1433052,
+            "Calibration date ": "",
+            "__EMPTY": "Anristu "
+          },
+          {
+            "Equipment": "Anristu High frequencies 1800",
+            "SN": 1332040,
+            "Calibration date ": "",
+            "__EMPTY": "Anristu "
+          }
+        ]
+      },
+      "Sweep testers": {
+        "headers": [
+          "Equipment",
+          "SN",
+          "Calibration date ",
+          "",
+          ""
+        ],
+        "totalRawRows": 5,
+        "totalObjects": 4,
+        "first5RawRows": [
+          [
+            "SWEEP TEST VIC",
+            "",
+            "",
+            "",
+            ""
+          ],
+          [
+            "IVA-0627A ",
+            "AN1172500104",
+            "14/11/2025",
+            "Kaelus",
+            "CAM"
+          ],
+          [
+            "SWEEP TEST NSW",
+            "",
+            "",
+            "",
+            ""
+          ],
+          [
+            "iVA-0627A\r\n",
+            "TX2154400030 ",
+            "29/01/2025",
+            "Kaelus ",
+            "CAM"
+          ]
+        ],
+        "first5Objects": [
+          {
+            "Equipment": "SWEEP TEST VIC",
+            "SN": "",
+            "Calibration date ": "",
+            "__EMPTY": "",
+            "__EMPTY_1": ""
+          },
+          {
+            "Equipment": "IVA-0627A ",
+            "SN": "AN1172500104",
+            "Calibration date ": "14/11/2025",
+            "__EMPTY": "Kaelus",
+            "__EMPTY_1": "CAM"
+          },
+          {
+            "Equipment": "SWEEP TEST NSW",
+            "SN": "",
+            "Calibration date ": "",
+            "__EMPTY": "",
+            "__EMPTY_1": ""
+          },
+          {
+            "Equipment": "iVA-0627A\r\n",
+            "SN": "TX2154400030 ",
+            "Calibration date ": "29/01/2025",
+            "__EMPTY": "Kaelus ",
+            "__EMPTY_1": "CAM"
+          }
+        ]
+      },
+      "Walk test Scanners": {
+        "headers": [
+          "Equipment",
+          "SN",
+          "Calibration date ",
+          "Location",
+          ""
+        ],
+        "totalRawRows": 6,
+        "totalObjects": 5,
+        "first5RawRows": [
+          [
+            "PCTELIBFLEX",
+            "8180-9043",
+            "",
+            "USA",
+            "CAM"
+          ],
+          [
+            "PCTELIBFLEX",
+            "8150-1040",
+            "",
+            "NSW",
+            "CAM"
+          ],
+          [
+            "PCTELIBFLEX",
+            "8190-2022",
+            "",
+            "NSW",
+            "CAM"
+          ],
+          [
+            "PCTELIBFLEX",
+            "8140-8017",
+            "",
+            "NSW",
+            "CAM"
+          ],
+          [
+            "PCTELIBFLEX",
+            "8190-7005",
+            "",
+            "NSW",
+            "CAM"
+          ]
+        ],
+        "first5Objects": [
+          {
+            "Equipment": "PCTELIBFLEX",
+            "SN": "8180-9043",
+            "Calibration date ": "",
+            "Location": "USA",
+            "__EMPTY": "CAM"
+          },
+          {
+            "Equipment": "PCTELIBFLEX",
+            "SN": "8150-1040",
+            "Calibration date ": "",
+            "Location": "NSW",
+            "__EMPTY": "CAM"
+          },
+          {
+            "Equipment": "PCTELIBFLEX",
+            "SN": "8190-2022",
+            "Calibration date ": "",
+            "Location": "NSW",
+            "__EMPTY": "CAM"
+          },
+          {
+            "Equipment": "PCTELIBFLEX",
+            "SN": "8140-8017",
+            "Calibration date ": "",
+            "Location": "NSW",
+            "__EMPTY": "CAM"
+          },
+          {
+            "Equipment": "PCTELIBFLEX",
+            "SN": "8190-7005",
+            "Calibration date ": "",
+            "Location": "NSW",
+            "__EMPTY": "CAM"
+          }
+        ]
+      }
+    }
+  },
+  "Inv Keys.xlsx": {
+    "filePath": "c:\\Users\\Leor\\Desktop\\Entelso\\Inventory\\01. CAM Keys TPG and Optus\\keys Edinson - NSW\\Inv Keys.xlsx",
+    "sheetNames": [
+      "Hoja1",
+      "Hoja2",
+      "Hoja3"
+    ],
+    "sheets": {
+      "Hoja1": {
+        "headers": [
+          "File",
+          "Ref",
+          "",
+          "Id",
+          "Photo"
+        ],
+        "totalRawRows": 9,
+        "totalObjects": 8,
+        "first5RawRows": [
+          [
+            1,
+            "LT",
+            "LI-7914",
+            "MK 6196",
+            ""
+          ],
+          [
+            1,
+            "LT",
+            "LI-7914",
+            "CK 6241",
+            ""
+          ],
+          [
+            2,
+            "BKV-9749-2880",
+            "B646",
+            "BMK/837",
+            ""
+          ],
+          [
+            3,
+            "LT",
+            "LI-7914",
+            "CK-5727",
+            ""
+          ],
+          [
+            3,
+            "LT",
+            "LI-7914",
+            "MK 5689",
+            ""
+          ]
+        ],
+        "first5Objects": [
+          {
+            "File": 1,
+            "Ref": "LT",
+            "__EMPTY": "LI-7914",
+            "Id": "MK 6196",
+            "Photo": ""
+          },
+          {
+            "File": 1,
+            "Ref": "LT",
+            "__EMPTY": "LI-7914",
+            "Id": "CK 6241",
+            "Photo": ""
+          },
+          {
+            "File": 2,
+            "Ref": "BKV-9749-2880",
+            "__EMPTY": "B646",
+            "Id": "BMK/837",
+            "Photo": ""
+          },
+          {
+            "File": 3,
+            "Ref": "LT",
+            "__EMPTY": "LI-7914",
+            "Id": "CK-5727",
+            "Photo": ""
+          },
+          {
+            "File": 3,
+            "Ref": "LT",
+            "__EMPTY": "LI-7914",
+            "Id": "MK 5689",
+            "Photo": ""
+          }
+        ]
+      },
+      "Hoja2": {
+        "headers": [],
+        "totalRawRows": 0,
+        "totalObjects": 0,
+        "first5RawRows": [],
+        "first5Objects": []
+      },
+      "Hoja3": {
+        "headers": [],
+        "totalRawRows": 0,
+        "totalObjects": 0,
+        "first5RawRows": [],
+        "first5Objects": []
+      }
+    }
+  },
+  "Equipment Register.xlsx": {
+    "filePath": "c:\\Users\\Leor\\Desktop\\Entelso\\Equipment Register.xlsx",
+    "sheetNames": [
+      "Equipment Register"
+    ],
+    "sheets": {
+      "Equipment Register": {
+        "headers": [
+          "Asset ID",
+          "Description",
+          "Brand / Model",
+          "Serial Number",
+          "Condition",
+          "Last Inspection/\r\nCalibration",
+          "Next Due",
+          "DOM",
+          "Expiry",
+          "Photo 1",
+          "Photo 2"
+        ],
+        "totalRawRows": 40,
+        "totalObjects": 37,
+        "first5RawRows": [
+          [
+            "EQ-01",
+            "Safety Line ",
+            "B-Safe",
+            "BSPS050270920",
+            "Good",
+            46029,
+            46034,
+            44075,
+            47727,
+            "",
+            ""
+          ],
+          [
+            "EQ-02",
+            "Harnness",
+            " B-Safe",
+            "BHPS0329420920",
+            "Good",
+            46029,
+            46034,
+            44075,
+            47727,
+            "",
+            ""
+          ],
+          [
+            "EQ-03",
+            "Tear Web Energy Absorbing\r\nLanyard CSL2-CLI015 ",
+            "Climbrite",
+            "CLS 003303",
+            "Good",
+            46029,
+            46034,
+            45474,
+            48396,
+            "",
+            ""
+          ],
+          [
+            "EQ-04",
+            "Harnness",
+            "Bailey",
+            94396538390312,
+            "Good",
+            46029,
+            46034,
+            44440,
+            48092,
+            "",
+            ""
+          ],
+          [
+            "EQ-05",
+            "2.0m Energy Absorbing\r\nLanyard",
+            "Bailey",
+            "01122673",
+            "Good",
+            46029,
+            46034,
+            44440,
+            48092,
+            "",
+            ""
+          ]
+        ],
+        "first5Objects": [
+          {
+            "Asset ID": "EQ-01",
+            "Description": "Safety Line ",
+            "Brand / Model": "B-Safe",
+            "Serial Number": "BSPS050270920",
+            "Condition": "Good",
+            "Last Inspection/\r\nCalibration": 46029,
+            "Next Due": 46034,
+            "DOM": 44075,
+            "Expiry": 47727,
+            "Photo 1": "",
+            "Photo 2": ""
+          },
+          {
+            "Asset ID": "EQ-02",
+            "Description": "Harnness",
+            "Brand / Model": " B-Safe",
+            "Serial Number": "BHPS0329420920",
+            "Condition": "Good",
+            "Last Inspection/\r\nCalibration": 46029,
+            "Next Due": 46034,
+            "DOM": 44075,
+            "Expiry": 47727,
+            "Photo 1": "",
+            "Photo 2": ""
+          },
+          {
+            "Asset ID": "EQ-03",
+            "Description": "Tear Web Energy Absorbing\r\nLanyard CSL2-CLI015 ",
+            "Brand / Model": "Climbrite",
+            "Serial Number": "CLS 003303",
+            "Condition": "Good",
+            "Last Inspection/\r\nCalibration": 46029,
+            "Next Due": 46034,
+            "DOM": 45474,
+            "Expiry": 48396,
+            "Photo 1": "",
+            "Photo 2": ""
+          },
+          {
+            "Asset ID": "EQ-04",
+            "Description": "Harnness",
+            "Brand / Model": "Bailey",
+            "Serial Number": 94396538390312,
+            "Condition": "Good",
+            "Last Inspection/\r\nCalibration": 46029,
+            "Next Due": 46034,
+            "DOM": 44440,
+            "Expiry": 48092,
+            "Photo 1": "",
+            "Photo 2": ""
+          },
+          {
+            "Asset ID": "EQ-05",
+            "Description": "2.0m Energy Absorbing\r\nLanyard",
+            "Brand / Model": "Bailey",
+            "Serial Number": "01122673",
+            "Condition": "Good",
+            "Last Inspection/\r\nCalibration": 46029,
+            "Next Due": 46034,
+            "DOM": 44440,
+            "Expiry": 48092,
+            "Photo 1": "",
+            "Photo 2": ""
+          }
+        ]
+      }
+    }
+  },
+  "AdaptersKit1.xlsx": {
+    "filePath": "c:\\Users\\Leor\\Desktop\\Entelso\\Inventory2\\02. Levelling Kits\\KITS Adapters\\Adapter Kit 1 (ANDREA)\\AdaptersKit1.xlsx",
+    "sheetNames": [
+      "Adapters Kit 1"
+    ],
+    "sheets": {
+      "Adapters Kit 1": {
+        "headers": [
+          "LEVELLING/TROUBLESHOOTING KIT ADAPTERS"
+        ],
+        "totalRawRows": 24,
+        "totalObjects": 23,
+        "first5RawRows": [
+          [
+            "Din Male to N Female adaptor"
+          ],
+          [
+            "Din Female to N Female adaptor"
+          ],
+          [
+            "Din Male to N Male adaptor "
+          ],
+          [
+            "Din Male to Sma Female adaptor"
+          ],
+          [
+            "4. 3-10 Male to N Male Adaptor "
+          ]
+        ],
+        "first5Objects": [
+          {
+            "LEVELLING/TROUBLESHOOTING KIT ADAPTERS": "Din Male to N Female adaptor"
+          },
+          {
+            "LEVELLING/TROUBLESHOOTING KIT ADAPTERS": "Din Female to N Female adaptor"
+          },
+          {
+            "LEVELLING/TROUBLESHOOTING KIT ADAPTERS": "Din Male to N Male adaptor "
+          },
+          {
+            "LEVELLING/TROUBLESHOOTING KIT ADAPTERS": "Din Male to Sma Female adaptor"
+          },
+          {
+            "LEVELLING/TROUBLESHOOTING KIT ADAPTERS": "4. 3-10 Male to N Male Adaptor "
+          }
+        ]
+      }
+    }
+  },
+  "Entelso_proposed config_20220523.xlsx": {
+    "filePath": "c:\\Users\\Leor\\Desktop\\Entelso\\Inventory2\\05. WalkTest Kits\\SCANNERs\\Entelso_proposed config_20220523.xlsx",
+    "sheetNames": [
+      "工作表1",
+      "Sheet1",
+      "CALIBRATION"
+    ],
+    "sheets": {
+      "工作表1": {
+        "headers": [
+          "S/N",
+          "Model",
+          "Customer",
+          "SO",
+          "Config",
+          "Proposed ",
+          "",
+          "Qty",
+          "Note",
+          "Price",
+          "Total Price",
+          "",
+          "ENTELSO BLACK"
+        ],
+        "totalRawRows": 48,
+        "totalObjects": 41,
+        "first5RawRows": [
+          [
+            "8190-7005",
+            "08900S-02",
+            "Entelso",
+            223479,
+            "570-3.8GHz, super-config",
+            "08902S-E-U2",
+            "Upgrade Existing IBflex 08900/08902 to 08902S-E (IBflex Super Configuration (570 MHz -3.8 GHz includes 10 MHz - 6 GHz and Band Support, GSM, WCDMA, CDMA, TD-LTE, FD-LTE, Wi-Fi, does not include any SW options or 5G NR Technologies) Bundle",
+            1,
+            "Hardware upgrade",
+            19609,
+            19609,
+            "",
+            "SENT TO REPAIR"
+          ],
+          [
+            "Purchase Date",
+            "Warranty Expire",
+            "",
+            "",
+            "",
+            "OP524-NR",
+            "3GPP 5G NR Technology Option",
+            1,
+            "",
+            13015,
+            13015,
+            "",
+            ""
+          ],
+          [
+            44011,
+            45836,
+            "",
+            "",
+            "",
+            "OP524-DSS",
+            "4G LTE - 5G NR Dynamic Spectrum Sharing Option",
+            1,
+            "Included",
+            0,
+            0,
+            "",
+            ""
+          ],
+          [
+            "",
+            "",
+            "",
+            "",
+            "",
+            "OP294",
+            "ANT, 600 MHz - 10 GHz Multi-Band Mag Mount, High Performance, 12'",
+            1,
+            "",
+            169,
+            169,
+            "",
+            ""
+          ],
+          [
+            "",
+            "",
+            "",
+            "",
+            "",
+            "OPS137",
+            "    Full Calibration,  IBflex Receiver  (2 year calibration)",
+            1,
+            "",
+            1843,
+            1843,
+            "",
+            ""
+          ]
+        ],
+        "first5Objects": [
+          {
+            "S/N": "8190-7005",
+            "Model": "08900S-02",
+            "Customer": "Entelso",
+            "SO": 223479,
+            "Config": "570-3.8GHz, super-config",
+            "Proposed ": "08902S-E-U2",
+            "__EMPTY": "Upgrade Existing IBflex 08900/08902 to 08902S-E (IBflex Super Configuration (570 MHz -3.8 GHz includes 10 MHz - 6 GHz and Band Support, GSM, WCDMA, CDMA, TD-LTE, FD-LTE, Wi-Fi, does not include any SW options or 5G NR Technologies) Bundle",
+            "Qty": 1,
+            "Note": "Hardware upgrade",
+            "Price": 19609,
+            "Total Price": 19609,
+            "__EMPTY_1": "",
+            "ENTELSO BLACK": "SENT TO REPAIR"
+          },
+          {
+            "S/N": "Purchase Date",
+            "Model": "Warranty Expire",
+            "Customer": "",
+            "SO": "",
+            "Config": "",
+            "Proposed ": "OP524-NR",
+            "__EMPTY": "3GPP 5G NR Technology Option",
+            "Qty": 1,
+            "Note": "",
+            "Price": 13015,
+            "Total Price": 13015,
+            "__EMPTY_1": "",
+            "ENTELSO BLACK": ""
+          },
+          {
+            "S/N": 44011,
+            "Model": 45836,
+            "Customer": "",
+            "SO": "",
+            "Config": "",
+            "Proposed ": "OP524-DSS",
+            "__EMPTY": "4G LTE - 5G NR Dynamic Spectrum Sharing Option",
+            "Qty": 1,
+            "Note": "Included",
+            "Price": 0,
+            "Total Price": 0,
+            "__EMPTY_1": "",
+            "ENTELSO BLACK": ""
+          },
+          {
+            "S/N": "",
+            "Model": "",
+            "Customer": "",
+            "SO": "",
+            "Config": "",
+            "Proposed ": "OP294",
+            "__EMPTY": "ANT, 600 MHz - 10 GHz Multi-Band Mag Mount, High Performance, 12'",
+            "Qty": 1,
+            "Note": "",
+            "Price": 169,
+            "Total Price": 169,
+            "__EMPTY_1": "",
+            "ENTELSO BLACK": ""
+          },
+          {
+            "S/N": "",
+            "Model": "",
+            "Customer": "",
+            "SO": "",
+            "Config": "",
+            "Proposed ": "OPS137",
+            "__EMPTY": "    Full Calibration,  IBflex Receiver  (2 year calibration)",
+            "Qty": 1,
+            "Note": "",
+            "Price": 1843,
+            "Total Price": 1843,
+            "__EMPTY_1": "",
+            "ENTELSO BLACK": ""
+          }
+        ]
+      },
+      "Sheet1": {
+        "headers": [
+          "S/N",
+          "CAPABILITY ",
+          "OWNER",
+          "COMMENTS"
+        ],
+        "totalRawRows": 7,
+        "totalObjects": 6,
+        "first5RawRows": [
+          [
+            "8190-7005",
+            "5G",
+            "ENTELSO",
+            "GOING TO USE FOR CALIBRATION/REPAIR DATA PORT"
+          ],
+          [
+            "8150-1040",
+            "4G",
+            "ENTELSO",
+            "GOING TO USE FOR CALIBRATION/POWER ISSUES"
+          ],
+          [
+            "8190-2022",
+            "4G",
+            "CAM",
+            "CALIBRATION REQUIRED/CAN BE UPGRADED TO 5G"
+          ],
+          [
+            "8140-8017",
+            "4G",
+            "CAM",
+            "CALIBRATION REQUIRED/EXPENSIVE TO UPGRADE/ CURRENTLY WITH ENTELSO"
+          ],
+          [
+            "8180-9043",
+            "5G",
+            "ENTELSO/CAM",
+            "CALIBRATION REQUIRED WITH ENTELSO"
+          ]
+        ],
+        "first5Objects": [
+          {
+            "S/N": "8190-7005",
+            "CAPABILITY ": "5G",
+            "OWNER": "ENTELSO",
+            "COMMENTS": "GOING TO USE FOR CALIBRATION/REPAIR DATA PORT"
+          },
+          {
+            "S/N": "8150-1040",
+            "CAPABILITY ": "4G",
+            "OWNER": "ENTELSO",
+            "COMMENTS": "GOING TO USE FOR CALIBRATION/POWER ISSUES"
+          },
+          {
+            "S/N": "8190-2022",
+            "CAPABILITY ": "4G",
+            "OWNER": "CAM",
+            "COMMENTS": "CALIBRATION REQUIRED/CAN BE UPGRADED TO 5G"
+          },
+          {
+            "S/N": "8140-8017",
+            "CAPABILITY ": "4G",
+            "OWNER": "CAM",
+            "COMMENTS": "CALIBRATION REQUIRED/EXPENSIVE TO UPGRADE/ CURRENTLY WITH ENTELSO"
+          },
+          {
+            "S/N": "8180-9043",
+            "CAPABILITY ": "5G",
+            "OWNER": "ENTELSO/CAM",
+            "COMMENTS": "CALIBRATION REQUIRED WITH ENTELSO"
+          }
+        ]
+      },
+      "CALIBRATION": {
+        "headers": [
+          "",
+          "",
+          "",
+          "",
+          ""
+        ],
+        "totalRawRows": 15,
+        "totalObjects": 7,
+        "first5RawRows": [
+          [
+            "SCANNERS WT",
+            "",
+            "",
+            "",
+            ""
+          ],
+          [
+            "STATE",
+            "BRAND",
+            "SERIAL",
+            "CALIBRATION DATE",
+            "CALIBRATION DUE"
+          ],
+          [
+            "QLD",
+            " Ibflex",
+            "8150-1040",
+            43943,
+            44673
+          ],
+          [
+            "VIC",
+            " Ibflex",
+            "8140-8017",
+            45685,
+            46050
+          ],
+          [
+            "WA",
+            " Ibflex",
+            "8190-2022",
+            43544,
+            44275
+          ]
+        ],
+        "first5Objects": [
+          {
+            "__EMPTY": "SCANNERS WT",
+            "__EMPTY_1": "",
+            "__EMPTY_2": "",
+            "__EMPTY_3": "",
+            "__EMPTY_4": ""
+          },
+          {
+            "__EMPTY": "STATE",
+            "__EMPTY_1": "BRAND",
+            "__EMPTY_2": "SERIAL",
+            "__EMPTY_3": "CALIBRATION DATE",
+            "__EMPTY_4": "CALIBRATION DUE"
+          },
+          {
+            "__EMPTY": "QLD",
+            "__EMPTY_1": " Ibflex",
+            "__EMPTY_2": "8150-1040",
+            "__EMPTY_3": 43943,
+            "__EMPTY_4": 44673
+          },
+          {
+            "__EMPTY": "VIC",
+            "__EMPTY_1": " Ibflex",
+            "__EMPTY_2": "8140-8017",
+            "__EMPTY_3": 45685,
+            "__EMPTY_4": 46050
+          },
+          {
+            "__EMPTY": "WA",
+            "__EMPTY_1": " Ibflex",
+            "__EMPTY_2": "8190-2022",
+            "__EMPTY_3": 43544,
+            "__EMPTY_4": 44275
+          }
+        ]
+      }
+    }
+  },
+  "Traking Equipos Walk Test NSW.xlsx": {
+    "filePath": "c:\\Users\\Leor\\Desktop\\Entelso\\Inventory2\\05. WalkTest Kits\\KITS\\Archived\\Archived\\Traking Equipos Walk Test NSW.xlsx",
+    "sheetNames": [
+      "NSW-QLD-SA-NT"
+    ],
+    "sheets": {
+      "NSW-QLD-SA-NT": {
+        "headers": [
+          "EQUIPO DE WALK TEST NSW",
+          "",
+          "",
+          "",
+          ""
+        ],
+        "totalRawRows": 41,
+        "totalObjects": 22,
+        "first5RawRows": [
+          [
+            "ITEM",
+            "BRAND",
+            "CANT",
+            "SERIAL",
+            "PLACA"
+          ],
+          [
+            "SCANNER",
+            "PCTEL",
+            1,
+            81809043,
+            "EQ-ENT011-1"
+          ],
+          [
+            "POWER BANK ",
+            "DELL",
+            1,
+            "",
+            "EQ-ENT011-2"
+          ],
+          [
+            "CHARGER POWER BANK ",
+            "DELL",
+            1,
+            "MP3425",
+            "EQ-ENT011-3"
+          ],
+          [
+            "ADAPTADORES PORT",
+            "",
+            1,
+            "",
+            "EQ-ENT011-4"
+          ]
+        ],
+        "first5Objects": [
+          {
+            "EQUIPO DE WALK TEST NSW": "ITEM",
+            "__EMPTY": "BRAND",
+            "__EMPTY_1": "CANT",
+            "__EMPTY_2": "SERIAL",
+            "__EMPTY_3": "PLACA"
+          },
+          {
+            "EQUIPO DE WALK TEST NSW": "SCANNER",
+            "__EMPTY": "PCTEL",
+            "__EMPTY_1": 1,
+            "__EMPTY_2": 81809043,
+            "__EMPTY_3": "EQ-ENT011-1"
+          },
+          {
+            "EQUIPO DE WALK TEST NSW": "POWER BANK ",
+            "__EMPTY": "DELL",
+            "__EMPTY_1": 1,
+            "__EMPTY_2": "",
+            "__EMPTY_3": "EQ-ENT011-2"
+          },
+          {
+            "EQUIPO DE WALK TEST NSW": "CHARGER POWER BANK ",
+            "__EMPTY": "DELL",
+            "__EMPTY_1": 1,
+            "__EMPTY_2": "MP3425",
+            "__EMPTY_3": "EQ-ENT011-3"
+          },
+          {
+            "EQUIPO DE WALK TEST NSW": "ADAPTADORES PORT",
+            "__EMPTY": "",
+            "__EMPTY_1": 1,
+            "__EMPTY_2": "",
+            "__EMPTY_3": "EQ-ENT011-4"
+          }
+        ]
+      }
+    }
+  }
+}

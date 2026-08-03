@@ -1,0 +1,9 @@
+Calibration Date..............: 2020-4-22
+Calibration Version...........: 17
+Warranty Expiration Date......: 12/02/2023 11:59:59 PM GMT
+License Type..................: Perpetual
+License State.................: Active
+Current Time..................: 18/03/2024 1:47:48 AM GMT
+License Number................: 1
+License Expiration Date.......: 14/11/2022 11:59:59 PM GMT
+License Remaining Time........: NA

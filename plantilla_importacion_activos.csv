@@ -1,0 +1,11 @@
+Nombre_Item,Numero_Serie,Team,Estado,Ubicacion,Fecha_Ultima_Calibracion,Fecha_Proxima_Calibracion
+Multímetro Digital Fluke 87V,FLK-87V-TEST-001,Networks,disponible,Almacén Central,2024-01-15,2025-01-15
+Analizador de Espectro Keysight,AE-KS-TEST-002,Calibration,disponible,Almacén Central,2023-11-01,2024-11-01
+Taladro Percutor DeWalt 20V,DW-20V-TEST-003,Transmission,en_uso,Obra Norte - Faena 1,2024-02-10,2025-02-10
+Escalera Fibra de Vidrio 6m,ESC-FV-TEST-004,Civil Works,danado,QLD,,
+Detector de Cámara Térmica FLIR,FLIR-E86-TEST-005,Maintenance,en_mantenimiento,Taller de Calibración,2023-05-20,2024-05-20
+Reflectómetro OTDR Yokogawa,YOK-AQ7280-TEST-006,Networks,disponible,SA,2024-03-01,2025-03-01
+Fusionadora de Fibra Fujikura 90S,FJK-90S-TEST-007,Instrumentation,calibracion_pendiente,Taller de Calibración,2022-10-10,2023-10-10
+Osciloscopio Tektronix TBS1104,TEK-TBS1104-TEST-008,Calibration,disponible,VIC,2024-06-15,2025-06-15
+Multímetro Digital Fluke 87V,FLK-87V-TEST-009,Networks,en_uso,NSW,,
+Taladro Percutor DeWalt 20V,DW-20V-TEST-010,Transmission,disponible,Almacén Central,2023-12-01,2024-12-01

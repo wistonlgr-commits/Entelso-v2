@@ -1,0 +1,519 @@
+File Name:                           Version:
+
+SeeGull Assistant.exe                2.2.7.0
+ScannerInterface.dll                 1.5.1.0
+SGACommon.dll                        1.2.0.5
+SeeGullMaster.dll                    2.7.1.1
+winusb.dll                           6.0.6000.16386 (vista_rtm.061101-2205)
+SplashScreen.dll                     1.0.0.0
+DevComponents.DotNetBar2.dll         8.9.0.2
+
+10/06/2026 4:02:15 PM: Inquiry Response 
+
+Unit Level Information
+--------------------------------------------------------------------
+PCTEL Device Type..................: IBflex
+Unit ESN...........................: 0000-0000-8180-9043
+Number of Options..................: 48
+Interfaces.........................: USB, Bluetooth, AOA, Ethernet
+Product Reference Version..........: 1.1.33.0
+API Version........................: 2.5.0.0
+Software Release Version...........: 3.5.0.0
+ASN.1 ICD Version..................: 2.5.0.0
+Calibration Date...................: 5/11/2018
+Bootup Status......................: Passed
+
+Supported Configurations
+Protocol       Band                                    Code    Port
+--------------------------------------------------------------------
+Band Option    FR1 FDD n1 DL                           0x0001  1  
+Band Option    FR1 FDD n2 DL                           0x0002  1  
+Band Option    FR1 FDD n3 DL                           0x0003  1  
+Band Option    FR1 FDD n5 DL                           0x0005  1  
+Band Option    FR1 FDD n7 DL                           0x0007  1  
+Band Option    FR1 FDD n8 DL                           0x0008  1  
+Band Option    FR1 FDD n12 DL                          0x0012  1  
+Band Option    FR1 FDD n14 DL                          0x0014  1  
+Band Option    FR1 FDD n18 DL                          0x0018  1  
+Band Option    FR1 FDD n20 DL                          0x0020  1  
+Band Option    FR1 FDD n25 DL                          0x0025  1  
+Band Option    FR1 FDD n28 DL                          0x0028  1  
+Band Option    FR1 SDL n29                             0x0029  1  
+Band Option    FR1 FDD n30 DL                          0x0030  1  
+Band Option    FR1 TDD n34                             0x0034  1  
+Band Option    FR1 TDD n38                             0x0038  1  
+Band Option    FR1 TDD n39                             0x0039  1  
+Band Option    FR1 TDD n40                             0x0040  1  
+Band Option    FR1 TDD n41 and n90                     0x0041  1  
+Band Option    FR1 TDD n48                             0x0048  1  
+Band Option    FR1 TDD n50                             0x0050  1  
+Band Option    FR1 TDD n51                             0x0051  1  
+Band Option    FR1 FDD n65 DL                          0x0065  1  
+Band Option    FR1 FDD n66 DL                          0x0066  1  
+Band Option    FR1 FDD n70 DL                          0x0070  1  
+Band Option    FR1 FDD n71 DL                          0x0071  1  
+Band Option    FR1 FDD n74 DL                          0x0074  1  
+Band Option    FR1 FDD n75 DL                          0x0075  1  
+Band Option    FR1 FDD n76 DL                          0x0076  1  
+Band Option    FR1 TDD n78                             0x0078  1  
+Band Option    FR1 FDD n91 DL                          0x0091  1  
+Band Option    FR1 FDD n92 DL                          0x0092  1  
+Band Option    FR1 FDD n93 DL                          0x0093  1  
+Band Option    FR1 FDD n94 DL                          0x0094  1  
+Band Option    EB-05 DL: American Cellular             0x0100  1  
+Band Option    EB-05 UL: American Cellular             0x0101  1  
+Band Option    EB-02 DL: American PCS                  0x0200  1  
+Band Option    EB-02 UL: American PCS                  0x0201  1  
+Band Option    EB-01 DL: 2100 (IMT-2000)               0x0300  1  
+Band Option    EB-01 UL: 2100 (IMT-2000)               0x0301  1  
+Band Option    EB-08 DL: European 900 MHz              0x0600  1  
+Band Option    EB-08 UL: European 900 MHz              0x0601  1  
+Band Option    EB-03 DL: 1800 MHz (DCS)                0x0700  1  
+Band Option    EB-03 UL: 1800 MHz (DCS)                0x0701  1  
+Band Option    EB-09 DL: 1700 MHz (Japan)              0x07F8  1  
+Band Option    EB-09 UL: 1700 MHz (Japan)              0x07F9  1  
+Band Option    EB-27 DL: Lwr Ext 850 MHz               0x0900  1  
+Band Option    EB-27 UL: Lwr Ext 850 MHz               0x0901  1  
+Band Option    EB-04 DL: AWS 2100 MHz                  0x0B00  1  
+Band Option    EB-04 UL: AWS 2100 MHz                  0x0B01  1  
+Band Option    EB-13/14L DL: US 700 Upp C/D            0x1000  1  
+Band Option    EB-13/14L UL: US 700 Upp C/D            0x1001  1  
+Band Option    FR1 FDD n2 UL                           0x1002  1  
+Band Option    FR1 FDD n3 UL                           0x1003  1  
+Band Option    FR1 FDD n5 UL                           0x1005  1  
+Band Option    FR1 FDD n7 UL                           0x1007  1  
+Band Option    FR1 FDD n8 UL                           0x1008  1  
+Band Option    EB-13 DL: US 700 Upp C                  0x1010  1  
+Band Option    EB-13 UL: US 700 Upp C                  0x1011  1  
+Band Option    FR1 FDD n12 UL                          0x1012  1  
+Band Option    FR1 FDD n14 UL                          0x1014  1  
+Band Option    FR1 FDD n18 UL                          0x1018  1  
+Band Option    EB-14 DL: Upper 700 D                   0x1020  1  
+Band Option    EB-14 UL: Upper 700 D                   0x1021  1  
+Band Option    FR1 FDD n25 UL                          0x1025  1  
+Band Option    FR1 FDD n28 UL                          0x1028  1  
+Band Option    FR1 FDD n30 UL                          0x1030  1  
+Band Option    FR1 FDD n65 UL                          0x1065  1  
+Band Option    FR1 FDD n66 UL                          0x1066  1  
+Band Option    FR1 FDD n70 UL                          0x1070  1  
+Band Option    FR1 FDD n71 UL                          0x1071  1  
+Band Option    FR1 FDD n74 UL                          0x1074  1  
+Band Option    FR1 SUL n80                             0x1080  1  
+Band Option    FR1 SUL n81                             0x1081  1  
+Band Option    FR1 SUL n82                             0x1082  1  
+Band Option    FR1 SUL n83                             0x1083  1  
+Band Option    FR1 SUL n84                             0x1084  1  
+Band Option    FR1 SUL n86                             0x1086  1  
+Band Option    FR1 FDD n91 UL                          0x1091  1  
+Band Option    FR1 FDD n92 UL                          0x1092  1  
+Band Option    FR1 FDD n93 UL                          0x1093  1  
+Band Option    FR1 FDD n94 UL                          0x1094  1  
+Band Option    FR1 SUL n95                             0x1095  1  
+Band Option    EB-12 DL: US Lwr 700 A/B/C              0x1100  1  
+Band Option    EB-12 UL: US Lwr 700 A/B/C              0x1101  1  
+Band Option    FR1 FDD n20 UL                          0x1120  1  
+Band Option    EB-17 DL: US Lwr 700 B/C                0x11F8  1  
+Band Option    EB-17 UL: US Lwr 700 B/C                0x11F9  1  
+Band Option    EB-07 DL: 2600 IMT Extension            0x1200  1  
+Band Option    EB-07 UL: 2600 IMT Extension            0x1201  1  
+Band Option    EB-11 DL: 1500 MHz                      0x1300  1  
+Band Option    EB-11 UL: 1500 MHz                      0x1301  1  
+Band Option    EB-21 DL: Ext 1500 MHz                  0x1400  1  
+Band Option    EB-21 UL: Ext 1500 MHz                  0x1401  1  
+Band Option    EB-25 DL: Ext US PCS                    0x1500  1  
+Band Option    EB-25 UL: Ext US PCS                    0x1501  1  
+Band Option    EB-06 DL: 800 MHz                       0x1600  1  
+Band Option    EB-06 UL: 800 MHz                       0x1601  1  
+Band Option    EB-18 DL: Japan Lwr 800                 0x1700  1  
+Band Option    EB-18 UL: Japan Lwr 800                 0x1701  1  
+Band Option    EB-19 DL: Japan Uppr 800                0x1800  1  
+Band Option    EB-19 UL: Japan Uppr 800                0x1801  1  
+Band Option    EB-20 DL: European 800 MHz              0x1A00  1  
+Band Option    EB-20 UL: European 800 MHz              0x1A01  1  
+Band Option    FR1 FDD n1 UL                           0x1AA1  1  
+Band Option    EB-24 DL: 1600 MHz                      0x1B00  1  
+Band Option    EB-24 UL: 1600 MHz                      0x1B01  1  
+Band Option    EB-38: TDD 2.6 GHz                      0x1C03  1  
+Band Option    EB-40: TDD 2.3 GHz                      0x1D03  1  
+Band Option    EB-41: TDD 2.5 GHz                      0x1E03  1  
+Band Option    EB-41 TDD 2.5 GHz Lower                 0x1EC3  1  
+Band Option    EB-39: TDD 1.9 GHz                      0x1F03  1  
+Band Option    EB-26 DL: Uppr Ext 850 MHz              0x2100  1  
+Band Option    EB-26 UL: Uppr Ext 850 MHz              0x2101  1  
+Band Option    EB-28 DL: 700 APAC (CALA)               0x2200  1  
+Band Option    EB-28 UL: 700 APAC (CALA)               0x2201  1  
+Band Option    EB-42: TDD 3.4 GHz                      0x2303  1  
+Band Option    EB-43: TDD 3.6 GHz                      0x2403  1  
+Band Option    EB-44: TDD 700 MHz                      0x2503  1  
+Band Option    EB-33: TDD 2000 MHz                     0x2603  1  
+Band Option    EB-34: Chinese TDD 2000 MHz             0x2703  1  
+Band Option    EB-35: TDD 1900 (PCS) Lower             0x2803  1  
+Band Option    EB-36: TDD 1900 (PCS) Upper             0x2903  1  
+Band Option    EB-37: TDD 1900 (PCS) Center Gap        0x2A03  1  
+Band Option    EB-10 DL: Ext 2100 (AWS)                0x2B00  1  
+Band Option    EB-10 UL: Ext 2100 (AWS)                0x2B01  1  
+Band Option    EB-22 DL: 3.5 GHz                       0x2C00  1  
+Band Option    EB-22 UL: 3.5 GHz                       0x2C01  1  
+Band Option    EB-29 DL: US 700 MHz                    0x2D00  1  
+Band Option    R-GSM 900 MHz DL                        0x2E00  1  
+Band Option    R-GSM 900 MHz UL                        0x2E01  1  
+Band Option    EB-31 DL: 450 MHz                       0x2F00  1  
+Band Option    EB-31 UL: 450 MHz                       0x2F01  1  
+Band Option    EB-23 DL: S-Band 2 GHz                  0x3100  1  
+Band Option    EB-23 UL: S-Band 2 GHz                  0x3101  1  
+Band Option    EB-30 DL: 2.3 GHz (WCS A/B)             0x3200  1  
+Band Option    EB-30 UL: 2.3 GHz (WCS A/B)             0x3201  1  
+Band Option    WiFi: Device Band                       0x3303  1  
+Band Option    EB-32 DL: 1500 (L-Band)                 0x3400  1  
+Band Option    ER-GSM: 900 MHz DL                      0x3500  1  
+Band Option    ER-GSM: 900 MHz UL                      0x3501  1  
+Band Option    EB-66 AWS-3 DL:(2110-2200 MHz)          0x3800  1  
+Band Option    EB-66 AWS-3 UL:(1710-1800 MHz)          0x3801  1  
+Band Option    EB-45 TDD: (1447-1467 MHz)              0x3903  1  
+Band Option    EB-65 DL: (2110-2200 MHz)               0x3C00  1  
+Band Option    EB-65 UL: (1920-2010 MHz)               0x3C01  1  
+Band Option    EB-67 DL: (738-758 MHz)                 0x3D00  1  
+Band Option    EB-68 DL: (753-783 MHz)                 0x3E00  1  
+Band Option    EB-68 UL: (698-728 MHz)                 0x3E01  1  
+Band Option    EB-48 TDD: (3550 - 3700 MHz)            0x5003  1  
+Band Option    EB-69 FDD DL: (2570 - 2620 MHz)         0x5200  1  
+Band Option    EB-50 TDD: (1432 - 1517 MHz)            0x5203  1  
+Band Option    EB-70 FDD DL: (1995 - 2020 MHz)         0x5300  1  
+Band Option    EB-70 FDD UL: (1695 - 1710 MHz)         0x5301  1  
+Band Option    EB-51 TDD: (1437 - 1442 MHz)            0x5303  1  
+Band Option    EB-71 FDD DL: (617 - 652 MHz)           0x5400  1  
+Band Option    EB-71 FDD UL: (663 - 698 MHz)           0x5401  1  
+Band Option    EB-72 FDD DL: (461 - 466 MHz)           0x5500  1  
+Band Option    EB-72 FDD UL: (451 - 456 MHz)           0x5501  1  
+Band Option    EB-74 FDD DL: (1475 - 1518 MHz)         0x5600  1  
+Band Option    EB-74 FDD UL: (1427 - 1470 MHz)         0x5601  1  
+Band Option    EB-75 FDD DL-CA: (1432 - 1517 MHz)      0x5700  1  
+Band Option    EB-76 FDD DL-CA: (1427 - 1432 MHz)      0x5800  1  
+Band Option    EB-73 FDD DL: (460 - 465 MHz)           0x5900  1  
+Band Option    EB-73 FDD UL: (450 - 455 MHz)           0x5901  1  
+Band Option    EB-49 TDD: (3550 - 3670 MHz)            0x5A03  1  
+Band Option    EB-52 TDD: (3300 - 3400 MHz)            0x5B03  1  
+Band Option    EB-85 FDD DL: (728 - 746 MHz)           0x5C00  1  
+Band Option    EB-85 FDD UL: (698 - 716 MHz)           0x5C01  1  
+GSM            EB-05 DL: American Cellular             0x0100  1  
+GSM            EB-05 UL: American Cellular             0x0101  1  
+GSM            EB-02 DL: American PCS                  0x0200  1  
+GSM            EB-02 UL: American PCS                  0x0201  1  
+GSM            EB-08 DL: European 900 MHz              0x0600  1  
+GSM            EB-08 UL: European 900 MHz              0x0601  1  
+GSM            EB-03 DL: 1800 MHz (DCS)                0x0700  1  
+GSM            EB-03 UL: 1800 MHz (DCS)                0x0701  1  
+GSM            R-GSM 900 MHz DL                        0x2E00  1  
+GSM            R-GSM 900 MHz UL                        0x2E01  1  
+GSM            ER-GSM: 900 MHz DL                      0x3500  1  
+GSM            ER-GSM: 900 MHz UL                      0x3501  1  
+CDMA(95)       EB-05 DL: American Cellular             0x0100  1  
+CDMA(95)       EB-05 UL: American Cellular             0x0101  1  
+CDMA(95)       EB-02 DL: American PCS                  0x0200  1  
+CDMA(95)       EB-02 UL: American PCS                  0x0201  1  
+CDMA(95)       EB-01 DL: 2100 (IMT-2000)               0x0300  1  
+CDMA(95)       EB-01 UL: 2100 (IMT-2000)               0x0301  1  
+CDMA(95)       EB-03 DL: 1800 MHz (DCS)                0x0700  1  
+CDMA(95)       EB-03 UL: 1800 MHz (DCS)                0x0701  1  
+CDMA(95)       EB-27 DL: Lwr Ext 850 MHz               0x0900  1  
+CDMA(95)       EB-27 UL: Lwr Ext 850 MHz               0x0901  1  
+CDMA(95)       EB-04 DL: AWS 2100 MHz                  0x0B00  1  
+CDMA(95)       EB-04 UL: AWS 2100 MHz                  0x0B01  1  
+CDMA(95)       EB-25 DL: Ext US PCS                    0x1500  1  
+CDMA(95)       EB-25 UL: Ext US PCS                    0x1501  1  
+CDMA(95)       EB-24 DL: 1600 MHz                      0x1B00  1  
+CDMA(95)       EB-24 UL: 1600 MHz                      0x1B01  1  
+CDMA(95)       EB-31 DL: 450 MHz                       0x2F00  1  
+CDMA(95)       EB-31 UL: 450 MHz                       0x2F01  1  
+WCDMA          EB-05 DL: American Cellular             0x0100  1  
+WCDMA          EB-05 UL: American Cellular             0x0101  1  
+WCDMA          EB-02 DL: American PCS                  0x0200  1  
+WCDMA          EB-02 UL: American PCS                  0x0201  1  
+WCDMA          EB-01 DL: 2100 (IMT-2000)               0x0300  1  
+WCDMA          EB-01 UL: 2100 (IMT-2000)               0x0301  1  
+WCDMA          EB-08 DL: European 900 MHz              0x0600  1  
+WCDMA          EB-08 UL: European 900 MHz              0x0601  1  
+WCDMA          EB-03 DL: 1800 MHz (DCS)                0x0700  1  
+WCDMA          EB-03 UL: 1800 MHz (DCS)                0x0701  1  
+WCDMA          EB-09 DL: 1700 MHz (Japan)              0x07F8  1  
+WCDMA          EB-09 UL: 1700 MHz (Japan)              0x07F9  1  
+WCDMA          EB-04 DL: AWS 2100 MHz                  0x0B00  1  
+WCDMA          EB-04 UL: AWS 2100 MHz                  0x0B01  1  
+WCDMA          EB-07 DL: 2600 IMT Extension            0x1200  1  
+WCDMA          EB-07 UL: 2600 IMT Extension            0x1201  1  
+WCDMA          EB-11 DL: 1500 MHz                      0x1300  1  
+WCDMA          EB-11 UL: 1500 MHz                      0x1301  1  
+WCDMA          EB-21 DL: Ext 1500 MHz                  0x1400  1  
+WCDMA          EB-21 UL: Ext 1500 MHz                  0x1401  1  
+WCDMA          EB-25 DL: Ext US PCS                    0x1500  1  
+WCDMA          EB-25 UL: Ext US PCS                    0x1501  1  
+WCDMA          EB-06 DL: 800 MHz                       0x1600  1  
+WCDMA          EB-06 UL: 800 MHz                       0x1601  1  
+WCDMA          EB-19 DL: Japan Uppr 800                0x1800  1  
+WCDMA          EB-19 UL: Japan Uppr 800                0x1801  1  
+WCDMA          EB-10 DL: Ext 2100 (AWS)                0x2B00  1  
+WCDMA          EB-10 UL: Ext 2100 (AWS)                0x2B01  1  
+CDMA           EB-05 DL: American Cellular             0x0100  1  
+CDMA           EB-05 UL: American Cellular             0x0101  1  
+CDMA           EB-02 DL: American PCS                  0x0200  1  
+CDMA           EB-02 UL: American PCS                  0x0201  1  
+CDMA           EB-01 DL: 2100 (IMT-2000)               0x0300  1  
+CDMA           EB-01 UL: 2100 (IMT-2000)               0x0301  1  
+CDMA           EB-03 DL: 1800 MHz (DCS)                0x0700  1  
+CDMA           EB-03 UL: 1800 MHz (DCS)                0x0701  1  
+CDMA           EB-27 DL: Lwr Ext 850 MHz               0x0900  1  
+CDMA           EB-27 UL: Lwr Ext 850 MHz               0x0901  1  
+CDMA           EB-04 DL: AWS 2100 MHz                  0x0B00  1  
+CDMA           EB-04 UL: AWS 2100 MHz                  0x0B01  1  
+CDMA           EB-25 DL: Ext US PCS                    0x1500  1  
+CDMA           EB-25 UL: Ext US PCS                    0x1501  1  
+CDMA           EB-24 DL: 1600 MHz                      0x1B00  1  
+CDMA           EB-24 UL: 1600 MHz                      0x1B01  1  
+CDMA           EB-31 DL: 450 MHz                       0x2F00  1  
+CDMA           EB-31 UL: 450 MHz                       0x2F01  1  
+EV-DO          EB-05 DL: American Cellular             0x0100  1  
+EV-DO          EB-05 UL: American Cellular             0x0101  1  
+EV-DO          EB-02 DL: American PCS                  0x0200  1  
+EV-DO          EB-02 UL: American PCS                  0x0201  1  
+EV-DO          EB-01 DL: 2100 (IMT-2000)               0x0300  1  
+EV-DO          EB-01 UL: 2100 (IMT-2000)               0x0301  1  
+EV-DO          EB-03 DL: 1800 MHz (DCS)                0x0700  1  
+EV-DO          EB-03 UL: 1800 MHz (DCS)                0x0701  1  
+EV-DO          EB-27 DL: Lwr Ext 850 MHz               0x0900  1  
+EV-DO          EB-27 UL: Lwr Ext 850 MHz               0x0901  1  
+EV-DO          EB-04 DL: AWS 2100 MHz                  0x0B00  1  
+EV-DO          EB-04 UL: AWS 2100 MHz                  0x0B01  1  
+EV-DO          EB-25 DL: Ext US PCS                    0x1500  1  
+EV-DO          EB-25 UL: Ext US PCS                    0x1501  1  
+EV-DO          EB-24 DL: 1600 MHz                      0x1B00  1  
+EV-DO          EB-24 UL: 1600 MHz                      0x1B01  1  
+EV-DO          EB-31 DL: 450 MHz                       0x2F00  1  
+EV-DO          EB-31 UL: 450 MHz                       0x2F01  1  
+LTE            EB-05 DL: American Cellular             0x0100  1  
+LTE            EB-05 UL: American Cellular             0x0101  1  
+LTE            EB-02 DL: American PCS                  0x0200  1  
+LTE            EB-02 UL: American PCS                  0x0201  1  
+LTE            EB-01 DL: 2100 (IMT-2000)               0x0300  1  
+LTE            EB-01 UL: 2100 (IMT-2000)               0x0301  1  
+LTE            EB-08 DL: European 900 MHz              0x0600  1  
+LTE            EB-08 UL: European 900 MHz              0x0601  1  
+LTE            EB-03 DL: 1800 MHz (DCS)                0x0700  1  
+LTE            EB-03 UL: 1800 MHz (DCS)                0x0701  1  
+LTE            EB-09 DL: 1700 MHz (Japan)              0x07F8  1  
+LTE            EB-09 UL: 1700 MHz (Japan)              0x07F9  1  
+LTE            EB-27 DL: Lwr Ext 850 MHz               0x0900  1  
+LTE            EB-27 UL: Lwr Ext 850 MHz               0x0901  1  
+LTE            EB-04 DL: AWS 2100 MHz                  0x0B00  1  
+LTE            EB-04 UL: AWS 2100 MHz                  0x0B01  1  
+LTE            EB-13/14L DL: US 700 Upp C/D            0x1000  1  
+LTE            EB-13/14L UL: US 700 Upp C/D            0x1001  1  
+LTE            EB-13 DL: US 700 Upp C                  0x1010  1  
+LTE            EB-13 UL: US 700 Upp C                  0x1011  1  
+LTE            EB-14 DL: Upper 700 D                   0x1020  1  
+LTE            EB-14 UL: Upper 700 D                   0x1021  1  
+LTE            EB-12 DL: US Lwr 700 A/B/C              0x1100  1  
+LTE            EB-12 UL: US Lwr 700 A/B/C              0x1101  1  
+LTE            EB-17 DL: US Lwr 700 B/C                0x11F8  1  
+LTE            EB-17 UL: US Lwr 700 B/C                0x11F9  1  
+LTE            EB-07 DL: 2600 IMT Extension            0x1200  1  
+LTE            EB-07 UL: 2600 IMT Extension            0x1201  1  
+LTE            EB-11 DL: 1500 MHz                      0x1300  1  
+LTE            EB-11 UL: 1500 MHz                      0x1301  1  
+LTE            EB-21 DL: Ext 1500 MHz                  0x1400  1  
+LTE            EB-21 UL: Ext 1500 MHz                  0x1401  1  
+LTE            EB-25 DL: Ext US PCS                    0x1500  1  
+LTE            EB-25 UL: Ext US PCS                    0x1501  1  
+LTE            EB-06 DL: 800 MHz                       0x1600  1  
+LTE            EB-06 UL: 800 MHz                       0x1601  1  
+LTE            EB-18 DL: Japan Lwr 800                 0x1700  1  
+LTE            EB-18 UL: Japan Lwr 800                 0x1701  1  
+LTE            EB-19 DL: Japan Uppr 800                0x1800  1  
+LTE            EB-19 UL: Japan Uppr 800                0x1801  1  
+LTE            EB-20 DL: European 800 MHz              0x1A00  1  
+LTE            EB-20 UL: European 800 MHz              0x1A01  1  
+LTE            EB-24 DL: 1600 MHz                      0x1B00  1  
+LTE            EB-24 UL: 1600 MHz                      0x1B01  1  
+LTE            EB-26 DL: Uppr Ext 850 MHz              0x2100  1  
+LTE            EB-26 UL: Uppr Ext 850 MHz              0x2101  1  
+LTE            EB-28 DL: 700 APAC (CALA)               0x2200  1  
+LTE            EB-28 UL: 700 APAC (CALA)               0x2201  1  
+LTE            EB-10 DL: Ext 2100 (AWS)                0x2B00  1  
+LTE            EB-10 UL: Ext 2100 (AWS)                0x2B01  1  
+LTE            EB-22 DL: 3.5 GHz                       0x2C00  1  
+LTE            EB-22 UL: 3.5 GHz                       0x2C01  1  
+LTE            EB-29 DL: US 700 MHz                    0x2D00  1  
+LTE            EB-31 DL: 450 MHz                       0x2F00  1  
+LTE            EB-31 UL: 450 MHz                       0x2F01  1  
+LTE            EB-23 DL: S-Band 2 GHz                  0x3100  1  
+LTE            EB-23 UL: S-Band 2 GHz                  0x3101  1  
+LTE            EB-30 DL: 2.3 GHz (WCS A/B)             0x3200  1  
+LTE            EB-30 UL: 2.3 GHz (WCS A/B)             0x3201  1  
+LTE            EB-32 DL: 1500 (L-Band)                 0x3400  1  
+LTE            EB-66 AWS-3 DL:(2110-2200 MHz)          0x3800  1  
+LTE            EB-66 AWS-3 UL:(1710-1800 MHz)          0x3801  1  
+LTE            EB-65 DL: (2110-2200 MHz)               0x3C00  1  
+LTE            EB-65 UL: (1920-2010 MHz)               0x3C01  1  
+LTE            EB-67 DL: (738-758 MHz)                 0x3D00  1  
+LTE            EB-68 DL: (753-783 MHz)                 0x3E00  1  
+LTE            EB-68 UL: (698-728 MHz)                 0x3E01  1  
+LTE            EB-69 FDD DL: (2570 - 2620 MHz)         0x5200  1  
+LTE            EB-70 FDD DL: (1995 - 2020 MHz)         0x5300  1  
+LTE            EB-70 FDD UL: (1695 - 1710 MHz)         0x5301  1  
+LTE            EB-71 FDD DL: (617 - 652 MHz)           0x5400  1  
+LTE            EB-71 FDD UL: (663 - 698 MHz)           0x5401  1  
+LTE            EB-72 FDD DL: (461 - 466 MHz)           0x5500  1  
+LTE            EB-72 FDD UL: (451 - 456 MHz)           0x5501  1  
+LTE            EB-74 FDD DL: (1475 - 1518 MHz)         0x5600  1  
+LTE            EB-74 FDD UL: (1427 - 1470 MHz)         0x5601  1  
+LTE            EB-75 FDD DL-CA: (1432 - 1517 MHz)      0x5700  1  
+LTE            EB-76 FDD DL-CA: (1427 - 1432 MHz)      0x5800  1  
+LTE            EB-73 FDD DL: (460 - 465 MHz)           0x5900  1  
+LTE            EB-73 FDD UL: (450 - 455 MHz)           0x5901  1  
+LTE            EB-85 FDD DL: (728 - 746 MHz)           0x5C00  1  
+LTE            EB-85 FDD UL: (698 - 716 MHz)           0x5C01  1  
+TD-LTE         EB-38: TDD 2.6 GHz                      0x1C03  1  
+TD-LTE         EB-40: TDD 2.3 GHz                      0x1D03  1  
+TD-LTE         EB-41: TDD 2.5 GHz                      0x1E03  1  
+TD-LTE         EB-41 TDD 2.5 GHz Lower                 0x1EC3  1  
+TD-LTE         EB-39: TDD 1.9 GHz                      0x1F03  1  
+TD-LTE         EB-42: TDD 3.4 GHz                      0x2303  1  
+TD-LTE         EB-43: TDD 3.6 GHz                      0x2403  1  
+TD-LTE         EB-44: TDD 700 MHz                      0x2503  1  
+TD-LTE         EB-33: TDD 2000 MHz                     0x2603  1  
+TD-LTE         EB-34: Chinese TDD 2000 MHz             0x2703  1  
+TD-LTE         EB-35: TDD 1900 (PCS) Lower             0x2803  1  
+TD-LTE         EB-36: TDD 1900 (PCS) Upper             0x2903  1  
+TD-LTE         EB-37: TDD 1900 (PCS) Center Gap        0x2A03  1  
+TD-LTE         EB-45 TDD: (1447-1467 MHz)              0x3903  1  
+TD-LTE         EB-48 TDD: (3550 - 3700 MHz)            0x5003  1  
+TD-LTE         EB-50 TDD: (1432 - 1517 MHz)            0x5203  1  
+TD-LTE         EB-51 TDD: (1437 - 1442 MHz)            0x5303  1  
+TD-LTE         EB-49 TDD: (3550 - 3670 MHz)            0x5A03  1  
+TD-LTE         EB-52 TDD: (3300 - 3400 MHz)            0x5B03  1  
+Wi-Fi          WiFi: Device Band                       0x3303  1  
+NR             FR1 FDD n1 DL                           0x0001  1  
+NR             FR1 FDD n2 DL                           0x0002  1  
+NR             FR1 FDD n3 DL                           0x0003  1  
+NR             FR1 FDD n5 DL                           0x0005  1  
+NR             FR1 FDD n7 DL                           0x0007  1  
+NR             FR1 FDD n8 DL                           0x0008  1  
+NR             FR1 FDD n12 DL                          0x0012  1  
+NR             FR1 FDD n14 DL                          0x0014  1  
+NR             FR1 FDD n18 DL                          0x0018  1  
+NR             FR1 FDD n20 DL                          0x0020  1  
+NR             FR1 FDD n25 DL                          0x0025  1  
+NR             FR1 FDD n28 DL                          0x0028  1  
+NR             FR1 SDL n29                             0x0029  1  
+NR             FR1 FDD n30 DL                          0x0030  1  
+NR             FR1 TDD n34                             0x0034  1  
+NR             FR1 TDD n38                             0x0038  1  
+NR             FR1 TDD n39                             0x0039  1  
+NR             FR1 TDD n40                             0x0040  1  
+NR             FR1 TDD n41 and n90                     0x0041  1  
+NR             FR1 TDD n48                             0x0048  1  
+NR             FR1 TDD n50                             0x0050  1  
+NR             FR1 TDD n51                             0x0051  1  
+NR             FR1 FDD n65 DL                          0x0065  1  
+NR             FR1 FDD n66 DL                          0x0066  1  
+NR             FR1 FDD n70 DL                          0x0070  1  
+NR             FR1 FDD n71 DL                          0x0071  1  
+NR             FR1 FDD n74 DL                          0x0074  1  
+NR             FR1 FDD n75 DL                          0x0075  1  
+NR             FR1 FDD n76 DL                          0x0076  1  
+NR             FR1 TDD n78                             0x0078  1  
+NR             FR1 FDD n91 DL                          0x0091  1  
+NR             FR1 FDD n92 DL                          0x0092  1  
+NR             FR1 FDD n93 DL                          0x0093  1  
+NR             FR1 FDD n94 DL                          0x0094  1  
+NR             FR1 FDD n2 UL                           0x1002  1  
+NR             FR1 FDD n3 UL                           0x1003  1  
+NR             FR1 FDD n5 UL                           0x1005  1  
+NR             FR1 FDD n7 UL                           0x1007  1  
+NR             FR1 FDD n8 UL                           0x1008  1  
+NR             FR1 FDD n12 UL                          0x1012  1  
+NR             FR1 FDD n14 UL                          0x1014  1  
+NR             FR1 FDD n18 UL                          0x1018  1  
+NR             FR1 FDD n25 UL                          0x1025  1  
+NR             FR1 FDD n28 UL                          0x1028  1  
+NR             FR1 FDD n30 UL                          0x1030  1  
+NR             FR1 FDD n65 UL                          0x1065  1  
+NR             FR1 FDD n66 UL                          0x1066  1  
+NR             FR1 FDD n70 UL                          0x1070  1  
+NR             FR1 FDD n71 UL                          0x1071  1  
+NR             FR1 FDD n74 UL                          0x1074  1  
+NR             FR1 SUL n80                             0x1080  1  
+NR             FR1 SUL n81                             0x1081  1  
+NR             FR1 SUL n82                             0x1082  1  
+NR             FR1 SUL n83                             0x1083  1  
+NR             FR1 SUL n84                             0x1084  1  
+NR             FR1 SUL n86                             0x1086  1  
+NR             FR1 FDD n91 UL                          0x1091  1  
+NR             FR1 FDD n92 UL                          0x1092  1  
+NR             FR1 FDD n93 UL                          0x1093  1  
+NR             FR1 FDD n94 UL                          0x1094  1  
+NR             FR1 SUL n95                             0x1095  1  
+NR             FR1 FDD n20 UL                          0x1120  1  
+NR             FR1 FDD n1 UL                           0x1AA1  1  
+
+Installed Options
+--------------------------------------------------------------------
+10MHz-6000MHz Capability............................: 7700-0000
+Dual RF Port........................................: 000F-0000
+Recording to SD Card................................: 000A-0000
+300MHz-3800MHz Model................................: 7011-0000
+GPS Navigation......................................: 0001-0000
+Absolute Time Stamp.................................: 0005-0000
+WiFi USB Adaptor....................................: 0009-0000
+Bluetooth Interface.................................: 0007-0000
+Ethernet Interface..................................: 000C-0000
+GSM Blind Scan......................................: 000B-0001
+IS-95 Blind Scan....................................: 000B-0003
+WCDMA Blind Scan....................................: 000B-0004
+CDMA Blind Scan.....................................: 000B-0005
+EVDO Blind Scan.....................................: 000B-0006
+LTE Blind Scan......................................: 000B-000A
+LTE 5G/4G Spectrum Sharing Signal...................: 000F-000A
+TDLTE Blind Scan....................................: 000B-000B
+TDLTE 5G/4G Spectrum Sharing Signal.................: 000F-000B
+WiFi Support........................................: 0001-000C
+WiFi Blind Scan.....................................: 000B-000C
+New Radio support...................................: 0001-000F
+New Radio MIB decoding..............................: 0005-000F
+New Radio Top N signal scanning.....................: 000C-000F
+New Radio Blind Scan................................: 000B-000F
+New Radio Mobile Blind Scan.........................: 001B-000F
+Spectrum Analysis...................................: 0003-0000
+LTE Support.........................................: 0001-000A
+LTE L3 Message Decoding.............................: 0005-000A
+IS-95 Support.......................................: 0001-0003
+IS-95 Pilot.........................................: 0003-0003
+IS-95 Extended Dynamic Range........................: 0008-0003
+CDMA Support........................................: 0001-0005
+CDMA Pilot..........................................: 0003-0005
+CDMA Extended Dynamic Range.........................: 0008-0005
+EVDO Support........................................: 0001-0006
+EVDO Pilot..........................................: 0003-0006
+EVDO Extended Dynamic Range.........................: 0008-0006
+LTE Enhanced Signal Scan............................: 000C-000A
+TDLTE Support.......................................: 0001-000B
+TDLTE Enhanced Signal Scan..........................: 000C-000B
+TDLTE L3 Message Decoding...........................: 0005-000B
+GSM Support.........................................: 0001-0001
+GSM BSIC............................................: 0002-0001
+GSM BCCH C/I........................................: 0004-0001
+GSM BCCH Layer3.....................................: 0005-0001
+WCDMA Support.......................................: 0001-0004
+WCDMA Pilot.........................................: 0003-0004
+WCDMA Extended Dynamic Range........................: 0008-0004
+
+License Information
+--------------------------------------------------------
+Calibration Date..............: 2018-11-5
+Calibration Version...........: 31
+Warranty Expiration Date......: 20/11/2023 11:59:59 PM GMT
+License Type..................: Perpetual
+License State.................: Active
+Current Time..................: 10/06/2026 7:07:23 AM GMT
+License Number................: 10
+License Expiration Date.......: 20/11/2018 11:59:59 PM GMT
+License Remaining Time........: NA
