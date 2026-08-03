@@ -44,7 +44,7 @@ exports.getBySerial = async (serial) => {
 };
 
 exports.create = async (data) => {
-  let { item_id, descripcion, numero_serie, usuario_actual_id, ubicacion_actual_id,
+  let { item_id, descripcion, tipo, numero_serie, usuario_actual_id, ubicacion_actual_id,
           fecha_ultima_cali, fecha_prox_cali, fecha_ultimo_tag, fecha_prox_tag, estado, team, notas } = data;
   if (usuario_actual_id && ubicacion_actual_id)
     throw Object.assign(new Error('An asset cannot have both a user and a location simultaneously.'), { isOperational: true });
@@ -55,7 +55,8 @@ exports.create = async (data) => {
     if (itemRows.rows.length > 0) {
       item_id = itemRows.rows[0].id;
     } else {
-      const newItem = await db.query('INSERT INTO items (nombre, tipo) VALUES ($1, $2) RETURNING id', [descTrimmed, 'herramienta']);
+      const itemTipo = tipo || 'herramienta';
+      const newItem = await db.query('INSERT INTO items (nombre, tipo) VALUES ($1, $2) RETURNING id', [descTrimmed, itemTipo]);
       item_id = newItem.rows[0].id;
     }
   }

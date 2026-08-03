@@ -3919,7 +3919,7 @@ window.verDetallesActivo = function(id) {
   const kitSection = document.getElementById('detKitSection');
   const catName = (activo.nombre_item || activo.descripcion || '').toLowerCase();
   const catPadre = activo.categoria_padre ? activo.categoria_padre.toLowerCase() : '';
-  const isKit = activo.tipo === 'kit' || catPadre === 'kit' || catName.includes('kit') || catName.includes('walktest');
+  const isKit = activo.tipo === 'kit' || catPadre === 'kit';
   
   if (isKit) {
     kitSection.style.display = 'block';
