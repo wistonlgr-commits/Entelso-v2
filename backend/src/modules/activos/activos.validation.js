@@ -24,6 +24,7 @@ exports.createAssetSchema = z.object({
 }).refine(noConflicto, conflictMsg);
 
 exports.updateAssetSchema = z.object({
+  numero_serie: z.string().min(2).max(100).optional(),
   usuario_actual_id:   z.number().int().positive().nullable().optional(),
   ubicacion_actual_id: z.number().int().positive().nullable().optional(),
   team: z.string().nullable().optional(),
@@ -31,7 +32,9 @@ exports.updateAssetSchema = z.object({
   fecha_ultimo_tag:  fecha, fecha_prox_tag:  fecha,
   estado: estadoEnum.optional(),
   fotos: z.array(z.string()).optional(),
-}).refine(noConflicto, conflictMsg);
+  notas: z.string().nullable().optional(),
+  parent_activo_id: z.number().int().positive().nullable().optional(),
+});
 
 exports.bulkCreateAssetSchema = z.object({
   activos: z.array(z.object({

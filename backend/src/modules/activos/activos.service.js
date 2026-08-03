@@ -78,7 +78,7 @@ exports.create = async (data) => {
 };
 
 exports.update = async (id, patch) => {
-  const allowed = ['usuario_actual_id','ubicacion_actual_id','estado','team',
+  const allowed = ['numero_serie', 'usuario_actual_id','ubicacion_actual_id','estado','team',
                    'fecha_ultima_cali','fecha_prox_cali','fecha_ultimo_tag','fecha_prox_tag', 'fotos', 'notas', 'parent_activo_id'];
   const sets = []; const params = [];
   for (const k of allowed) {

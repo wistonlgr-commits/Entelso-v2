@@ -34,6 +34,13 @@ window.getAssetCategory = function(item) {
   return 'Handy Tools';
 };
 
+// Translate DB tipo values (Spanish) to English display labels
+window.translateTipo = function(tipo) {
+  const map = { herramienta: 'Tool', consumible: 'Consumable', kit: 'Kit', equipo: 'Equipment', instrumento: 'Instrument', vehiculo: 'Vehicle' };
+  return map[(tipo || '').toLowerCase()] || tipo || '—';
+};
+
+
 
 /* ─────────────────────────────────────────
    GESTIÓN DE SESIÓN (JWT en sessionStorage)
@@ -355,7 +362,7 @@ async function cargarActivos(silent = false) {
       db_id:       a.id,
       id:          a.numero_serie,
       equipo:      a.nombre_item,
-      tipo_item:   (function(t) { const map = { herramienta:'Tool', equipo:'Equipment', instrumento:'Instrument', vehiculo:'Vehicle', consumible:'Consumable' }; return map[t] || t || '—'; })(a.tipo),
+      tipo_item:   window.translateTipo(a.tipo),
       categoria:   window.getAssetCategory(a),
       zona:        a.nombre_ubicacion || '—',
       team:        a.usuario_team || a.team || '—',
@@ -615,10 +622,71 @@ function renderInventoryTable(tbody, data, groupByKey = null) {
   }
 }
 
+window.activeSmartFilter = null;
+
 function renderizarActivos() {
-  renderInventoryTable(document.getElementById('dashTableBody'),  inventoryData.slice(0, 20));
-  renderInventoryTable(document.getElementById('inventTableBody'), inventoryData);
+  let data = inventoryData;
+  
+  // Apply smart filter if active
+  if (window.activeSmartFilter) {
+    const now = new Date();
+    const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+    
+    switch (window.activeSmartFilter) {
+      case 'missing_photo':
+        data = data.filter(item => {
+          const raw = item._raw;
+          return !raw || !raw.fotos || !Array.isArray(raw.fotos) || raw.fotos.length === 0;
+        });
+        break;
+      case 'not_updated':
+        data = data.filter(item => {
+          const raw = item._raw;
+          if (!raw || !raw.fecha_registro) return true; // no date = not updated
+          const regDate = new Date(raw.fecha_registro);
+          return regDate < sevenDaysAgo;
+        });
+        break;
+      case 'expired_cal':
+        data = data.filter(item => {
+          const cal = item.calibracion ? new Date(item.calibracion) : null;
+          const tag = item.tag ? new Date(item.tag) : null;
+          return (cal && cal < now) || (tag && tag < now);
+        });
+        break;
+    }
+  }
+  
+  renderInventoryTable(document.getElementById('dashTableBody'),  data.slice(0, 20));
+  renderInventoryTable(document.getElementById('inventTableBody'), data);
 }
+
+// Smart Filter Event Handlers
+document.querySelectorAll('.smart-filter').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const filter = btn.dataset.smart;
+    
+    if (filter === 'clear') {
+      window.activeSmartFilter = null;
+      document.querySelectorAll('.smart-filter').forEach(b => b.classList.remove('active'));
+      document.getElementById('clearSmartFilter').style.display = 'none';
+    } else {
+      // Toggle: if same filter is clicked again, clear it
+      if (window.activeSmartFilter === filter) {
+        window.activeSmartFilter = null;
+        document.querySelectorAll('.smart-filter').forEach(b => b.classList.remove('active'));
+        document.getElementById('clearSmartFilter').style.display = 'none';
+      } else {
+        window.activeSmartFilter = filter;
+        document.querySelectorAll('.smart-filter').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        document.getElementById('clearSmartFilter').style.display = 'inline-flex';
+      }
+    }
+    
+    renderizarActivos();
+  });
+});
 
 /* ─────────────────────────────────────────
    RENDER: TABLA DE MANTENIMIENTO
@@ -2904,6 +2972,9 @@ window.editarActivo = async function(item) {
         </div>
         <div class="modal-body">
           <div class="modal-msg" id="editAssetMsg" style="display:none"></div>
+          <div class="form-group"><label>Serial No. / ID</label>
+            <input type="text" id="editAssetSerial" class="form-input" value="${escapeHTML(item.id)}">
+          </div>
           <div class="form-group"><label>${window.i18n.t('col.estado') || 'Status'}</label>
             <select id="editAssetEstado" class="form-input">
               <option value="disponible" ${item.status==='disponible' || !item.status ?'selected':''}>${window.i18n.t('estado.disponible') || 'Available'}</option>
@@ -2927,23 +2998,14 @@ window.editarActivo = async function(item) {
               ${window.teamsList.map(t => `<option value="${t.nombre}" ${item.team === t.nombre ? 'selected' : ''}>${t.nombre}</option>`).join('')}
             </select>
           </div>
-          ${(item.id === 'EQ-15' || item.id === 'EQ-17') ? `
           <div class="form-row">
-            <div class="form-group"><label>${window.i18n.t('col.ulti_cal') || 'Last Cal / Tag'}</label><input type="date" id="editAssetUltiCal" class="form-input" value="${item.ultima_calibracion?item.ultima_calibracion.substring(0,10):''}"></div>
-            <div class="form-group"><label>${window.i18n.t('col.prox_cal') || 'Next Cal / Tag'}</label><input type="date" id="editAssetProxCal" class="form-input" value="${item.calibracion?item.calibracion.substring(0,10):''}"></div>
+            <div class="form-group"><label>${window.i18n.t('col.ulti_cal') || 'Last Test / Tag'}</label><input type="date" lang="en" id="editAssetUltiCal" class="form-input" value="${item.ultima_calibracion?item.ultima_calibracion.substring(0,10):''}"></div>
+            <div class="form-group"><label>${window.i18n.t('col.prox_cal') || 'Next Test / Tag'}</label><input type="date" lang="en" id="editAssetProxCal" class="form-input" value="${item.calibracion?item.calibracion.substring(0,10):''}"></div>
           </div>
           <div class="form-row">
-            <div class="form-group"><label>${window.i18n.t('drawer.meta_ulti_tag') || 'DOM / Last Tag'}</label><input type="date" id="editAssetUltiTag" class="form-input" value="${item.ultimo_tag?item.ultimo_tag.substring(0,10):''}"></div>
-            <div class="form-group"><label>${window.i18n.t('drawer.meta_tag') || 'Next Tag/Inspection'}</label><input type="date" id="editAssetProxTag" class="form-input" value="${item.tag?item.tag.substring(0,10):''}"></div>
+            <div class="form-group"><label>${window.i18n.t('drawer.meta_ulti_tag') || 'DOM / Last Tag'}</label><input type="date" lang="en" id="editAssetUltiTag" class="form-input" value="${item.ultimo_tag?item.ultimo_tag.substring(0,10):''}"></div>
+            <div class="form-group"><label>${window.i18n.t('drawer.meta_tag') || 'Next Tag / Inspection'}</label><input type="date" lang="en" id="editAssetProxTag" class="form-input" value="${item.tag?item.tag.substring(0,10):''}"></div>
           </div>
-          ` : `
-          <div class="form-row">
-            <div class="form-group"><label>Last Test/tag</label><input type="date" id="editAssetUltiCal" class="form-input" value="${item.ultima_calibracion?item.ultima_calibracion.substring(0,10):''}"></div>
-            <div class="form-group"><label>Next Test/tag</label><input type="date" id="editAssetProxCal" class="form-input" value="${item.calibracion?item.calibracion.substring(0,10):''}"></div>
-            <input type="hidden" id="editAssetUltiTag" value="">
-            <input type="hidden" id="editAssetProxTag" value="">
-          </div>
-          `}
           <div style="margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--border);">
             <label>${window.i18n.t('modal.fotos') || 'Photos'}</label>
             <div id="editAssetFotosGallery" style="display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 8px; min-height: 50px;">
@@ -3038,6 +3100,7 @@ window.editarActivo = async function(item) {
 
   document.getElementById('confirmEditAssetBtn').onclick = async () => {
     const payload = {
+      numero_serie:        document.getElementById('editAssetSerial').value.trim(),
       estado:              document.getElementById('editAssetEstado').value,
       team:                document.getElementById('editAssetTeam').value || null,
       ubicacion_actual_id: document.getElementById('editAssetUbicacion').value ? Number(document.getElementById('editAssetUbicacion').value) : null,
@@ -3669,7 +3732,7 @@ const renderManageCatList = () => {
         <i class="fa-solid ${icon}" style="font-size:18px; color:var(--accent-blue);"></i>
         <div id="cat-view-${c.id}" style="display:block; flex:1;">
           <strong style="color:white; font-size:14px;">${c.nombre}</strong>
-          <div style="font-size:12px; color:var(--text-2); text-transform: capitalize;">${c.tipo}</div>
+          <div style="font-size:12px; color:var(--text-2); text-transform: capitalize;">${window.translateTipo(c.tipo)}</div>
         </div>
         <div id="cat-edit-${c.id}" style="display:none; flex:1; gap: 8px;">
           <input type="text" id="cat-name-${c.id}" class="form-input" value="${c.nombre}" style="width: 50%;">
@@ -3854,8 +3917,9 @@ window.verDetallesActivo = function(id) {
 
   // Kit Logic
   const kitSection = document.getElementById('detKitSection');
+  const catName = (activo.nombre_item || activo.descripcion || '').toLowerCase();
   const catPadre = activo.categoria_padre ? activo.categoria_padre.toLowerCase() : '';
-  const isKit = activo.tipo === 'kit' || catPadre === 'kit';
+  const isKit = activo.tipo === 'kit' || catPadre === 'kit' || catName.includes('kit') || catName.includes('walktest');
   
   if (isKit) {
     kitSection.style.display = 'block';
