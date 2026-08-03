@@ -1202,7 +1202,7 @@ function inicializarPerfil() {
     btnRemoveFoto.addEventListener('click', () => {
       localStorage.removeItem('profile_pic');
       btnRemoveFoto.style.display = 'none';
-      const u = getUser();
+      const u = session.getUser();
       const initial = u && u.nombre ? u.nombre.charAt(0).toUpperCase() : 'U';
       const els = [
         document.getElementById('perfilAvatarBig'),
