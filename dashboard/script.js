@@ -20,6 +20,7 @@ window.OFFICIAL_CATEGORIES = [
   { id: 'PIM Testers', label: 'PIM Testers', icon: 'fa-wave-square' },
   { id: 'Handy Tools', label: 'Handy Tools', icon: 'fa-toolbox' },
   { id: 'Safety & PPE', label: 'Safety & PPE', icon: 'fa-hard-hat' },
+  { id: 'Kits', label: 'Kits', icon: 'fa-box' },
   { id: 'CAM Keys', label: 'CAM Keys', icon: 'fa-key', hidden: true },
   { id: 'Levelling Kits', label: 'Levelling Kits', icon: 'fa-ruler-combined', hidden: true },
   { id: 'CW Testers', label: 'CW Testers', icon: 'fa-broadcast-tower', hidden: true },
@@ -372,12 +373,14 @@ async function cargarActivos(silent = false) {
       usuario_id:  a.usuario_id      || null,
       ubicacion_id: a.ubicacion_id   || null,
       item_id:     a.item_id         || null,
+      notas:       a.notas           || '',
       _raw:        a,
     }));
     renderizarActivos();
     actualizarKPIs();
     renderizarGraficos();
     renderizarZonas();
+    syncEmpleadosActivos();
     renderizarAlertas([]);
   } catch (err) {
     if (err.message !== 'SESION_EXPIRADA') {
@@ -429,21 +432,23 @@ async function cargarUsuarios() {
 }
 
 function syncEmpleadosActivos() {
-  if (!employeesData.length || !inventoryData.length) return;
-  employeesData.forEach(emp => {
-    // Buscar si el empleado tiene un activo asignado
-    const activo = inventoryData.find(a => a.asignado && a.asignado.toLowerCase() === emp.nombre.toLowerCase());
-    if (activo) {
-      emp.equipo_id = activo.id;
-      emp.equipo_nombre = activo.equipo;
-      emp.sitio = activo.zona;
-      emp.zona = activo.zona;
-      emp.estado = 'en_terreno';
-      emp.fecha_asig = activo.fecha;
-    } else {
-      emp.estado = emp.en_terreno ? 'en_terreno' : 'sin_asignacion';
-    }
-  });
+  if (!employeesData || !employeesData.length) return;
+  if (inventoryData && inventoryData.length > 0) {
+    employeesData.forEach(emp => {
+      // Buscar si el empleado tiene un activo asignado
+      const activo = inventoryData.find(a => a.asignado && a.asignado.toLowerCase() === emp.nombre.toLowerCase());
+      if (activo) {
+        emp.equipo_id = activo.id;
+        emp.equipo_nombre = activo.equipo;
+        emp.sitio = activo.zona;
+        emp.zona = activo.zona;
+        emp.estado = 'en_terreno';
+        emp.fecha_asig = activo.fecha;
+      } else {
+        emp.estado = emp.en_terreno ? 'en_terreno' : 'sin_asignacion';
+      }
+    });
+  }
   renderizarEmpleados(employeesData);
   actualizarKPIsEmpleados();
 }
@@ -495,11 +500,13 @@ async function cargarAuditLog() {
   }
 }
 
-async function registrarAuditLog(accion) {
+async function registrarAuditLog(accion, meta = null) {
   try {
+    const payload = { accion };
+    if (meta) payload.meta = meta;
     await apiFetch('/api/audit', {
       method: 'POST',
-      body: JSON.stringify({ accion })
+      body: JSON.stringify(payload)
     });
     // Opcional: recargar logs en background si la vista está abierta
     if (document.getElementById('view-auditoria') && document.getElementById('view-auditoria').classList.contains('active')) {
@@ -1149,6 +1156,8 @@ function inicializarPerfil() {
         document.getElementById('perfilEmail').value = u.email || '';
         
         const savedPic = localStorage.getItem('profile_pic');
+        const btnRemoveFoto = document.getElementById('btnRemoveFoto');
+        if (btnRemoveFoto) btnRemoveFoto.style.display = savedPic ? 'inline-block' : 'none';
         if (savedPic) {
           const bgUpdate = `url('${savedPic}')`;
           if (document.getElementById('perfilAvatarBig')) {
@@ -1186,7 +1195,29 @@ function inicializarPerfil() {
   }
 
   const btnCambiarFoto = document.getElementById('btnCambiarFoto');
+  const btnRemoveFoto = document.getElementById('btnRemoveFoto');
   const fotoInput = document.getElementById('fotoInput');
+  
+  if (btnRemoveFoto) {
+    btnRemoveFoto.addEventListener('click', () => {
+      localStorage.removeItem('profile_pic');
+      btnRemoveFoto.style.display = 'none';
+      const u = getUser();
+      const initial = u && u.nombre ? u.nombre.charAt(0).toUpperCase() : 'U';
+      const els = [
+        document.getElementById('perfilAvatarBig'),
+        document.getElementById('userAvatar'),
+        document.getElementById('profileDropAvatar')
+      ];
+      els.forEach(el => {
+        if (el) {
+          el.style.backgroundImage = 'none';
+          el.textContent = initial;
+        }
+      });
+    });
+  }
+
   if (btnCambiarFoto && fotoInput) {
     btnCambiarFoto.addEventListener('click', () => {
       fotoInput.click();
@@ -1215,6 +1246,7 @@ function inicializarPerfil() {
             document.getElementById('profileDropAvatar').style.backgroundPosition = 'center';
             document.getElementById('profileDropAvatar').textContent = '';
           }
+          if (btnRemoveFoto) btnRemoveFoto.style.display = 'inline-block';
         };
         reader.readAsDataURL(file);
       }
@@ -1549,6 +1581,50 @@ async function openDrawer(item) {
   const drawerEditBtn = document.getElementById('drawerEditBtn');
   if (drawerEditBtn) {
     drawerEditBtn.onclick = () => window.editarActivo(item);
+  }
+
+  // Render Notes / Kit Contents
+  const drawerNotasSection = document.getElementById('drawerNotasSection');
+  if (drawerNotasSection) {
+    const notasTextarea = document.getElementById('drawerNotasTextarea');
+    const notasSaveBtn = document.getElementById('drawerNotasSave');
+    const notasStatus = document.getElementById('drawerNotasStatus');
+    if (notasTextarea) {
+      notasTextarea.value = item.notas || '';
+    }
+    if (notasSaveBtn) {
+      notasSaveBtn.onclick = async () => {
+        const newNotas = notasTextarea.value.trim();
+        notasSaveBtn.disabled = true;
+        notasSaveBtn.textContent = 'Saving...';
+        try {
+          await apiFetch(`/api/activos/${item.db_id}`, {
+            method: 'PATCH',
+            body: JSON.stringify({ notas: newNotas })
+          });
+          // Update local data
+          const localItem = inventoryData.find(i => i.db_id === item.db_id);
+          if (localItem) {
+            localItem.notas = newNotas;
+            if (localItem._raw) localItem._raw.notas = newNotas;
+          }
+          if (notasStatus) {
+            notasStatus.textContent = '✓ Saved';
+            notasStatus.style.color = 'var(--success)';
+            setTimeout(() => { notasStatus.textContent = ''; }, 2000);
+          }
+          registrarAuditLog(`Updated notes for ${item.id}`, { field: 'notas', before: item.notas || '', after: newNotas });
+        } catch (err) {
+          if (notasStatus) {
+            notasStatus.textContent = 'Error saving';
+            notasStatus.style.color = 'var(--danger)';
+          }
+        } finally {
+          notasSaveBtn.disabled = false;
+          notasSaveBtn.textContent = 'Save Notes';
+        }
+      };
+    }
   }
 
   // Render Photos if available
@@ -2055,6 +2131,7 @@ function inicializarModal() {
     const team      = document.getElementById('modalTeam').value;
     const estado    = document.getElementById('modalEstado').value;
     const fRegistro = document.getElementById('modalFechaRegistro').value;
+    const notasVal  = document.getElementById('modalNotas')?.value?.trim() || '';
     const msgEl     = document.getElementById('modalMsg');
 
     if (!numSerie || !desc) {
@@ -2090,6 +2167,7 @@ function inicializarModal() {
         team: team || null,
         fecha_registro: fRegistro || undefined,
         fotos: window.uploadedPhotos || [],
+        notas: notasVal || undefined,
       };
       const res = await apiFetch('/api/activos', {
         method: 'POST',
@@ -2113,6 +2191,7 @@ function inicializarModal() {
         document.getElementById('modalNumSerie').value = '';
         document.getElementById('modalDesc').value     = '';
         if(document.getElementById('modalCategoria')) document.getElementById('modalCategoria').value = 'WalkTest Kits';
+        if(document.getElementById('modalNotas')) document.getElementById('modalNotas').value = '';
         window.uploadedPhotos = [];
         const gallery = document.getElementById('modalFotosGallery');
         if (gallery) gallery.innerHTML = '';
@@ -2355,45 +2434,35 @@ async function cargarCategorias() {
 
 function renderizarCategoriasUI() {
   const ul = document.getElementById('categoriesListUI');
-  
+  if (!ul) return;
+  ul.innerHTML = '';
+  systemCategories.forEach(cat => {
+    const li = document.createElement('li');
+    li.style.padding = '8px 12px';
+    li.style.borderBottom = '1px solid var(--border)';
+    li.style.display = 'flex';
+    li.style.justifyContent = 'space-between';
+    li.innerHTML = `<span>${cat.nombre}</span> <span style="color:var(--text-2); font-size:11px;">${cat.tipo}</span>`;
+    ul.appendChild(li);
+  });
+}
+
+function populateCategorySelects() {
   const modalCategoria = document.getElementById('modalCategoria');
   const bulkCategorySelect = document.getElementById('bulkCategorySelect');
   
   if (modalCategoria) {
-    modalCategoria.innerHTML = '';
+    modalCategoria.innerHTML = window.OFFICIAL_CATEGORIES.map(c => `<option value="${c.id}">${c.label}</option>`).join('');
   }
   if (bulkCategorySelect) {
-    bulkCategorySelect.innerHTML = `<option value="" data-i18n="inv.actualizar">${window.i18n?.t('inv.actualizar') || '-- Set Status --'}</option>`;
+    bulkCategorySelect.innerHTML = `<option value="" data-i18n="cat.seleccionar">${window.i18n?.t('cat.seleccionar') || '-- Select Destination Category --'}</option>` + 
+      window.OFFICIAL_CATEGORIES.map(c => `<option value="${c.id}">${c.label}</option>`).join('');
   }
-
-  if (ul) ul.innerHTML = '';
-  systemCategories.forEach(cat => {
-    if (ul) {
-      const li = document.createElement('li');
-      li.style.padding = '8px 12px';
-      li.style.borderBottom = '1px solid var(--border)';
-      li.style.display = 'flex';
-      li.style.justifyContent = 'space-between';
-      li.innerHTML = `<span>${cat.nombre}</span> <span style="color:var(--text-2); font-size:11px;">${cat.tipo}</span>`;
-      ul.appendChild(li);
-    }
-    
-    if (modalCategoria) {
-      const opt = document.createElement('option');
-      opt.value = cat.nombre;
-      opt.textContent = cat.nombre;
-      modalCategoria.appendChild(opt);
-    }
-    
-    if (bulkCategorySelect) {
-      const opt = document.createElement('option');
-      opt.value = cat.nombre;
-      opt.textContent = cat.nombre;
-      bulkCategorySelect.appendChild(opt);
-    }
-  });
 }
-
+document.addEventListener('DOMContentLoaded', populateCategorySelects);
+if (document.readyState === 'complete' || document.readyState === 'interactive') {
+  populateCategorySelects();
+}
 function renderizarFiltrosCategorias() {
   const container = document.getElementById('inventoryCategoryChips');
   if (!container) return;

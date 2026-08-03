@@ -5,7 +5,7 @@ const ASSET_SELECT = `
          a.fecha_registro,
          a.fecha_ultima_cali, a.fecha_prox_cali,
          a.fecha_ultimo_tag,  a.fecha_prox_tag,
-         a.fotos,
+         a.fotos, a.notas,
          i.id   AS item_id,       i.nombre AS nombre_item, i.tipo AS tipo, i.categoria_padre AS categoria_padre,
          u.id   AS usuario_id,    u.nombre AS nombre_usuario, u.telefono_whatsapp, u.team AS usuario_team,
          ub.id  AS ubicacion_id,  ub.nombre_ubicacion
@@ -45,7 +45,7 @@ exports.getBySerial = async (serial) => {
 
 exports.create = async (data) => {
   let { item_id, descripcion, numero_serie, usuario_actual_id, ubicacion_actual_id,
-          fecha_ultima_cali, fecha_prox_cali, fecha_ultimo_tag, fecha_prox_tag, estado, team } = data;
+          fecha_ultima_cali, fecha_prox_cali, fecha_ultimo_tag, fecha_prox_tag, estado, team, notas } = data;
   if (usuario_actual_id && ubicacion_actual_id)
     throw Object.assign(new Error('An asset cannot have both a user and a location simultaneously.'), { isOperational: true });
 
@@ -66,20 +66,20 @@ exports.create = async (data) => {
 
   const { rows } = await db.query(
     `INSERT INTO activos (item_id, numero_serie, usuario_actual_id, ubicacion_actual_id,
-       fecha_registro, fecha_ultima_cali, fecha_prox_cali, fecha_ultimo_tag, fecha_prox_tag, estado, team, fotos)
-     VALUES ($1,$2,$3,$4,COALESCE($5, CURRENT_DATE),$6,$7,$8,$9,$10,$11,$12) RETURNING *`,
+       fecha_registro, fecha_ultima_cali, fecha_prox_cali, fecha_ultimo_tag, fecha_prox_tag, estado, team, fotos, notas)
+     VALUES ($1,$2,$3,$4,COALESCE($5, CURRENT_DATE),$6,$7,$8,$9,$10,$11,$12,$13) RETURNING *`,
     [item_id, numero_serie.trim(), usuario_actual_id ?? null, ubicacion_actual_id ?? null,
      data.fecha_registro ?? null,
      fecha_ultima_cali ?? null, fecha_prox_cali ?? null,
      fecha_ultimo_tag  ?? null, fecha_prox_tag  ?? null,
-     estado ?? 'disponible', team ?? null, data.fotos ? JSON.stringify(data.fotos) : null]
+     estado ?? 'disponible', team ?? null, data.fotos ? JSON.stringify(data.fotos) : null, notas ?? null]
   );
   return rows[0];
 };
 
 exports.update = async (id, patch) => {
   const allowed = ['usuario_actual_id','ubicacion_actual_id','estado','team',
-                   'fecha_ultima_cali','fecha_prox_cali','fecha_ultimo_tag','fecha_prox_tag', 'fotos'];
+                   'fecha_ultima_cali','fecha_prox_cali','fecha_ultimo_tag','fecha_prox_tag', 'fotos', 'notas'];
   const sets = []; const params = [];
   for (const k of allowed) {
     if (patch[k] !== undefined) { 

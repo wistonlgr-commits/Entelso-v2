@@ -494,7 +494,10 @@
                     <!-- Avatar Column -->
                     <div style="display: flex; flex-direction: column; align-items: center; gap: 16px;">
                         <div style="width: 120px; height: 120px; border-radius: 50%; background: var(--accent-blue); display: flex; align-items: center; justify-content: center; font-size: 40px; font-weight: bold; color: white; background-size: cover; background-position: center;" id="perfilAvatarBig">A</div>
-                        <button class="btn-ghost" style="width: 100%;" id="btnCambiarFoto" data-i18n="perfil.cambiar_foto">Change Photo</button>
+                        <div style="display: flex; gap: 8px; width: 100%;">
+                            <button class="btn-ghost" style="flex: 1;" id="btnCambiarFoto" data-i18n="perfil.cambiar_foto">Change Photo</button>
+                            <button class="btn-ghost" style="flex: 1; color: var(--accent-red); display: none;" id="btnRemoveFoto" data-i18n="perfil.eliminar_foto">Remove Photo</button>
+                        </div>
                         <input type="file" id="fotoInput" style="display: none;" accept="image/*">
                     </div>
                     <!-- Form Column -->
@@ -727,6 +730,16 @@
         <!-- Equipment detail cards -->
         <div class="drawer-meta" id="drawerMeta"></div>
 
+        <!-- Notes / Kit Contents -->
+        <div id="drawerNotasSection" style="padding: 0 24px; margin-bottom: 16px;">
+            <div class="drawer-section-label" data-i18n="drawer.notas">Notes / Kit Contents</div>
+            <textarea id="drawerNotasTextarea" class="form-input" rows="3" style="width: 100%; resize: vertical; font-size: 13px;" placeholder="Add notes or kit contents here..."></textarea>
+            <div style="display: flex; align-items: center; gap: 8px; margin-top: 6px;">
+                <button id="drawerNotasSave" class="btn-ghost" style="font-size: 12px; padding: 4px 14px;">Save Notes</button>
+                <span id="drawerNotasStatus" style="font-size: 12px;"></span>
+            </div>
+        </div>
+
         <!-- Photos -->
         <div class="drawer-section-label" id="drawerFotosLabel" style="display:none;" data-i18n="modal.fotos_galeria">Photos & Attachments</div>
         <div id="drawerFotosGallery" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); gap: 8px; margin-bottom: 24px; padding: 0 24px;"></div>
@@ -833,7 +846,8 @@
                         <option value="WalkTest Kits">WalkTest Kits</option>
                         <option value="PIM Testers">PIM Testers</option>
                         <option value="Handy Tools">Handy Tools</option>
-                        <option value="Safety & PPE">Safety & PPE</option>
+                        <option value="Safety &amp; PPE">Safety &amp; PPE</option>
+                        <option value="Kits">Kits</option>
                         <option value="CAM Keys">CAM Keys</option>
                         <option value="Levelling Kits">Levelling Kits</option>
                         <option value="CW Testers">CW Testers</option>
@@ -873,6 +887,11 @@
                 </div>
             </div>
             
+            <div style="margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--border);">
+                <label data-i18n="modal.notas">Notes / Kit Contents</label>
+                <textarea id="modalNotas" class="form-input" rows="3" style="resize: vertical; font-size: 13px;" placeholder="e.g. Universal Harness, 2.0m Energy Absorbing Lanyard, 1.5m Rope Lifeline..."></textarea>
+            </div>
+
             <!-- ─── Image Gallery ─── -->
             <div style="margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--border);">
                 <label data-i18n="modal.fotos">Photos</label>
