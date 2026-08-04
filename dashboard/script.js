@@ -31,6 +31,7 @@ window.getAssetCategory = function(item) {
   if (!item) return 'Handy Tools';
   if (item.categoria_padre) return item.categoria_padre;
   if (item.categoria) return item.categoria;
+  if (item.tipo) return item.tipo;
   return 'Handy Tools';
 };
 
