@@ -51,12 +51,23 @@ exports.create = async (data) => {
 
   if (!item_id && descripcion) {
     const descTrimmed = descripcion.trim();
+    const categoria = data.categoria || '';
+    // Derive the correct item tipo from the category name
+    const derivedTipo = categoria.toLowerCase().includes('kit') ? 'kit'
+                      : categoria.toLowerCase().includes('consumab') ? 'consumible'
+                      : (tipo || 'herramienta');
     const itemRows = await db.query('SELECT id FROM items WHERE LOWER(nombre) = LOWER($1)', [descTrimmed]);
     if (itemRows.rows.length > 0) {
       item_id = itemRows.rows[0].id;
+      // Update the existing item's categoria_padre and tipo if needed
+      if (categoria) {
+        await db.query('UPDATE items SET categoria_padre = COALESCE($1, categoria_padre), tipo = COALESCE($2, tipo) WHERE id = $3', [categoria, derivedTipo, item_id]);
+      }
     } else {
-      const itemTipo = tipo || 'herramienta';
-      const newItem = await db.query('INSERT INTO items (nombre, tipo) VALUES ($1, $2) RETURNING id', [descTrimmed, itemTipo]);
+      const newItem = await db.query(
+        'INSERT INTO items (nombre, tipo, categoria_padre) VALUES ($1, $2, $3) RETURNING id',
+        [descTrimmed, derivedTipo, categoria || null]
+      );
       item_id = newItem.rows[0].id;
     }
   }

@@ -3918,9 +3918,9 @@ window.verDetallesActivo = function(id) {
 
   // Kit Logic
   const kitSection = document.getElementById('detKitSection');
-  const catName = (activo.nombre_item || activo.descripcion || '').toLowerCase();
-  const catPadre = activo.categoria_padre ? activo.categoria_padre.toLowerCase() : '';
-  const isKit = activo.tipo === 'kit' || catPadre === 'kit';
+  const catName = (activo.tipo || '').toLowerCase();
+  const catPadre = (activo.categoria_padre || '').toLowerCase();
+  const isKit = catName.includes('kit') || catPadre.includes('kit');
   
   if (isKit) {
     kitSection.style.display = 'block';

@@ -12,6 +12,8 @@ const conflictMsg  = { message: 'Cannot assign both user and location at the sam
 exports.createAssetSchema = z.object({
   item_id: z.number().int().positive().optional().nullable(),
   descripcion: z.string().optional(),
+  tipo: z.string().optional(),
+  categoria: z.string().optional(),
   numero_serie: z.string().min(2).max(100),
   usuario_actual_id:   z.number().int().positive().nullable().optional(),
   ubicacion_actual_id: z.number().int().positive().nullable().optional(),
@@ -21,6 +23,7 @@ exports.createAssetSchema = z.object({
   fecha_ultimo_tag:  fecha, fecha_prox_tag:  fecha,
   estado: estadoEnum.default('disponible'),
   fotos: z.array(z.string()).optional(),
+  notas: z.string().nullable().optional(),
 }).refine(noConflicto, conflictMsg);
 
 exports.updateAssetSchema = z.object({
