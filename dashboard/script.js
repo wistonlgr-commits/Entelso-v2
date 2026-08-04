@@ -623,68 +623,82 @@ function renderInventoryTable(tbody, data, groupByKey = null) {
   }
 }
 
-window.activeSmartFilter = null;
+window.activeSmartFilters = new Set();
+
+// Smart filter functions
+const smartFilterFns = {
+  missing_photo: (item) => {
+    const raw = item._raw;
+    return !raw || !raw.fotos || !Array.isArray(raw.fotos) || raw.fotos.length === 0;
+  },
+  not_updated: (item) => {
+    const raw = item._raw;
+    const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+    if (!raw || !raw.fecha_registro) return true;
+    return new Date(raw.fecha_registro) < sevenDaysAgo;
+  },
+  expired_cal: (item) => {
+    const now = new Date();
+    const cal = item.calibracion ? new Date(item.calibracion) : null;
+    const tag = item.tag ? new Date(item.tag) : null;
+    return (cal && cal < now) || (tag && tag < now);
+  }
+};
 
 function renderizarActivos() {
   let data = inventoryData;
-  
-  // Apply smart filter if active
-  if (window.activeSmartFilter) {
-    const now = new Date();
-    const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
-    
-    switch (window.activeSmartFilter) {
-      case 'missing_photo':
-        data = data.filter(item => {
-          const raw = item._raw;
-          return !raw || !raw.fotos || !Array.isArray(raw.fotos) || raw.fotos.length === 0;
-        });
-        break;
-      case 'not_updated':
-        data = data.filter(item => {
-          const raw = item._raw;
-          if (!raw || !raw.fecha_registro) return true; // no date = not updated
-          const regDate = new Date(raw.fecha_registro);
-          return regDate < sevenDaysAgo;
-        });
-        break;
-      case 'expired_cal':
-        data = data.filter(item => {
-          const cal = item.calibracion ? new Date(item.calibracion) : null;
-          const tag = item.tag ? new Date(item.tag) : null;
-          return (cal && cal < now) || (tag && tag < now);
-        });
-        break;
+
+  // Apply ALL active smart filters (AND logic)
+  if (window.activeSmartFilters.size > 0) {
+    data = data.filter(item => {
+      for (const filterKey of window.activeSmartFilters) {
+        if (smartFilterFns[filterKey] && !smartFilterFns[filterKey](item)) return false;
+      }
+      return true;
+    });
+  }
+
+  // Store for export
+  window.currentFilteredData = data;
+
+  // Update active filter count badge
+  const countEl = document.getElementById('smartFilterCount');
+  if (countEl) {
+    if (window.activeSmartFilters.size > 0) {
+      countEl.textContent = data.length + ' result' + (data.length !== 1 ? 's' : '');
+      countEl.style.display = 'inline';
+    } else {
+      countEl.style.display = 'none';
     }
   }
-  
+
   renderInventoryTable(document.getElementById('dashTableBody'),  data.slice(0, 20));
   renderInventoryTable(document.getElementById('inventTableBody'), data);
 }
 
-// Smart Filter Event Handlers
+// Smart Filter Event Handlers — multi-select toggle
 document.querySelectorAll('.smart-filter').forEach(btn => {
   btn.addEventListener('click', () => {
     const filter = btn.dataset.smart;
-    
+
     if (filter === 'clear') {
-      window.activeSmartFilter = null;
+      window.activeSmartFilters.clear();
       document.querySelectorAll('.smart-filter').forEach(b => b.classList.remove('active'));
       document.getElementById('clearSmartFilter').style.display = 'none';
     } else {
-      // Toggle: if same filter is clicked again, clear it
-      if (window.activeSmartFilter === filter) {
-        window.activeSmartFilter = null;
-        document.querySelectorAll('.smart-filter').forEach(b => b.classList.remove('active'));
-        document.getElementById('clearSmartFilter').style.display = 'none';
+      // Toggle this filter
+      if (window.activeSmartFilters.has(filter)) {
+        window.activeSmartFilters.delete(filter);
+        btn.classList.remove('active');
       } else {
-        window.activeSmartFilter = filter;
-        document.querySelectorAll('.smart-filter').forEach(b => b.classList.remove('active'));
+        window.activeSmartFilters.add(filter);
         btn.classList.add('active');
-        document.getElementById('clearSmartFilter').style.display = 'inline-flex';
       }
+      // Show/hide clear button
+      document.getElementById('clearSmartFilter').style.display =
+        window.activeSmartFilters.size > 0 ? 'inline-flex' : 'none';
     }
-    
+
     renderizarActivos();
   });
 });
@@ -2311,10 +2325,14 @@ function inicializarFiltros() {
   document.getElementById('inventarioSearch')?.addEventListener('input', function () {
     const q        = this.value.toLowerCase();
     const filtered = inventoryData.filter(i =>
-      i.id.toLowerCase().includes(q) || i.equipo.toLowerCase().includes(q) ||
-      i.zona.toLowerCase().includes(q) || i.team.toLowerCase().includes(q) ||
-      i.status.toLowerCase().includes(q)
+      (i.id && String(i.id).toLowerCase().includes(q)) || 
+      (i.equipo && i.equipo.toLowerCase().includes(q)) ||
+      (i.zona && i.zona.toLowerCase().includes(q)) || 
+      (i.team && i.team.toLowerCase().includes(q)) ||
+      (i.status && i.status.toLowerCase().includes(q)) ||
+      (i.serie && i.serie.toLowerCase().includes(q))
     );
+    window.currentFilteredData = filtered; // Support exporting search results
     renderInventoryTable(document.getElementById('inventTableBody'), filtered);
   });
 
@@ -3732,7 +3750,7 @@ const renderManageCatList = () => {
       <div style="display:flex; align-items:center; gap:12px; flex: 1;">
         <i class="fa-solid ${icon}" style="font-size:18px; color:var(--accent-blue);"></i>
         <div id="cat-view-${c.id}" style="display:block; flex:1;">
-          <strong style="color:white; font-size:14px;">${c.nombre}</strong>
+          <strong style="color:var(--text-1); font-size:14px;">${c.nombre}</strong>
           <div style="font-size:12px; color:var(--text-2); text-transform: capitalize;">${window.translateTipo(c.tipo)}</div>
         </div>
         <div id="cat-edit-${c.id}" style="display:none; flex:1; gap: 8px;">

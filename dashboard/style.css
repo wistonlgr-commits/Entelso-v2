@@ -626,6 +626,10 @@ canvas { display: block; }
 .chip:hover { background: var(--bg-hover); color: var(--text-1); }
 .chip.active { background: var(--bg-active); border-color: var(--border); color: var(--text-1); }
 
+/* Smart Filter pills */
+.smart-filter:hover { background: var(--bg-hover) !important; color: var(--text-1) !important; border-color: var(--text-3) !important; }
+.smart-filter.active { background: rgba(59,130,246,0.1) !important; color: #3b82f6 !important; border-color: #3b82f6 !important; font-weight: 600 !important; }
+
 /* ─── Linear Table ─── */
 .linear-table {
     width: 100%;

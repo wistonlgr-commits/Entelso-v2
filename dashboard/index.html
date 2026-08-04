@@ -330,18 +330,20 @@
             </div>
             
             <!-- Quick Filters -->
-            <div style="display: flex; gap: 8px; margin-bottom: 16px;">
-                <button class="chip smart-filter" data-smart="missing_photo" style="background: var(--bg); border: 1px solid var(--border);">
-                    <i class="fa-regular fa-image"></i> Missing Photo
+            <div style="display: flex; gap: 6px; margin-bottom: 16px; align-items: center; flex-wrap: wrap;">
+                <span style="font-size: 12px; color: var(--text-3); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; margin-right: 4px;">Filters</span>
+                <button class="smart-filter" data-smart="missing_photo" style="display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px; border-radius: 20px; border: 1px solid var(--border); background: var(--bg); color: var(--text-2); font-size: 12px; font-weight: 500; cursor: pointer; transition: all 0.2s ease; white-space: nowrap;">
+                    <i class="fa-regular fa-image" style="font-size: 11px;"></i> No Photo
                 </button>
-                <button class="chip smart-filter" data-smart="not_updated" style="background: var(--bg); border: 1px solid var(--border);">
-                    <i class="fa-regular fa-clock"></i> Not Updated (7d)
+                <button class="smart-filter" data-smart="not_updated" style="display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px; border-radius: 20px; border: 1px solid var(--border); background: var(--bg); color: var(--text-2); font-size: 12px; font-weight: 500; cursor: pointer; transition: all 0.2s ease; white-space: nowrap;">
+                    <i class="fa-regular fa-clock" style="font-size: 11px;"></i> Not Updated (7d)
                 </button>
-                <button class="chip smart-filter" data-smart="expired_cal" style="background: var(--bg); border: 1px solid var(--border);">
-                    <i class="fa-solid fa-triangle-exclamation"></i> Expired Cal/Tag
+                <button class="smart-filter" data-smart="expired_cal" style="display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px; border-radius: 20px; border: 1px solid var(--border); background: var(--bg); color: var(--text-2); font-size: 12px; font-weight: 500; cursor: pointer; transition: all 0.2s ease; white-space: nowrap;">
+                    <i class="fa-solid fa-triangle-exclamation" style="font-size: 11px;"></i> Expired Cal/Tag
                 </button>
-                <button class="chip smart-filter" data-smart="clear" id="clearSmartFilter" style="display: none; background: var(--bg); border: 1px solid var(--border); color: var(--danger);">
-                    <i class="fa-solid fa-xmark"></i> Clear
+                <span id="smartFilterCount" style="display: none; font-size: 11px; color: var(--accent-blue); font-weight: 600; padding: 4px 10px; background: rgba(59,130,246,0.1); border-radius: 12px;"></span>
+                <button class="smart-filter" data-smart="clear" id="clearSmartFilter" style="display: none; align-items: center; gap: 4px; padding: 5px 12px; border-radius: 20px; border: 1px solid var(--danger); background: transparent; color: var(--danger); font-size: 12px; font-weight: 500; cursor: pointer; transition: all 0.2s ease; white-space: nowrap;">
+                    <i class="fa-solid fa-xmark" style="font-size: 11px;"></i> Clear
                 </button>
             </div>
 
