@@ -55,7 +55,7 @@ exports.create = async (data) => {
     // Derive the correct item tipo from the category name
     const derivedTipo = categoria.toLowerCase().includes('kit') ? 'kit'
                       : categoria.toLowerCase().includes('consumab') ? 'consumible'
-                      : (tipo || 'herramienta');
+                      : 'herramienta'; // Always default — frontend sends category name, not valid enum
     const itemRows = await db.query('SELECT id FROM items WHERE LOWER(nombre) = LOWER($1)', [descTrimmed]);
     if (itemRows.rows.length > 0) {
       item_id = itemRows.rows[0].id;
