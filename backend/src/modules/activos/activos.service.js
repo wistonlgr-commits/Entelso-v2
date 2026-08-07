@@ -49,6 +49,11 @@ exports.create = async (data) => {
   if (usuario_actual_id && ubicacion_actual_id)
     throw Object.assign(new Error('An asset cannot have both a user and a location simultaneously.'), { isOperational: true });
 
+  const existingAsset = await exports.getBySerial(numero_serie);
+  if (existingAsset) {
+    throw Object.assign(new Error(`Ya existe un equipo registrado con el serial: ${numero_serie}`), { isOperational: true });
+  }
+
   if (!item_id && descripcion) {
     const descTrimmed = descripcion.trim();
     const categoria = data.categoria || '';
@@ -90,7 +95,29 @@ exports.create = async (data) => {
 };
 
 exports.update = async (id, patch) => {
-  const allowed = ['numero_serie', 'usuario_actual_id','ubicacion_actual_id','estado','team',
+  if (patch.descripcion) {
+    const descTrimmed = patch.descripcion.trim();
+    const categoria = patch.categoria || '';
+    const derivedTipo = categoria.toLowerCase().includes('kit') ? 'kit'
+                      : categoria.toLowerCase().includes('consumab') ? 'consumible'
+                      : 'herramienta';
+
+    const itemRows = await db.query('SELECT id FROM items WHERE LOWER(nombre) = LOWER($1)', [descTrimmed]);
+    if (itemRows.rows.length > 0) {
+      patch.item_id = itemRows.rows[0].id;
+      if (categoria) {
+        await db.query('UPDATE items SET categoria_padre = COALESCE($1, categoria_padre), tipo = COALESCE($2, tipo) WHERE id = $3', [categoria, derivedTipo, patch.item_id]);
+      }
+    } else {
+      const newItem = await db.query(
+        'INSERT INTO items (nombre, tipo, categoria_padre) VALUES ($1, $2, $3) RETURNING id',
+        [descTrimmed, derivedTipo, categoria || null]
+      );
+      patch.item_id = newItem.rows[0].id;
+    }
+  }
+
+  const allowed = ['numero_serie', 'item_id', 'usuario_actual_id','ubicacion_actual_id','estado','team',
                    'fecha_ultima_cali','fecha_prox_cali','fecha_ultimo_tag','fecha_prox_tag', 'fotos', 'notas', 'parent_activo_id'];
   const sets = []; const params = [];
   for (const k of allowed) {

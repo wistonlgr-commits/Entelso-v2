@@ -18,4 +18,8 @@ router.post('/mantenimiento', ctrl.reportarMantenimiento);
 // Soporta tanto multipart/form-data (n8n subiendo archivo directo) como application/json (con base64)
 router.post('/subir-foto', upload.single('foto'), ctrl.subirFoto);
 
+router.post('/devolver', ctrl.devolverEquipo);
+router.post('/cambiar-estado', ctrl.cambiarEstado);
+router.post('/consultar-kit', ctrl.consultarKit);
+
 module.exports = router;

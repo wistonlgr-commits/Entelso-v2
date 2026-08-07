@@ -72,3 +72,51 @@ exports.subirFoto = async (req, reply, next) => {
     next(e);
   }
 };
+
+exports.devolverEquipo = async (req, reply, next) => {
+  try {
+    const { telefono, pin, numero_inventario } = req.body;
+    if (!telefono || !pin || !numero_inventario) {
+      return reply.status(200).json(res.error('Faltan parámetros: telefono, pin, numero_inventario.'));
+    }
+    const data = await svc.devolverEquipo(telefono, pin, numero_inventario);
+    reply.json(res.success(data, data.mensaje));
+  } catch (e) {
+    if (e.isOperational) {
+      return reply.status(200).json(res.error(e.message));
+    }
+    next(e);
+  }
+};
+
+exports.cambiarEstado = async (req, reply, next) => {
+  try {
+    const { telefono, pin, numero_inventario, nuevo_estado } = req.body;
+    if (!telefono || !pin || !numero_inventario || !nuevo_estado) {
+      return reply.status(200).json(res.error('Faltan parámetros: telefono, pin, numero_inventario, nuevo_estado.'));
+    }
+    const data = await svc.cambiarEstado(telefono, pin, numero_inventario, nuevo_estado);
+    reply.json(res.success(data, data.mensaje));
+  } catch (e) {
+    if (e.isOperational) {
+      return reply.status(200).json(res.error(e.message));
+    }
+    next(e);
+  }
+};
+
+exports.consultarKit = async (req, reply, next) => {
+  try {
+    const { numero_inventario } = req.body;
+    if (!numero_inventario) {
+      return reply.status(200).json(res.error('Falta parámetro: numero_inventario.'));
+    }
+    const data = await svc.consultarKit(numero_inventario);
+    reply.json(res.success(data, 'Consulta exitosa.'));
+  } catch (e) {
+    if (e.isOperational) {
+      return reply.status(200).json(res.error(e.message));
+    }
+    next(e);
+  }
+};

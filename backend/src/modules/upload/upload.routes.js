@@ -7,7 +7,7 @@ const res = require('../../common/utils/apiResponse');
 // Configuración de multer (memoria)
 const upload = multer({
   storage: multer.memoryStorage(),
-  limits: { fileSize: 50 * 1024 * 1024 }, // 50MB
+  limits: { fileSize: 5 * 1024 * 1024 }, // 5MB
 });
 
 router.post('/', upload.single('foto'), async (req, reply, next) => {
@@ -20,6 +20,24 @@ router.post('/', upload.single('foto'), async (req, reply, next) => {
     const url = await uploadImage(buffer, originalname, mimetype);
 
     reply.json(res.success({ url }, 'Imagen subida correctamente.'));
+  } catch (error) {
+    next(error);
+  }
+});
+
+router.post('/batch', upload.array('fotos', 5), async (req, reply, next) => {
+  try {
+    if (!req.files || req.files.length === 0) {
+      return reply.status(400).json(res.error('No se han subido archivos.'));
+    }
+
+    const uploadPromises = req.files.map(file => 
+      uploadImage(file.buffer, file.originalname, file.mimetype)
+    );
+    
+    const urls = await Promise.all(uploadPromises);
+
+    reply.json(res.success({ urls }, 'Imágenes subidas correctamente.'));
   } catch (error) {
     next(error);
   }

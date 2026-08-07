@@ -22,19 +22,22 @@ exports.createAssetSchema = z.object({
   fecha_ultima_cali: fecha, fecha_prox_cali: fecha,
   fecha_ultimo_tag:  fecha, fecha_prox_tag:  fecha,
   estado: estadoEnum.default('disponible'),
-  fotos: z.array(z.string()).optional(),
+  fotos: z.array(z.string()).max(5).optional(),
   notas: z.string().nullable().optional(),
 }).refine(noConflicto, conflictMsg);
 
 exports.updateAssetSchema = z.object({
   numero_serie: z.string().min(2).max(100).optional(),
+  descripcion: z.string().min(2).optional(),
+  categoria: z.string().optional(),
+  item_id: z.number().int().positive().nullable().optional(),
   usuario_actual_id:   z.number().int().positive().nullable().optional(),
   ubicacion_actual_id: z.number().int().positive().nullable().optional(),
   team: z.string().nullable().optional(),
   fecha_ultima_cali: fecha, fecha_prox_cali: fecha,
   fecha_ultimo_tag:  fecha, fecha_prox_tag:  fecha,
   estado: estadoEnum.optional(),
-  fotos: z.array(z.string()).optional(),
+  fotos: z.array(z.string()).max(5).optional(),
   notas: z.string().nullable().optional(),
   parent_activo_id: z.number().int().positive().nullable().optional(),
 });

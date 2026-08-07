@@ -138,6 +138,12 @@ exports.subirFoto = async (telefono, pin, numero_inventario, base64_image, mimet
   await validatePin(user, pin);
   const activo = await getActivoByInventario(numero_inventario);
 
+  // Verificar límite de fotos
+  const countRes = await db.query('SELECT jsonb_array_length(COALESCE(fotos, \'[]\'::jsonb)) as count FROM activos WHERE id = $1', [activo.id]);
+  if (countRes.rows[0].count >= 5) {
+    throw Object.assign(new Error('Límite máximo de 5 fotos alcanzado para este equipo.'), { isOperational: true });
+  }
+
   // Convertir base64 a buffer
   const base64Data = base64_image.replace(/^data:image\/\w+;base64,/, "");
   const buffer = Buffer.from(base64Data, 'base64');
@@ -148,9 +154,69 @@ exports.subirFoto = async (telefono, pin, numero_inventario, base64_image, mimet
   // Guardar en la DB (Añadir al array de JSONB)
   await db.query(`
     UPDATE activos 
-    SET fotos = fotos || $1::jsonb 
+    SET fotos = COALESCE(fotos, '[]'::jsonb) || $1::jsonb 
     WHERE id = $2
   `, [JSON.stringify([url]), activo.id]);
 
   return { success: true, url, equipo: activo.equipo_nombre };
+};
+
+exports.devolverEquipo = async (telefono, pin, numero_inventario) => {
+  const user = await getUserByTelefono(telefono);
+  await validatePin(user, pin);
+  const activo = await getActivoByInventario(numero_inventario);
+
+  if (activo.usuario_actual_id !== user.id && user.rol !== 'admin') {
+    throw Object.assign(new Error(`El equipo no está asignado a ti.`), { isOperational: true });
+  }
+
+  await db.query('BEGIN');
+  try {
+    await db.query(
+      'INSERT INTO movimientos (item_id, activo_id, usuario_id, tipo_movimiento, observacion) VALUES ($1, $2, $3, $4, $5)',
+      [activo.item_id, activo.id, user.id, 'devolucion', 'Devuelto vía WhatsApp']
+    );
+    await db.query("UPDATE activos SET estado = 'disponible', usuario_actual_id = NULL WHERE id = $1", [activo.id]);
+    await db.query('COMMIT');
+    return { success: true, equipo: activo.equipo_nombre, mensaje: 'Equipo devuelto correctamente.' };
+  } catch (err) {
+    await db.query('ROLLBACK');
+    throw err;
+  }
+};
+
+exports.cambiarEstado = async (telefono, pin, numero_inventario, nuevo_estado) => {
+  const user = await getUserByTelefono(telefono);
+  await validatePin(user, pin);
+  const activo = await getActivoByInventario(numero_inventario);
+
+  const estadosValidos = ['disponible', 'en_uso', 'en_mantenimiento', 'calibracion_pendiente', 'fuera_de_servicio', 'calibrado', 'danado'];
+  if (!estadosValidos.includes(nuevo_estado)) {
+    throw Object.assign(new Error(`Estado inválido. Valores permitidos: ${estadosValidos.join(', ')}`), { isOperational: true });
+  }
+
+  await db.query("UPDATE activos SET estado = $1 WHERE id = $2", [nuevo_estado, activo.id]);
+  return { success: true, equipo: activo.equipo_nombre, nuevo_estado, mensaje: 'Estado actualizado correctamente.' };
+};
+
+exports.consultarKit = async (numero_inventario) => {
+  const activo = await getActivoByInventario(numero_inventario);
+  
+  const { rows: childRows } = await db.query(`
+    SELECT a.numero_serie, a.estado, a.notas, i.nombre as equipo_nombre
+    FROM activos a
+    JOIN items i ON a.item_id = i.id
+    WHERE a.parent_activo_id = $1
+  `, [activo.id]);
+
+  if (childRows.length === 0) {
+    return { success: true, equipo: activo.equipo_nombre, notas: activo.notas, contenido: [], mensaje: 'El kit no tiene ítems registrados o no es un kit.' };
+  }
+
+  return { 
+    success: true, 
+    equipo: activo.equipo_nombre, 
+    notas: activo.notas,
+    contenido: childRows 
+  };
 };

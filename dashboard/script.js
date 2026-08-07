@@ -2168,18 +2168,23 @@ function inicializarModal() {
   
   if (fotoInput) {
     fotoInput.addEventListener('change', async (e) => {
-      const file = e.target.files[0];
-      if (!file) return;
+      const files = Array.from(e.target.files);
+      if (!files.length) return;
 
-      fotoStatus.textContent = window.i18n.t('modal.subiendo_foto') || 'Uploading...';
+      window.uploadedPhotos = window.uploadedPhotos || [];
+      if (window.uploadedPhotos.length + files.length > 5) {
+        alert(window.i18n.t('modal.err_max_fotos') || 'Maximum 5 photos allowed per asset.');
+        fotoInput.value = '';
+        return;
+      }
+
+      fotoStatus.textContent = window.i18n.t('modal.subiendo_foto') || `Uploading ${files.length} photo(s)...`;
       const formData = new FormData();
-      formData.append('foto', file);
+      files.forEach(file => formData.append('fotos', file));
 
       try {
-        // Use native fetch for FormData - apiFetch forces Content-Type: application/json
-        // which corrupts multipart/form-data. Let the browser set the correct boundary.
         const token = session.getToken();
-        const uploadRes = await fetch(API_BASE + '/api/upload', {
+        const uploadRes = await fetch(API_BASE + '/api/upload/batch', {
           method: 'POST',
           headers: {
             ...(token ? { 'Authorization': `Bearer ${token}` } : {})
@@ -2189,18 +2194,19 @@ function inicializarModal() {
 
         const data = await uploadRes.json();
         if (uploadRes.ok && data.success) {
-          fotoStatus.textContent = '';
-          window.uploadedPhotos = window.uploadedPhotos || [];
-          window.uploadedPhotos.push(data.data.url);
+          fotoStatus.textContent = `${window.uploadedPhotos.length + files.length}/5 photos`;
           
-          const img = document.createElement('img');
-          img.src = data.data.url;
-          img.style.width = '50px';
-          img.style.height = '50px';
-          img.style.objectFit = 'cover';
-          img.style.borderRadius = '4px';
-          img.style.border = '1px solid var(--border)';
-          fotoGallery.appendChild(img);
+          data.data.urls.forEach(url => {
+            window.uploadedPhotos.push(url);
+            const img = document.createElement('img');
+            img.src = url;
+            img.style.width = '50px';
+            img.style.height = '50px';
+            img.style.objectFit = 'cover';
+            img.style.borderRadius = '4px';
+            img.style.border = '1px solid var(--border)';
+            fotoGallery.appendChild(img);
+          });
         } else {
           fotoStatus.textContent = 'Error: ' + (data.message || 'Error al subir');
         }
@@ -2208,6 +2214,32 @@ function inicializarModal() {
         fotoStatus.textContent = 'Error de red al subir la imagen.';
       }
       fotoInput.value = ''; // reset
+    });
+  }
+
+  const modalNumSerieInput = document.getElementById('modalNumSerie');
+  if (modalNumSerieInput) {
+    modalNumSerieInput.addEventListener('blur', async (e) => {
+      const val = e.target.value.trim();
+      if (!val) return;
+      const msgEl = document.getElementById('modalMsg');
+      try {
+        const res = await apiFetch(`/api/activos/serial/${encodeURIComponent(val)}`);
+        const json = await res.json();
+        // If it succeeds, the item already exists!
+        if (json.success && json.data) {
+          msgEl.textContent = window.i18n.t('modal.err_duplicado') || `¡Atención! Ya existe un equipo con el serial ${val}`;
+          msgEl.className = 'modal-msg error';
+          msgEl.style.display = 'block';
+        } else {
+          // If it fails (404), it doesn't exist, which is good. Clear any previous duplicate message.
+          if (msgEl.textContent.includes(val)) {
+            msgEl.style.display = 'none';
+          }
+        }
+      } catch (err) {
+        console.error('Error checking serial', err);
+      }
     });
   }
 
@@ -3018,6 +3050,16 @@ window.editarActivo = async function(item) {
             </select>
           </div>
           <div class="form-row">
+            <div class="form-group"><label>${window.i18n.t('modal.desc') || 'Equipment / Description'}</label>
+              <input type="text" id="editAssetDesc" class="form-input" value="${escapeHTML(item.equipo || '')}">
+            </div>
+            <div class="form-group"><label>${window.i18n.t('modal.cat') || 'Category'}</label>
+              <select id="editAssetCategoria" class="form-input">
+                ${systemCategories.map(c => `<option value="${c.nombre}" ${item.categoria === c.nombre ? 'selected' : ''}>${c.nombre}</option>`).join('')}
+              </select>
+            </div>
+          </div>
+          <div class="form-row">
             <div class="form-group"><label>${window.i18n.t('col.ulti_cal') || 'Last Test / Tag'}</label><input type="text" data-type="date" id="editAssetUltiCal" class="form-input" value="${item.ultima_calibracion?item.ultima_calibracion.substring(0,10):''}"></div>
             <div class="form-group"><label>${window.i18n.t('col.prox_cal') || 'Next Test / Tag'}</label><input type="text" data-type="date" id="editAssetProxCal" class="form-input" value="${item.calibracion?item.calibracion.substring(0,10):''}"></div>
           </div>
@@ -3025,13 +3067,23 @@ window.editarActivo = async function(item) {
             <div class="form-group"><label>${window.i18n.t('drawer.meta_ulti_tag') || 'DOM / Last Tag'}</label><input type="text" data-type="date" id="editAssetUltiTag" class="form-input" value="${item.ultimo_tag?item.ultimo_tag.substring(0,10):''}"></div>
             <div class="form-group"><label>${window.i18n.t('drawer.meta_tag') || 'Next Tag / Inspection'}</label><input type="text" data-type="date" id="editAssetProxTag" class="form-input" value="${item.tag?item.tag.substring(0,10):''}"></div>
           </div>
+          <div class="form-group"><label>${window.i18n.t('usuarios.titulo') || 'Assigned User'}</label>
+            <select id="editAssetUsuario" class="form-input">
+              <option value="">-- Unassigned --</option>
+              ${window.usuariosData.map(u => `<option value="${u.id}" ${item.usuario_id == u.id ? 'selected' : ''}>${u.nombre}</option>`).join('')}
+            </select>
+          </div>
+          <div style="margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--border);">
+            <label>${window.i18n.t('modal.notas') || 'Notes / Kit Contents'}</label>
+            <textarea id="editAssetNotas" class="form-input" rows="3" style="resize: vertical; font-size: 13px;">${escapeHTML(item.notas || '')}</textarea>
+          </div>
           <div style="margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--border);">
             <label>${window.i18n.t('modal.fotos') || 'Photos'}</label>
             <div id="editAssetFotosGallery" style="display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 8px; min-height: 50px;">
                 ${(item.fotos || []).map(foto => `<img src="${foto}" style="width:50px;height:50px;object-fit:cover;border-radius:4px;">`).join('')}
             </div>
             <div style="display: flex; align-items: center; gap: 8px;">
-                <input type="file" id="editAssetFotoInput" accept="image/*" style="display: none;">
+                <input type="file" id="editAssetFotoInput" accept="image/*" multiple style="display: none;">
                 <button type="button" class="btn-ghost" onclick="document.getElementById('editAssetFotoInput').click()" style="font-size: 13px; padding: 6px 12px;">
                     <i class="fa-solid fa-camera"></i> <span>${window.i18n.t('modal.subir_foto') || 'Upload Photo'}</span>
                 </button>
@@ -3079,20 +3131,26 @@ window.editarActivo = async function(item) {
 
   if (fotoInput) {
     fotoInput.addEventListener('change', async (e) => {
-      const file = e.target.files[0];
-      if (!file) return;
+      const files = Array.from(e.target.files);
+      if (!files.length) return;
+
+      if (currentFotos.length + files.length > 5) {
+        alert(window.i18n.t('modal.err_max_fotos') || 'Maximum 5 photos allowed per asset.');
+        fotoInput.value = '';
+        return;
+      }
 
       const btn = fotoInput.nextElementSibling;
       btn.disabled = true;
       const originalText = btn.querySelector('span').textContent;
-      btn.querySelector('span').textContent = window.i18n.t('modal.subiendo_foto') || 'Uploading...';
+      btn.querySelector('span').textContent = window.i18n.t('modal.subiendo_foto') || `Uploading ${files.length} photo(s)...`;
       fotoStatus.textContent = '';
 
       const formData = new FormData();
-      formData.append('foto', file);
+      files.forEach(file => formData.append('fotos', file));
       
       try {
-        const uploadRes = await fetch(API_BASE + '/api/upload', {
+        const uploadRes = await fetch(API_BASE + '/api/upload/batch', {
           method: 'POST',
           headers: { 'Authorization': 'Bearer ' + session.getToken() },
           body: formData
@@ -3100,8 +3158,8 @@ window.editarActivo = async function(item) {
         
         if (uploadRes.ok) {
           const uploadJson = await uploadRes.json();
-          if (uploadJson.success && uploadJson.data.url) {
-            currentFotos.push(uploadJson.data.url);
+          if (uploadJson.success && uploadJson.data.urls) {
+            uploadJson.data.urls.forEach(url => currentFotos.push(url));
             renderFotos();
             fotoStatus.textContent = '';
           }
@@ -3114,6 +3172,7 @@ window.editarActivo = async function(item) {
 
       btn.disabled = false;
       btn.querySelector('span').textContent = originalText;
+      fotoInput.value = ''; // reset
     });
   }
 
@@ -3127,10 +3186,16 @@ window.editarActivo = async function(item) {
       fecha_prox_cali:     document.getElementById('editAssetProxCal').value || null,
       fecha_ultimo_tag:    document.getElementById('editAssetUltiTag').value || null,
       fecha_prox_tag:      document.getElementById('editAssetProxTag').value || null,
+      descripcion:         document.getElementById('editAssetDesc').value.trim() || null,
+      categoria:           document.getElementById('editAssetCategoria').value || null,
+      usuario_actual_id:   document.getElementById('editAssetUsuario').value ? Number(document.getElementById('editAssetUsuario').value) : null,
+      notas:               document.getElementById('editAssetNotas').value.trim() || null,
       fotos:               currentFotos
     };
-    // If assigning to a location, remove user assignment
-    if (payload.ubicacion_actual_id) payload.usuario_actual_id = null;
+    // If assigning to a location, remove user assignment (only if both are provided)
+    if (payload.ubicacion_actual_id && payload.usuario_actual_id) {
+      payload.usuario_actual_id = null;
+    }
 
     try {
       const r = await apiFetch(`/api/activos/${item.db_id}`, {
