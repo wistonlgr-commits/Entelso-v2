@@ -1629,7 +1629,7 @@ async function openDrawer(item) {
   const qrImg = document.getElementById('drawerQRCode');
   if (qrImg) {
     // Número del bot (se puede modificar luego, por ahora usamos el número oficial)
-    const waNumber = localStorage.getItem('entelso_wa_number') || '18298908685';
+    const waNumber = localStorage.getItem('entelso_wa_number') || '61439759528';
     // Generamos el link mágico Click-to-Chat de WhatsApp
     const qrPayload = `https://wa.me/${waNumber}?text=${encodeURIComponent('INFO ' + item.id)}`;
     
@@ -2305,7 +2305,7 @@ function inicializarModal() {
         msgEl.className     = 'modal-msg success';
         msgEl.style.display = 'block';
         await cargarActivos();
-        const waNumber = localStorage.getItem('entelso_wa_number') || '18298908685';
+        const waNumber = localStorage.getItem('entelso_wa_number') || '61439759528';
         const qrPayload = `https://wa.me/${waNumber}?text=${encodeURIComponent('INFO ' + numSerie)}`;
         const qrImg = document.getElementById('modalQRCode');
         if (qrImg) {
