@@ -6,7 +6,7 @@ const ASSET_SELECT = `
          a.fecha_ultima_cali, a.fecha_prox_cali,
          a.fecha_ultimo_tag,  a.fecha_prox_tag,
          a.fotos, a.notas,
-         i.id   AS item_id,       i.nombre AS nombre_item, i.tipo AS tipo, i.categoria_padre AS categoria_padre,
+         i.id   AS item_id,       i.nombre AS nombre_item, i.tipo AS tipo, i.categoria_padre AS categoria_padre, i.marca AS marca,
          u.id   AS usuario_id,    u.nombre AS nombre_usuario, u.telefono_whatsapp, u.team AS usuario_team,
          ub.id  AS ubicacion_id,  ub.nombre_ubicacion
   FROM   activos a
@@ -66,12 +66,12 @@ exports.create = async (data) => {
       item_id = itemRows.rows[0].id;
       // Update the existing item's categoria_padre and tipo if needed
       if (categoria) {
-        await db.query('UPDATE items SET categoria_padre = COALESCE($1, categoria_padre), tipo = COALESCE($2, tipo) WHERE id = $3', [categoria, derivedTipo, item_id]);
+        await db.query('UPDATE items SET categoria_padre = COALESCE($1, categoria_padre), tipo = COALESCE($2, tipo), marca = COALESCE($3, marca) WHERE id = $4', [categoria, derivedTipo, data.marca || null, item_id]);
       }
     } else {
       const newItem = await db.query(
-        'INSERT INTO items (nombre, tipo, categoria_padre) VALUES ($1, $2, $3) RETURNING id',
-        [descTrimmed, derivedTipo, categoria || null]
+        'INSERT INTO items (nombre, tipo, categoria_padre, marca) VALUES ($1, $2, $3, $4) RETURNING id',
+        [descTrimmed, derivedTipo, categoria || null, data.marca || null]
       );
       item_id = newItem.rows[0].id;
     }
@@ -106,15 +106,19 @@ exports.update = async (id, patch) => {
     if (itemRows.rows.length > 0) {
       patch.item_id = itemRows.rows[0].id;
       if (categoria) {
-        await db.query('UPDATE items SET categoria_padre = COALESCE($1, categoria_padre), tipo = COALESCE($2, tipo) WHERE id = $3', [categoria, derivedTipo, patch.item_id]);
+        await db.query('UPDATE items SET categoria_padre = COALESCE($1, categoria_padre), tipo = COALESCE($2, tipo), marca = COALESCE($3, marca) WHERE id = $4', [categoria, derivedTipo, patch.marca || null, patch.item_id]);
       }
     } else {
       const newItem = await db.query(
-        'INSERT INTO items (nombre, tipo, categoria_padre) VALUES ($1, $2, $3) RETURNING id',
-        [descTrimmed, derivedTipo, categoria || null]
+        'INSERT INTO items (nombre, tipo, categoria_padre, marca) VALUES ($1, $2, $3, $4) RETURNING id',
+        [descTrimmed, derivedTipo, categoria || null, patch.marca || null]
       );
       patch.item_id = newItem.rows[0].id;
     }
+  }
+
+  if (patch.marca !== undefined && patch.item_id) {
+      await db.query('UPDATE items SET marca = $1 WHERE id = $2', [patch.marca || null, patch.item_id]);
   }
 
   const allowed = ['numero_serie', 'item_id', 'usuario_actual_id','ubicacion_actual_id','estado','team',

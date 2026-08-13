@@ -352,14 +352,15 @@
                     <thead>
                         <tr>
                             <th style="width: 40px; text-align: center;"><input type="checkbox" id="selectAllCheckbox"></th>
-                            <th data-i18n="col.id">ID</th>
+                            <th data-i18n="col.id">Serial / Tag</th>
+                            <th>Brand</th>
                             <th data-i18n="col.equipo">Equipment</th>
                             <th data-i18n="col.zona">Zone</th>
                             <th data-i18n="col.asignado">Assigned to</th>
                             <th data-i18n="col.team">Team</th>
                             <th data-i18n="col.estado">Status</th>
-                            <th class="col-right" data-i18n="col.ulti_cal">Last Calibration</th>
-                            <th class="col-right" data-i18n="col.prox_cal">Next Calibration</th>
+                            <th class="col-right" data-i18n="col.ulti_cal">Last Cal / Tag</th>
+                            <th class="col-right" data-i18n="col.prox_cal">Next Cal / Tag</th>
                             <th class="col-right" data-i18n="col.acciones" style="width:140px">Actions</th>
                         </tr>
                     </thead>
@@ -865,16 +866,20 @@
                     <input type="text" id="modalDesc" class="form-input" data-i18n-ph="modal.desc.ph" placeholder="ej. Fluke 87V Multimeter">
                 </div>
                 <div class="form-group">
+                    <label>Brand</label>
+                    <input type="text" id="modalMarca" class="form-input" placeholder="e.g. DeWalt, Hilti, Fluke...">
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
                     <label data-i18n="modal.cat">Category</label>
                     <select id="modalCategoria" class="form-input">
                         <option value="WalkTest Kits">WalkTest Kits</option>
-                        <option value="PIM Testers">PIM Testers</option>
-                        <option value="Handy Tools">Handy Tools</option>
+                        <option value="Testing Equipment">Testing Equipment</option>
+                        <option value="Hand Tools">Hand Tools</option>
+                        <option value="Power Tools">Power Tools</option>
                         <option value="Safety &amp; PPE">Safety &amp; PPE</option>
                         <option value="CAM Keys">CAM Keys</option>
-                        <option value="Levelling Kits">Levelling Kits</option>
-                        <option value="CW Testers">CW Testers</option>
-                        <option value="Sweep Testers">Sweep Testers</option>
                         <option value="Consumables">Consumables</option>
                     </select>
                 </div>

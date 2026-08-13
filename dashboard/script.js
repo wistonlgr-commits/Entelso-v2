@@ -17,22 +17,20 @@ const API_BASE = (!window.location.hostname || window.location.hostname === 'loc
 
 window.OFFICIAL_CATEGORIES = [
   { id: 'WalkTest Kits', label: 'WalkTest Kits', icon: 'fa-person-walking' },
-  { id: 'PIM Testers', label: 'PIM Testers', icon: 'fa-wave-square' },
-  { id: 'Handy Tools', label: 'Handy Tools', icon: 'fa-toolbox' },
+  { id: 'Testing Equipment', label: 'Testing Equipment', icon: 'fa-wave-square' },
+  { id: 'Hand Tools', label: 'Hand Tools', icon: 'fa-toolbox' },
+  { id: 'Power Tools', label: 'Power Tools', icon: 'fa-bolt' },
   { id: 'Safety & PPE', label: 'Safety & PPE', icon: 'fa-hard-hat' },
   { id: 'CAM Keys', label: 'CAM Keys', icon: 'fa-key', hidden: true },
-  { id: 'Levelling Kits', label: 'Levelling Kits', icon: 'fa-ruler-combined', hidden: true },
-  { id: 'CW Testers', label: 'CW Testers', icon: 'fa-broadcast-tower', hidden: true },
-  { id: 'Sweep Testers', label: 'Sweep Testers', icon: 'fa-chart-line', hidden: true },
   { id: 'Consumables', label: 'Consumables', icon: 'fa-box-open', hidden: true }
 ];
 
 window.getAssetCategory = function(item) {
-  if (!item) return 'Handy Tools';
+  if (!item) return 'Hand Tools';
   if (item.categoria_padre) return item.categoria_padre;
   if (item.categoria) return item.categoria;
   if (item.tipo) return item.tipo;
-  return 'Handy Tools';
+  return 'Hand Tools';
 };
 
 // Translate DB tipo values (Spanish) to English display labels
@@ -363,8 +361,10 @@ async function cargarActivos(silent = false) {
       db_id:       a.id,
       id:          a.numero_serie,
       equipo:      a.nombre_item,
+      marca:       a.marca || '—',
       tipo_item:   window.translateTipo(a.tipo),
       categoria:   window.getAssetCategory(a),
+      categoria_padre: a.categoria_padre || '',
       zona:        a.nombre_ubicacion || '—',
       team:        a.usuario_team || a.team || '—',
       status:      a.estado,
@@ -382,6 +382,7 @@ async function cargarActivos(silent = false) {
       ubicacion_id: a.ubicacion_id   || null,
       item_id:     a.item_id         || null,
       notas:       a.notas           || '',
+      fotos:       a.fotos           || [],
       _raw:        a,
     }));
     window.currentDataActivos = json.data || [];
@@ -533,7 +534,7 @@ async function registrarAuditLog(accion, meta = null) {
 function renderInventoryTable(tbody, data, groupByKey = null) {
   if (!tbody) return;
   const isDash = tbody.id === 'dashTableBody';
-  const colspan = isDash ? 6 : 8;
+  const colspan = isDash ? 6 : 11;
 
   if (!data || data.length === 0) {
     tbody.innerHTML = `<tr><td colspan="${colspan}" class="table-empty">${window.i18n.t('api.sin_datos')}</td></tr>`;
@@ -560,6 +561,7 @@ function renderInventoryTable(tbody, data, groupByKey = null) {
           }
         </td>
         <td><span class="id-cell" style="display:inline-block; max-width:140px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; font-family: 'Courier New', Courier, monospace; font-weight: 600; font-size: 13px; color: var(--text);" title="${escapeHTML(item.id)}">${escapeHTML(item.id)}</span></td>
+        <td style="color:var(--text-2); font-size:12px;">${escapeHTML(item.marca)}</td>
         <td>${escapeHTML(item.equipo)}</td>
         <td>${escapeHTML(item.zona)}</td>
         <td>${escapeHTML(item.asignado)}</td>
@@ -1646,6 +1648,7 @@ async function openDrawer(item) {
     { label: window.i18n.t('drawer.meta_serie'),   value: item.serie || item.id || '—' },
     { label: window.i18n.t('drawer.meta_tipo'),    value: item.tipo_item || '—' },
     { label: window.i18n.t('drawer.meta_zona'),    value: item.zona || '—' },
+    { label: 'Brand',  value: item.marca || '—' },
     { label: window.i18n.t('drawer.meta_estado'),  value: (window.i18n.t('estado.' + item.status) || item.status || '').replace(/_/g,' ') || '—' },
     ...( (item.id === 'EQ-15' || item.id === 'EQ-17') ? [
       { label: window.i18n.t('drawer.meta_ulti_cal') || 'Last Calibration',  value: formatearFecha(item.ultima_calibracion) },
@@ -2246,7 +2249,8 @@ function inicializarModal() {
   document.getElementById('submitNewItem').addEventListener('click', async () => {
     const numSerie  = document.getElementById('modalNumSerie').value.trim();
     const desc      = document.getElementById('modalDesc').value.trim();
-    const categoriaVal = document.getElementById('modalCategoria')?.value || 'Handy Tools';
+    const marcaVal  = document.getElementById('modalMarca')?.value?.trim() || '';
+    const categoriaVal = document.getElementById('modalCategoria')?.value || 'Hand Tools';
     const itemIdVal = document.getElementById('modalItemId')?.value;   // populated dynamically
     const zonaVal   = document.getElementById('modalZona').value;
     const team      = document.getElementById('modalTeam').value;
@@ -2281,6 +2285,7 @@ function inicializarModal() {
         numero_serie:        numSerie,
         item_id:             itemId,
         descripcion:         desc,
+        marca:               marcaVal || undefined,
         categoria:           categoriaVal,
         tipo:                categoriaVal,
         ubicacion_actual_id: ubicacionId,
@@ -3053,11 +3058,14 @@ window.editarActivo = async function(item) {
             <div class="form-group"><label>${window.i18n.t('modal.desc') || 'Equipment / Description'}</label>
               <input type="text" id="editAssetDesc" class="form-input" value="${escapeHTML(item.equipo || '')}">
             </div>
-            <div class="form-group"><label>${window.i18n.t('modal.cat') || 'Category'}</label>
-              <select id="editAssetCategoria" class="form-input">
-                ${systemCategories.map(c => `<option value="${c.nombre}" ${item.categoria === c.nombre ? 'selected' : ''}>${c.nombre}</option>`).join('')}
-              </select>
+            <div class="form-group"><label>Brand</label>
+              <input type="text" id="editAssetMarca" class="form-input" value="${escapeHTML(item.marca || '')}">
             </div>
+          </div>
+          <div class="form-group"><label>${window.i18n.t('modal.cat') || 'Category'}</label>
+            <select id="editAssetCategoria" class="form-input">
+              ${window.OFFICIAL_CATEGORIES.map(c => `<option value="${c.id}" ${item.categoria === c.id || item.categoria_padre === c.id ? 'selected' : ''}>${c.label}</option>`).join('')}
+            </select>
           </div>
           <div class="form-row">
             <div class="form-group"><label>${window.i18n.t('col.ulti_cal') || 'Last Test / Tag'}</label><input type="text" data-type="date" id="editAssetUltiCal" class="form-input" value="${item.ultima_calibracion?item.ultima_calibracion.substring(0,10):''}"></div>
@@ -3187,6 +3195,7 @@ window.editarActivo = async function(item) {
       fecha_ultimo_tag:    document.getElementById('editAssetUltiTag').value || null,
       fecha_prox_tag:      document.getElementById('editAssetProxTag').value || null,
       descripcion:         document.getElementById('editAssetDesc').value.trim() || null,
+      marca:               document.getElementById('editAssetMarca').value.trim() || null,
       categoria:           document.getElementById('editAssetCategoria').value || null,
       usuario_actual_id:   document.getElementById('editAssetUsuario').value ? Number(document.getElementById('editAssetUsuario').value) : null,
       notas:               document.getElementById('editAssetNotas').value.trim() || null,
@@ -3966,7 +3975,7 @@ window.verDetallesActivo = function(id) {
   document.getElementById('detId').textContent = activo.numero_serie || '--';
   document.getElementById('detEstado').innerHTML = statusPill(activo.estado);
   document.getElementById('detEquipo').textContent = activo.nombre_item || activo.descripcion || '--';
-  if (document.getElementById('detCategoria')) document.getElementById('detCategoria').textContent = activo.categoria || window.getAssetCategory(activo) || '--';
+  if (document.getElementById('detCategoria')) document.getElementById('detCategoria').textContent = activo.categoria_padre || window.getAssetCategory(activo) || '--';
   document.getElementById('detZona').textContent = activo.nombre_ubicacion || window.i18n.t('api.sin_asignar');
   document.getElementById('detTeam').textContent = activo.team || '--';
   document.getElementById('detAsignado').textContent = activo.nombre_usuario || window.i18n.t('api.sin_asignar');

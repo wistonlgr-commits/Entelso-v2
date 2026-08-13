@@ -11,6 +11,9 @@ async function start() {
     await db.query('SELECT 1');
     logger.info('✅ Conexión a PostgreSQL/Supabase verificada.');
 
+    const runMigration = require('./migrations/20260812_corrections');
+    await runMigration();
+
     server = app.listen(env.PORT, () =>
       logger.info(`🚀 Backend Entelso escuchando en http://localhost:${env.PORT} [${env.NODE_ENV}]`)
     );
