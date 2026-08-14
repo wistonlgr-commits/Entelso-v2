@@ -2929,6 +2929,7 @@ window.editarEmpleado = async function(userId) {
                 <div class="modal-msg" id="editUserMsg" style="display:none"></div>
                 <div class="form-group"><label data-i18n="usuarios.edit_name">${window.i18n.t('usuarios.edit_name') || 'Name'}</label><input type="text" id="editUserNombre" class="form-input"></div>
                 <div class="form-group"><label data-i18n="usuarios.edit_email">${window.i18n.t('usuarios.edit_email') || 'Email'}</label><input type="email" id="editUserEmail" class="form-input"></div>
+                <div class="form-group"><label>WhatsApp Phone</label><input type="text" id="editUserPhone" class="form-input" placeholder="e.g. 61439759528 (no + sign)"></div>
                 <div class="form-group"><label data-i18n="usuarios.edit_team">${window.i18n.t('usuarios.edit_team') || 'Team'}</label>
                   <select id="editUserTeam" class="form-input"></select>
                 </div>
@@ -2960,6 +2961,7 @@ window.editarEmpleado = async function(userId) {
     // Populate
     document.getElementById('editUserNombre').value = u.nombre || '';
     document.getElementById('editUserEmail').value  = u.email  || '';
+    document.getElementById('editUserPhone').value  = u.telefono_whatsapp  || '';
     document.getElementById('editUserTeam').value   = u.team   || '';
     document.getElementById('editUserRol').value    = u.rol    || 'trabajador';
     document.getElementById('editUserTerreno').checked = u.en_terreno === true;
@@ -2970,6 +2972,7 @@ window.editarEmpleado = async function(userId) {
       const payload = {
         nombre: document.getElementById('editUserNombre').value.trim(),
         email:  document.getElementById('editUserEmail').value.trim() || null,
+        telefono_whatsapp: document.getElementById('editUserPhone').value.trim() || null,
         team:   document.getElementById('editUserTeam').value || null,
         rol:    document.getElementById('editUserRol').value,
         en_terreno: document.getElementById('editUserTerreno').checked,
