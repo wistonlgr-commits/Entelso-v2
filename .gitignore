@@ -3,3 +3,9 @@ node_modules/
 .env.*
 .DS_Store
 *.log
+
+# Don't commit correction screenshots or workflow exports
+correciones*/
+correcciones*/
+*.json.bak
+revisar*.json
