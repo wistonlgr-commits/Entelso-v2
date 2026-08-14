@@ -3014,6 +3014,7 @@ window.editarEmpleado = async function(userId) {
 ----------------------------------------- */
 window.editarActivo = async function(item) {
   if (!item || !item.db_id) return window.customAlert(window.i18n.t('drawer.sin_id') || 'No Asset ID found.');
+  try {
 
   let modal = document.getElementById('editAssetModal');
   if (modal) modal.remove();
@@ -3054,7 +3055,7 @@ window.editarActivo = async function(item) {
           <div class="form-group"><label>${window.i18n.t('col.team') || 'Team'}</label>
             <select id="editAssetTeam" class="form-input">
               <option value="">${window.i18n.t('usuarios.sin_team') || 'No Team'}</option>
-              ${window.teamsList.map(t => `<option value="${t.nombre}" ${item.team === t.nombre ? 'selected' : ''}>${t.nombre}</option>`).join('')}
+              ${(window.teamsList || []).map(t => `<option value="${t.nombre}" ${item.team === t.nombre ? 'selected' : ''}>${t.nombre}</option>`).join('')}
             </select>
           </div>
           <div class="form-row">
@@ -3081,7 +3082,7 @@ window.editarActivo = async function(item) {
           <div class="form-group"><label>${window.i18n.t('usuarios.titulo') || 'Assigned User'}</label>
             <select id="editAssetUsuario" class="form-input">
               <option value="">-- Unassigned --</option>
-              ${window.usuariosData.map(u => `<option value="${u.id}" ${item.usuario_id == u.id ? 'selected' : ''}>${u.nombre}</option>`).join('')}
+              ${(window.usuariosData || []).map(u => `<option value="${u.id}" ${item.usuario_id == u.id ? 'selected' : ''}>${u.nombre}</option>`).join('')}
             </select>
           </div>
           <div style="margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--border);">
@@ -3233,6 +3234,10 @@ window.editarActivo = async function(item) {
       msgEl.style.display = 'block';
     }
   };
+  } catch(modalErr) {
+    console.error('Edit modal error:', modalErr);
+    window.customAlert('Error opening edit modal: ' + modalErr.message);
+  }
 };
 
 /* -----------------------------------------
