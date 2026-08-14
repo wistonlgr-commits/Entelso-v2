@@ -3059,7 +3059,7 @@ window.editarActivo = async function(item) {
               <input type="text" id="editAssetDesc" class="form-input" value="${escapeHTML(item.equipo || '')}">
             </div>
             <div class="form-group"><label>Brand</label>
-              <input type="text" id="editAssetMarca" class="form-input" value="${escapeHTML(item.marca || '')}">
+              <input type="text" id="editAssetMarca" class="form-input" value="${escapeHTML(item.marca === '—' ? '' : (item.marca || ''))}">
             </div>
           </div>
           <div class="form-group"><label>${window.i18n.t('modal.cat') || 'Category'}</label>

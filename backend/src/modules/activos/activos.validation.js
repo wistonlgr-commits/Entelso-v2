@@ -29,8 +29,8 @@ exports.createAssetSchema = z.object({
 
 exports.updateAssetSchema = z.object({
   numero_serie: z.string().min(2).max(100).optional(),
-  descripcion: z.string().min(2).optional(),
-  categoria: z.string().optional(),
+  descripcion: z.string().nullable().optional(),
+  categoria: z.string().nullable().optional(),
   marca: z.string().max(100).nullable().optional(),
   item_id: z.number().int().positive().nullable().optional(),
   usuario_actual_id:   z.number().int().positive().nullable().optional(),

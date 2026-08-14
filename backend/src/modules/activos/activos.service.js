@@ -95,6 +95,7 @@ exports.create = async (data) => {
 };
 
 exports.update = async (id, patch) => {
+  // Resolve item_id: either from descripcion change or from the existing asset
   if (patch.descripcion) {
     const descTrimmed = patch.descripcion.trim();
     const categoria = patch.categoria || '';
@@ -115,10 +116,28 @@ exports.update = async (id, patch) => {
       );
       patch.item_id = newItem.rows[0].id;
     }
-  }
-
-  if (patch.marca !== undefined && patch.item_id) {
-      await db.query('UPDATE items SET marca = $1 WHERE id = $2', [patch.marca || null, patch.item_id]);
+  } else if (patch.marca !== undefined || patch.categoria) {
+    // No descripcion change, but marca or categoria changed — resolve item_id from existing asset
+    const existing = await db.query('SELECT item_id FROM activos WHERE id = $1', [id]);
+    if (existing.rows.length > 0 && existing.rows[0].item_id) {
+      const existingItemId = existing.rows[0].item_id;
+      const updates = [];
+      const vals = [];
+      if (patch.marca !== undefined) { vals.push(patch.marca || null); updates.push(`marca = $${vals.length}`); }
+      if (patch.categoria) {
+        vals.push(patch.categoria);
+        updates.push(`categoria_padre = $${vals.length}`);
+        const derivedTipo = patch.categoria.toLowerCase().includes('kit') ? 'kit'
+                          : patch.categoria.toLowerCase().includes('consumab') ? 'consumible'
+                          : 'herramienta';
+        vals.push(derivedTipo);
+        updates.push(`tipo = $${vals.length}`);
+      }
+      if (updates.length > 0) {
+        vals.push(existingItemId);
+        await db.query(`UPDATE items SET ${updates.join(', ')} WHERE id = $${vals.length}`, vals);
+      }
+    }
   }
 
   const allowed = ['numero_serie', 'item_id', 'usuario_actual_id','ubicacion_actual_id','estado','team',
