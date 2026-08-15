@@ -36,3 +36,13 @@ Resuming Entelso RBAC implementation project.
 - Then execute Milestone 4 (E2E Testing & Hardening).
 - Upon completing and verifying all requirements, claim victory so that Sentinel can run the mandatory Victory Audit.
 
+## 2026-08-14T23:56:52Z
+
+Perform a comprehensive, exhaustive, and deep audit of the entire Entelso-v2 project codebase (Backend, Frontend, Configurations) to identify vulnerabilities, bugs, errors, performance bottlenecks, and architectural improvement opportunities.
+Execute the automated test suite present in the project and include test results and coverage analysis in the final report.
+Generate a detailed `audit_report.md` file in the root of the workspace (`c:\Users\Leor\Desktop\Entelso\audit_report.md`) containing:
+- Differentiated sections for Backend, Frontend, and Configurations.
+- Analysis of bugs, errors, security vulnerabilities, performance bottlenecks, and architectural recommendations.
+- Results and coverage analysis from executing the automated test suite.
+
+CRITICAL CONSTRAINT: Under NO circumstances should any original source code or configuration files of the project be modified. Only metadata under `.agents/` and the final report `audit_report.md` should be written.

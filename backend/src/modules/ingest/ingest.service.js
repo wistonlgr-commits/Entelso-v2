@@ -82,9 +82,10 @@ class IngestService {
       );
 
       // 3. Ubicación (zona del WhatsApp)
+      const zonaName = zona ? zona.trim() : 'Sin zona';
       const locId = await buscarOCrear(
-        client, 'ubicaciones', 'nombre_ubicacion', zona,
-        { nombre_ubicacion: zona.trim(), descripcion: `Auto-creada por reporte WhatsApp (${zona})` }
+        client, 'ubicaciones', 'nombre_ubicacion', zonaName,
+        { nombre_ubicacion: zonaName, descripcion: `Auto-creada por reporte WhatsApp (${zonaName})` }
       );
 
       // 4. Determinar asignación:

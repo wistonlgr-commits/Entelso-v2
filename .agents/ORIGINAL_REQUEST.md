@@ -37,3 +37,29 @@ Update `dashboard/script.js` and `dashboard/index.html` to hide or disable UI el
 ### UI/UX
 - [ ] The "Administration" menu item is completely hidden from the DOM if the user is not an `admin`.
 - [ ] The English translations (`window.i18n.t`) are preserved and used for any new error messages.
+
+## 2026-08-14T23:56:26Z
+
+Realizar una auditoría exhaustiva, minuciosa y profunda de todo el código fuente del proyecto Entelso-v2, identificando errores, bugs y proponiendo mejoras arquitectónicas y de rendimiento, generando un reporte final sin modificar el código.
+
+Working directory: c:\Users\Leor\Desktop\Entelso
+Integrity mode: benchmark
+
+## Requirements
+
+### R1. Auditoría del Código
+Analizar todo el proyecto (Backend, Frontend, Configuraciones) para identificar vulnerabilidades, bugs, cuellos de botella en rendimiento y oportunidades de mejora arquitectónica. 
+
+### R2. Reporte de Hallazgos
+Generar un documento detallado (`audit_report.md` en la raíz del proyecto) con todos los hallazgos y las sugerencias de mejora. **Bajo ninguna circunstancia se debe modificar el código fuente del proyecto.**
+
+### R3. Ejecución de Pruebas
+Ejecutar la suite de pruebas automatizadas existente en el proyecto e incluir el análisis de los resultados y la cobertura de pruebas en el reporte final.
+
+## Acceptance Criteria
+
+### Verificación de Auditoría
+- [ ] El archivo `audit_report.md` existe en la raíz del proyecto.
+- [ ] El reporte contiene secciones diferenciadas para Backend, Frontend y Configuraciones.
+- [ ] El reporte incluye los resultados de la ejecución de la suite de pruebas automatizadas.
+- [ ] Ningún archivo de código fuente original ha sido modificado.

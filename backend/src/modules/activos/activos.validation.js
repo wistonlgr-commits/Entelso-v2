@@ -15,7 +15,8 @@ exports.createAssetSchema = z.object({
   tipo: z.string().optional(),
   categoria: z.string().optional(),
   marca: z.string().max(100).nullable().optional(),
-  numero_serie: z.string().min(2).max(100),
+  numero_serie: z.string().min(2).max(100).optional(),
+  original_serial: z.string().nullable().optional(),
   usuario_actual_id:   z.number().int().positive().nullable().optional(),
   ubicacion_actual_id: z.number().int().positive().nullable().optional(),
   team: z.string().nullable().optional(),
@@ -29,6 +30,7 @@ exports.createAssetSchema = z.object({
 
 exports.updateAssetSchema = z.object({
   numero_serie: z.string().min(2).max(100).optional(),
+  original_serial: z.string().nullable().optional(),
   descripcion: z.string().nullable().optional(),
   categoria: z.string().nullable().optional(),
   marca: z.string().max(100).nullable().optional(),

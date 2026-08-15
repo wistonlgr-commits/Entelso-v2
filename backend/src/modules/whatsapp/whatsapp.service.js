@@ -13,7 +13,7 @@ const getUserByTelefono = async (telefono) => {
   }
   
   const { rows } = await db.query(
-    'SELECT id, nombre, pin_hash, activo, en_terreno FROM usuarios WHERE telefono_whatsapp LIKE $1 LIMIT 1',
+    "SELECT id, nombre, pin_hash, activo, en_terreno FROM usuarios WHERE regexp_replace(telefono_whatsapp, '\\D', '', 'g') LIKE $1 LIMIT 1",
     [`%${cleanPhone}`]
   );
   if (!rows[0]) throwOpError('Usuario no registrado o teléfono no encontrado.', 404);
@@ -33,6 +33,8 @@ const getActivoByInventario = async (numero_inventario) => {
        a.id, 
        a.numero_serie as numero_inventario, 
        a.estado, 
+       a.item_id,
+       a.usuario_actual_id,
        u.nombre_ubicacion as sitio,
        u.nombre_ubicacion as zona,
        i.nombre as equipo_nombre
@@ -72,10 +74,11 @@ exports.asignarEquipo = async (telefono, pin, numero_inventario, zonaInput) => {
   const zona = zonaInput || activo.zona || 'Terreno';
 
   // Registrar el movimiento
-  await db.query('BEGIN');
+  const client = await db.pool.connect();
   try {
+    await client.query('BEGIN');
     // Buscar la primera ubicación para origen/destino temporalmente
-    const { rows: uRows } = await db.query('SELECT id FROM ubicaciones LIMIT 1');
+    const { rows: uRows } = await client.query('SELECT id FROM ubicaciones LIMIT 1');
     const ubiId = uRows[0] ? uRows[0].id : null;
 
     // Crear movimiento (Asignacion / Despacho)
@@ -86,22 +89,24 @@ exports.asignarEquipo = async (telefono, pin, numero_inventario, zonaInput) => {
         $1, $2, 1, 'despacho', $3, NULL, $4
       ) RETURNING id
     `;
-    await db.query(movQuery, [activo.id, user.id, ubiId, `Asignado vía WhatsApp a zona: ${zona}`]);
+    await client.query(movQuery, [activo.id, user.id, ubiId, `Asignado vía WhatsApp a zona: ${zona}`]);
 
     // Actualizar estado del activo (Asignado a usuario, limpiando ubicación física)
-    await db.query(
+    await client.query(
       "UPDATE activos SET estado = 'en_uso', usuario_actual_id = $1, ubicacion_actual_id = NULL WHERE id = $2",
       [user.id, activo.id]
     );
 
     // Actualizar usuario a en_terreno = true
-    await db.query("UPDATE usuarios SET en_terreno = true WHERE id = $1", [user.id]);
+    await client.query("UPDATE usuarios SET en_terreno = true WHERE id = $1", [user.id]);
 
-    await db.query('COMMIT');
+    await client.query('COMMIT');
     return { success: true, equipo: activo.equipo_nombre, asignado_a: user.nombre };
   } catch (err) {
-    await db.query('ROLLBACK');
+    await client.query('ROLLBACK');
     throw err;
+  } finally {
+    client.release();
   }
 };
 
@@ -110,24 +115,27 @@ exports.reportarMantenimiento = async (telefono, pin, numero_inventario, descrip
   await validatePin(user, pin);
   const activo = await getActivoByInventario(numero_inventario);
 
-  await db.query('BEGIN');
+  const client = await db.pool.connect();
   try {
+    await client.query('BEGIN');
     // Registrar la falla en mantenimientos
     const mantQuery = `
       INSERT INTO mantenimientos (activo_id, motivo, estado, creado_por)
       VALUES ($1, $2, 'En Proceso', $3)
       RETURNING id
     `;
-    const { rows } = await db.query(mantQuery, [activo.id, descripcion, user.id]);
+    const { rows } = await client.query(mantQuery, [activo.id, descripcion, user.id]);
 
     // Actualizar el estado del activo a 'en_mantenimiento'
-    await db.query("UPDATE activos SET estado = 'en_mantenimiento' WHERE id = $1", [activo.id]);
+    await client.query("UPDATE activos SET estado = 'en_mantenimiento' WHERE id = $1", [activo.id]);
 
-    await db.query('COMMIT');
+    await client.query('COMMIT');
     return { success: true, reporte_id: rows[0].id, equipo: activo.equipo_nombre };
   } catch (err) {
-    await db.query('ROLLBACK');
+    await client.query('ROLLBACK');
     throw err;
+  } finally {
+    client.release();
   }
 };
 
@@ -170,18 +178,21 @@ exports.devolverEquipo = async (telefono, pin, numero_inventario) => {
     throw Object.assign(new Error(`El equipo no está asignado a ti.`), { isOperational: true });
   }
 
-  await db.query('BEGIN');
+  const client = await db.pool.connect();
   try {
-    await db.query(
+    await client.query('BEGIN');
+    await client.query(
       'INSERT INTO movimientos (item_id, activo_id, usuario_id, tipo_movimiento, observacion) VALUES ($1, $2, $3, $4, $5)',
       [activo.item_id, activo.id, user.id, 'devolucion', 'Devuelto vía WhatsApp']
     );
-    await db.query("UPDATE activos SET estado = 'disponible', usuario_actual_id = NULL WHERE id = $1", [activo.id]);
-    await db.query('COMMIT');
+    await client.query("UPDATE activos SET estado = 'disponible', usuario_actual_id = NULL WHERE id = $1", [activo.id]);
+    await client.query('COMMIT');
     return { success: true, equipo: activo.equipo_nombre, mensaje: 'Equipo devuelto correctamente.' };
   } catch (err) {
-    await db.query('ROLLBACK');
+    await client.query('ROLLBACK');
     throw err;
+  } finally {
+    client.release();
   }
 };
 

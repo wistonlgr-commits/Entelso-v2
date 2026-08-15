@@ -284,6 +284,7 @@
                     </div>
                     <button class="btn-ghost" id="confirmExportBtn"><i class="fa-solid fa-file-excel"></i> <span data-i18n="inv.exportar">Export</span></button>
                     <button class="btn-ghost" id="openManageCategoriesBtn"><i class="fa-solid fa-tags"></i> <span data-i18n="inv.categorias">Categories</span></button>
+                    <button class="btn-ghost" id="exportQRLabelsBtn" style="color:var(--accent-blue); display:none;"><i class="fa-solid fa-qrcode"></i> <span data-i18n="inv.exportar_qr">Export QR Labels</span></button>
                     <div class="dropdown-wrapper" style="position: relative;">
                         <button class="btn-ghost" id="bulkActionsBtn" style="color:var(--text-1); display:none;">
                             <i class="fa-solid fa-layer-group"></i> <span id="bulkActionsCount">0</span> <span data-i18n="bulk.acciones">Bulk Actions</span> <i class="fa-solid fa-chevron-down" style="font-size: 10px; margin-left: 4px;"></i>
@@ -856,9 +857,15 @@
             <!-- Mensaje de resultado del formulario -->
             <div class="modal-msg" id="modalMsg" style="display:none"></div>
 
-            <div class="form-group">
-                <label data-i18n="modal.inv">Inventory No.</label>
-                <input type="text" id="modalNumSerie" class="form-input" data-i18n-ph="modal.inv.ph" placeholder="INV-XXXX">
+            <div class="form-row">
+                <div class="form-group">
+                    <label data-i18n="modal.inv">Inventory No.</label>
+                    <input type="text" id="modalNumSerie" class="form-input" data-i18n-ph="modal.inv.ph" placeholder="EQ-00001">
+                </div>
+                <div class="form-group">
+                    <label>Original / Manufacturer Serial</label>
+                    <input type="text" id="modalOriginalSerial" class="form-input" placeholder="e.g. S/N 12345ABC">
+                </div>
             </div>
             <div class="form-row">
                 <div class="form-group">

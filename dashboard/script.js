@@ -83,6 +83,30 @@ function tokenEsValido(token) {
 }
 
 /* ─────────────────────────────────────────
+   TOAST NOTIFICATIONS (Fallback)
+───────────────────────────────────────── */
+function showToast(message, type = 'success') {
+  // Try to use a toast container if it exists
+  let container = document.getElementById('toastContainer');
+  if (!container) {
+    container = document.createElement('div');
+    container.id = 'toastContainer';
+    container.style.cssText = 'position:fixed;top:20px;right:20px;z-index:100000;display:flex;flex-direction:column;gap:8px;';
+    document.body.appendChild(container);
+  }
+  const toast = document.createElement('div');
+  toast.style.cssText = `padding:12px 20px;border-radius:8px;color:#fff;font-size:14px;font-family:Inter,sans-serif;box-shadow:0 4px 12px rgba(0,0,0,0.3);opacity:0;transition:opacity 0.3s;max-width:350px;`;
+  toast.style.background = type === 'error' ? '#f85149' : type === 'warning' ? '#D4A017' : '#3fb950';
+  toast.textContent = message;
+  container.appendChild(toast);
+  requestAnimationFrame(() => { toast.style.opacity = '1'; });
+  setTimeout(() => {
+    toast.style.opacity = '0';
+    setTimeout(() => toast.remove(), 300);
+  }, 3000);
+}
+
+/* ─────────────────────────────────────────
    HELPER: FETCH CON AUTH
 ───────────────────────────────────────── */
 async function apiFetch(path, options = {}) {
@@ -96,6 +120,7 @@ async function apiFetch(path, options = {}) {
   const res = await fetch(`${API_BASE}${path}`, fetchOptions);
   if (res.status === 401) {
     // Token expirado o inválido → forzar re-login
+    if (autoRefreshInterval) { clearInterval(autoRefreshInterval); autoRefreshInterval = null; }
     session.clear();
     mostrarLogin();
     throw new Error('SESION_EXPIRADA');
@@ -371,6 +396,7 @@ async function cargarActivos(silent = false) {
       fecha:       a.fecha_registro || a.fecha_prox_tag || a.fecha_prox_cali || null,
       // Drawer fields
       serie:       a.numero_serie,
+      original_serial: a.original_serial || '',
       parent_activo_id: a.parent_activo_id || null,
       ultima_calibracion: a.fecha_ultima_cali || null,
       calibracion: a.fecha_prox_cali || null,
@@ -2283,6 +2309,7 @@ function inicializarModal() {
     try {
       const payload = {
         numero_serie:        numSerie,
+        original_serial:     document.getElementById('modalOriginalSerial')?.value?.trim() || undefined,
         item_id:             itemId,
         descripcion:         desc,
         marca:               marcaVal || undefined,
@@ -2550,7 +2577,7 @@ let systemCategories = [];
 
 async function cargarCategorias() {
   try {
-    const res = await apiFetch('/api/items');
+    const res = await apiFetch('/api/items/categorias');
     const json = await res.json();
     if (json.success && json.data) {
       systemCategories = json.data;
@@ -3032,8 +3059,13 @@ window.editarActivo = async function(item) {
         </div>
         <div class="modal-body">
           <div class="modal-msg" id="editAssetMsg" style="display:none"></div>
-          <div class="form-group"><label>Serial No. / ID</label>
-            <input type="text" id="editAssetSerial" class="form-input" value="${escapeHTML(item.id)}">
+          <div class="form-row">
+            <div class="form-group"><label>Inventory No.</label>
+              <input type="text" id="editAssetSerial" class="form-input" value="${escapeHTML(item.id)}">
+            </div>
+            <div class="form-group"><label>Original / Manufacturer Serial</label>
+              <input type="text" id="editAssetOriginalSerial" class="form-input" value="${escapeHTML(item.original_serial || '')}">
+            </div>
           </div>
           <div class="form-group"><label>${window.i18n.t('col.estado') || 'Status'}</label>
             <select id="editAssetEstado" class="form-input">
@@ -3191,6 +3223,7 @@ window.editarActivo = async function(item) {
   document.getElementById('confirmEditAssetBtn').onclick = async () => {
     const payload = {
       numero_serie:        document.getElementById('editAssetSerial').value.trim(),
+      original_serial:     document.getElementById('editAssetOriginalSerial')?.value?.trim() || undefined,
       estado:              document.getElementById('editAssetEstado').value,
       team:                document.getElementById('editAssetTeam').value || null,
       ubicacion_actual_id: document.getElementById('editAssetUbicacion').value ? Number(document.getElementById('editAssetUbicacion').value) : null,
@@ -3536,9 +3569,9 @@ if (document.getElementById('bulkDeleteConfirmBtn')) {
                 window.customAlert((window.i18n.t('api.success') || 'Success: ') + json.message);
                 document.getElementById('bulkDeleteOverlay').classList.remove('open');
                 if (currentBulkMode === 'activos') {
-                    if(window.loadInventory) await window.loadInventory();
+                    if(typeof cargarActivos === 'function') await cargarActivos(true);
                 } else {
-                    if(window.loadUsuarios) await window.loadUsuarios();
+                    if(typeof cargarUsuarios === 'function') await cargarUsuarios();
                 }
             } else {
                 window.customAlert((window.i18n.t('api.error_prefix') || 'Error: ') + json.message);
@@ -3664,11 +3697,14 @@ window.updateBulkActionsState = function() {
   const checked = document.querySelectorAll('.row-checkbox:checked');
   const btn = document.getElementById('bulkActionsBtn');
   const countEl = document.getElementById('bulkActionsCount');
+  const exportQRBtn = document.getElementById('exportQRLabelsBtn');
   if(checked.length > 0) {
     btn.style.display = 'inline-flex';
+    if(exportQRBtn) exportQRBtn.style.display = 'inline-flex';
     countEl.textContent = checked.length;
   } else {
     btn.style.display = 'none';
+    if(exportQRBtn) exportQRBtn.style.display = 'none';
     document.getElementById('bulkActionsMenu').style.display = 'none';
   }
 };
@@ -3676,6 +3712,56 @@ window.updateBulkActionsState = function() {
 document.getElementById('selectAllCheckbox')?.addEventListener('change', (e) => {
   document.querySelectorAll('.row-checkbox').forEach(cb => cb.checked = e.target.checked);
   window.updateBulkActionsState();
+});
+
+document.getElementById('exportQRLabelsBtn')?.addEventListener('click', () => {
+  const checked = Array.from(document.querySelectorAll('.row-checkbox:checked')).map(cb => parseInt(cb.value));
+  if(!checked.length) return;
+  const itemsToExport = inventoryData.filter(item => checked.includes(item.db_id));
+  if(!itemsToExport.length) return;
+  
+  const w = window.open('', '_blank');
+  let html = `<html><head><title>QR Labels</title>
+    <style>
+      body { font-family: 'Inter', sans-serif; margin: 0; padding: 20px; background: white; color: black; }
+      .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 20px; }
+      .label { border: 1px dashed #ccc; padding: 15px; text-align: center; page-break-inside: avoid; }
+      .label img { width: 120px; height: 120px; margin-bottom: 10px; }
+      .label-id { font-weight: bold; font-size: 16px; margin-bottom: 4px; }
+      .label-name { font-size: 12px; color: #555; text-transform: uppercase; }
+      @media print {
+        @page { margin: 1cm; }
+        body { padding: 0; }
+        .grid { grid-template-columns: repeat(4, 1fr); gap: 10px; }
+        .label { border: 1px dashed #000; }
+      }
+    </style></head><body>
+    <div class="grid">`;
+    
+  itemsToExport.forEach(item => {
+    // Generate QR src matching what we use in drawer
+    const waNumber = localStorage.getItem('entelso_wa_number') || '61439759528';
+    const serialId = item.serie || item.id || '';
+    const qrPayload = `https://wa.me/${waNumber}?text=${encodeURIComponent('INFO ' + serialId)}`;
+    const qrSrc = `https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=${encodeURIComponent(qrPayload)}&margin=4`;
+    
+    html += `
+      <div class="label">
+        <img src="${qrSrc}" />
+        <div class="label-id">${serialId}</div>
+        <div class="label-name">${item.equipo || item.nombre || ''}</div>
+      </div>
+    `;
+  });
+  
+  html += `</div>
+    <script>
+      setTimeout(() => { window.print(); }, 1500); // Give images time to load
+    </script>
+  </body></html>`;
+  
+  w.document.write(html);
+  w.document.close();
 });
 
 document.getElementById('bulkActionsBtn')?.addEventListener('click', () => {
@@ -4093,12 +4179,13 @@ window.promptAddKitItem = async function(kitId) {
       method: 'PATCH',
       body: JSON.stringify({ parent_activo_id: kitId })
     });
-    if (res.success) {
+    const json = await res.json();
+    if (json.success) {
       registrarAuditLog(`Added asset ${child.id} to kit ${kitId}`);
       await cargarActivos(true); // force reload
       window.renderKitContents(kitId);
     } else {
-      alert(res.message);
+      alert(json.message || 'Error adding asset to kit.');
     }
   } catch (err) {
     console.error(err);
@@ -4114,12 +4201,13 @@ window.removeKitItem = async function(childId, kitId) {
       method: 'PATCH',
       body: JSON.stringify({ parent_activo_id: '' }) // Empty string or null to remove
     });
-    if (res.success) {
+    const json = await res.json();
+    if (json.success) {
       registrarAuditLog(`Removed asset ${childId} from kit ${kitId}`);
       await cargarActivos(true);
       window.renderKitContents(kitId);
     } else {
-      alert(res.message);
+      alert(json.message || 'Error removing asset from kit.');
     }
   } catch (err) {
     console.error(err);

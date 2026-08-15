@@ -1,7 +1,7 @@
 const db = require('../../config/database');
 
 const ASSET_SELECT = `
-  SELECT a.id, a.numero_serie, a.estado, a.team, a.parent_activo_id,
+  SELECT a.id, a.numero_serie, a.original_serial, a.estado, a.team, a.parent_activo_id,
          a.fecha_registro,
          a.fecha_ultima_cali, a.fecha_prox_cali,
          a.fecha_ultimo_tag,  a.fecha_prox_tag,
@@ -15,6 +15,41 @@ const ASSET_SELECT = `
   LEFT JOIN ubicaciones ub ON a.ubicacion_actual_id = ub.id
 `;
 
+const PREFIX_MAP = {
+  'power tools': 'PT',
+  'hand tools': 'HT',
+  'consumables': 'CO',
+  'walktest kits': 'WK',
+  'testing equipment': 'TE',
+  'safety & ppe': 'SA',
+  'cam keys': 'CK',
+};
+
+async function generateAutoId(categoria) {
+  const categoryStr = (categoria || '').toLowerCase().trim();
+  const prefix = PREFIX_MAP[categoryStr] || 'EQ';
+  
+  let seq = 1;
+  const res = await db.query(`
+    SELECT numero_serie 
+    FROM activos 
+    WHERE numero_serie LIKE $1
+  `, [prefix + '-%']);
+  
+  if (res.rows.length > 0) {
+    let maxNum = 0;
+    for (const row of res.rows) {
+      const suffix = row.numero_serie.substring(prefix.length + 1);
+      const num = parseInt(suffix, 10);
+      if (!isNaN(num) && num > maxNum) {
+        maxNum = num;
+      }
+    }
+    seq = maxNum + 1;
+  }
+  return `${prefix}-${String(seq).padStart(5, '0')}`;
+}
+
 exports.getAll = async (filters = {}) => {
   const { estado, item_id, usuario_actual_id, ubicacion_actual_id, search } = filters;
   const conds = ['1=1']; const params = [];
@@ -26,7 +61,7 @@ exports.getAll = async (filters = {}) => {
   if (ubicacion_actual_id) add('a.ubicacion_actual_id = ', Number(ubicacion_actual_id));
   if (search) {
     params.push(`%${search}%`);
-    conds.push(`(LOWER(a.numero_serie) LIKE LOWER($${params.length}) OR LOWER(i.nombre) LIKE LOWER($${params.length}))`);
+    conds.push(`(LOWER(a.numero_serie) LIKE LOWER($${params.length}) OR LOWER(i.nombre) LIKE LOWER($${params.length}) OR LOWER(a.original_serial) LIKE LOWER($${params.length}))`);
   }
 
   const { rows } = await db.query(`${ASSET_SELECT} WHERE ${conds.join(' AND ')} ORDER BY a.id DESC`, params);
@@ -45,18 +80,19 @@ exports.getBySerial = async (serial) => {
 
 exports.create = async (data) => {
   let { item_id, descripcion, tipo, numero_serie, usuario_actual_id, ubicacion_actual_id,
-          fecha_ultima_cali, fecha_prox_cali, fecha_ultimo_tag, fecha_prox_tag, estado, team, notas } = data;
+          fecha_ultima_cali, fecha_prox_cali, fecha_ultimo_tag, fecha_prox_tag, estado, team, notas, original_serial } = data;
   if (usuario_actual_id && ubicacion_actual_id)
     throw Object.assign(new Error('An asset cannot have both a user and a location simultaneously.'), { isOperational: true });
 
-  const existingAsset = await exports.getBySerial(numero_serie);
-  if (existingAsset) {
+  const existingAsset = await exports.getBySerial(numero_serie || '');
+  if (existingAsset && numero_serie) {
     throw Object.assign(new Error(`Ya existe un equipo registrado con el serial: ${numero_serie}`), { isOperational: true });
   }
 
+  const categoria = data.categoria || '';
+
   if (!item_id && descripcion) {
     const descTrimmed = descripcion.trim();
-    const categoria = data.categoria || '';
     // Derive the correct item tipo from the category name
     const derivedTipo = categoria.toLowerCase().includes('kit') ? 'kit'
                       : categoria.toLowerCase().includes('consumab') ? 'consumible'
@@ -81,11 +117,22 @@ exports.create = async (data) => {
     throw Object.assign(new Error('Must provide item_id or descripcion.'), { isOperational: true });
   }
 
+  let finalNumeroSerie = numero_serie ? numero_serie.trim() : null;
+  let finalOriginalSerial = original_serial ? original_serial.trim() : null;
+
+  // Si no hay numero_serie, o si no cumple con el formato estándar, autogeneramos
+  if (!finalNumeroSerie || !/^[A-Z]{2,3}-?\d+$/i.test(finalNumeroSerie)) {
+    if (finalNumeroSerie) {
+      finalOriginalSerial = finalNumeroSerie; // guardamos el serial viejo/csv
+    }
+    finalNumeroSerie = await generateAutoId(categoria);
+  }
+
   const { rows } = await db.query(
-    `INSERT INTO activos (item_id, numero_serie, usuario_actual_id, ubicacion_actual_id,
+    `INSERT INTO activos (item_id, numero_serie, original_serial, usuario_actual_id, ubicacion_actual_id,
        fecha_registro, fecha_ultima_cali, fecha_prox_cali, fecha_ultimo_tag, fecha_prox_tag, estado, team, fotos, notas)
-     VALUES ($1,$2,$3,$4,COALESCE($5, CURRENT_DATE),$6,$7,$8,$9,$10,$11,$12,$13) RETURNING *`,
-    [item_id, numero_serie.trim(), usuario_actual_id ?? null, ubicacion_actual_id ?? null,
+     VALUES ($1,$2,$3,$4,$5,COALESCE($6, CURRENT_DATE),$7,$8,$9,$10,$11,$12,$13,$14) RETURNING *`,
+    [item_id, finalNumeroSerie, finalOriginalSerial, usuario_actual_id ?? null, ubicacion_actual_id ?? null,
      data.fecha_registro ?? null,
      fecha_ultima_cali ?? null, fecha_prox_cali ?? null,
      fecha_ultimo_tag  ?? null, fecha_prox_tag  ?? null,
@@ -140,7 +187,7 @@ exports.update = async (id, patch) => {
     }
   }
 
-  const allowed = ['numero_serie', 'item_id', 'usuario_actual_id','ubicacion_actual_id','estado','team',
+  const allowed = ['numero_serie', 'original_serial', 'item_id', 'usuario_actual_id','ubicacion_actual_id','estado','team',
                    'fecha_ultima_cali','fecha_prox_cali','fecha_ultimo_tag','fecha_prox_tag', 'fotos', 'notas', 'parent_activo_id'];
   const sets = []; const params = [];
   for (const k of allowed) {
@@ -281,21 +328,41 @@ exports.bulkCreate = async (activosData) => {
       const fecha_ultimo_tag  = parseDateStr(item.fecha_ultimo_tag);
       const fecha_prox_tag    = parseDateStr(item.fecha_prox_tag);
 
-      // 6. Insert into activos (with dates)
+      let finalNumeroSerie = item.numero_serie ? item.numero_serie.trim() : null;
+      let finalOriginalSerial = null;
+      let categoriaPadre = '';
+
+      // Get categoria_padre to determine prefix
+      const { rows: itemInfo } = await client.query('SELECT categoria_padre FROM items WHERE id = $1', [item_id]);
+      if (itemInfo.length > 0) {
+        categoriaPadre = itemInfo[0].categoria_padre || '';
+      }
+
+      if (!finalNumeroSerie || !/^[A-Z]{2,3}-?\d+$/i.test(finalNumeroSerie)) {
+        if (finalNumeroSerie) {
+          finalOriginalSerial = finalNumeroSerie;
+        }
+        finalNumeroSerie = await generateAutoId(categoriaPadre);
+      } else {
+         // If we get an explicit well-formatted serial, we still need to check for conflicts, but ON CONFLICT will handle it.
+      }
+
+      // 6. Insert into activos (with dates and original_serial)
       await client.query(`
-        INSERT INTO activos (item_id, numero_serie, ubicacion_actual_id, estado, team,
+        INSERT INTO activos (item_id, numero_serie, original_serial, ubicacion_actual_id, estado, team,
             fecha_ultima_cali, fecha_prox_cali, fecha_ultimo_tag, fecha_prox_tag)
-        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
         ON CONFLICT (numero_serie) DO UPDATE SET
           item_id = EXCLUDED.item_id,
           ubicacion_actual_id = EXCLUDED.ubicacion_actual_id,
           estado = EXCLUDED.estado,
           team = EXCLUDED.team,
+          original_serial = COALESCE(EXCLUDED.original_serial, activos.original_serial),
           fecha_ultima_cali = COALESCE(EXCLUDED.fecha_ultima_cali, activos.fecha_ultima_cali),
           fecha_prox_cali   = COALESCE(EXCLUDED.fecha_prox_cali, activos.fecha_prox_cali),
           fecha_ultimo_tag  = COALESCE(EXCLUDED.fecha_ultimo_tag, activos.fecha_ultimo_tag),
           fecha_prox_tag    = COALESCE(EXCLUDED.fecha_prox_tag, activos.fecha_prox_tag)
-      `, [item_id, item.numero_serie.trim(), ubicacion_actual_id, normalizedStatus, team,
+      `, [item_id, finalNumeroSerie, finalOriginalSerial, ubicacion_actual_id, normalizedStatus, team,
           fecha_ultima_cali, fecha_prox_cali, fecha_ultimo_tag, fecha_prox_tag]);
 
       inserted++;

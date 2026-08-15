@@ -1,3 +1,4 @@
+const crypto = require('crypto');
 const jwt = require('jsonwebtoken');
 const env  = require('../../config/environment');
 const res  = require('../utils/apiResponse');
@@ -9,7 +10,11 @@ const res  = require('../utils/apiResponse');
 const requireApiKey = (req, reply, next) => {
   const key = req.headers['x-api-key'] || req.headers['x-ingest-secret'];
   if (!key)           return reply.status(401).json(res.error('Clave de API no provista.',  'UNAUTHORIZED'));
-  if (key !== env.API_KEY) return reply.status(403).json(res.error('Clave de API inválida.', 'FORBIDDEN'));
+  const keyBuf = Buffer.from(String(key));
+  const expectedBuf = Buffer.from(String(env.API_KEY));
+  if (keyBuf.length !== expectedBuf.length || !crypto.timingSafeEqual(keyBuf, expectedBuf)) {
+    return reply.status(403).json(res.error('Clave de API inválida.', 'FORBIDDEN'));
+  }
   next();
 };
 

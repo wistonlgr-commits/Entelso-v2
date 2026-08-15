@@ -36,7 +36,7 @@ exports.remove = async (req, reply, next) => {
 };
 exports.removeAllOthers = async (req, reply, next) => {
   try {
-    await svc.removeAllOthers(req.user.id);
-    reply.json(res.success({ deleted: true, kept: req.user.id }));
+    await svc.removeAllOthers(req.user.sub);
+    reply.json(res.success({ deleted: true, kept: req.user.sub }));
   } catch (e) { next(e); }
 };

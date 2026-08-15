@@ -77,7 +77,7 @@ exports.update = async (id, data) => {
 
   if (fields.length === 0) return exports.getById(id);
   values.push(id);
-  const query = `UPDATE usuarios SET ${fields.join(', ')} WHERE id = $${idx} RETURNING id, nombre, email, rol, team, activo`;
+  const query = `UPDATE usuarios SET ${fields.join(', ')} WHERE id = $${idx} RETURNING id, nombre, email, telefono_whatsapp, rol, team, activo`;
   const { rows } = await db.query(query, values);
   return rows[0];
 };

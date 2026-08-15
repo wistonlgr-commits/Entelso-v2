@@ -1,4 +1,4 @@
-﻿const svc = require('./items.service');
+const svc = require('./items.service');
 const res = require('../../common/utils/apiResponse');
 
 exports.getAll = async (req, reply, next) => {
@@ -26,5 +26,18 @@ exports.remove = async (req, reply, next) => {
   try {
     await svc.remove(req.params.id);
     reply.json(res.success({ deleted: true }, 'Categoria eliminada.'));
+  } catch (e) { next(e); }
+};
+
+exports.getCategorias = async (req, reply, next) => {
+  try {
+    const db = require('../../config/database');
+    const { rows } = await db.query('SELECT DISTINCT categoria_padre FROM items WHERE categoria_padre IS NOT NULL');
+    const categorias = rows.map(r => ({
+      id: r.categoria_padre, // Use name as ID for frontend
+      nombre: r.categoria_padre,
+      tipo: 'herramienta' // Just default for UI
+    }));
+    reply.json(res.success(categorias));
   } catch (e) { next(e); }
 };

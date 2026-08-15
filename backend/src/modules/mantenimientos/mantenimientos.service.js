@@ -16,22 +16,25 @@ exports.getAll = async () => {
 
 exports.create = async (data) => {
     const { activo_id, fecha_envio, fecha_estimada_retorno, motivo, notas, creado_por } = data;
-    await db.query('BEGIN');
+    const client = await db.pool.connect();
     try {
-        const { rows } = await db.query(`
+        await client.query('BEGIN');
+        const { rows } = await client.query(`
             INSERT INTO mantenimientos (activo_id, fecha_envio, fecha_estimada_retorno, motivo, notas, creado_por)
             VALUES ($1, $2, $3, $4, $5, $6)
             RETURNING *
         `, [activo_id, fecha_envio, fecha_estimada_retorno, motivo, notas, creado_por]);
         
         // Actualizar el estado del activo a 'en_mantenimiento'
-        await db.query(`UPDATE activos SET estado = 'en_mantenimiento' WHERE id = $1`, [activo_id]);
+        await client.query(`UPDATE activos SET estado = 'en_mantenimiento' WHERE id = $1`, [activo_id]);
         
-        await db.query('COMMIT');
+        await client.query('COMMIT');
         return rows[0];
     } catch (err) {
-        await db.query('ROLLBACK');
+        await client.query('ROLLBACK');
         throw err;
+    } finally {
+        client.release();
     }
 };
 

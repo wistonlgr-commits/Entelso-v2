@@ -5,7 +5,7 @@ const res = require('../../common/utils/apiResponse');
  * POST /api/auth/login
  * Body: { email, pin }
  */
-exports.login = async (req, reply) => {
+exports.login = async (req, reply, next) => {
   try {
     const { email, pin } = req.body ?? {};
 
@@ -23,7 +23,7 @@ exports.login = async (req, reply) => {
         .status(err.statusCode ?? 401)
         .json(res.error(err.message, 'AUTH_ERROR'));
     }
-    throw err; // el error handler global lo maneja
+    next(err); // el error handler global lo maneja
   }
 };
 exports.getMe = async (req, reply, next) => {

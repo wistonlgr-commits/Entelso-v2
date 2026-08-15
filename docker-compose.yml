@@ -14,7 +14,7 @@ services:
     env_file:
       # En producción → usa .env.production (NODE_ENV=production, CORS correcto, Session Pooler)
       # Para pruebas locales → cambiar a ./backend/.env.development
-      - ./backend/.env.production
+      - ./backend/.env
     networks:
       - entelso_network
     healthcheck:
