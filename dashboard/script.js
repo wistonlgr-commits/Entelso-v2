@@ -1852,9 +1852,10 @@ document.getElementById('btnPrintQR')?.addEventListener('click', () => {
   const title = document.getElementById('drawerTitle')?.textContent || 'Equipment';
   const subtitle = document.getElementById('drawerSubtitle')?.textContent || '';
   if (!qrImg || !qrImg.src) return;
-  const w = window.open('', '_blank');
-  w.document.write(`<html><head><title>QR - ${title}</title><style>body{font-family:Arial,sans-serif;text-align:center;padding:40px;}img{width:200px;height:200px;}h2{margin-bottom:4px;}p{color:#666;}</style></head><body><h2>${title}</h2><p>${subtitle}</p><img src="${qrImg.src}" /><script>setTimeout(()=>{window.print();window.close();},500);<\/script></body></html>`);
-  w.document.close();
+  const html = `<html><head><title>QR - ${title}</title><style>body{font-family:Arial,sans-serif;text-align:center;padding:40px;}img{width:200px;height:200px;}h2{margin-bottom:4px;}p{color:#666;}</style></head><body><h2>${title}</h2><p>${subtitle}</p><img src="${qrImg.src}" /><script>setTimeout(()=>{window.print();window.close();},500);<\/script></body></html>`;
+  const blob = new Blob([html], { type: 'text/html' });
+  const url = URL.createObjectURL(blob);
+  window.open(url, '_blank', 'noopener,noreferrer');
 });
 
 // Modal QR Download handler
@@ -1877,9 +1878,10 @@ document.getElementById('modalBtnPrintQR')?.addEventListener('click', () => {
   const title = document.getElementById('modalNumSerie')?.value || 'Equipment';
   const subtitle = document.getElementById('modalDesc')?.value || '';
   if (!qrImg || !qrImg.src) return;
-  const w = window.open('', '_blank');
-  w.document.write(`<html><head><title>QR - ${title}</title><style>body{font-family:Arial,sans-serif;text-align:center;padding:40px;}img{width:200px;height:200px;}h2{margin-bottom:4px;}p{color:#666;}</style></head><body><h2>${title}</h2><p>${subtitle}</p><img src="${qrImg.src}" /><script>setTimeout(()=>{window.print();window.close();},500);<\/script></body></html>`);
-  w.document.close();
+  const html = `<html><head><title>QR - ${title}</title><style>body{font-family:Arial,sans-serif;text-align:center;padding:40px;}img{width:200px;height:200px;}h2{margin-bottom:4px;}p{color:#666;}</style></head><body><h2>${title}</h2><p>${subtitle}</p><img src="${qrImg.src}" /><script>setTimeout(()=>{window.print();window.close();},500);<\/script></body></html>`;
+  const blob = new Blob([html], { type: 'text/html' });
+  const url = URL.createObjectURL(blob);
+  window.open(url, '_blank', 'noopener,noreferrer');
 });
 
 /* ─────────────────────────────────────────
@@ -3720,7 +3722,6 @@ document.getElementById('exportQRLabelsBtn')?.addEventListener('click', () => {
   const itemsToExport = inventoryData.filter(item => checked.includes(item.db_id));
   if(!itemsToExport.length) return;
   
-  const w = window.open('', '_blank');
   let html = `<html><head><title>QR Labels</title>
     <style>
       body { font-family: 'Inter', sans-serif; margin: 0; padding: 20px; background: white; color: black; }
@@ -3760,8 +3761,9 @@ document.getElementById('exportQRLabelsBtn')?.addEventListener('click', () => {
     </script>
   </body></html>`;
   
-  w.document.write(html);
-  w.document.close();
+  const blob = new Blob([html], { type: 'text/html' });
+  const url = URL.createObjectURL(blob);
+  window.open(url, '_blank', 'noopener,noreferrer');
 });
 
 document.getElementById('bulkActionsBtn')?.addEventListener('click', () => {
