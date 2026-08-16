@@ -49,7 +49,7 @@ async function run() {
     
     for (const asset of assets) {
       // Check if it already matches our valid formats (e.g. EQ12, XX-00000)
-      if (/^[A-Z]{2,3}-?\d+$/i.test(asset.numero_serie)) {
+      if (/^[A-Z]{2,4}-\d{4,6}$/i.test(asset.numero_serie)) {
         // If it's already well-formatted, maybe we just leave it alone
         continue;
       }

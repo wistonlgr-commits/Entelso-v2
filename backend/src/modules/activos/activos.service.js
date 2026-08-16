@@ -121,7 +121,7 @@ exports.create = async (data) => {
   let finalOriginalSerial = original_serial ? original_serial.trim() : null;
 
   // Si no hay numero_serie, o si no cumple con el formato estándar, autogeneramos
-  if (!finalNumeroSerie || !/^[A-Z]{2,3}-?\d+$/i.test(finalNumeroSerie)) {
+  if (!finalNumeroSerie || !/^[A-Z]{2,4}-\d{4,6}$/i.test(finalNumeroSerie)) {
     if (finalNumeroSerie) {
       finalOriginalSerial = finalNumeroSerie; // guardamos el serial viejo/csv
     }
