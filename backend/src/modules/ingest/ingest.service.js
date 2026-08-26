@@ -105,14 +105,24 @@ class IngestService {
       let prevUbicacion = null;
 
       if (existing.length === 0) {
-        const ins = await client.query(
-          `INSERT INTO activos (item_id, numero_serie, usuario_actual_id, ubicacion_actual_id, estado)
-           VALUES ($1,$2,$3,$4,$5) RETURNING id`,
-          [itemId, numero_inventario.trim(), nuevoUsuario, nuevaUbicacion, dbStatus]
-        );
-        assetId = ins.rows[0].id;
-        logger.info(`Activo creado: ${numero_inventario}`);
-      } else {
+          // Generar ID automatico (ej. EQ-00001)
+          const pref = 'EQ';
+          const { rows: idRows } = await client.query("SELECT numero_serie FROM activos WHERE numero_serie LIKE $1", [pref + '-%']);
+          let maxNum = 0;
+          for (const r of idRows) {
+            const num = parseInt(r.numero_serie.substring(pref.length + 1), 10);
+            if (!isNaN(num) && num > maxNum) maxNum = num;
+          }
+          const autoId = `${pref}-${String(maxNum + 1).padStart(5, '0')}`;
+
+          const ins = await client.query(
+            `INSERT INTO activos (item_id, numero_serie, original_serial, usuario_actual_id, ubicacion_actual_id, estado)
+             VALUES ($1,$2,$3,$4,$5,$6) RETURNING id`,
+            [itemId, autoId, numero_inventario.trim(), nuevoUsuario, nuevaUbicacion, dbStatus]
+          );
+          assetId = ins.rows[0].id;
+          logger.info(`Activo creado: ${autoId} (Serial: ${numero_inventario})`);
+        } else {
         assetId       = existing[0].id;
         prevUsuario   = existing[0].usuario_actual_id;
         prevUbicacion = existing[0].ubicacion_actual_id;
