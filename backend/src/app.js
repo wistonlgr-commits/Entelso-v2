@@ -26,7 +26,7 @@ app.use('/api/', rateLimit({
 }));
 
 // ── Parseo y logging ─────────────────────────────────────────────────────
-app.use(express.json({ limit: '5mb' }));
+app.use(express.json({ limit: '50mb' }));
 if (env.NODE_ENV !== 'test') {
   app.use(morgan(env.NODE_ENV === 'production' ? 'combined' : 'dev'));
 }
