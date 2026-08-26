@@ -20,8 +20,8 @@ exports.consultar = async (req, reply, next) => {
 exports.asignar = async (req, reply, next) => {
   try {
     const { telefono, pin, numero_inventario, zona } = req.body;
-    if (!telefono || !pin || !numero_inventario) {
-      return reply.status(200).json(res.error('Faltan parámetros: telefono, pin, numero_inventario.'));
+    if (!telefono || !numero_inventario) {
+      return reply.status(200).json(res.error('Faltan parámetros: telefono, numero_inventario.'));
     }
     const data = await svc.asignarEquipo(telefono, pin, numero_inventario, zona);
     reply.json(res.success(data, 'Equipo asignado correctamente.'));
@@ -36,8 +36,8 @@ exports.asignar = async (req, reply, next) => {
 exports.reportarMantenimiento = async (req, reply, next) => {
   try {
     const { telefono, pin, numero_inventario, descripcion } = req.body;
-    if (!telefono || !pin || !numero_inventario || !descripcion) {
-      return reply.status(200).json(res.error('Faltan parámetros: telefono, pin, numero_inventario, descripcion.'));
+    if (!telefono || !numero_inventario || !descripcion) {
+      return reply.status(200).json(res.error('Faltan parámetros: telefono, numero_inventario, descripcion.'));
     }
     const data = await svc.reportarMantenimiento(telefono, pin, numero_inventario, descripcion);
     reply.json(res.success(data, 'Falla reportada correctamente.'));
@@ -76,8 +76,8 @@ exports.subirFoto = async (req, reply, next) => {
 exports.devolverEquipo = async (req, reply, next) => {
   try {
     const { telefono, pin, numero_inventario } = req.body;
-    if (!telefono || !pin || !numero_inventario) {
-      return reply.status(200).json(res.error('Faltan parámetros: telefono, pin, numero_inventario.'));
+    if (!telefono || !numero_inventario) {
+      return reply.status(200).json(res.error('Faltan parámetros: telefono, numero_inventario.'));
     }
     const data = await svc.devolverEquipo(telefono, pin, numero_inventario);
     reply.json(res.success(data, data.mensaje));
@@ -92,8 +92,8 @@ exports.devolverEquipo = async (req, reply, next) => {
 exports.cambiarEstado = async (req, reply, next) => {
   try {
     const { telefono, pin, numero_inventario, nuevo_estado } = req.body;
-    if (!telefono || !pin || !numero_inventario || !nuevo_estado) {
-      return reply.status(200).json(res.error('Faltan parámetros: telefono, pin, numero_inventario, nuevo_estado.'));
+    if (!telefono || !numero_inventario || !nuevo_estado) {
+      return reply.status(200).json(res.error('Faltan parámetros: telefono, numero_inventario, nuevo_estado.'));
     }
     const data = await svc.cambiarEstado(telefono, pin, numero_inventario, nuevo_estado);
     reply.json(res.success(data, data.mensaje));

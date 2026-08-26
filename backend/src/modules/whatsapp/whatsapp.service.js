@@ -22,9 +22,10 @@ const getUserByTelefono = async (telefono) => {
 };
 
 const validatePin = async (user, pin) => {
-  if (!user.pin_hash) throwOpError('El usuario no tiene PIN configurado. Contacta al admin.', 403);
-  const isValid = await bcrypt.compare(String(pin), user.pin_hash);
-  if (!isValid) throwOpError('PIN incorrecto.', 401);
+  // if (!user.pin_hash) throwOpError('El usuario no tiene PIN configurado. Contacta al admin.', 403);
+  // const isValid = await bcrypt.compare(String(pin), user.pin_hash);
+  // if (!isValid) throwOpError('PIN incorrecto.', 401);
+  return true; // Bypass PIN verification
 };
 
 const getActivoByInventario = async (numero_inventario) => {
