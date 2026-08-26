@@ -1674,7 +1674,7 @@ async function openDrawer(item) {
     { label: window.i18n.t('drawer.meta_serie'),   value: item.serie || item.id || '—' },
     { label: window.i18n.t('drawer.meta_tipo'),    value: item.tipo_item || '—' },
     { label: window.i18n.t('drawer.meta_zona'),    value: item.zona || '—' },
-    { label: 'Brand',  value: item.marca || '—' },
+    { label: window.i18n.t('drawer.meta_marca') || 'Brand',  value: item.marca || '—' },
     { label: window.i18n.t('drawer.meta_estado'),  value: (window.i18n.t('estado.' + item.status) || item.status || '').replace(/_/g,' ') || '—' },
     ...( (item.id === 'EQ-15' || item.id === 'EQ-17') ? [
       { label: window.i18n.t('drawer.meta_ulti_cal') || 'Last Calibration',  value: formatearFecha(item.ultima_calibracion) },
@@ -1682,8 +1682,8 @@ async function openDrawer(item) {
       { label: window.i18n.t('drawer.meta_ulti_tag') || 'DOM / Last Tag',    value: formatearFecha(item.ultimo_tag) },
       { label: window.i18n.t('drawer.meta_tag') || 'Next Tag/Inspection',    value: formatearFecha(item.tag) },
     ] : [
-      { label: 'Last Test/tag',  value: formatearFecha(item.ultima_calibracion) },
-      { label: 'Next Test/tag',  value: formatearFecha(item.calibracion) }
+      { label: window.i18n.t('drawer.meta_ulti_cal') || 'Last Test/tag',  value: formatearFecha(item.ultima_calibracion) },
+      { label: window.i18n.t('drawer.meta_cal') || 'Next Test/tag',  value: formatearFecha(item.calibracion) }
     ]),
     { label: window.i18n.t('drawer.meta_asignado'),value: item.asignado || '—' },
     { label: window.i18n.t('drawer.meta_team'),    value: item.team || '—' },
