@@ -42,8 +42,8 @@ const getActivoByInventario = async (numero_inventario) => {
      FROM activos a
      JOIN items i ON a.item_id = i.id
      LEFT JOIN ubicaciones u ON a.ubicacion_actual_id = u.id
-     WHERE a.numero_serie = $1 OR a.original_serial = $1 LIMIT 1`,
-    [numero_inventario]
+     WHERE LOWER(a.numero_serie) = LOWER($1) OR LOWER(a.original_serial) = LOWER($1) LIMIT 1`,
+    [numero_inventario.trim()]
   );
   if (!rows[0]) throwOpError('Número de inventario no existe.', 404);
   return rows[0];
