@@ -1672,6 +1672,7 @@ async function openDrawer(item) {
   metaEl.innerHTML = '';
   const metaFields = [
     { label: window.i18n.t('drawer.meta_serie'),   value: item.serie || item.id || '—' },
+      { label: window.i18n.t('drawer.meta_original_serial') || 'Original Serial', value: item.original_serial || '—' },
     { label: window.i18n.t('drawer.meta_tipo'),    value: item.tipo_item || '—' },
     { label: window.i18n.t('drawer.meta_zona'),    value: item.zona || '—' },
     { label: window.i18n.t('drawer.meta_marca') || 'Brand',  value: item.marca || '—' },
