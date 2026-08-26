@@ -116,9 +116,9 @@ class IngestService {
           const autoId = `${pref}-${String(maxNum + 1).padStart(5, '0')}`;
 
           const ins = await client.query(
-            `INSERT INTO activos (item_id, numero_serie, original_serial, usuario_actual_id, ubicacion_actual_id, estado)
-             VALUES ($1,$2,$3,$4,$5,$6) RETURNING id`,
-            [itemId, autoId, numero_inventario.trim(), nuevoUsuario, nuevaUbicacion, dbStatus]
+            `INSERT INTO activos (item_id, numero_serie, original_serial, usuario_actual_id, ubicacion_actual_id, estado, team)
+             VALUES ($1,$2,$3,$4,$5,$6,$7) RETURNING id`,
+            [itemId, autoId, numero_inventario.trim(), nuevoUsuario, nuevaUbicacion, dbStatus, team || null]
           );
           assetId = ins.rows[0].id;
           logger.info(`Activo creado: ${autoId} (Serial: ${numero_inventario})`);
@@ -126,10 +126,10 @@ class IngestService {
         assetId       = existing[0].id;
         prevUsuario   = existing[0].usuario_actual_id;
         prevUbicacion = existing[0].ubicacion_actual_id;
-        await client.query(
-          'UPDATE activos SET usuario_actual_id=$1, ubicacion_actual_id=$2, estado=$3 WHERE id=$4',
-          [nuevoUsuario, nuevaUbicacion, dbStatus, assetId]
-        );
+          await client.query(
+            'UPDATE activos SET usuario_actual_id=$1, ubicacion_actual_id=$2, estado=$3, team=COALESCE($4, team) WHERE id=$5',
+            [nuevoUsuario, nuevaUbicacion, dbStatus, team || null, assetId]
+          );
         logger.info(`Activo actualizado: ${numero_inventario} → ${dbStatus}`);
       }
 
