@@ -1071,11 +1071,11 @@ const TRANSLATIONS = {
 };
 
 /* ── i18n Engine ─────────────────────────────────────── */
-let _currentLang = localStorage.getItem('entelso_lang') || 'en';
-if (!localStorage.getItem('entelso_lang_set_v7')) {
-  _currentLang = 'en';
-  localStorage.setItem('entelso_lang', 'en');
-  localStorage.setItem('entelso_lang_set_v7', '1');
+let _currentLang = localStorage.getItem('entelso_lang') || 'es';
+if (!localStorage.getItem('entelso_lang_set_v8')) {
+  _currentLang = 'es';
+  localStorage.setItem('entelso_lang', 'es');
+  localStorage.setItem('entelso_lang_set_v8', '1');
 }
 
 /** Translate a key. If not found, returns the key itself */
