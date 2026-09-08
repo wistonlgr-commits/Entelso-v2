@@ -9,22 +9,22 @@ const getUserByTelefono = async (telefono) => {
   // Sanitizar extrayendo estrictamente dígitos numéricos para evitar SQL Injection (%, _, etc)
   const cleanPhone = String(telefono).replace(/\D/g, '');
   if (cleanPhone.length < 8) {
-    throwOpError('Número de teléfono inválido o muy corto.', 400);
+    throwOpError('Invalid or too short phone number.', 400);
   }
   
   const { rows } = await db.query(
     "SELECT id, nombre, pin_hash, activo, en_terreno FROM usuarios WHERE regexp_replace(telefono_whatsapp, '\\D', '', 'g') LIKE $1 LIMIT 1",
     [`%${cleanPhone}`]
   );
-  if (!rows[0]) throwOpError('Usuario no registrado o teléfono no encontrado.', 404);
-  if (!rows[0].activo) throwOpError('Usuario inactivo.', 403);
+  if (!rows[0]) throwOpError('User not registered or phone not found.', 404);
+  if (!rows[0].activo) throwOpError('Inactive user.', 403);
   return rows[0];
 };
 
 const validatePin = async (user, pin) => {
-  // if (!user.pin_hash) throwOpError('El usuario no tiene PIN configurado. Contacta al admin.', 403);
+  // if (!user.pin_hash) throwOpError('User does not have a PIN configured. Contact admin.', 403);
   // const isValid = await bcrypt.compare(String(pin), user.pin_hash);
-  // if (!isValid) throwOpError('PIN incorrecto.', 401);
+  // if (!isValid) throwOpError('Incorrect PIN.', 401);
   return true; // Bypass PIN verification
 };
 
@@ -45,7 +45,7 @@ const getActivoByInventario = async (numero_inventario) => {
      WHERE LOWER(a.numero_serie) = LOWER($1) OR LOWER(a.original_serial) = LOWER($1) LIMIT 1`,
     [numero_inventario.trim()]
   );
-  if (!rows[0]) throwOpError('Número de inventario no existe.', 404);
+  if (!rows[0]) throwOpError('Inventory number does not exist.', 404);
   return rows[0];
 };
 
@@ -69,10 +69,10 @@ exports.asignarEquipo = async (telefono, pin, numero_inventario, zonaInput) => {
   const activo = await getActivoByInventario(numero_inventario);
 
   if (activo.estado === 'en_mantenimiento' || activo.estado === 'fuera_de_servicio' || activo.estado === 'danado') {
-    throwOpError(`No se puede asignar un equipo en estado: ${activo.estado}`);
+    throwOpError(`Cannot assign equipment in status: ${activo.estado}`);
   }
 
-  const zona = zonaInput || activo.zona || 'Terreno';
+  const zona = zonaInput || activo.zona || 'General';
 
   // Registrar el movimiento
   const client = await db.pool.connect();
@@ -90,7 +90,7 @@ exports.asignarEquipo = async (telefono, pin, numero_inventario, zonaInput) => {
         $1, $2, 1, 'despacho', $3, NULL, $4
       ) RETURNING id
     `;
-    await client.query(movQuery, [activo.id, user.id, ubiId, `Asignado vía WhatsApp a zona: ${zona}`]);
+    await client.query(movQuery, [activo.id, user.id, ubiId, `Assigned via WhatsApp to zone: ${zona}`]);
 
     // Actualizar estado del activo (Asignado a usuario, limpiando ubicación física)
     await client.query(
@@ -150,7 +150,7 @@ exports.subirFoto = async (telefono, pin, numero_inventario, base64_image, mimet
   // Verificar límite de fotos
   const countRes = await db.query('SELECT jsonb_array_length(COALESCE(fotos, \'[]\'::jsonb)) as count FROM activos WHERE id = $1', [activo.id]);
   if (countRes.rows[0].count >= 5) {
-    throw Object.assign(new Error('Límite máximo de 5 fotos alcanzado para este equipo.'), { isOperational: true });
+    throw Object.assign(new Error('Maximum limit of 5 photos reached for this equipment.'), { isOperational: true });
   }
 
   // Convertir base64 a buffer
@@ -176,7 +176,7 @@ exports.devolverEquipo = async (telefono, pin, numero_inventario) => {
   const activo = await getActivoByInventario(numero_inventario);
 
   if (activo.usuario_actual_id !== user.id && user.rol !== 'admin') {
-    throw Object.assign(new Error(`El equipo no está asignado a ti.`), { isOperational: true });
+    throw Object.assign(new Error(`This equipment is not assigned to you.`), { isOperational: true });
   }
 
   const client = await db.pool.connect();
@@ -184,11 +184,11 @@ exports.devolverEquipo = async (telefono, pin, numero_inventario) => {
     await client.query('BEGIN');
     await client.query(
       'INSERT INTO movimientos (item_id, activo_id, usuario_id, tipo_movimiento, observacion) VALUES ($1, $2, $3, $4, $5)',
-      [activo.item_id, activo.id, user.id, 'devolucion', 'Devuelto vía WhatsApp']
+      [activo.item_id, activo.id, user.id, 'devolucion', 'Returned via WhatsApp']
     );
     await client.query("UPDATE activos SET estado = 'disponible', usuario_actual_id = NULL WHERE id = $1", [activo.id]);
     await client.query('COMMIT');
-    return { success: true, equipo: activo.equipo_nombre, mensaje: 'Equipo devuelto correctamente.' };
+    return { success: true, equipo: activo.equipo_nombre, mensaje: 'Equipment returned successfully.' };
   } catch (err) {
     await client.query('ROLLBACK');
     throw err;
@@ -204,11 +204,11 @@ exports.cambiarEstado = async (telefono, pin, numero_inventario, nuevo_estado) =
 
   const estadosValidos = ['disponible', 'en_uso', 'en_mantenimiento', 'calibracion_pendiente', 'fuera_de_servicio', 'calibrado', 'danado'];
   if (!estadosValidos.includes(nuevo_estado)) {
-    throw Object.assign(new Error(`Estado inválido. Valores permitidos: ${estadosValidos.join(', ')}`), { isOperational: true });
+    throw Object.assign(new Error(`Invalid status. Allowed values: ${estadosValidos.join(', ')}`), { isOperational: true });
   }
 
   await db.query("UPDATE activos SET estado = $1 WHERE id = $2", [nuevo_estado, activo.id]);
-  return { success: true, equipo: activo.equipo_nombre, nuevo_estado, mensaje: 'Estado actualizado correctamente.' };
+  return { success: true, equipo: activo.equipo_nombre, nuevo_estado, mensaje: 'Status updated successfully.' };
 };
 
 exports.consultarKit = async (numero_inventario) => {
@@ -222,7 +222,7 @@ exports.consultarKit = async (numero_inventario) => {
   `, [activo.id]);
 
   if (childRows.length === 0) {
-    return { success: true, equipo: activo.equipo_nombre, notas: activo.notas, contenido: [], mensaje: 'El kit no tiene ítems registrados o no es un kit.' };
+    return { success: true, equipo: activo.equipo_nombre, notas: activo.notas, contenido: [], mensaje: 'The kit has no registered items or is not a kit.' };
   }
 
   return { 

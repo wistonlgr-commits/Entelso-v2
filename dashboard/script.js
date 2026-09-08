@@ -221,7 +221,7 @@ document.getElementById('loginForm').addEventListener('submit', async (e) => {
     // Login exitoso — guardar token y usuario
     session.save(data.data.token, data.data.usuario);
     actualizarInfoUsuario(data.data.usuario);
-    registrarAuditLog('Inició sesión en el sistema');
+    registrarAuditLog('login');
     const urlParams = new URLSearchParams(window.location.search);
     const redirectUrl = urlParams.get('redirect');
     if (redirectUrl && ['manual.html', 'video_dashboard.html', 'video_whatsapp.html'].includes(redirectUrl)) {
@@ -549,7 +549,7 @@ async function registrarAuditLog(accion, meta = null) {
       cargarAuditLog();
     }
   } catch (err) {
-    console.error('Error registrando auditoría:', err.message);
+    console.error('Error registering audit log:', err.message);
   }
 }
 
@@ -811,7 +811,7 @@ const VALID_ZONES = ['VIC', 'NSW', 'QLD', 'SA', 'WA'];
 function getNormalizedZone(zonaStr) {
   if (!zonaStr) return 'Unknown';
   const trimmed = String(zonaStr).trim();
-  if (!trimmed || trimmed === '—' || trimmed === '-' || trimmed.toLowerCase() === 'sin zona') return 'Unknown';
+  if (!trimmed || trimmed === '—' || trimmed === '-' || trimmed.toLowerCase() === 'sin zona' || trimmed.toLowerCase() === 'general') return 'Unknown';
   const matched = VALID_ZONES.find(z => z.toLowerCase() === trimmed.toLowerCase());
   return matched || 'Unknown';
 }
@@ -1026,6 +1026,26 @@ function actualizarKPIs() {
   document.getElementById('kpi-calibracion').textContent   = calibPend;
   document.getElementById('kpi-mantenimiento').textContent = mantenim;
   document.getElementById('kpi-disponibilidad').textContent = `${pct}%`;
+
+  // Registered Today & This Week counters
+  const todayStr = new Date().toISOString().slice(0, 10);
+  const now = new Date();
+  const startOfWeek = new Date(now);
+  startOfWeek.setDate(now.getDate() - now.getDay());
+  startOfWeek.setHours(0, 0, 0, 0);
+
+  const regToday = inventoryData.filter(a => {
+    const d = a._raw?.fecha_registro || a.fecha;
+    return d && String(d).slice(0, 10) === todayStr;
+  }).length;
+  const regWeek = inventoryData.filter(a => {
+    const d = a._raw?.fecha_registro || a.fecha;
+    return d && new Date(d) >= startOfWeek;
+  }).length;
+
+  const safeKpi = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
+  safeKpi('kpi-reg-today', regToday);
+  safeKpi('kpi-reg-week', regWeek);
 
   // Badge de mantenimiento
   document.getElementById('badge-mantenimiento').textContent = mantenim + calibPend;
@@ -1491,13 +1511,13 @@ function inicializarPerfil() {
     try {
       const res = await apiFetch(`/api/usuarios/${id}`, { method: 'DELETE' });
       if (res.ok) {
-        window.customAlert(window.i18n.t('usuarios.eliminado') || "Usuario eliminado");
+        window.customAlert(window.i18n.t('usuarios.eliminado') || "User deleted");
         cargarUsuariosAdministracion();
         cargarUsuarios();
       } else {
-        window.customAlert(window.i18n.t('usuarios.err_eliminar') || "Error al eliminar");
+        window.customAlert(window.i18n.t('usuarios.err_eliminar') || "Error deleting");
       }
-    } catch(e) { window.customAlert(window.i18n.t('seg.err_red') || "Error de red"); }
+    } catch(e) { window.customAlert(window.i18n.t('seg.err_red') || "Network error"); }
   };
 
   // Add User Modal
@@ -1526,14 +1546,14 @@ function inicializarPerfil() {
     const password = document.getElementById('addUserPassword').value;
 
     if (!nombre || !password) {
-      msgEl.textContent = 'El nombre y la contraseña/PIN son obligatorios.';
+      msgEl.textContent = 'Name and password/PIN are required.';
       msgEl.className = 'modal-msg error';
       msgEl.style.display = 'block';
       return;
     }
 
     if (password.length < 4) {
-      msgEl.textContent = 'La contraseña/PIN debe tener al menos 4 caracteres.';
+      msgEl.textContent = 'Password/PIN must be at least 4 characters.';
       msgEl.className = 'modal-msg error';
       msgEl.style.display = 'block';
       return;
@@ -1564,7 +1584,7 @@ function inicializarPerfil() {
           });
           msgEl.style.display = 'none';
           btn.disabled = false;
-          btn.textContent = 'Crear Usuario';
+          btn.textContent = 'Create User';
           cargarUsuariosAdministracion();
           cargarUsuarios();
         }, 1500);
@@ -1576,7 +1596,7 @@ function inicializarPerfil() {
       msgEl.className = 'modal-msg error';
       msgEl.style.display = 'block';
       btn.disabled = false;
-      btn.textContent = 'Crear Usuario';
+      btn.textContent = 'Create User';
     }
   });
   const menuAudit = document.getElementById('menuAudit');
@@ -1643,7 +1663,7 @@ window.openDrawerAsset = function(id) {
     document.querySelector('.nav-item[data-view="inventario"]')?.classList.add('active');
     openDrawer(asset);
   } else {
-    window.customAlert(window.i18n.t('drawer.no_encontrado') || "No se encontró el equipo en el inventario.");
+    window.customAlert(window.i18n.t('drawer.no_encontrado') || "Equipment not found in inventory.");
   }
 };
 
@@ -1801,22 +1821,22 @@ async function openDrawer(item) {
         if (mov.tipo_movimiento === 'ingreso') icon = 'fa-arrow-left';
         if (mov.tipo_movimiento === 'cambio_estado') icon = 'fa-rotate';
 
-        let actionText = mov.tipo_movimiento.replace('_', ' ').toUpperCase();
-        let detailText = `Por: ${mov.nombre_usuario}`;
+        let actionText = window.i18n.t('mov.' + mov.tipo_movimiento) || mov.tipo_movimiento.replace('_', ' ').toUpperCase();
+        let detailText = `By: ${mov.nombre_usuario}`;
         
         if (mov.ubicacion_origen && mov.ubicacion_destino) {
-          detailText += ` | De: ${mov.ubicacion_origen} ➔ A: ${mov.ubicacion_destino}`;
+          detailText += ` | From: ${mov.ubicacion_origen} ➔ To: ${mov.ubicacion_destino}`;
         } else if (mov.ubicacion_destino) {
-          detailText += ` | A: ${mov.ubicacion_destino}`;
+          detailText += ` | To: ${mov.ubicacion_destino}`;
         }
 
         timelineEl.innerHTML += `
           <div class="timeline-item">
             <div class="timeline-dot ${dotColor}"><i class="fa-solid ${icon}"></i></div>
             <div class="timeline-body">
-              <div class="timeline-event">${actionText} (Cant: ${mov.cantidad})</div>
+              <div class="timeline-event">${actionText} (Qty: ${mov.cantidad})</div>
               <div class="timeline-detail">${detailText}</div>
-              <div class="timeline-date">${new Date(mov.fecha_movimiento).toLocaleString('es-VE')}</div>
+              <div class="timeline-date">${new Date(mov.fecha_movimiento).toLocaleString('en-AU')}</div>
             </div>
           </div>
         `;
@@ -2054,7 +2074,7 @@ function inicializarImportModal() {
 
       previewArea.style.display = 'block';
       submitBtn.disabled = false;
-      msgEl.textContent = `${parsedData.length} equipos listos para importar.`;
+      msgEl.textContent = `${parsedData.length} items ready to import.`;
       msgEl.className = 'modal-msg success';
       msgEl.style.display = 'block';
 
@@ -2084,7 +2104,7 @@ function inicializarImportModal() {
         await cargarActivos();
         setTimeout(() => closeModal(), 2000);
       } else {
-        msgEl.textContent = data.message || 'Error en la importación.';
+        msgEl.textContent = data.message || 'Import error.';
         msgEl.className = 'modal-msg error';
         msgEl.style.display = 'block';
         submitBtn.disabled = false;
@@ -2239,10 +2259,10 @@ function inicializarModal() {
             fotoGallery.appendChild(img);
           });
         } else {
-          fotoStatus.textContent = 'Error: ' + (data.message || 'Error al subir');
+          fotoStatus.textContent = 'Error: ' + (data.message || 'Upload error');
         }
       } catch (err) {
-        fotoStatus.textContent = 'Error de red al subir la imagen.';
+        fotoStatus.textContent = 'Network error uploading image.';
       }
       fotoInput.value = ''; // reset
     });
@@ -2259,7 +2279,7 @@ function inicializarModal() {
         const json = await res.json();
         // If it succeeds, the item already exists!
         if (json.success && json.data) {
-          msgEl.textContent = window.i18n.t('modal.err_duplicado') || `¡Atención! Ya existe un equipo con el serial ${val}`;
+          msgEl.textContent = window.i18n.t('modal.err_duplicado') || `Warning! An equipment with serial ${val} already exists`;
           msgEl.className = 'modal-msg error';
           msgEl.style.display = 'block';
         } else {
@@ -2515,7 +2535,7 @@ window.simularIngresoEquipo = function(equipo, estado = 'disponible', zona = 'VI
   const newId = 'INV-' + (2800 + Math.floor(Math.random() * 1000));
   const newItem = {
     id: newId,
-    equipo: equipo || 'Herramienta de Prueba',
+    equipo: equipo || 'Test Tool',
     zona: zona,
     team: 'Testing',
     status: estado,
@@ -2524,7 +2544,7 @@ window.simularIngresoEquipo = function(equipo, estado = 'disponible', zona = 'VI
     modelo: 'Demo-100',
     serie: 'TEST-' + Math.floor(Math.random() * 10000),
     calibracion: '',
-    asignado: 'Automático (Bot)'
+    asignado: 'Automatic (Bot)'
   };
   
   inventoryData.unshift(newItem); // Añadir al array local
@@ -2731,7 +2751,7 @@ if (confirmExportBtn) {
 
 function exportarExcel() {
   if (typeof XLSX === 'undefined') {
-    window.customAlert(window.i18n.t('drawer.err_red') || "Librería de Excel no disponible.");
+    window.customAlert(window.i18n.t('drawer.err_red') || "Excel library not available.");
     return;
   }
   const dataToExport = window.currentFilteredData || inventoryData;
@@ -2845,7 +2865,7 @@ function exportarExcel() {
   ws['!rows'] = [{ hpt: 30 }, { hpt: 18 }, { hpt: 12 }, { hpt: 22 }, ...rows.map(() => ({ hpt: 20 }))];
 
   const wb = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb, ws, 'Inventario');
+  XLSX.utils.book_append_sheet(wb, ws, 'Inventory');
   const fileName = `Entelso_Inventario_${new Date().toISOString().slice(0,10)}.xlsx`;
   XLSX.writeFile(wb, fileName);
 }
@@ -2863,9 +2883,9 @@ window.eliminarActivo = async function(db_id) {
     if(!await window.customConfirm(window.i18n.t('drawer.confirm_delete') || 'Are you sure you want to delete this asset?')) return;
     try {
         await apiFetch(`/api/activos/${db_id}`, { method: 'DELETE' });
-        window.customAlert(window.i18n.t('drawer.eliminado') || "Eliminado");
+        window.customAlert(window.i18n.t('drawer.eliminado') || "Deleted");
         await cargarActivos();
-    } catch(e) { window.customAlert(window.i18n.t('drawer.err_eliminar') || "Error eliminando"); }
+    } catch(e) { window.customAlert(window.i18n.t('drawer.err_eliminar') || "Error deleting"); }
 };
 
 window.actualizarEstadoHerramienta = async function(db_id, newState) {
@@ -2876,9 +2896,9 @@ window.actualizarEstadoHerramienta = async function(db_id, newState) {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ estado: newState })
         });
-        window.customAlert(window.i18n.t('drawer.estado_ok') || "Estado actualizado");
+        window.customAlert(window.i18n.t('drawer.estado_ok') || "Status updated");
         await cargarActivos();
-    } catch(e) { window.customAlert(window.i18n.t('drawer.err_actualizar') || "Error actualizando"); }
+    } catch(e) { window.customAlert(window.i18n.t('drawer.err_actualizar') || "Error updating"); }
 };
 
 const saveCategoryBtn = document.getElementById('saveCategoryBtn');
@@ -3294,7 +3314,7 @@ async function cargarUbicaciones() {
       }
     }
   } catch (e) {
-    console.warn('No se pudieron cargar ubicaciones:', e.message);
+    console.warn('Could not load locations:', e.message);
   }
 }
 
@@ -3326,7 +3346,7 @@ if (btnCambiarPass) {
         document.getElementById('segPassNueva').value = '';
         document.getElementById('segPassConfirmar').value = '';
       } else {
-        window.customAlert((window.i18n.t('api.error_prefix') || 'Error: ') + (json.message || (json.error && json.error.message) || "No se pudo actualizar"));
+        window.customAlert((window.i18n.t('api.error_prefix') || 'Error: ') + (json.message || (json.error && json.error.message) || "Could not update"));
       }
     } catch (e) {
       window.customAlert(window.i18n.t('seg.err_red'));

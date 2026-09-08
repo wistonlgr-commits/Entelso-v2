@@ -72,7 +72,7 @@ class IngestService {
       // 1. Usuario — si no existe, se auto-crea con su número de WhatsApp y su team
       const userId = await buscarOCrear(
         client, 'usuarios', 'telefono_whatsapp', whatsapp_number,
-        { nombre: `Técnico (${whatsapp_number})`, telefono_whatsapp: whatsapp_number, rol: 'trabajador', team: team || null }
+        { nombre: `Technician (${whatsapp_number})`, telefono_whatsapp: whatsapp_number, rol: 'trabajador', team: team || null }
       );
 
       // 2. Item del catálogo
@@ -82,10 +82,10 @@ class IngestService {
       );
 
       // 3. Ubicación (zona del WhatsApp)
-      const zonaName = zona ? zona.trim() : 'Sin zona';
+      const zonaName = zona ? zona.trim() : 'General';
       const locId = await buscarOCrear(
         client, 'ubicaciones', 'nombre_ubicacion', zonaName,
-        { nombre_ubicacion: zonaName, descripcion: `Auto-creada por reporte WhatsApp (${zonaName})` }
+        { nombre_ubicacion: zonaName, descripcion: `Auto-created via WhatsApp report (${zonaName})` }
       );
 
       // 4. Determinar asignación:
