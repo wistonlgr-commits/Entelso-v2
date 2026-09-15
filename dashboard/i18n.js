@@ -87,6 +87,8 @@ const TRANSLATIONS = {
     'kpi.con_equipo':      'With Assigned Equipment',
     'kpi.sin_asig':        'Unassigned',
     'kpi.teams_activos':   'Active Teams',
+    'kpi.reg_today':       'Registered Today',
+    'kpi.reg_week':        'Registered This Week',
 
     // ── Dashboard view ──
     'dash.zona.title':     'Distribution by Zone',
@@ -616,6 +618,8 @@ const TRANSLATIONS = {
     'kpi.con_equipo':      'Con Equipo Asignado',
     'kpi.sin_asig':        'Sin Asignación',
     'kpi.teams_activos':   'Equipos (Teams) Activos',
+    'kpi.reg_today':       'Registrados Hoy',
+    'kpi.reg_week':        'Registrados Esta Semana',
 
     // ── Dashboard view ──
     'dash.zona.title':     'Distribución por Zona',

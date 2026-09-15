@@ -952,7 +952,7 @@ function renderizarAlertas(data) {
           }
           alertasGeneradas.push({
             id: a.id,
-            equipo: window.i18n.t('alertas.en_dias') ? window.i18n.t('alertas.en_dias').replace('{label}', window.i18n.t(label) || label).replace('{days}', diffDays) : `${label} en ${diffDays} días`,
+            equipo: window.i18n.t('alertas.en_dias') ? window.i18n.t('alertas.en_dias').replace('{label}', window.i18n.t(label) || label).replace('{days}', diffDays) : `${label} due in ${diffDays} days`,
             zona: window.i18n.t('alertas.msg_dias') ? `<span style="color:var(--warn-text, #b8860b)">${window.i18n.t('alertas.msg_dias').replace('{label}', window.i18n.t(label) || label)}</span>` : `<span style="color:var(--warn-text, #b8860b)">The date is approaching. Schedule the ${label} and update the date in the asset panel.</span>`,
             status: a.status,
             fecha: dateStr,
@@ -962,7 +962,7 @@ function renderizarAlertas(data) {
         } else if (diffDays <= 0) {
           alertasGeneradas.push({
             id: a.id,
-            equipo: window.i18n.t('alertas.vencida') ? window.i18n.t('alertas.vencida').replace('{label}', window.i18n.t(label) || label) : `${label} Vencida`,
+            equipo: window.i18n.t('alertas.vencida') ? window.i18n.t('alertas.vencida').replace('{label}', window.i18n.t(label) || label) : `${label} Expired`,
             zona: window.i18n.t('alertas.msg_vencida') ? `<span style="color:var(--danger)">${window.i18n.t('alertas.msg_vencida').replace('{label}', window.i18n.t(label) || label)}</span>` : `<span style="color:var(--danger)">The deadline has passed. Update the ${label} date in the asset panel to resolve.</span>`,
             status: a.status,
             fecha: dateStr,
@@ -1028,19 +1028,23 @@ function actualizarKPIs() {
   document.getElementById('kpi-disponibilidad').textContent = `${pct}%`;
 
   // Registered Today & This Week counters
-  const todayStr = new Date().toISOString().slice(0, 10);
   const now = new Date();
+  const todayLocal = now.toLocaleDateString('en-CA'); // YYYY-MM-DD in local timezone
   const startOfWeek = new Date(now);
-  startOfWeek.setDate(now.getDate() - now.getDay());
+  const dayOfWeek = now.getDay();
+  startOfWeek.setDate(now.getDate() - (dayOfWeek === 0 ? 6 : dayOfWeek - 1)); // Monday start
   startOfWeek.setHours(0, 0, 0, 0);
 
   const regToday = inventoryData.filter(a => {
-    const d = a._raw?.fecha_registro || a.fecha;
-    return d && String(d).slice(0, 10) === todayStr;
+    const d = a._raw?.fecha_registro;
+    if (!d) return false;
+    return new Date(d).toLocaleDateString('en-CA') === todayLocal;
   }).length;
   const regWeek = inventoryData.filter(a => {
-    const d = a._raw?.fecha_registro || a.fecha;
-    return d && new Date(d) >= startOfWeek;
+    const d = a._raw?.fecha_registro;
+    if (!d) return false;
+    const dt = new Date(d);
+    return dt >= startOfWeek && dt <= now;
   }).length;
 
   const safeKpi = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
@@ -2559,7 +2563,7 @@ window.simularIngresoEquipo = function(equipo, estado = 'disponible', zona = 'VI
   // Mostrar notificación básica
   console.log(`✅ Nuevo equipo detectado vía WhatsApp: ${newItem.id} - ${newItem.equipo}`);
   
-  const msgTemplate = window.i18n.t('simulacion.exito') || `¡Simulación Exitosa!\n\nSe ha detectado un nuevo reporte:\nID: {id}\nEquipo: {equipo}\nEstado: {estado}\n\nLos paneles, KPIs y tablas se han actualizado automáticamente.`;
+  const msgTemplate = window.i18n.t('simulacion.exito') || `Simulation Successful!\n\nNew report detected:\nID: {id}\nEquipment: {equipo}\nStatus: {estado}\n\nPanels, KPIs and tables have been updated automatically.`;
 const msg = msgTemplate.replace('{id}', newId).replace('{equipo}', newItem.equipo).replace('{estado}', estado);
   window.customAlert(msg);
 
@@ -2583,7 +2587,7 @@ window.marcarMantenimientoAtendido = async function(id) {
       });
     }
 
-    window.customAlert((window.i18n.t('maint.atendido_ok') || "Equipo {0} marcado como atendido con éxito.").replace('{0}', id));
+    window.customAlert((window.i18n.t('maint.atendido_ok') || "Equipment {0} marked as resolved successfully.").replace('{0}', id));
     // Recargar vista desde backend real
     await cargarActivos();
     
@@ -3010,6 +3014,10 @@ window.editarEmpleado = async function(userId) {
       modal = div.firstElementChild;
       document.body.appendChild(modal);
     }
+
+    // Populate dropdowns first (modal is dynamic, selects are empty on first mount)
+    if (typeof populateTeamSelects === 'function') populateTeamSelects();
+    if (typeof populateZonaSelects === 'function') populateZonaSelects();
 
     // Populate
     document.getElementById('editUserNombre').value = u.nombre || '';
