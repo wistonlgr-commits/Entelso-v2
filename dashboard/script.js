@@ -1543,6 +1543,7 @@ function inicializarPerfil() {
     const telefono = document.getElementById('addUserPhone').value.trim();
     const rol      = document.getElementById('addUserRole').value;
     const team     = document.getElementById('addUserTeam')?.value || '';
+    const default_zona = document.getElementById('addUserDefaultZona')?.value || '';
     const password = document.getElementById('addUserPassword').value;
 
     if (!nombre || !password) {
@@ -1563,7 +1564,7 @@ function inicializarPerfil() {
     btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> ${window.i18n.t('btn.creando') || 'Creating...'}`;
 
     try {
-      const payload = { nombre, email: email || undefined, telefono_whatsapp: telefono || undefined, rol, team: team || undefined, password };
+      const payload = { nombre, email: email || undefined, telefono_whatsapp: telefono || undefined, rol, team: team || undefined, default_zona: default_zona || undefined, password };
       const res = await apiFetch('/api/usuarios', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -2982,6 +2983,9 @@ window.editarEmpleado = async function(userId) {
                 <div class="form-group"><label data-i18n="usuarios.edit_team">${window.i18n.t('usuarios.edit_team') || 'Team'}</label>
                   <select id="editUserTeam" class="form-input"></select>
                 </div>
+                <div class="form-group"><label data-i18n="usuarios.default_zona">${window.i18n.t('usuarios.default_zona') || 'Default Zone'}</label>
+                  <select id="editUserDefaultZona" class="form-input"></select>
+                </div>
                 <div class="form-group"><label data-i18n="usuarios.edit_rol">${window.i18n.t('usuarios.edit_rol') || 'Role'}</label>
                   <select id="editUserRol" class="form-input">
                     <option value="trabajador">${window.i18n.t('usuarios.edit_rol_trabajador') || 'Worker'}</option>
@@ -3012,6 +3016,7 @@ window.editarEmpleado = async function(userId) {
     document.getElementById('editUserEmail').value  = u.email  || '';
     document.getElementById('editUserPhone').value  = u.telefono_whatsapp  || '';
     document.getElementById('editUserTeam').value   = u.team   || '';
+    document.getElementById('editUserDefaultZona').value = u.default_zona || '';
     document.getElementById('editUserRol').value    = u.rol    || 'trabajador';
     document.getElementById('editUserTerreno').checked = u.en_terreno === true;
     document.getElementById('editUserPin').value    = '';
@@ -3023,6 +3028,7 @@ window.editarEmpleado = async function(userId) {
         email:  document.getElementById('editUserEmail').value.trim() || null,
         telefono_whatsapp: document.getElementById('editUserPhone').value.trim() || null,
         team:   document.getElementById('editUserTeam').value || null,
+        default_zona: document.getElementById('editUserDefaultZona').value || null,
         rol:    document.getElementById('editUserRol').value,
         en_terreno: document.getElementById('editUserTerreno').checked,
       };
@@ -3628,6 +3634,7 @@ async function loadZonas() {
 
 function populateZonaSelects() {
     const opts = window.zonasList.map(z => `<option value="${z.id}">${z.nombre_ubicacion}</option>`).join('');
+    const optsByName = window.zonasList.map(z => `<option value="${z.nombre_ubicacion}">${z.nombre_ubicacion}</option>`).join('');
     
     const mz = document.getElementById('modalZona');
     if (mz) mz.innerHTML = `<option value="" data-i18n="filter.todas_zonas">${window.i18n.t('filter.todas_zonas')}</option>` + opts;
@@ -3640,6 +3647,12 @@ function populateZonaSelects() {
 
     const bz = document.getElementById('bulkZonaSelect');
     if (bz) bz.innerHTML = `<option value="" data-i18n="usuarios.sin_zona">${window.i18n.t('usuarios.sin_zona') || 'No Zone'}</option>` + opts;
+
+    const addZ = document.getElementById('addUserDefaultZona');
+    if (addZ) addZ.innerHTML = `<option value="" data-i18n="usuarios.sin_zona">${window.i18n.t('usuarios.sin_zona') || 'No Zone'}</option>` + optsByName;
+
+    const editZ = document.getElementById('editUserDefaultZona');
+    if (editZ) editZ.innerHTML = `<option value="" data-i18n="usuarios.sin_zona">${window.i18n.t('usuarios.sin_zona') || 'No Zone'}</option>` + optsByName;
 }
 
 window.openManageZonas = function() {

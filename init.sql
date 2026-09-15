@@ -44,6 +44,7 @@ CREATE TABLE usuarios (
     email             VARCHAR(150) UNIQUE,
     rol               VARCHAR(50)  NOT NULL DEFAULT 'trabajador',
     team              VARCHAR(80),          -- Transmission, Energy, Networks, etc.
+    default_zona      VARCHAR(100),         -- Zona por defecto para el bot de WhatsApp
     pin_hash          VARCHAR(255),         -- PIN/contraseña hasheado con bcrypt
     secret_2fa        VARCHAR(64),
     is_2fa_enabled    BOOLEAN NOT NULL DEFAULT FALSE,

@@ -70,10 +70,18 @@ class IngestService {
       await client.query('BEGIN');
 
       // 1. Usuario — si no existe, se auto-crea con su número de WhatsApp y su team
-      const userId = await buscarOCrear(
-        client, 'usuarios', 'telefono_whatsapp', whatsapp_number,
-        { nombre: `Technician (${whatsapp_number})`, telefono_whatsapp: whatsapp_number, rol: 'trabajador', team: team || null }
-      );
+      let defaultZonaStr = null;
+      let userId;
+      const { rows: existUser } = await client.query("SELECT id, default_zona FROM usuarios WHERE telefono_whatsapp = $1 LIMIT 1", [whatsapp_number]);
+      if (existUser.length > 0) {
+        userId = existUser[0].id;
+        defaultZonaStr = existUser[0].default_zona;
+      } else {
+        userId = await buscarOCrear(
+          client, 'usuarios', 'telefono_whatsapp', whatsapp_number,
+          { nombre: `Technician (${whatsapp_number})`, telefono_whatsapp: whatsapp_number, rol: 'trabajador', team: team || null }
+        );
+      }
 
       // 2. Item del catálogo
       const itemId = await buscarOCrear(
@@ -82,7 +90,7 @@ class IngestService {
       );
 
       // 3. Ubicación (zona del WhatsApp)
-      const zonaName = zona ? zona.trim() : 'General';
+      const zonaName = zona ? zona.trim() : (defaultZonaStr || 'General');
       const locId = await buscarOCrear(
         client, 'ubicaciones', 'nombre_ubicacion', zonaName,
         { nombre_ubicacion: zonaName, descripcion: `Auto-created via WhatsApp report (${zonaName})` }

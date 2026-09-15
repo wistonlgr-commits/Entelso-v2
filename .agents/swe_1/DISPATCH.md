@@ -1,7 +1,4 @@
-# Original User Request
-
-## Initial Request — 2026-08-25T18:39:02-07:00
-
+## 2026-08-25T18:39:02-07:00
 You are the SWE Light Orchestrator for this task.
 
 Working Directory: c:\Users\Leor\Desktop\Entelso\.agents\swe_1

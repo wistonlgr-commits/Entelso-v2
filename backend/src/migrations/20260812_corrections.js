@@ -4,6 +4,10 @@ module.exports = async function runMigration() {
   console.log('[Migration] Running 20260812_corrections...');
   
   try {
+    // 0. Add default_zona column if not exists
+    await db.query(`ALTER TABLE usuarios ADD COLUMN IF NOT EXISTS default_zona VARCHAR(100)`);
+    console.log('[Migration] Added default_zona column');
+
     // 1. Add marca column if not exists
     await db.query(`ALTER TABLE items ADD COLUMN IF NOT EXISTS marca VARCHAR(100)`);
     console.log('[Migration] Added marca column');

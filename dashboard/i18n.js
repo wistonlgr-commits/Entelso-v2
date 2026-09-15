@@ -171,6 +171,7 @@ const TRANSLATIONS = {
       'usuarios.email': 'Email Address',
       'usuarios.phone': 'Phone (WhatsApp)',
       'usuarios.team': 'Team',
+      'usuarios.default_zona': 'Default Zone',
       'usuarios.role_supervisor': 'Supervisor',
       'usuarios.role_almacen': 'Warehouse',
 
@@ -699,6 +700,7 @@ const TRANSLATIONS = {
       'usuarios.email': 'Correo Electrónico',
       'usuarios.phone': 'Teléfono (WhatsApp)',
       'usuarios.team': 'Equipo',
+      'usuarios.default_zona': 'Zona por Defecto',
       'usuarios.role_supervisor': 'Supervisor',
       'usuarios.role_almacen': 'Almacén',
 

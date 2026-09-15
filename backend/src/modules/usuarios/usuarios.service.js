@@ -6,7 +6,7 @@ const bcrypt = require('bcrypt');
  */
 exports.getAll = async () => {
   const { rows } = await db.query(
-    `SELECT id, nombre, telefono_whatsapp, email, rol, team, activo, en_terreno, fecha_registro
+    `SELECT id, nombre, telefono_whatsapp, email, rol, team, activo, en_terreno, fecha_registro, default_zona
      FROM usuarios
      WHERE activo = TRUE
      ORDER BY nombre ASC`
@@ -16,7 +16,7 @@ exports.getAll = async () => {
 
 exports.getById = async (id) => {
   const { rows } = await db.query(
-    `SELECT id, nombre, telefono_whatsapp, email, rol, team, activo, en_terreno, fecha_registro
+    `SELECT id, nombre, telefono_whatsapp, email, rol, team, activo, en_terreno, fecha_registro, default_zona
      FROM usuarios WHERE id = $1`,
     [id]
   );
@@ -38,16 +38,16 @@ exports.getAssets = async (id) => {
  * Crea un usuario nuevo.
  * Acepta 'pin' o 'password' como campo de contraseña (ambos se hashean).
  */
-exports.create = async ({ nombre, telefono_whatsapp, email, rol, team, pin, password }) => {
+exports.create = async ({ nombre, telefono_whatsapp, email, rol, team, pin, password, default_zona }) => {
   // Acepta 'pin' o 'password' (compatibilidad con el frontend dashboard)
   const rawPin = pin || password || null;
   const pin_hash = rawPin ? await bcrypt.hash(String(rawPin), 10) : null;
 
   const { rows } = await db.query(
-    `INSERT INTO usuarios (nombre, telefono_whatsapp, email, rol, team, pin_hash, en_terreno)
-     VALUES ($1, $2, $3, $4, $5, $6, $7)
-     RETURNING id, nombre, telefono_whatsapp, email, rol, team, activo, en_terreno, fecha_registro`,
-    [nombre, telefono_whatsapp || null, email || null, rol || 'trabajador', team || null, pin_hash, false]
+    `INSERT INTO usuarios (nombre, telefono_whatsapp, email, rol, team, pin_hash, en_terreno, default_zona)
+     VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+     RETURNING id, nombre, telefono_whatsapp, email, rol, team, activo, en_terreno, fecha_registro, default_zona`,
+    [nombre, telefono_whatsapp || null, email || null, rol || 'trabajador', team || null, pin_hash, false, default_zona || null]
   );
   return rows[0];
 };
@@ -59,7 +59,7 @@ exports.update = async (id, data) => {
 
   // Handle regular fields
   for (const [k, v] of Object.entries(data)) {
-    if (['nombre','telefono_whatsapp','email','rol','team','activo', 'en_terreno'].includes(k)) {
+    if (['nombre','telefono_whatsapp','email','rol','team','activo', 'en_terreno', 'default_zona'].includes(k)) {
       fields.push(`${k} = $${idx}`);
       values.push(v === '' ? null : v);
       idx++;
@@ -77,7 +77,7 @@ exports.update = async (id, data) => {
 
   if (fields.length === 0) return exports.getById(id);
   values.push(id);
-  const query = `UPDATE usuarios SET ${fields.join(', ')} WHERE id = $${idx} RETURNING id, nombre, email, telefono_whatsapp, rol, team, activo`;
+  const query = `UPDATE usuarios SET ${fields.join(', ')} WHERE id = $${idx} RETURNING id, nombre, email, telefono_whatsapp, rol, team, activo, default_zona`;
   const { rows } = await db.query(query, values);
   return rows[0];
 };
