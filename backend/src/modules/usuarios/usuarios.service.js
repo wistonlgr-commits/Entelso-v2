@@ -88,7 +88,7 @@ exports.remove = async (id) => {
     `UPDATE usuarios SET activo = FALSE WHERE id = $1 RETURNING id`,
     [id]
   );
-  if (!rows[0]) throw Object.assign(new Error('Usuario no encontrado.'), { isOperational: true, statusCode: 404 });
+  if (!rows[0]) throw Object.assign(new Error('User not found.'), { isOperational: true, statusCode: 404 });
   return true;
 };
 

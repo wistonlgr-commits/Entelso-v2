@@ -36,6 +36,7 @@ const getActivoByInventario = async (numero_inventario) => {
        a.estado, 
        a.item_id,
        a.usuario_actual_id,
+       a.notas,
        u.nombre_ubicacion as sitio,
        u.nombre_ubicacion as zona,
        i.nombre as equipo_nombre
@@ -183,7 +184,7 @@ exports.devolverEquipo = async (telefono, pin, numero_inventario) => {
   try {
     await client.query('BEGIN');
     await client.query(
-      'INSERT INTO movimientos (item_id, activo_id, usuario_id, tipo_movimiento, observacion) VALUES ($1, $2, $3, $4, $5)',
+      'INSERT INTO movimientos (item_id, activo_id, usuario_id, cantidad, tipo_movimiento, observacion) VALUES ($1, $2, $3, 1, $4, $5)',
       [activo.item_id, activo.id, user.id, 'devolucion', 'Returned via WhatsApp']
     );
     await client.query("UPDATE activos SET estado = 'disponible', usuario_actual_id = NULL WHERE id = $1", [activo.id]);

@@ -89,8 +89,8 @@ class IngestService {
         { nombre: equipo.trim(), tipo: 'herramienta', stock_global_consumibles: 0 }
       );
 
-      // 3. Ubicación (zona del WhatsApp)
-      const zonaName = zona ? zona.trim() : (defaultZonaStr || 'General');
+      // 3. Location (zone from WhatsApp)
+      const zonaName = (zona && zona.trim()) || defaultZonaStr || 'General';
       const locId = await buscarOCrear(
         client, 'ubicaciones', 'nombre_ubicacion', zonaName,
         { nombre_ubicacion: zonaName, descripcion: `Auto-created via WhatsApp report (${zonaName})` }
@@ -102,10 +102,10 @@ class IngestService {
       const nuevoUsuario   = ESTADOS_EN_USO.has(dbStatus) ? userId : null;
       const nuevaUbicacion = ESTADOS_EN_USO.has(dbStatus) ? null   : locId;
 
-      // 5. Buscar activo por numero_serie
+      // 5. Search asset by numero_serie OR original_serial (case-insensitive)
       const { rows: existing } = await client.query(
-        'SELECT id, usuario_actual_id, ubicacion_actual_id FROM activos WHERE numero_serie = $1',
-        [numero_inventario.trim()]
+        'SELECT id, usuario_actual_id, ubicacion_actual_id FROM activos WHERE LOWER(numero_serie) = LOWER($1) OR LOWER(original_serial) = LOWER($1)',
+        [String(numero_inventario || '').trim()]
       );
 
       let assetId;
