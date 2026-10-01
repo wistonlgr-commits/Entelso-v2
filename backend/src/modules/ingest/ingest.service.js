@@ -90,7 +90,7 @@ class IngestService {
       );
 
       // 3. Location (zone from WhatsApp)
-      const zonaName = (zona && zona.trim()) || defaultZonaStr || 'General';
+      const zonaName = (zona && zona.trim()) || defaultZonaStr || 'Unassigned';
       const locId = await buscarOCrear(
         client, 'ubicaciones', 'nombre_ubicacion', zonaName,
         { nombre_ubicacion: zonaName, descripcion: `Auto-created via WhatsApp report (${zonaName})` }

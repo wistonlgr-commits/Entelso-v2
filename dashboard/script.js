@@ -598,14 +598,14 @@ function renderInventoryTable(tbody, data, groupByKey = null) {
         <td class="action-cell">
            <div style="display:flex; align-items:center; gap:4px; justify-content:flex-end;">
              <select class="form-input" style="font-size:11px; padding:2px 4px; width:110px;" onchange="window.actualizarEstadoHerramienta('${item.db_id}', this.value)" onclick="event.stopPropagation()">
-                <option value="">${t('inv.actualizar')}</option>
-                <option value="disponible">${t('estado.disponible')}</option>
-                <option value="en_uso">${t('estado.en_uso')}</option>
-                <option value="en_mantenimiento">${t('estado.en_mantenimiento')}</option>
-                <option value="danado">${t('estado.danado')}</option>
+                <option value="">${window.i18n?.t('inv.actualizar') || '-- Set Status --'}</option>
+                <option value="disponible">${window.i18n?.t('estado.disponible') || 'Available'}</option>
+                <option value="en_uso">${window.i18n?.t('estado.en_uso') || 'In Use'}</option>
+                <option value="en_mantenimiento">${window.i18n?.t('estado.en_mantenimiento') || 'Under Maintenance'}</option>
+                <option value="danado">${window.i18n?.t('estado.danado') || 'Damaged'}</option>
              </select>
-             <button class="icon-btn" onclick="event.stopPropagation(); window.verDetallesActivo(${item.db_id})" title="Detalles" style="flex-shrink:0;"><i class="fa-solid fa-eye" style="color:var(--accent-blue)"></i></button>
-             <button class="icon-btn" onclick="event.stopPropagation(); window.eliminarActivo(${item.db_id})" title="Delete" style="flex-shrink:0;"><i class="fa-solid fa-trash" style="color:var(--accent-red)"></i></button>
+             <button class="icon-btn" onclick="event.stopPropagation(); window.verDetallesActivo(${item.db_id})" title="${window.i18n?.t('tabla.ver') || 'Details'}" style="flex-shrink:0;"><i class="fa-solid fa-eye" style="color:var(--accent-blue)"></i></button>
+             <button class="icon-btn" onclick="event.stopPropagation(); window.eliminarActivo(${item.db_id})" title="${window.i18n?.t('bulk.btn_eliminar') || 'Delete'}" style="flex-shrink:0;"><i class="fa-solid fa-trash" style="color:var(--accent-red)"></i></button>
            </div>
         </td>
       `;
@@ -625,10 +625,18 @@ function renderInventoryTable(tbody, data, groupByKey = null) {
       groups[key].push(item);
     });
     
-    Object.keys(groups).sort().forEach(groupName => {
+    Object.keys(groups).sort().forEach((groupName, gIdx) => {
       // Group header
       const headerTr = document.createElement('tr');
-      headerTr.innerHTML = `<td colspan="${colspan}" style="background: var(--bg-hover); font-weight: bold; color: var(--text-1); padding-top: 16px; padding-bottom: 8px;">${groupName} (${groups[groupName].length})</td>`;
+      const isDash = tbody.id === 'dashTableBody';
+      if (!isDash) {
+        headerTr.innerHTML = `
+          <td style="text-align:center; background: var(--bg-hover);"><input type="checkbox" class="group-checkbox" data-group="${gIdx}" onclick="event.stopPropagation(); window.toggleGroupCheckbox(${gIdx}, this.checked)"></td>
+          <td colspan="${colspan - 1}" style="background: var(--bg-hover); font-weight: bold; color: var(--text-1); padding-top: 16px; padding-bottom: 8px;">${groupName} (${groups[groupName].length})</td>
+        `;
+      } else {
+        headerTr.innerHTML = `<td colspan="${colspan}" style="background: var(--bg-hover); font-weight: bold; color: var(--text-1); padding-top: 16px; padding-bottom: 8px;">${groupName} (${groups[groupName].length})</td>`;
+      }
       tbody.appendChild(headerTr);
       
       // Group items
@@ -636,6 +644,10 @@ function renderInventoryTable(tbody, data, groupByKey = null) {
         const tr = document.createElement('tr');
         tr.dataset.id = item.id;
         tr.innerHTML = renderRow(item);
+        if (!isDash) {
+          const cb = tr.querySelector('.row-checkbox');
+          if (cb) cb.dataset.group = gIdx;
+        }
         tr.addEventListener('click', () => openDrawer(item));
         tbody.appendChild(tr);
       });
@@ -652,6 +664,13 @@ function renderInventoryTable(tbody, data, groupByKey = null) {
 }
 
 window.activeSmartFilters = new Set();
+
+window.toggleGroupCheckbox = function(gIdx, checked) {
+  document.querySelectorAll(`.row-checkbox[data-group="${gIdx}"]`).forEach(cb => {
+    cb.checked = checked;
+  });
+  window.updateBulkActionsState();
+};
 
 // Smart filter functions
 const smartFilterFns = {
@@ -2564,7 +2583,7 @@ window.simularIngresoEquipo = function(equipo, estado = 'disponible', zona = 'VI
   console.log(`✅ Nuevo equipo detectado vía WhatsApp: ${newItem.id} - ${newItem.equipo}`);
   
   const msgTemplate = window.i18n.t('simulacion.exito') || `Simulation Successful!\n\nNew report detected:\nID: {id}\nEquipment: {equipo}\nStatus: {estado}\n\nPanels, KPIs and tables have been updated automatically.`;
-const msg = msgTemplate.replace('{id}', newId).replace('{equipo}', newItem.equipo).replace('{estado}', estado);
+  const msg = msgTemplate.replace('{id}', newId).replace('{equipo}', newItem.equipo).replace('{estado}', window.i18n?.t('estado.' + estado) || estado);
   window.customAlert(msg);
 
   return msg;
@@ -2873,6 +2892,58 @@ function exportarExcel() {
   XLSX.utils.book_append_sheet(wb, ws, 'Inventory');
   const fileName = `Entelso_Inventario_${new Date().toISOString().slice(0,10)}.xlsx`;
   XLSX.writeFile(wb, fileName);
+}
+
+// ── Export with Photos (server-side via ExcelJS) ──
+const exportWithPhotosBtn = document.getElementById('exportWithPhotosBtn');
+if (exportWithPhotosBtn) {
+  exportWithPhotosBtn.addEventListener('click', async () => {
+    // Build query params based on current filters
+    const params = new URLSearchParams();
+    params.set('with_photos', 'true');
+
+    // If there's an active zone/location filter, pass it
+    const activeZoneBtn = document.querySelector('.zone-chip.active');
+    if (activeZoneBtn && activeZoneBtn.dataset.zoneId) {
+      params.set('ubicacion_actual_id', activeZoneBtn.dataset.zoneId);
+    }
+
+    // If there's an active search, pass it
+    const searchInput = document.getElementById('inventarioSearch');
+    if (searchInput && searchInput.value.trim()) {
+      params.set('search', searchInput.value.trim());
+    }
+
+    // Show loading state
+    const originalHTML = exportWithPhotosBtn.innerHTML;
+    exportWithPhotosBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Generating...';
+    exportWithPhotosBtn.disabled = true;
+
+    try {
+      const response = await fetch(`${API_BASE}/api/activos/export-excel?${params.toString()}`, {
+        headers: { 'Authorization': `Bearer ${session.getToken()}` }
+      });
+
+      if (!response.ok) throw new Error('Export failed');
+
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `Entelso_Export_Photos_${new Date().toISOString().slice(0, 10)}.xlsx`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      a.remove();
+      window.customAlert(window.i18n.t('inv.export_ok') || '✅ Excel with photos downloaded successfully!');
+    } catch (err) {
+      console.error('Export error:', err);
+      window.customAlert(window.i18n.t('inv.export_err') || '❌ Error generating export. Please try again.');
+    } finally {
+      exportWithPhotosBtn.innerHTML = originalHTML;
+      exportWithPhotosBtn.disabled = false;
+    }
+  });
 }
 
 // Attach open modal for categories
@@ -4112,7 +4183,7 @@ window.verDetallesActivo = function(id) {
   document.getElementById('detId').textContent = activo.numero_serie || '--';
   document.getElementById('detEstado').innerHTML = statusPill(activo.estado);
   document.getElementById('detEquipo').textContent = activo.nombre_item || activo.descripcion || '--';
-  if (document.getElementById('detCategoria')) document.getElementById('detCategoria').textContent = activo.categoria_padre || window.getAssetCategory(activo) || '--';
+  if (document.getElementById('detCategoria')) document.getElementById('detCategoria').textContent = activo.categoria_padre || window.translateTipo(window.getAssetCategory(activo)) || '--';
   document.getElementById('detZona').textContent = activo.nombre_ubicacion || window.i18n.t('api.sin_asignar');
   document.getElementById('detTeam').textContent = activo.team || '--';
   document.getElementById('detAsignado').textContent = activo.nombre_usuario || window.i18n.t('api.sin_asignar');

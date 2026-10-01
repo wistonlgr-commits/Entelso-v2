@@ -73,7 +73,7 @@ exports.asignarEquipo = async (telefono, pin, numero_inventario, zonaInput) => {
     throwOpError(`Cannot assign equipment in status: ${activo.estado}`);
   }
 
-  const zona = zonaInput || activo.zona || 'General';
+  const zona = zonaInput || activo.zona || 'Unassigned';
 
   // Registrar el movimiento
   const client = await db.pool.connect();
