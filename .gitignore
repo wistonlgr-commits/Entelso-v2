@@ -9,3 +9,29 @@ correciones*/
 correcciones*/
 *.json.bak
 revisar*.json
+
+# ── Large binary assets (photos, docs, Excel) ──
+Inventory/
+Equipment Register.xlsx
+Entelso_NSW_Power_Tools*.xlsx
+Export_NSW_Herramientas.xlsx
+Proyecto subir fotos/
+
+# ── Scratch / one-off scripts ──
+backend/check_*.js
+backend/find_*.js
+backend/fix_*.js
+backend/inspect_*.js
+backend/generate_*.js
+backend/convert_*.js
+backend/upload_*.js
+backend/scan_*.js
+backend/read_*.js
+backend/append_*.js
+backend/regenerate_*.js
+backend/remove_*.js
+backend/test_*.js
+backend/verificar_*.js
+backend/verify_*.js
+backend/full_schema_check.js
+fix_*.js
