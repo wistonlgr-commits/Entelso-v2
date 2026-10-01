@@ -2684,10 +2684,11 @@ async function cargarCategorias() {
     if (json.success && json.data) {
       systemCategories = json.data;
       renderizarCategoriasUI();
-      renderizarFiltrosCategorias();
     }
   } catch (err) {
     console.error('Error cargando categorias', err);
+  } finally {
+    renderizarFiltrosCategorias();
   }
 }
 
