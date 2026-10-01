@@ -2809,7 +2809,10 @@ if (confirmExportBtn) {
         signal: abortCtrl.signal
       });
       clearTimeout(exportTimeout);
-      if (!response.ok) throw new Error('Export failed');
+      if (!response.ok) {
+        const text = await response.text().catch(() => '');
+        throw new Error(`HTTP ${response.status}: ${text.substring(0, 50)}`);
+      }
       const blob = await response.blob();
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
@@ -2820,7 +2823,8 @@ if (confirmExportBtn) {
       window.URL.revokeObjectURL(url);
       a.remove();
     } catch (err) {
-      window.customAlert(window.i18n.t('drawer.err_red') || 'Error generating export.');
+      console.error('Export error:', err);
+      window.customAlert((window.i18n.t('drawer.err_red') || 'Error') + '\n\nDetails: ' + err.message);
     } finally {
       confirmExportBtn.innerHTML = originalHTML;
       confirmExportBtn.disabled = false;

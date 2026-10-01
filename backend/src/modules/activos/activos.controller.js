@@ -126,10 +126,6 @@ function formatDate(d) {
 
 exports.exportExcel = async (req, reply, next) => {
   try {
-    // Disable socket timeout so large exports don't get killed
-    req.setTimeout(0);
-    reply.setTimeout(0);
-
     const isPost = req.method === 'POST';
     const params = isPost ? req.body : req.query;
     
