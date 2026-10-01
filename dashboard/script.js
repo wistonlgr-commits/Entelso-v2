@@ -697,16 +697,56 @@ const smartFilterFns = {
   }
 };
 
-function renderizarActivos() {
+window.aplicarFiltrosInventario = function() {
   let data = inventoryData;
 
-  // Apply ALL active smart filters (AND logic)
-  if (window.activeSmartFilters.size > 0) {
+  // 1. Search Query
+  const searchInput = document.getElementById('inventarioSearch');
+  const q = searchInput ? searchInput.value.trim().toLowerCase() : '';
+  if (q) {
+    data = data.filter(i =>
+      (i.id && String(i.id).toLowerCase().includes(q)) || 
+      (i.equipo && i.equipo.toLowerCase().includes(q)) ||
+      (i.zona && i.zona.toLowerCase().includes(q)) || 
+      (i.team && i.team.toLowerCase().includes(q)) ||
+      (i.status && i.status.toLowerCase().includes(q)) ||
+      (i.serie && i.serie.toLowerCase().includes(q)) ||
+      (i.marca && i.marca.toLowerCase().includes(q)) ||
+      (i.original_serial && i.original_serial.toLowerCase().includes(q)) ||
+      (i.categoria_padre && i.categoria_padre.toLowerCase().includes(q))
+    );
+  }
+
+  // 2. Category Filter
+  const activeCatChip = document.querySelector('#inventoryCategoryChips .chip.active[data-filter], #inventoryCategoryChips .more-menu-item.active[data-filter]');
+  const filterCat = activeCatChip ? activeCatChip.dataset.filter : 'all';
+  if (filterCat && filterCat !== 'all') {
+    data = data.filter(item => 
+      item.categoria_padre === filterCat || 
+      window.getAssetCategory(item) === filterCat
+    );
+  }
+
+  // 3. Smart Filters (AND logic)
+  if (window.activeSmartFilters && window.activeSmartFilters.size > 0) {
     data = data.filter(item => {
       for (const filterKey of window.activeSmartFilters) {
         if (smartFilterFns[filterKey] && !smartFilterFns[filterKey](item)) return false;
       }
       return true;
+    });
+  }
+
+  // 4. Advanced Filters (Zone, Team, Status) if active
+  const advZona = document.getElementById('advFilterZona')?.value.trim().toLowerCase();
+  const advTeam = document.getElementById('advFilterTeam')?.value.trim().toLowerCase();
+  const advStatus = document.getElementById('advFilterStatus')?.value.trim().toLowerCase();
+  if (advZona || advTeam || advStatus) {
+    data = data.filter(i => {
+      const matchZona = advZona ? (i.zona || '').toLowerCase().includes(advZona) : true;
+      const matchTeam = advTeam ? (i.team || '').toLowerCase().includes(advTeam) : true;
+      const matchStatus = advStatus ? (i.status || '').toLowerCase() === advStatus : true;
+      return matchZona && matchTeam && matchStatus;
     });
   }
 
@@ -716,7 +756,8 @@ function renderizarActivos() {
   // Update active filter count badge
   const countEl = document.getElementById('smartFilterCount');
   if (countEl) {
-    if (window.activeSmartFilters.size > 0) {
+    const hasAnyFilter = q || (filterCat && filterCat !== 'all') || (window.activeSmartFilters && window.activeSmartFilters.size > 0) || advZona || advTeam || advStatus;
+    if (hasAnyFilter) {
       countEl.textContent = data.length + ' result' + (data.length !== 1 ? 's' : '');
       countEl.style.display = 'inline';
     } else {
@@ -724,8 +765,16 @@ function renderizarActivos() {
     }
   }
 
-  renderInventoryTable(document.getElementById('dashTableBody'),  data.slice(0, 20));
-  renderInventoryTable(document.getElementById('inventTableBody'), data);
+  // Check active grouping tab
+  const activeGTab = document.querySelector('.gtab.active');
+  const groupByKey = activeGTab ? activeGTab.dataset.group : null;
+
+  renderInventoryTable(document.getElementById('inventTableBody'), data, groupByKey);
+  renderInventoryTable(document.getElementById('dashTableBody'), inventoryData.slice(0, 20));
+};
+
+function renderizarActivos() {
+  window.aplicarFiltrosInventario();
 }
 
 // Smart Filter Event Handlers — multi-select toggle
@@ -830,14 +879,14 @@ function renderizarEmpleados(data) {
   });
 }
 
-const VALID_ZONES = ['VIC', 'NSW', 'QLD', 'SA', 'WA'];
+const VALID_ZONES = ['NSW', 'VIC', 'QLD', 'SA', 'WA', 'ACT', 'TAS', 'NT', 'Warehouse', 'Shared WT Kit', 'Unassigned'];
 
 function getNormalizedZone(zonaStr) {
-  if (!zonaStr) return 'Unknown';
+  if (!zonaStr) return 'Unassigned';
   const trimmed = String(zonaStr).trim();
-  if (!trimmed || trimmed === '—' || trimmed === '-' || trimmed.toLowerCase() === 'sin zona' || trimmed.toLowerCase() === 'general') return 'Unknown';
+  if (!trimmed || trimmed === '—' || trimmed === '-' || trimmed.toLowerCase() === 'sin zona' || trimmed.toLowerCase() === 'general' || trimmed.toLowerCase() === 'unassigned') return 'Unassigned';
   const matched = VALID_ZONES.find(z => z.toLowerCase() === trimmed.toLowerCase());
-  return matched || 'Unknown';
+  return matched || trimmed;
 }
 
 /* ─────────────────────────────────────────
@@ -879,11 +928,6 @@ function renderizarZonas() {
     
     // Al hacer clic, filtrar la tabla de inventario y redirigir
     card.addEventListener('click', () => {
-      // Filtrar la tabla por zona normalizada
-      const filtered = inventoryData.filter(i => getNormalizedZone(i.zona) === nombre);
-      renderInventoryTable(document.getElementById('inventTableBody'), filtered);
-      
-      // Actualizar el valor del modal de filtro avanzado para mantener sincronía
       const advFilterZona = document.getElementById('advFilterZona');
       if (advFilterZona) {
         let optionExists = Array.from(advFilterZona.options).some(opt => opt.value === nombre);
@@ -893,6 +937,9 @@ function renderizarZonas() {
         }
         advFilterZona.value = nombre;
       }
+      window.aplicarFiltrosInventario();
+      
+      
       
       // Cambiar a la vista de inventario
       document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
@@ -2438,17 +2485,7 @@ function inicializarModal() {
 ───────────────────────────────────────── */
 function inicializarFiltros() {
   document.getElementById('inventarioSearch')?.addEventListener('input', function () {
-    const q        = this.value.toLowerCase();
-    const filtered = inventoryData.filter(i =>
-      (i.id && String(i.id).toLowerCase().includes(q)) || 
-      (i.equipo && i.equipo.toLowerCase().includes(q)) ||
-      (i.zona && i.zona.toLowerCase().includes(q)) || 
-      (i.team && i.team.toLowerCase().includes(q)) ||
-      (i.status && i.status.toLowerCase().includes(q)) ||
-      (i.serie && i.serie.toLowerCase().includes(q))
-    );
-    window.currentFilteredData = filtered; // Support exporting search results
-    renderInventoryTable(document.getElementById('inventTableBody'), filtered);
+    window.aplicarFiltrosInventario();
   });
 
   // Búsqueda de empleados
@@ -2495,17 +2532,14 @@ function inicializarFiltros() {
   // Group tabs (inventario)
   document.querySelectorAll('.gtab').forEach(tab => {
     tab.addEventListener('click', function () {
-      // Toggle active status
       const isActive = this.classList.contains('active');
       document.querySelectorAll('.gtab').forEach(t => t.classList.remove('active'));
       
-      let groupByKey = null;
       if (!isActive) {
         this.classList.add('active');
-        groupByKey = this.dataset.group;
       }
       
-      renderInventoryTable(document.getElementById('inventTableBody'), window.currentFilteredData || inventoryData, groupByKey);
+      window.aplicarFiltrosInventario();
     });
   });
 
@@ -2528,18 +2562,7 @@ function inicializarFiltros() {
 
   if (applyFilterBtn) {
     applyFilterBtn.addEventListener('click', () => {
-      const zona = document.getElementById('advFilterZona').value.toLowerCase();
-      const team = document.getElementById('advFilterTeam').value.toLowerCase();
-      const status = document.getElementById('advFilterStatus').value.toLowerCase();
-
-      const filtered = inventoryData.filter(i => {
-        const matchZona = zona ? i.zona.toLowerCase().includes(zona) : true;
-        const matchTeam = team ? i.team.toLowerCase().includes(team) : true;
-        const matchStatus = status ? i.status.toLowerCase() === status : true;
-        return matchZona && matchTeam && matchStatus;
-      });
-
-      renderInventoryTable(document.getElementById('inventTableBody'), filtered);
+      window.aplicarFiltrosInventario();
       document.getElementById('filterModalOverlay').classList.remove('open');
     });
   }
@@ -2549,7 +2572,7 @@ function inicializarFiltros() {
       document.getElementById('advFilterZona').value = '';
       document.getElementById('advFilterTeam').value = '';
       document.getElementById('advFilterStatus').value = '';
-      renderInventoryTable(document.getElementById('inventTableBody'), inventoryData);
+      window.aplicarFiltrosInventario();
       document.getElementById('filterModalOverlay').classList.remove('open');
     });
   }
@@ -2753,19 +2776,10 @@ function renderizarFiltrosCategorias() {
       if (el.classList.contains('more-menu-item')) {
          el.style.color = 'var(--accent-blue)';
          el.closest('.custom-dropdown').querySelector('.chip').classList.add('active');
-      } else {
-         el.classList.add('active');
       }
+      el.classList.add('active');
 
-      const filterVal = el.dataset.filter;
-      
-      let filteredData = inventoryData;
-      if (filterVal !== 'all') {
-        window.currentFilteredData = inventoryData.filter(item => item.categoria_padre === filterVal || window.getAssetCategory(item) === filterVal);
-      } else {
-        window.currentFilteredData = inventoryData;
-      }
-      renderInventoryTable(document.getElementById('inventTableBody'), window.currentFilteredData);
+      window.aplicarFiltrosInventario();
     });
   });
 }

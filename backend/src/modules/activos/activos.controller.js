@@ -2,13 +2,14 @@ const svc = require('./activos.service');
 const res = require('../../common/utils/apiResponse');
 const ExcelJS = require('exceljs');
 const axios = require('axios');
+const heicConvert = require('heic-convert');
 
 // Translate DB status values to English
 const STATUS_EN = {
   'disponible': 'AVAILABLE',
   'en_uso': 'IN USE',
   'en_mantenimiento': 'UNDER MAINTENANCE',
-  'calibracion_pendiente': 'CALIBRATION PENDING',
+  'calibracion_pendiente': 'PENDING CALIBRATION',
   'fuera_de_servicio': 'OUT OF SERVICE',
   'calibrado': 'CALIBRATED',
   'danado': 'DAMAGED',
@@ -16,13 +17,65 @@ const STATUS_EN = {
   'desconocido': 'UNKNOWN'
 };
 
+const STATUS_COLORS = {
+  'AVAILABLE': { fill: 'FFE8F5E9', text: 'FF2E7D32' },
+  'IN USE': { fill: 'FFE3F2FD', text: 'FF1565C0' },
+  'UNDER MAINTENANCE': { fill: 'FFFFF9C4', text: 'FFF57F17' },
+  'DAMAGED': { fill: 'FFFFEBEE', text: 'FFC62828' },
+  'OUT OF SERVICE': { fill: 'FFFFEBEE', text: 'FFC62828' },
+  'PENDING CALIBRATION': { fill: 'FFFFF3E0', text: 'FFE65100' },
+  'CALIBRATED': { fill: 'FFE8F5E9', text: 'FF2E7D32' },
+  'IN OPERATION': { fill: 'FFE8F5E9', text: 'FF2E7D32' },
+  'UNKNOWN': { fill: 'FFF5F5F5', text: 'FF757575' }
+};
+
 async function downloadImage(url) {
   try {
-    const response = await axios.get(url, { responseType: 'arraybuffer', timeout: 10000 });
-    return response.data;
+    const response = await axios.get(url, { responseType: 'arraybuffer', timeout: 15000 });
+    let buf = Buffer.from(response.data);
+    // Convert HEIC format on the fly if needed
+    if (url.toLowerCase().endsWith('.heic') || (buf.length > 8 && buf.slice(4, 8).toString() === 'ftyp')) {
+      try {
+        buf = await heicConvert({ buffer: buf, format: 'JPEG', quality: 0.88 });
+      } catch (convErr) {
+        console.warn('HEIC conversion failed for url:', url, convErr.message);
+      }
+    }
+    return buf;
   } catch (err) {
     return null;
   }
+}
+
+// Extract brand fallback from name if missing
+function getBrand(item) {
+  if (item.marca && item.marca !== '—' && item.marca !== '-') return item.marca;
+  const n = (item.nombre_item || item.equipo || '').toLowerCase();
+  if (n.includes('dewalt')) return 'DeWalt';
+  if (n.includes('hilti') || n.includes('bx 3') || n.includes('b22')) return 'Hilti';
+  if (n.includes('ryobi')) return 'Ryobi';
+  if (n.includes('craftright')) return 'Craftright';
+  if (n.includes('makita')) return 'Makita';
+  if (n.includes('milwaukee')) return 'Milwaukee';
+  if (n.includes('bosch')) return 'Bosch';
+  if (n.includes('viavi')) return 'VIAVI';
+  if (n.includes('kango')) return 'Kango';
+  if (n.includes('sutton')) return 'Sutton Tools';
+  if (n.includes('kaelus')) return 'Kaelus';
+  if (n.includes('panduit')) return 'Panduit';
+  if (n.includes('pctel')) return 'PCTEL';
+  if (n.includes('consultix')) return 'Consultix';
+  return '—';
+}
+
+function formatDate(d) {
+  if (!d) return '—';
+  const dt = new Date(d);
+  if (isNaN(dt.getTime())) return String(d).substring(0, 10);
+  const day = String(dt.getDate()).padStart(2, '0');
+  const mon = String(dt.getMonth() + 1).padStart(2, '0');
+  const yr = dt.getFullYear();
+  return `${day}/${mon}/${yr}`;
 }
 
 exports.exportExcel = async (req, reply, next) => {
@@ -38,75 +91,86 @@ exports.exportExcel = async (req, reply, next) => {
     let data = await svc.getAll(filters);
 
     if (params.ids) {
-      const allowedIds = Array.isArray(params.ids) ? params.ids : params.ids.split(',').map(id => Number(id));
-      data = data.filter(item => allowedIds.includes(item.id));
+      const allowedIds = Array.isArray(params.ids) ? params.ids.map(Number) : params.ids.split(',').map(Number);
+      // Keep exact order of provided IDs if possible
+      const idMap = new Map();
+      data.forEach(item => idMap.set(item.id, item));
+      const ordered = [];
+      allowedIds.forEach(id => {
+        if (idMap.has(id)) ordered.push(idMap.get(id));
+      });
+      data = ordered.length > 0 ? ordered : data.filter(item => allowedIds.includes(item.id));
     }
-
 
     const workbook = new ExcelJS.Workbook();
     workbook.creator = 'Entelso';
-    const PHOTO_ROW_HEIGHT = 100;
-    const PHOTO_WIDTH = 120;
-    const PHOTO_HEIGHT = 90;
+    workbook.views = [{ x: 0, y: 0, width: 10000, height: 20000, firstSheet: 0, activeTab: 0, visibility: 'visible' }];
 
-    const sheet = workbook.addWorksheet('Inventory');
+    const sheet = workbook.addWorksheet('Inventory Report', {
+      views: [{ showGridLines: true }],
+      properties: { defaultRowHeight: 20 }
+    });
 
-    // ── Column count ──
-    const baseColCount = 8;
-    const totalCols = withPhotos ? baseColCount + 3 : baseColCount;
+    // ── Headers matching user template ──
+    const headers = [
+      'Inventory No.',
+      'Brand',
+      'Equipment Name',
+      'Category',
+      'Zone / Site',
+      'Status',
+      'Team',
+      'Assigned To',
+      'Last Cal / Tag',
+      'Next Cal / Tag'
+    ];
+    if (withPhotos) {
+      headers.push('Photo 1', 'Photo 2');
+    }
+    const totalCols = headers.length;
 
     // ── ROW 1: Title banner ──
-    const titleRow = sheet.addRow(['ENTELSO — Inventory Report']);
+    const titleRow = sheet.addRow(['ENTELSO TELECOMMUNICATIONS — INVENTORY REPORT']);
     sheet.mergeCells(1, 1, 1, totalCols);
-    titleRow.getCell(1).font = { bold: true, size: 16, color: { argb: 'FF1E3A5F' }, name: 'Calibri' };
+    titleRow.getCell(1).font = { bold: true, size: 15, color: { argb: 'FFFFFFFF' }, name: 'Segoe UI' };
+    titleRow.getCell(1).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF1E3A5F' } };
     titleRow.getCell(1).alignment = { horizontal: 'center', vertical: 'middle' };
-    titleRow.height = 35;
+    titleRow.height = 36;
 
-    // ── ROW 2: Date & count ──
+    // ── ROW 2: Subtitle & metadata ──
     const today = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
-    const dateRow = sheet.addRow([`Generated on: ${today}  |  Total assets: ${data.length}`]);
+    const dateRow = sheet.addRow([`Report Generated: ${today}   |   Total Assets: ${data.length}`]);
     sheet.mergeCells(2, 1, 2, totalCols);
-    dateRow.getCell(1).font = { size: 10, color: { argb: 'FF666666' }, name: 'Calibri' };
+    dateRow.getCell(1).font = { size: 10.5, color: { argb: 'FF475569' }, name: 'Segoe UI', bold: true };
+    dateRow.getCell(1).fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFF1F5F9' } };
     dateRow.getCell(1).alignment = { horizontal: 'center', vertical: 'middle' };
-    dateRow.height = 20;
+    dateRow.height = 22;
 
     // ── ROW 3: Empty spacer ──
-    sheet.addRow([]);
-    sheet.getRow(3).height = 8;
+    const spacer = sheet.addRow([]);
+    sheet.getRow(3).height = 6;
 
-    // ── ROW 4: Headers ──
-    const headers = ['Inventory No.', 'Equipment', 'Category', 'Zone / Site', 'Status', 'Team', 'Assigned to', 'Next Calibration'];
-    if (withPhotos) {
-      headers.push('Photo 1', 'Photo 2', 'Photo 3');
-    }
+    // ── ROW 4: Table Headers ──
     const headerRow = sheet.addRow(headers);
-    headerRow.height = 24;
+    headerRow.height = 28;
     headerRow.eachCell((cell) => {
-      cell.font = { bold: true, color: { argb: 'FFFFFFFF' }, size: 11, name: 'Calibri' };
-      cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF1E3A5F' } };
+      cell.font = { bold: true, color: { argb: 'FFFFFFFF' }, size: 11, name: 'Segoe UI' };
+      cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF2563EB' } }; // Corporate Blue
       cell.alignment = { horizontal: 'center', vertical: 'middle', wrapText: true };
       cell.border = {
-        top: { style: 'thin', color: { argb: 'FF000000' } },
-        bottom: { style: 'thin', color: { argb: 'FF000000' } },
-        left: { style: 'thin', color: { argb: 'FF000000' } },
-        right: { style: 'thin', color: { argb: 'FF000000' } }
+        top: { style: 'medium', color: { argb: 'FF1D4ED8' } },
+        bottom: { style: 'medium', color: { argb: 'FF1D4ED8' } },
+        left: { style: 'thin', color: { argb: 'FF3B82F6' } },
+        right: { style: 'thin', color: { argb: 'FF3B82F6' } }
       };
     });
 
-    // ── Set column widths ──
-    const colWidths = [16, 38, 20, 14, 20, 16, 20, 18];
-    if (withPhotos) colWidths.push(20, 20, 20);
+    // ── Column widths ──
+    const colWidths = [18, 15, 38, 16, 14, 22, 16, 20, 16, 16];
+    if (withPhotos) colWidths.push(25, 25);
     colWidths.forEach((w, i) => { sheet.getColumn(i + 1).width = w; });
 
-    // ── Data rows ──
-    const cellBorder = {
-      top: { style: 'thin', color: { argb: 'FFCCCCCC' } },
-      bottom: { style: 'thin', color: { argb: 'FFCCCCCC' } },
-      left: { style: 'thin', color: { argb: 'FFCCCCCC' } },
-      right: { style: 'thin', color: { argb: 'FFCCCCCC' } }
-    };
-
-    // Pre-download all images concurrently in chunks
+    // ── Pre-download all images concurrently in chunks ──
     const imageCache = {};
     if (withPhotos) {
       const allUrls = new Set();
@@ -117,10 +181,12 @@ exports.exportExcel = async (req, reply, next) => {
         } else if (Array.isArray(item.fotos)) {
           fotos = item.fotos;
         }
-        fotos.slice(0, 3).forEach(u => allUrls.add(u));
+        fotos.slice(0, 2).forEach(u => {
+          if (u && typeof u === 'string') allUrls.add(u);
+        });
       });
       const urlsArray = Array.from(allUrls);
-      const chunkSize = 20;
+      const chunkSize = 15;
       for (let i = 0; i < urlsArray.length; i += chunkSize) {
         const chunk = urlsArray.slice(i, i + chunkSize);
         const buffers = await Promise.all(chunk.map(u => downloadImage(u)));
@@ -128,67 +194,95 @@ exports.exportExcel = async (req, reply, next) => {
       }
     }
 
+    // ── Cell borders ──
+    const cellBorder = {
+      top: { style: 'thin', color: { argb: 'FFE2E8F0' } },
+      bottom: { style: 'thin', color: { argb: 'FFE2E8F0' } },
+      left: { style: 'thin', color: { argb: 'FFE2E8F0' } },
+      right: { style: 'thin', color: { argb: 'FFE2E8F0' } }
+    };
+
+    const PHOTO_ROW_HEIGHT = 100;
+    const photoColBase = 10; // Col 11 is Photo 1 (0-based index 10)
+
     let rowIndex = 5; // data starts at row 5
     for (const item of data) {
       const rawStatus = (item.estado || 'unknown').toLowerCase();
       const statusEN = STATUS_EN[rawStatus] || rawStatus.toUpperCase().replace(/_/g, ' ');
+      const statusColor = STATUS_COLORS[statusEN] || STATUS_COLORS['UNKNOWN'];
+      const brandName = getBrand(item);
 
-      const excelRow = sheet.addRow([
+      let fotos = [];
+      if (typeof item.fotos === 'string') {
+        try { fotos = JSON.parse(item.fotos); } catch(e) {}
+      } else if (Array.isArray(item.fotos)) {
+        fotos = item.fotos;
+      }
+      const validPhotos = fotos.filter(u => u && typeof u === 'string').slice(0, 2);
+      const hasPhotos = validPhotos.length > 0;
+
+      const rowValues = [
         item.numero_serie || '—',
+        brandName,
         item.nombre_item || '—',
         item.categoria_padre || 'Uncategorized',
         item.nombre_ubicacion || '—',
         statusEN,
         item.usuario_team || item.team || '—',
         item.nombre_usuario || 'Unassigned',
-        item.fecha_prox_cali ? String(item.fecha_prox_cali).substring(0, 10) : '—'
-      ]);
-
-      const isEven = (rowIndex - 5) % 2 === 0;
-      const fillColor = isEven ? 'FFF2F6FA' : 'FFFFFFFF';
-
+        formatDate(item.fecha_ultima_cali || item.fecha_ultimo_tag),
+        formatDate(item.fecha_prox_cali || item.fecha_prox_tag)
+      ];
       if (withPhotos) {
-        excelRow.height = PHOTO_ROW_HEIGHT;
-      } else {
-        excelRow.height = 20;
+        rowValues.push('', ''); // Placeholders for Photo 1 and Photo 2
       }
 
-      excelRow.eachCell({ includeEmpty: true }, (cell, colNumber) => {
-        cell.font = { size: 10, name: 'Calibri' };
-        cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: fillColor } };
-        cell.border = cellBorder;
-        cell.alignment = { vertical: 'middle', wrapText: true };
+      const excelRow = sheet.addRow(rowValues);
+      excelRow.height = (withPhotos && hasPhotos) ? PHOTO_ROW_HEIGHT : 28;
 
-        // Status column bold
-        if (colNumber === 5) {
-          cell.font = { size: 10, name: 'Calibri', bold: true };
+      const isEven = (rowIndex - 5) % 2 === 0;
+      const rowBg = isEven ? 'FFF8FAFC' : 'FFFFFFFF';
+
+      excelRow.eachCell({ includeEmpty: true }, (cell, colNumber) => {
+        cell.border = cellBorder;
+        cell.font = { size: 10, name: 'Segoe UI', color: { argb: 'FF1E293B' } };
+        cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: rowBg } };
+
+        if (colNumber === 3) {
+          // Equipment Name
+          cell.alignment = { horizontal: 'left', vertical: 'middle', wrapText: true };
+          cell.font = { size: 10, name: 'Segoe UI', bold: true, color: { argb: 'FF0F172A' } };
+        } else if (colNumber === 1) {
+          // Serial No.
           cell.alignment = { horizontal: 'center', vertical: 'middle' };
+          cell.font = { size: 10, name: 'Segoe UI', bold: true, color: { argb: 'FF1E3A5F' } };
+        } else if (colNumber === 6) {
+          // Status Badge
+          cell.alignment = { horizontal: 'center', vertical: 'middle' };
+          cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: statusColor.fill } };
+          cell.font = { size: 10, name: 'Segoe UI', bold: true, color: { argb: statusColor.text } };
+        } else {
+          cell.alignment = { horizontal: 'center', vertical: 'middle', wrapText: true };
         }
       });
 
-      // ── Photos ──
-      if (withPhotos) {
-        let fotos = [];
-        if (typeof item.fotos === 'string') {
-          try { fotos = JSON.parse(item.fotos); } catch(e) {}
-        } else if (Array.isArray(item.fotos)) {
-          fotos = item.fotos;
-        }
-
-        const fotosToProcess = fotos.slice(0, 3);
-        for (let i = 0; i < fotosToProcess.length; i++) {
-          const imageBuffer = imageCache[fotosToProcess[i]];
+      // ── Embed Photos with strict cell boundaries ──
+      if (withPhotos && hasPhotos) {
+        for (let pIdx = 0; pIdx < validPhotos.length; pIdx++) {
+          const pUrl = validPhotos[pIdx];
+          const imageBuffer = imageCache[pUrl];
           if (imageBuffer) {
-            const ext = fotosToProcess[i].toLowerCase().endsWith('.png') ? 'png' : 'jpeg';
+            const ext = pUrl.toLowerCase().endsWith('.png') ? 'png' : 'jpeg';
             const imageId = workbook.addImage({ buffer: imageBuffer, extension: ext });
             sheet.addImage(imageId, {
-              tl: { col: baseColCount + i + 0.1, row: rowIndex - 1 + 0.05 },
-              br: { col: baseColCount + i + 0.9, row: rowIndex - 0.05 },
+              tl: { col: photoColBase + pIdx + 0.08, row: (rowIndex - 1) + 0.06 },
+              br: { col: photoColBase + pIdx + 0.92, row: rowIndex - 0.06 },
               editAs: 'oneCell'
             });
           }
         }
       }
+
       rowIndex++;
     }
 
@@ -201,7 +295,6 @@ exports.exportExcel = async (req, reply, next) => {
     next(e);
   }
 };
-
 
 exports.getAll = async (req, reply, next) => {
   try { reply.json(res.success(await svc.getAll(req.query))); } catch (e) { next(e); }
@@ -234,58 +327,57 @@ exports.remove = async (req, reply, next) => {
 };
 exports.removeAll = async (req, reply, next) => {
   try {
-    const result = await svc.removeAll();
-    reply.json(res.success({ deleted: result }, 'Todos los activos eliminados.'));
+    await svc.removeAll();
+    reply.json(res.success({ deleted: true }, 'Todos los activos han sido eliminados.'));
   } catch (e) { next(e); }
 };
-exports.bulkCreate = async (req, reply, next) => {
-  try { reply.status(201).json(res.success(await svc.bulkCreate(req.body.activos))); } catch (e) { next(e); }
-};
-exports.bulkRemoveSelected = async (req, reply, next) => {
+exports.bulkDelete = async (req, reply, next) => {
   try {
-    if (!req.body.ids || !Array.isArray(req.body.ids)) {
-      return reply.status(400).json(res.error('Se requiere un array de IDs.', 'BAD_REQUEST'));
+    const { ids } = req.body;
+    if (!Array.isArray(ids) || ids.length === 0) {
+      return reply.status(400).json(res.error('Se requiere un array de IDs no vacío', 'BAD_REQUEST'));
     }
-    const result = await svc.bulkRemoveSelected(req.body.ids);
-    reply.json(res.success({ deleted: result }, 'Activos seleccionados eliminados.'));
+    const count = await svc.bulkDelete(ids);
+    reply.json(res.success({ deletedCount: count }, `${count} activos eliminados.`));
   } catch (e) { next(e); }
 };
-exports.bulkUpdateCategory = async (req, reply, next) => {
+exports.bulkUpdateEstado = async (req, reply, next) => {
   try {
-    if (!req.body.ids || !Array.isArray(req.body.ids) || !req.body.item_id) {
-      return reply.status(400).json(res.error('Faltan datos.', 'BAD_REQUEST'));
+    const { ids, estado } = req.body;
+    if (!Array.isArray(ids) || ids.length === 0) {
+      return reply.status(400).json(res.error('Se requiere un array de IDs no vacío', 'BAD_REQUEST'));
     }
-    const result = await svc.bulkUpdateCategory(req.body.ids, req.body.item_id);
-    reply.json(res.success({ updated: result }, 'Categor├¡a actualizada para los equipos.'));
+    const count = await svc.bulkUpdateEstado(ids, estado);
+    reply.json(res.success({ updatedCount: count }, `Estado actualizado para ${count} activos.`));
   } catch (e) { next(e); }
 };
-
-exports.bulkUpdateStatus = async (req, reply, next) => {
-  try {
-    if (!req.body.ids || !Array.isArray(req.body.ids) || !req.body.status) {
-      return reply.status(400).json(res.error('Faltan datos.', 'BAD_REQUEST'));
-    }
-    const result = await svc.bulkUpdateStatus(req.body.ids, req.body.status);
-    reply.json(res.success({ updated: result }, 'Estado actualizado.'));
-  } catch (e) { next(e); }
-};
-
 exports.bulkUpdateZona = async (req, reply, next) => {
   try {
-    if (!req.body.ids || !Array.isArray(req.body.ids)) {
-      return reply.status(400).json(res.error('Faltan datos.', 'BAD_REQUEST'));
+    const { ids, ubicacion_actual_id } = req.body;
+    if (!Array.isArray(ids) || ids.length === 0) {
+      return reply.status(400).json(res.error('Se requiere un array de IDs no vacío', 'BAD_REQUEST'));
     }
-    const result = await svc.bulkUpdateZona(req.body.ids, req.body.zona_id);
-    reply.json(res.success({ updated: result }, 'Zona actualizada.'));
+    const count = await svc.bulkUpdateZona(ids, ubicacion_actual_id);
+    reply.json(res.success({ updatedCount: count }, `Zona actualizada para ${count} activos.`));
   } catch (e) { next(e); }
 };
-
 exports.bulkUpdateTeam = async (req, reply, next) => {
   try {
-    if (!req.body.ids || !Array.isArray(req.body.ids)) {
-      return reply.status(400).json(res.error('Faltan datos.', 'BAD_REQUEST'));
+    const { ids, team } = req.body;
+    if (!Array.isArray(ids) || ids.length === 0) {
+      return reply.status(400).json(res.error('Se requiere un array de IDs no vacío', 'BAD_REQUEST'));
     }
-    const result = await svc.bulkUpdateTeam(req.body.ids, req.body.team_id);
-    reply.json(res.success({ updated: result }, 'Equipo actualizado.'));
+    const count = await svc.bulkUpdateTeam(ids, team);
+    reply.json(res.success({ updatedCount: count }, `Team actualizado para ${count} activos.`));
+  } catch (e) { next(e); }
+};
+exports.bulkUpdateItem = async (req, reply, next) => {
+  try {
+    const { ids, item_id } = req.body;
+    if (!Array.isArray(ids) || ids.length === 0) {
+      return reply.status(400).json(res.error('Se requiere un array de IDs no vacío', 'BAD_REQUEST'));
+    }
+    const count = await svc.bulkUpdateItem(ids, item_id);
+    reply.json(res.success({ updatedCount: count }, `Categoría actualizada para ${count} activos.`));
   } catch (e) { next(e); }
 };
