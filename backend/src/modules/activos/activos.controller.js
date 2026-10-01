@@ -37,10 +37,9 @@ function calculateImageAnchor(imageBuffer, baseCol, rowIndex) {
     finalW = finalH * imgAspect;
   }
 
-  // To make it look a bit wider without looking entirely distorted, we can slightly boost the width for very thin images
-  if (finalW / CELL_WIDTH_PX < 0.3) {
-      finalW = finalW * 1.3; // 30% wider boost for super thin images
-  }
+  // The user explicitly requested the photos to look wider and occupy more column space.
+  // We will apply a horizontal stretch factor (e.g. 1.4x) to make them look wider, bounded by the max cell width.
+  finalW = Math.min(MAX_W_PX, finalW * 1.4);
 
   const colSpan = Math.min(0.98, finalW / CELL_WIDTH_PX);
   const rowSpan = Math.min(0.98, finalH / CELL_HEIGHT_PX);
@@ -48,9 +47,11 @@ function calculateImageAnchor(imageBuffer, baseCol, rowIndex) {
   const colOffset = (1 - colSpan) / 2;
   const rowOffset = (1 - rowSpan) / 2;
 
+  // Use explicit `ext` (extents) instead of `br`. This forces strict width/height
+  // in pixels and avoids bugs in Excel scaling `oneCell` anchors via bottom-right coordinates.
   return {
     tl: { col: baseCol + colOffset, row: (rowIndex - 1) + rowOffset },
-    br: { col: baseCol + colOffset + colSpan, row: (rowIndex - 1) + rowOffset + rowSpan },
+    ext: { width: finalW, height: finalH },
     editAs: 'oneCell'
   };
 }
