@@ -24,8 +24,8 @@ function calculateImageAnchor(imageBuffer, baseCol, rowIndex) {
   const imgAspect = imgWidth / imgHeight;
   const CELL_WIDTH_PX = 180; // col width 25 ≈ 180px
   const CELL_HEIGHT_PX = 133.33; // row height 100pt = 133.33px
-  const MAX_W_PX = CELL_WIDTH_PX * 0.88;
-  const MAX_H_PX = CELL_HEIGHT_PX * 0.88;
+  const MAX_W_PX = CELL_WIDTH_PX * 0.96;
+  const MAX_H_PX = CELL_HEIGHT_PX * 0.96;
   const cellAspect = MAX_W_PX / MAX_H_PX;
 
   let finalW, finalH;
@@ -37,11 +37,16 @@ function calculateImageAnchor(imageBuffer, baseCol, rowIndex) {
     finalW = finalH * imgAspect;
   }
 
-  const colSpan = Math.min(0.92, Math.max(0.2, finalW / CELL_WIDTH_PX));
-  const rowSpan = Math.min(0.92, Math.max(0.2, finalH / CELL_HEIGHT_PX));
+  // To make it look a bit wider without looking entirely distorted, we can slightly boost the width for very thin images
+  if (finalW / CELL_WIDTH_PX < 0.3) {
+      finalW = finalW * 1.3; // 30% wider boost for super thin images
+  }
 
-  const colOffset = Math.max(0.04, (1 - colSpan) / 2);
-  const rowOffset = Math.max(0.04, (1 - rowSpan) / 2);
+  const colSpan = Math.min(0.98, finalW / CELL_WIDTH_PX);
+  const rowSpan = Math.min(0.98, finalH / CELL_HEIGHT_PX);
+
+  const colOffset = (1 - colSpan) / 2;
+  const rowOffset = (1 - rowSpan) / 2;
 
   return {
     tl: { col: baseCol + colOffset, row: (rowIndex - 1) + rowOffset },
@@ -80,7 +85,7 @@ async function downloadImage(url) {
     const response = await axios.get(url, { responseType: 'arraybuffer', timeout: 8000 });
     let buf = Buffer.from(response.data);
     // Convert HEIC format on the fly if needed
-    if (url.toLowerCase().endsWith('.heic') || (buf.length > 8 && buf.slice(4, 8).toString() === 'ftyp')) {
+    if (url.toLowerCase().endsWith('.heic') || url.toLowerCase().endsWith('.heif')) {
       try {
         buf = await heicConvert({ buffer: buf, format: 'JPEG', quality: 0.88 });
       } catch (convErr) {
