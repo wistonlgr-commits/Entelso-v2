@@ -421,3 +421,16 @@ exports.bulkUpdateItem = async (req, reply, next) => {
     reply.json(res.success({ updatedCount: count }, `Categoría actualizada para ${count} activos.`));
   } catch (e) { next(e); }
 };
+
+// ── Route-compatible aliases ──
+exports.bulkRemoveSelected = exports.bulkDelete;
+exports.bulkUpdateCategory = exports.bulkUpdateItem;
+exports.bulkUpdateStatus   = exports.bulkUpdateEstado;
+
+// ── Bulk create (delegates to service) ──
+exports.bulkCreate = async (req, reply, next) => {
+  try {
+    const result = await svc.bulkCreate(req.body.activos || req.body);
+    reply.json(res.success(result, 'Bulk create completed'));
+  } catch (e) { next(e); }
+};
