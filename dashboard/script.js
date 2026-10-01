@@ -676,7 +676,12 @@ window.toggleGroupCheckbox = function(gIdx, checked) {
 const smartFilterFns = {
   missing_photo: (item) => {
     const raw = item._raw;
-    return !raw || !raw.fotos || !Array.isArray(raw.fotos) || raw.fotos.length === 0;
+    if (!raw || !raw.fotos) return true;
+    let fotos = raw.fotos;
+    if (typeof fotos === 'string') {
+      try { fotos = JSON.parse(fotos); } catch(e) { return true; }
+    }
+    return !Array.isArray(fotos) || fotos.filter(f => f && typeof f === 'string' && f.trim().length > 0).length === 0;
   },
   not_updated: (item) => {
     const raw = item._raw;
@@ -2766,187 +2771,45 @@ function renderizarFiltrosCategorias() {
 }
 
 // Attach export functionality
+
 const confirmExportBtn = document.getElementById('confirmExportBtn');
 if (confirmExportBtn) {
-  confirmExportBtn.addEventListener('click', () => {
-    exportarExcel();
-  });
-}
+  confirmExportBtn.addEventListener('click', async () => {
+    const originalHTML = confirmExportBtn.innerHTML;
+    confirmExportBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Generating...';
+    confirmExportBtn.disabled = true;
 
-function exportarExcel() {
-  if (typeof XLSX === 'undefined') {
-    window.customAlert(window.i18n.t('drawer.err_red') || "Excel library not available.");
-    return;
-  }
-  const dataToExport = window.currentFilteredData || inventoryData;
-  const today = new Date().toLocaleDateString(window.i18n.getLang() === 'en' ? 'en-US' : 'es-ES', { year: 'numeric', month: 'long', day: 'numeric' });
-
-  // ── Definir estilos ──
-
-  const headerStyle = {
-    font: { bold: true, color: { rgb: 'FFFFFF' }, sz: 12, name: 'Calibri' },
-    fill: { fgColor: { rgb: '1E3A5F' } },
-    alignment: { horizontal: 'center', vertical: 'center', wrapText: true },
-    border: {
-      top: { style: 'thin', color: { rgb: '000000' } },
-      bottom: { style: 'thin', color: { rgb: '000000' } },
-      left: { style: 'thin', color: { rgb: '000000' } },
-      right: { style: 'thin', color: { rgb: '000000' } }
-    }
-  };
-  const cellBorder = {
-    top: { style: 'thin', color: { rgb: 'CCCCCC' } },
-    bottom: { style: 'thin', color: { rgb: 'CCCCCC' } },
-    left: { style: 'thin', color: { rgb: 'CCCCCC' } },
-    right: { style: 'thin', color: { rgb: 'CCCCCC' } }
-  };
-  const evenRowFill = { fgColor: { rgb: 'F2F6FA' } };
-  const oddRowFill = { fgColor: { rgb: 'FFFFFF' } };
-  const statusColors = {
-    'disponible': { fgColor: { rgb: 'D4EDDA' } },
-    'en_uso': { fgColor: { rgb: 'CCE5FF' } },
-    'en_mantenimiento': { fgColor: { rgb: 'FFF3CD' } },
-    'danado': { fgColor: { rgb: 'F8D7DA' } },
-    'fuera_de_servicio': { fgColor: { rgb: 'F8D7DA' } },
-    'calibracion_pendiente': { fgColor: { rgb: 'FFE8CC' } },
-    'desconocido': { fgColor: { rgb: 'E2E3E5' } }
-  };
-
-  // ── Preparar filas de datos ──
-  const isEn = window.i18n.getLang() === 'en';
-  const headers = isEn 
-    ? ['Inventory No.', 'Equipment', 'Serial No.', 'Zone / Site', 'Team', 'Status', 'Next Calibration', 'Assigned to']
-    : ['Nº Inventario', 'Equipo', 'Nº Serie', 'Zona / Sitio', 'Team', 'Estado', 'Próx. Calibración', 'Asignado a'];
-    
-  const rows = dataToExport.map(item => [
-    item.id || '—',
-    item.equipo || '—',
-    item.serie || '—',
-    item.zona || '—',
-    item.team || '—',
-    (window.i18n.t('estado.' + item.status) || item.status || '—').replace(/_/g, ' ').toUpperCase(),
-    item.calibracion ? item.calibracion.substring(0, 10) : '—',
-    item.asignado || (window.i18n.t('api.sin_asignar') || 'Unassigned')
-  ]);
-
-  // ── Construir hoja con título de empresa ──
-  const titleRow = [isEn ? 'ENTELSO — Inventory Report' : 'ENTELSO — Reporte de Inventario'];
-  const dateRow = [isEn ? `Generated on: ${today}  |  Total assets: ${rows.length}` : `Fecha de generación: ${today}  |  Total activos: ${rows.length}`];
-  const emptyRow = [''];
-  const allRows = [titleRow, dateRow, emptyRow, headers, ...rows];
-
-  const ws = XLSX.utils.aoa_to_sheet(allRows);
-
-  // ── Merge celdas del título ──
-  ws['!merges'] = [
-    { s: { r: 0, c: 0 }, e: { r: 0, c: headers.length - 1 } },
-    { s: { r: 1, c: 0 }, e: { r: 1, c: headers.length - 1 } }
-  ];
-
-  // ── Estilo del título ──
-  if (ws['A1']) ws['A1'].s = { font: { bold: true, sz: 16, color: { rgb: '1E3A5F' }, name: 'Calibri' }, alignment: { horizontal: 'center' } };
-  if (ws['A2']) ws['A2'].s = { font: { sz: 10, color: { rgb: '666666' }, name: 'Calibri' }, alignment: { horizontal: 'center' } };
-
-  // ── Estilos de headers (fila 4, index 3) ──
-  for (let c = 0; c < headers.length; c++) {
-    const cellRef = XLSX.utils.encode_cell({ r: 3, c });
-    if (ws[cellRef]) ws[cellRef].s = headerStyle;
-  }
-
-  // ── Estilos de datos (fila 5 en adelante, index 4+) ──
-  for (let r = 0; r < rows.length; r++) {
-    const isEven = r % 2 === 0;
-    for (let c = 0; c < headers.length; c++) {
-      const cellRef = XLSX.utils.encode_cell({ r: r + 4, c });
-      if (!ws[cellRef]) continue;
-      const baseStyle = {
-        font: { sz: 10, name: 'Calibri' },
-        fill: isEven ? evenRowFill : oddRowFill,
-        border: cellBorder,
-        alignment: { vertical: 'center' }
-      };
-      // Colorear columna de Estado
-      if (c === 5) {
-        const rawStatus = (rows[r][c] || '').toLowerCase().replace(/ /g, '_');
-        if (statusColors[rawStatus]) {
-          baseStyle.fill = statusColors[rawStatus];
-          baseStyle.font = { ...baseStyle.font, bold: true };
-        }
-        baseStyle.alignment = { horizontal: 'center', vertical: 'center' };
-      }
-      ws[cellRef].s = baseStyle;
-    }
-  }
-
-  // ── Auto-ancho de columnas ──
-  ws['!cols'] = headers.map((h, i) => {
-    let maxLen = h.length;
-    rows.forEach(row => { if (row[i] && String(row[i]).length > maxLen) maxLen = String(row[i]).length; });
-    return { wch: Math.min(maxLen + 4, 40) };
-  });
-
-  // ── Row heights ──
-  ws['!rows'] = [{ hpt: 30 }, { hpt: 18 }, { hpt: 12 }, { hpt: 22 }, ...rows.map(() => ({ hpt: 20 }))];
-
-  const wb = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb, ws, 'Inventory');
-  const fileName = `Entelso_Inventario_${new Date().toISOString().slice(0,10)}.xlsx`;
-  XLSX.writeFile(wb, fileName);
-}
-
-// ── Export with Photos (server-side via ExcelJS) ──
-const exportWithPhotosBtn = document.getElementById('exportWithPhotosBtn');
-if (exportWithPhotosBtn) {
-  exportWithPhotosBtn.addEventListener('click', async () => {
-    // Build query params based on current filters
     const params = new URLSearchParams();
-    params.set('with_photos', 'true');
-
-    // If there's an active zone/location filter, pass it
+    params.set('withPhotos', 'true');
     const activeZoneBtn = document.querySelector('.zone-chip.active');
-    if (activeZoneBtn && activeZoneBtn.dataset.zoneId) {
-      params.set('ubicacion_actual_id', activeZoneBtn.dataset.zoneId);
-    }
-
-    // If there's an active search, pass it
+    if (activeZoneBtn && activeZoneBtn.dataset.zoneId) params.set('ubicacion_actual_id', activeZoneBtn.dataset.zoneId);
+    
     const searchInput = document.getElementById('inventarioSearch');
-    if (searchInput && searchInput.value.trim()) {
-      params.set('search', searchInput.value.trim());
-    }
-
-    // Show loading state
-    const originalHTML = exportWithPhotosBtn.innerHTML;
-    exportWithPhotosBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Generating...';
-    exportWithPhotosBtn.disabled = true;
+    if (searchInput && searchInput.value.trim()) params.set('search', searchInput.value.trim());
 
     try {
-      const response = await fetch(`${API_BASE}/api/activos/export-excel?${params.toString()}`, {
-        headers: { 'Authorization': `Bearer ${session.getToken()}` }
+      const response = await fetch('/api/activos/export-excel?' + params.toString(), {
+        headers: { 'Authorization': 'Bearer ' + session.getToken() }
       });
-
       if (!response.ok) throw new Error('Export failed');
-
       const blob = await response.blob();
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `Entelso_Export_Photos_${new Date().toISOString().slice(0, 10)}.xlsx`;
+      a.download = 'Entelso_Inventory_' + new Date().toISOString().slice(0, 10) + '.xlsx';
       document.body.appendChild(a);
       a.click();
       window.URL.revokeObjectURL(url);
       a.remove();
-      window.customAlert(window.i18n.t('inv.export_ok') || '✅ Excel with photos downloaded successfully!');
     } catch (err) {
-      console.error('Export error:', err);
-      window.customAlert(window.i18n.t('inv.export_err') || '❌ Error generating export. Please try again.');
+      window.customAlert(window.i18n.t('drawer.err_red') || 'Error generating export.');
     } finally {
-      exportWithPhotosBtn.innerHTML = originalHTML;
-      exportWithPhotosBtn.disabled = false;
+      confirmExportBtn.innerHTML = originalHTML;
+      confirmExportBtn.disabled = false;
     }
   });
 }
 
-// Attach open modal for categories
 const openManageCategoriesBtn = document.getElementById('openManageCategoriesBtn');
 const catDropdownContainer = document.getElementById('catDropdownContainer');
 if (openManageCategoriesBtn && catDropdownContainer) {

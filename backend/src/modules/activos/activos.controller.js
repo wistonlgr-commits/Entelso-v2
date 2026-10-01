@@ -96,6 +96,28 @@ exports.exportExcel = async (req, reply, next) => {
       right: { style: 'thin', color: { argb: 'FFCCCCCC' } }
     };
 
+    // Pre-download all images concurrently in chunks
+    const imageCache = {};
+    if (withPhotos) {
+      const allUrls = new Set();
+      data.forEach(item => {
+        let fotos = [];
+        if (typeof item.fotos === 'string') {
+          try { fotos = JSON.parse(item.fotos); } catch(e) {}
+        } else if (Array.isArray(item.fotos)) {
+          fotos = item.fotos;
+        }
+        fotos.slice(0, 3).forEach(u => allUrls.add(u));
+      });
+      const urlsArray = Array.from(allUrls);
+      const chunkSize = 20;
+      for (let i = 0; i < urlsArray.length; i += chunkSize) {
+        const chunk = urlsArray.slice(i, i + chunkSize);
+        const buffers = await Promise.all(chunk.map(u => downloadImage(u)));
+        chunk.forEach((u, idx) => { imageCache[u] = buffers[idx]; });
+      }
+    }
+
     let rowIndex = 5; // data starts at row 5
     for (const item of data) {
       const rawStatus = (item.estado || 'unknown').toLowerCase();
@@ -145,12 +167,10 @@ exports.exportExcel = async (req, reply, next) => {
 
         const fotosToProcess = fotos.slice(0, 3);
         for (let i = 0; i < fotosToProcess.length; i++) {
-          const imageBuffer = await downloadImage(fotosToProcess[i]);
+          const imageBuffer = imageCache[fotosToProcess[i]];
           if (imageBuffer) {
             const ext = fotosToProcess[i].toLowerCase().endsWith('.png') ? 'png' : 'jpeg';
             const imageId = workbook.addImage({ buffer: imageBuffer, extension: ext });
-            // Photo columns: 8, 9, 10 (0-based for tl)
-            // Add small margin: offset 0.15 col and 0.1 row inside the cell
             sheet.addImage(imageId, {
               tl: { col: baseColCount + i + 0.1, row: rowIndex - 1 + 0.05 },
               br: { col: baseColCount + i + 0.9, row: rowIndex - 0.05 },
