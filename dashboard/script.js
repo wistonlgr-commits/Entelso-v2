@@ -617,6 +617,9 @@ function renderInventoryTable(tbody, data, groupByKey = null) {
       let key;
       if (groupByKey === 'zona') {
         key = getNormalizedZone(item.zona);
+      } else if (groupByKey === 'status') {
+        const raw = item.status || '';
+        key = window.i18n?.t('estado.' + raw) || raw.replace(/_/g, ' ') || 'Unknown';
       } else {
         key = item[groupByKey] || (window.i18n.t('api.sin_asignar') || 'Unassigned');
       }
@@ -2794,14 +2797,18 @@ if (confirmExportBtn) {
     const idsToExport = (window.currentFilteredData || inventoryData).map(item => item.db_id);
 
     try {
+      const abortCtrl = new AbortController();
+      const exportTimeout = setTimeout(() => abortCtrl.abort(), 5 * 60 * 1000); // 5 min
       const response = await fetch('/api/activos/export-excel', {
         method: 'POST',
         headers: { 
           'Authorization': 'Bearer ' + session.getToken(),
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ withPhotos: true, ids: idsToExport })
+        body: JSON.stringify({ withPhotos: true, ids: idsToExport }),
+        signal: abortCtrl.signal
       });
+      clearTimeout(exportTimeout);
       if (!response.ok) throw new Error('Export failed');
       const blob = await response.blob();
       const url = window.URL.createObjectURL(blob);

@@ -77,7 +77,7 @@ const STATUS_COLORS = {
 
 async function downloadImage(url) {
   try {
-    const response = await axios.get(url, { responseType: 'arraybuffer', timeout: 15000 });
+    const response = await axios.get(url, { responseType: 'arraybuffer', timeout: 8000 });
     let buf = Buffer.from(response.data);
     // Convert HEIC format on the fly if needed
     if (url.toLowerCase().endsWith('.heic') || (buf.length > 8 && buf.slice(4, 8).toString() === 'ftyp')) {
@@ -126,6 +126,10 @@ function formatDate(d) {
 
 exports.exportExcel = async (req, reply, next) => {
   try {
+    // Disable socket timeout so large exports don't get killed
+    req.setTimeout(0);
+    reply.setTimeout(0);
+
     const isPost = req.method === 'POST';
     const params = isPost ? req.body : req.query;
     
@@ -231,7 +235,7 @@ exports.exportExcel = async (req, reply, next) => {
         });
       });
       const urlsArray = Array.from(allUrls);
-      const chunkSize = 15;
+      const chunkSize = 30;
       for (let i = 0; i < urlsArray.length; i += chunkSize) {
         const chunk = urlsArray.slice(i, i + chunkSize);
         const buffers = await Promise.all(chunk.map(u => downloadImage(u)));
