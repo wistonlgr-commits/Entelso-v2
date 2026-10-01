@@ -13,6 +13,7 @@ router.patch('/bulk/status',   requireAuth, requireAdmin, ctrl.bulkUpdateStatus)
 router.patch('/bulk/zona',     requireAuth, requireAdmin, ctrl.bulkUpdateZona);
 router.patch('/bulk/team',     requireAuth, requireAdmin, ctrl.bulkUpdateTeam);
 router.get('/export-excel',    requireAuth, ctrl.exportExcel);
+router.post('/export-excel',   requireAuth, ctrl.exportExcel);
 router.get('/:id',             requireAuth, ctrl.getById);
 router.post('/',               requireAuth, requireAdmin, validate(createAssetSchema), ctrl.create);
 router.post('/bulk',          requireAuth, requireAdmin, validate(bulkCreateAssetSchema), ctrl.bulkCreate);

@@ -2505,7 +2505,7 @@ function inicializarFiltros() {
         groupByKey = this.dataset.group;
       }
       
-      renderInventoryTable(document.getElementById('inventTableBody'), inventoryData, groupByKey);
+      renderInventoryTable(document.getElementById('inventTableBody'), window.currentFilteredData || inventoryData, groupByKey);
     });
   });
 
@@ -2779,17 +2779,16 @@ if (confirmExportBtn) {
     confirmExportBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Generating...';
     confirmExportBtn.disabled = true;
 
-    const params = new URLSearchParams();
-    params.set('withPhotos', 'true');
-    const activeZoneBtn = document.querySelector('.zone-chip.active');
-    if (activeZoneBtn && activeZoneBtn.dataset.zoneId) params.set('ubicacion_actual_id', activeZoneBtn.dataset.zoneId);
-    
-    const searchInput = document.getElementById('inventarioSearch');
-    if (searchInput && searchInput.value.trim()) params.set('search', searchInput.value.trim());
+    const idsToExport = (window.currentFilteredData || inventoryData).map(item => item.db_id);
 
     try {
-      const response = await fetch('/api/activos/export-excel?' + params.toString(), {
-        headers: { 'Authorization': 'Bearer ' + session.getToken() }
+      const response = await fetch('/api/activos/export-excel', {
+        method: 'POST',
+        headers: { 
+          'Authorization': 'Bearer ' + session.getToken(),
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ withPhotos: true, ids: idsToExport })
       });
       if (!response.ok) throw new Error('Export failed');
       const blob = await response.blob();

@@ -27,11 +27,21 @@ async function downloadImage(url) {
 
 exports.exportExcel = async (req, reply, next) => {
   try {
-    const filters = { ...req.query };
-    const withPhotos = filters.with_photos === 'true';
+    const isPost = req.method === 'POST';
+    const params = isPost ? req.body : req.query;
+    
+    const filters = { ...params };
+    const withPhotos = filters.withPhotos === 'true' || filters.withPhotos === true;
+    delete filters.withPhotos;
     delete filters.with_photos;
 
-    const data = await svc.getAll(filters);
+    let data = await svc.getAll(filters);
+
+    if (params.ids) {
+      const allowedIds = Array.isArray(params.ids) ? params.ids : params.ids.split(',').map(id => Number(id));
+      data = data.filter(item => allowedIds.includes(item.id));
+    }
+
 
     const workbook = new ExcelJS.Workbook();
     workbook.creator = 'Entelso';
