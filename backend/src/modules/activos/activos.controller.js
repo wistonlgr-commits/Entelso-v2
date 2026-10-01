@@ -3,6 +3,52 @@ const res = require('../../common/utils/apiResponse');
 const ExcelJS = require('exceljs');
 const axios = require('axios');
 const heicConvert = require('heic-convert');
+const { imageSize } = require('image-size');
+
+function calculateImageAnchor(imageBuffer, baseCol, rowIndex) {
+  let imgWidth = 4;
+  let imgHeight = 3;
+  try {
+    const dims = imageSize(imageBuffer);
+    if (dims && dims.width && dims.height) {
+      if (dims.orientation === 6 || dims.orientation === 8) {
+        imgWidth = dims.height;
+        imgHeight = dims.width;
+      } else {
+        imgWidth = dims.width;
+        imgHeight = dims.height;
+      }
+    }
+  } catch (e) {}
+
+  const imgAspect = imgWidth / imgHeight;
+  const CELL_WIDTH_PX = 180; // col width 25 ≈ 180px
+  const CELL_HEIGHT_PX = 133.33; // row height 100pt = 133.33px
+  const MAX_W_PX = CELL_WIDTH_PX * 0.88;
+  const MAX_H_PX = CELL_HEIGHT_PX * 0.88;
+  const cellAspect = MAX_W_PX / MAX_H_PX;
+
+  let finalW, finalH;
+  if (imgAspect >= cellAspect) {
+    finalW = MAX_W_PX;
+    finalH = finalW / imgAspect;
+  } else {
+    finalH = MAX_H_PX;
+    finalW = finalH * imgAspect;
+  }
+
+  const colSpan = Math.min(0.92, Math.max(0.2, finalW / CELL_WIDTH_PX));
+  const rowSpan = Math.min(0.92, Math.max(0.2, finalH / CELL_HEIGHT_PX));
+
+  const colOffset = Math.max(0.04, (1 - colSpan) / 2);
+  const rowOffset = Math.max(0.04, (1 - rowSpan) / 2);
+
+  return {
+    tl: { col: baseCol + colOffset, row: (rowIndex - 1) + rowOffset },
+    br: { col: baseCol + colOffset + colSpan, row: (rowIndex - 1) + rowOffset + rowSpan },
+    editAs: 'oneCell'
+  };
+}
 
 // Translate DB status values to English
 const STATUS_EN = {
@@ -114,7 +160,6 @@ exports.exportExcel = async (req, reply, next) => {
     // ── Headers matching user template ──
     const headers = [
       'Inventory No.',
-      'Brand',
       'Equipment Name',
       'Category',
       'Zone / Site',
@@ -166,7 +211,7 @@ exports.exportExcel = async (req, reply, next) => {
     });
 
     // ── Column widths ──
-    const colWidths = [18, 15, 38, 16, 14, 22, 16, 20, 16, 16];
+    const colWidths = [18, 38, 16, 14, 22, 16, 20, 16, 16];
     if (withPhotos) colWidths.push(25, 25);
     colWidths.forEach((w, i) => { sheet.getColumn(i + 1).width = w; });
 
@@ -203,14 +248,13 @@ exports.exportExcel = async (req, reply, next) => {
     };
 
     const PHOTO_ROW_HEIGHT = 100;
-    const photoColBase = 10; // Col 11 is Photo 1 (0-based index 10)
+    const photoColBase = 9; // Col 10 is Photo 1 (0-based index 9)
 
     let rowIndex = 5; // data starts at row 5
     for (const item of data) {
       const rawStatus = (item.estado || 'unknown').toLowerCase();
       const statusEN = STATUS_EN[rawStatus] || rawStatus.toUpperCase().replace(/_/g, ' ');
       const statusColor = STATUS_COLORS[statusEN] || STATUS_COLORS['UNKNOWN'];
-      const brandName = getBrand(item);
 
       let fotos = [];
       if (typeof item.fotos === 'string') {
@@ -223,7 +267,6 @@ exports.exportExcel = async (req, reply, next) => {
 
       const rowValues = [
         item.numero_serie || '—',
-        brandName,
         item.nombre_item || '—',
         item.categoria_padre || 'Uncategorized',
         item.nombre_ubicacion || '—',
@@ -248,7 +291,7 @@ exports.exportExcel = async (req, reply, next) => {
         cell.font = { size: 10, name: 'Segoe UI', color: { argb: 'FF1E293B' } };
         cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: rowBg } };
 
-        if (colNumber === 3) {
+        if (colNumber === 2) {
           // Equipment Name
           cell.alignment = { horizontal: 'left', vertical: 'middle', wrapText: true };
           cell.font = { size: 10, name: 'Segoe UI', bold: true, color: { argb: 'FF0F172A' } };
@@ -256,7 +299,7 @@ exports.exportExcel = async (req, reply, next) => {
           // Serial No.
           cell.alignment = { horizontal: 'center', vertical: 'middle' };
           cell.font = { size: 10, name: 'Segoe UI', bold: true, color: { argb: 'FF1E3A5F' } };
-        } else if (colNumber === 6) {
+        } else if (colNumber === 5) {
           // Status Badge
           cell.alignment = { horizontal: 'center', vertical: 'middle' };
           cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: statusColor.fill } };
@@ -274,11 +317,8 @@ exports.exportExcel = async (req, reply, next) => {
           if (imageBuffer) {
             const ext = pUrl.toLowerCase().endsWith('.png') ? 'png' : 'jpeg';
             const imageId = workbook.addImage({ buffer: imageBuffer, extension: ext });
-            sheet.addImage(imageId, {
-              tl: { col: photoColBase + pIdx + 0.08, row: (rowIndex - 1) + 0.06 },
-              br: { col: photoColBase + pIdx + 0.92, row: rowIndex - 0.06 },
-              editAs: 'oneCell'
-            });
+            const anchor = calculateImageAnchor(imageBuffer, photoColBase + pIdx, rowIndex);
+            sheet.addImage(imageId, anchor);
           }
         }
       }

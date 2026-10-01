@@ -560,7 +560,7 @@ async function registrarAuditLog(accion, meta = null) {
 function renderInventoryTable(tbody, data, groupByKey = null) {
   if (!tbody) return;
   const isDash = tbody.id === 'dashTableBody';
-  const colspan = isDash ? 6 : 11;
+  const colspan = isDash ? 6 : 10;
 
   if (!data || data.length === 0) {
     tbody.innerHTML = `<tr><td colspan="${colspan}" class="table-empty">${window.i18n.t('api.sin_datos')}</td></tr>`;
@@ -587,7 +587,6 @@ function renderInventoryTable(tbody, data, groupByKey = null) {
           }
         </td>
         <td><span class="id-cell" style="display:inline-block; max-width:140px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; font-family: 'Courier New', Courier, monospace; font-weight: 600; font-size: 13px; color: var(--text);" title="${escapeHTML(item.id)}">${escapeHTML(item.id)}</span></td>
-        <td style="color:var(--text-2); font-size:12px;">${escapeHTML(item.marca)}</td>
         <td>${escapeHTML(item.equipo)}</td>
         <td>${escapeHTML(item.zona)}</td>
         <td>${escapeHTML(item.asignado)}</td>
@@ -1770,7 +1769,6 @@ async function openDrawer(item) {
     { label: window.i18n.t('drawer.meta_serie'),   value: (item.serie || item.id || '—') + (item.original_serial ? ' / ' + item.original_serial : '') },
     { label: window.i18n.t('drawer.meta_tipo'),    value: item.tipo_item || '—' },
     { label: window.i18n.t('drawer.meta_zona'),    value: item.zona || '—' },
-    { label: (window.i18n && window.i18n.t('drawer.meta_marca') !== 'drawer.meta_marca') ? window.i18n.t('drawer.meta_marca') : 'Brand',  value: item.marca || '—' },
     { label: window.i18n.t('drawer.meta_estado'),  value: (window.i18n.t('estado.' + item.status) || item.status || '').replace(/_/g,' ') || '—' },
     ...( (item.id === 'EQ-15' || item.id === 'EQ-17') ? [
       { label: window.i18n.t('drawer.meta_ulti_cal') || 'Last Calibration',  value: formatearFecha(item.ultima_calibracion) },
