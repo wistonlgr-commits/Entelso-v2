@@ -15,15 +15,15 @@ const API_BASE = (!window.location.hostname || window.location.hostname === 'loc
   ? 'http://localhost:3001'
   : 'https://rlffb3uv162ja9sjunyx9meb.167.86.70.193.sslip.io';
 
-window.OFFICIAL_CATEGORIES = [
-  { id: 'WalkTest Kits', label: 'WalkTest Kits', icon: 'fa-person-walking' },
-  { id: 'Testing Equipment', label: 'Testing Equipment', icon: 'fa-wave-square' },
-  { id: 'Hand Tools', label: 'Hand Tools', icon: 'fa-toolbox' },
-  { id: 'Power Tools', label: 'Power Tools', icon: 'fa-bolt' },
-  { id: 'Safety & PPE', label: 'Safety & PPE', icon: 'fa-hard-hat' },
-  { id: 'CAM Keys', label: 'CAM Keys', icon: 'fa-key', hidden: true },
-  { id: 'Consumables', label: 'Consumables', icon: 'fa-box-open', hidden: true }
-];
+window.CATEGORY_ICONS = {
+  'WalkTest Kits': 'fa-person-walking',
+  'Testing Equipment': 'fa-wave-square',
+  'Hand Tools': 'fa-toolbox',
+  'Power Tools': 'fa-bolt',
+  'Safety & PPE': 'fa-hard-hat',
+  'CAM Keys': 'fa-key',
+  'Consumables': 'fa-box-open'
+};
 
 window.getAssetCategory = function(item) {
   if (!item) return 'Hand Tools';
@@ -2684,6 +2684,7 @@ async function cargarCategorias() {
     if (json.success && json.data) {
       systemCategories = json.data;
       renderizarCategoriasUI();
+      populateCategorySelects();
     }
   } catch (err) {
     console.error('Error cargando categorias', err);
@@ -2702,7 +2703,7 @@ function renderizarCategoriasUI() {
     li.style.borderBottom = '1px solid var(--border)';
     li.style.display = 'flex';
     li.style.justifyContent = 'space-between';
-    li.innerHTML = `<span>${cat.nombre}</span> <span style="color:var(--text-2); font-size:11px;">${cat.tipo}</span>`;
+    li.innerHTML = `<span>${cat.nombre}</span> <span style="color:var(--text-2); font-size:11px;">${window.translateTipo(cat.tipo)}</span>`;
     ul.appendChild(li);
   });
 }
@@ -2712,87 +2713,30 @@ function populateCategorySelects() {
   const bulkCategorySelect = document.getElementById('bulkCategorySelect');
   
   if (modalCategoria) {
-    modalCategoria.innerHTML = window.OFFICIAL_CATEGORIES.map(c => `<option value="${c.id}">${c.label}</option>`).join('');
+    modalCategoria.innerHTML = systemCategories.map(c => `<option value="${c.nombre}">${c.nombre}</option>`).join('');
   }
   if (bulkCategorySelect) {
     bulkCategorySelect.innerHTML = `<option value="" data-i18n="cat.seleccionar">${window.i18n?.t('cat.seleccionar') || '-- Select Destination Category --'}</option>` + 
-      window.OFFICIAL_CATEGORIES.map(c => `<option value="${c.id}">${c.label}</option>`).join('');
+      systemCategories.map(c => `<option value="${c.nombre}">${c.nombre}</option>`).join('');
   }
 }
-document.addEventListener('DOMContentLoaded', populateCategorySelects);
-if (document.readyState === 'complete' || document.readyState === 'interactive') {
-  populateCategorySelects();
-}
+
 function renderizarFiltrosCategorias() {
   const container = document.getElementById('inventoryCategoryChips');
   if (!container) return;
   container.innerHTML = `<button class="chip active" data-filter="all" data-i18n="dash.filter.todos">${window.i18n.t('dash.filter.todos') || 'All'}</button>`;
   
   // Render main ones
-  window.OFFICIAL_CATEGORIES.filter(c => !c.hidden).forEach(cat => {
+  systemCategories.forEach(cat => {
+    const icon = window.CATEGORY_ICONS[cat.nombre] || 'fa-tag';
     const btn = document.createElement('button');
     btn.className = 'chip';
-    btn.dataset.filter = cat.id;
-    btn.innerHTML = `<i class="fa-solid ${cat.icon}" style="margin-right: 6px;"></i>${cat.label}`;
+    btn.dataset.filter = cat.nombre;
+    btn.innerHTML = `<i class="fa-solid ${icon}" style="margin-right: 6px;"></i>${cat.nombre}`;
     container.appendChild(btn);
   });
 
-  // Render "More..." dropdown
-  const hiddenCats = window.OFFICIAL_CATEGORIES.filter(c => c.hidden);
-  if (hiddenCats.length > 0) {
-    const dropdownWrap = document.createElement('div');
-    dropdownWrap.className = 'custom-dropdown';
-    dropdownWrap.style.position = 'relative';
-    dropdownWrap.style.display = 'inline-block';
-
-    const moreBtn = document.createElement('button');
-    moreBtn.className = 'chip';
-    const moreText = window.i18n ? (window.i18n.t('dash.filter.mas') || 'More...') : 'More...';
-    moreBtn.innerHTML = `${moreText} <i class="fa-solid fa-chevron-down" style="margin-left:4px;"></i>`;
-    
-    const menu = document.createElement('div');
-    menu.className = 'more-menu';
-    menu.style.display = 'none';
-    menu.style.position = 'absolute';
-    menu.style.top = '100%';
-    menu.style.left = '0';
-    menu.style.backgroundColor = 'var(--bg-panel)';
-    menu.style.border = '1px solid var(--border)';
-    menu.style.borderRadius = '8px';
-    menu.style.boxShadow = '0 4px 12px rgba(0,0,0,0.1)';
-    menu.style.zIndex = '9999';
-    menu.style.minWidth = '150px';
-    menu.style.marginTop = '4px';
-    menu.style.padding = '8px 0';
-
-    hiddenCats.forEach(cat => {
-      const item = document.createElement('div');
-      item.dataset.filter = cat.id;
-      item.className = 'more-menu-item';
-      item.style.padding = '8px 16px';
-      item.style.cursor = 'pointer';
-      item.style.color = 'var(--text-2)';
-      item.style.fontSize = '13px';
-      item.style.display = 'flex';
-      item.style.alignItems = 'center';
-      item.style.whiteSpace = 'nowrap';
-      item.innerHTML = `<i class="fa-solid ${cat.icon}" style="margin-right: 8px; width: 16px; text-align: center;"></i>${cat.label}`;
-      item.onmouseover = () => item.style.backgroundColor = 'var(--bg-body)';
-      item.onmouseout = () => item.style.backgroundColor = 'transparent';
-      menu.appendChild(item);
-    });
-
-    moreBtn.onclick = (e) => {
-      e.stopPropagation();
-      menu.style.display = menu.style.display === 'none' ? 'block' : 'none';
-    };
-    
-    document.addEventListener('click', () => { menu.style.display = 'none'; });
-
-    dropdownWrap.appendChild(moreBtn);
-    dropdownWrap.appendChild(menu);
-    container.appendChild(dropdownWrap);
-  }
+  
 
   // Attach event listeners
   container.querySelectorAll('.chip[data-filter], .more-menu-item').forEach(el => {
@@ -3120,7 +3064,7 @@ window.editarActivo = async function(item) {
           </div>
           <div class="form-group"><label>${window.i18n.t('modal.cat') || 'Category'}</label>
             <select id="editAssetCategoria" class="form-input">
-              ${window.OFFICIAL_CATEGORIES.map(c => `<option value="${c.id}" ${item.categoria === c.id || item.categoria_padre === c.id ? 'selected' : ''}>${c.label}</option>`).join('')}
+              ${systemCategories.map(c => `<option value="${c.nombre}" ${item.categoria === c.nombre || item.categoria_padre === c.nombre ? 'selected' : ''}>${c.nombre}</option>`).join('')}
             </select>
           </div>
           <div class="form-row">
@@ -3820,8 +3764,8 @@ document.getElementById('bulkMoveCategoryBtn')?.addEventListener('click', () => 
   selectedIdsForMove = Array.from(checked).map(cb => cb.value);
   const select = document.getElementById('bulkCategorySelect');
   select.innerHTML = '<option value="">-- ' + (window.i18n.t('cat.seleccionar') || 'Select Destination Category') + ' --</option>';
-  window.OFFICIAL_CATEGORIES.forEach(c => {
-    select.innerHTML += `<option value="${c.id}">${c.label}</option>`;
+  systemCategories.forEach(c => {
+    select.innerHTML += `<option value="${c.nombre}">${c.nombre}</option>`;
   });
   document.getElementById('bulkCategoryModal').style.display = 'flex';
 });
