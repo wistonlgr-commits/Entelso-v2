@@ -108,6 +108,7 @@ const TRANSLATIONS = {
     'col.equipo':          'Equipment',
     'col.zona':            'Zone',
     'col.team':            'Team',
+    'col.cantidad':          'Qty',
     'col.estado':          'Status',
     'col.registrado':      'Registered',
     'col.fecha':           'Date',
@@ -260,7 +261,8 @@ const TRANSLATIONS = {
     'estado.calibrado':           'Calibrated',
     'estado.danado':              'Damaged',
     'estado.en_funcionamiento':   'In Operation',
-    'estado.desconocido':         'Unknown',
+    'estado.desconocido':    'Unknown',
+    'estado.sin_stock':    'Out of Stock',
 
     // ── Login ──
     'login.titulo':        'Sign In',
@@ -340,7 +342,9 @@ const TRANSLATIONS = {
     'drawer.meta_marca':   'Brand',
     'drawer.meta_estado':  'Status',
     'drawer.meta_ulti_cal':'Last Calibration',
-    'drawer.meta_cal':     'Next Calibration',
+    'drawer.meta_cantidad':  'Quantity',
+    'drawer.meta_fecha_registro': 'Registration Date',
+    'drawer.meta_cal':       'Next Calibration',
     'drawer.meta_ulti_tag':'DOM / Last Tag',
     'drawer.meta_tag':     'Next Tag/Inspection',
     'drawer.meta_asignado':'Assigned to',
@@ -645,6 +649,7 @@ const TRANSLATIONS = {
     'col.equipo':          'Equipo / Dispositivo',
     'col.zona':            'Zona / Sitio',
     'col.team':            'Equipo (Team)',
+    'col.cantidad':          'Cant.',
     'col.estado':          'Estado',
     'col.registrado':      'Registrado',
     'col.fecha':           'Fecha',
@@ -799,7 +804,8 @@ const TRANSLATIONS = {
     'estado.calibrado':           'Calibrado',
     'estado.danado':              'Dañado',
     'estado.en_funcionamiento':   'En Funcionamiento',
-    'estado.desconocido':         'Desconocido',
+    'estado.desconocido':    'Desconocido',
+    'estado.sin_stock':    'Sin Stock',
 
     // ── Login ──
     'login.titulo':        'Iniciar Sesión',

@@ -389,6 +389,7 @@ async function cargarActivos(silent = false) {
       cantidad:    a.cantidad !== undefined ? a.cantidad : 1,
       marca:       a.marca || '—',
       tipo_item:   window.translateTipo(a.tipo),
+      raw_tipo:    a.tipo,
       categoria:   window.getAssetCategory(a),
       categoria_padre: a.categoria_padre || '',
       zona:        a.nombre_ubicacion || '—',
@@ -1824,6 +1825,10 @@ async function openDrawer(item) {
   });
 
   // Quantity logic
+  const qtySection = document.getElementById('drawerQtySection');
+  if (qtySection) {
+    qtySection.style.display = (item.raw_tipo === 'consumible' || item.categoria_padre === 'Consumables') ? 'block' : 'none';
+  }
   const qtyInput = document.getElementById('drawerQtyInput');
   const qtySave = document.getElementById('drawerQtySave');
   const qtyStatus = document.getElementById('drawerQtyStatus');
@@ -2285,6 +2290,23 @@ function inicializarModal() {
     if(document.getElementById('modalCantidad')) document.getElementById('modalCantidad').value = '1';
     openModal();
   });
+
+  const modCat = document.getElementById('modalCategoria');
+  if (modCat) {
+    modCat.addEventListener('change', (e) => {
+      const wrap = document.getElementById('modalCantidadWrapper');
+      if (wrap) {
+        if (e.target.value === 'Consumables') {
+          wrap.style.display = 'block';
+        } else {
+          wrap.style.display = 'none';
+          const cantInput = document.getElementById('modalCantidad');
+          if (cantInput) cantInput.value = '1';
+        }
+      }
+    });
+  }
+
   document.getElementById('openAgendarModal')?.addEventListener('click', () => {
     document.getElementById('maintenanceModalOverlay').classList.add('open');
   });
@@ -3122,7 +3144,7 @@ window.editarActivo = async function(item) {
             </select>
           </div>
           <div style="margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--border);">
-            <div style="margin-bottom: 12px; width: 150px;">
+            <div style="margin-bottom: 12px; width: 150px; display: ${(item.raw_tipo === 'consumible' || item.categoria_padre === 'Consumables') ? 'block' : 'none'};">
               <label>${window.i18n.t('modal.cantidad') || 'Quantity'}</label>
               <input type="number" id="editAssetCantidad" class="form-input" min="0" value="${item.cantidad !== undefined ? item.cantidad : 1}">
             </div>
