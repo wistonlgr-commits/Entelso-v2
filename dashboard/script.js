@@ -1827,7 +1827,7 @@ async function openDrawer(item) {
   // Quantity logic
   const qtySection = document.getElementById('drawerQtySection');
   if (qtySection) {
-    qtySection.style.display = (item.raw_tipo === 'consumible' || item.categoria_padre === 'Consumables') ? 'block' : 'none';
+    qtySection.style.display = (item.raw_tipo === 'consumible' || item.categoria_padre === 'Consumables' || item.categoria_padre === 'Safety & PPE') ? 'block' : 'none';
   }
   const qtyInput = document.getElementById('drawerQtyInput');
   const qtySave = document.getElementById('drawerQtySave');
@@ -2296,7 +2296,7 @@ function inicializarModal() {
     modCat.addEventListener('change', (e) => {
       const wrap = document.getElementById('modalCantidadWrapper');
       if (wrap) {
-        if (e.target.value === 'Consumables') {
+        if (e.target.value === 'Consumables' || e.target.value === 'Safety & PPE') {
           wrap.style.display = 'block';
         } else {
           wrap.style.display = 'none';
@@ -3144,7 +3144,7 @@ window.editarActivo = async function(item) {
             </select>
           </div>
           <div style="margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--border);">
-            <div style="margin-bottom: 12px; width: 150px; display: ${(item.raw_tipo === 'consumible' || item.categoria_padre === 'Consumables') ? 'block' : 'none'};">
+            <div style="margin-bottom: 12px; width: 150px; display: ${(item.raw_tipo === 'consumible' || item.categoria_padre === 'Consumables' || item.categoria_padre === 'Safety & PPE') ? 'block' : 'none'};">
               <label>${window.i18n.t('modal.cantidad') || 'Quantity'}</label>
               <input type="number" id="editAssetCantidad" class="form-input" min="0" value="${item.cantidad !== undefined ? item.cantidad : 1}">
             </div>
