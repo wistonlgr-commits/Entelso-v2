@@ -269,6 +269,7 @@
                             <th data-i18n="col.id">ID</th>
                             <th data-i18n="col.equipo">Equipment</th>
                             <th data-i18n="col.zona">Zone</th>
+                            <th style="text-align:center" data-i18n="col.cantidad">Qty</th>
                             <th data-i18n="col.team">Team</th>
                             <th data-i18n="col.estado">Status</th>
                             <th class="col-right" data-i18n="col.registrado">Registered</th>
@@ -366,6 +367,7 @@
                             <th data-i18n="col.id">Serial / Tag</th>
                             <th data-i18n="col.equipo">Equipment</th>
                             <th data-i18n="col.zona">Zone</th>
+                            <th style="text-align:center" data-i18n="col.cantidad">Qty</th>
                             <th data-i18n="col.asignado">Assigned to</th>
                             <th data-i18n="col.team">Team</th>
                             <th data-i18n="col.estado">Status</th>
@@ -769,6 +771,15 @@
         <!-- Equipment detail cards -->
         <div class="drawer-meta" id="drawerMeta"></div>
 
+        <div id="drawerQtySection" style="padding: 0 24px; margin-bottom: 16px;">
+            <div class="drawer-section-label" data-i18n="drawer.meta_cantidad">Quantity</div>
+            <div style="display: flex; align-items: center; gap: 8px;">
+                <input type="number" id="drawerQtyInput" class="form-input" style="width: 80px;" min="0">
+                <button id="drawerQtySave" class="btn-ghost" style="font-size: 12px; padding: 4px 14px;">Save Qty</button>
+                <span id="drawerQtyStatus" style="font-size: 12px;"></span>
+            </div>
+        </div>
+
         <!-- Notes / Kit Contents -->
         <div id="drawerNotasSection" style="padding: 0 24px; margin-bottom: 16px;">
             <div class="drawer-section-label" data-i18n="drawer.notas">Notes / Kit Contents</div>
@@ -931,7 +942,14 @@
                 </div>
                 <div class="form-group">
                     <label data-i18n="modal.fecha_registro">Registration Date</label>
-                    <input type="text" data-type="date" id="modalFechaRegistro" class="form-input">
+                    <input type="text" data-type="date" id="modalFechaRegistro" class="form-input" readonly disabled style="background-color: var(--bg-hover); cursor: not-allowed; color: var(--text-2);">
+                </div>
+            </div>
+            
+            <div class="form-row" style="margin-top: 16px;">
+                <div class="form-group" style="width: 150px;">
+                    <label data-i18n="modal.cantidad">Quantity</label>
+                    <input type="number" id="modalCantidad" class="form-input" value="1" min="0">
                 </div>
             </div>
             

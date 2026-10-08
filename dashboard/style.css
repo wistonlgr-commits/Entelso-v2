@@ -764,6 +764,12 @@ canvas { display: block; }
 }
 .s-desconocido .dot { background: var(--text-2); }
 
+.s-sin_stock {
+    background: rgba(139,148,158,0.25);
+    color: var(--text-2);
+}
+.s-sin_stock .dot { background: #6e7681; }
+
 /* ══════════════════════════════════════
    ZONES GRID VIEW
 ══════════════════════════════════════ */

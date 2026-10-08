@@ -5,7 +5,7 @@ const ASSET_SELECT = `
          a.fecha_registro,
          a.fecha_ultima_cali, a.fecha_prox_cali,
          a.fecha_ultimo_tag,  a.fecha_prox_tag,
-         a.fotos, a.notas,
+         a.fotos, a.notas, a.cantidad,
          i.id   AS item_id,       i.nombre AS nombre_item, i.tipo AS tipo, i.categoria_padre AS categoria_padre, i.marca AS marca,
          u.id   AS usuario_id,    u.nombre AS nombre_usuario, u.telefono_whatsapp, u.team AS usuario_team,
          ub.id  AS ubicacion_id,  ub.nombre_ubicacion
@@ -128,15 +128,18 @@ exports.create = async (data) => {
     finalNumeroSerie = await generateAutoId(categoria);
   }
 
+  let finalEstado = estado ?? 'disponible';
+  const finalCantidad = data.cantidad !== undefined ? data.cantidad : 1;
+  if (finalCantidad === 0) finalEstado = 'sin_stock';
+
   const { rows } = await db.query(
     `INSERT INTO activos (item_id, numero_serie, original_serial, usuario_actual_id, ubicacion_actual_id,
-       fecha_registro, fecha_ultima_cali, fecha_prox_cali, fecha_ultimo_tag, fecha_prox_tag, estado, team, fotos, notas)
-     VALUES ($1,$2,$3,$4,$5,COALESCE($6, CURRENT_DATE),$7,$8,$9,$10,$11,$12,$13,$14) RETURNING *`,
+       fecha_registro, fecha_ultima_cali, fecha_prox_cali, fecha_ultimo_tag, fecha_prox_tag, estado, team, fotos, notas, cantidad)
+     VALUES ($1,$2,$3,$4,$5,CURRENT_DATE,$6,$7,$8,$9,$10,$11,$12,$13,$14) RETURNING *`,
     [item_id, finalNumeroSerie, finalOriginalSerial, usuario_actual_id ?? null, ubicacion_actual_id ?? null,
-     data.fecha_registro ?? null,
      fecha_ultima_cali ?? null, fecha_prox_cali ?? null,
      fecha_ultimo_tag  ?? null, fecha_prox_tag  ?? null,
-     estado ?? 'disponible', team ?? null, data.fotos ? JSON.stringify(data.fotos) : null, notas ?? null]
+     finalEstado, team ?? null, data.fotos ? JSON.stringify(data.fotos) : null, notas ?? null, finalCantidad]
   );
   return rows[0];
 };
@@ -188,8 +191,22 @@ exports.update = async (id, patch) => {
   }
 
   const allowed = ['numero_serie', 'original_serial', 'item_id', 'usuario_actual_id','ubicacion_actual_id','estado','team',
-                   'fecha_ultima_cali','fecha_prox_cali','fecha_ultimo_tag','fecha_prox_tag', 'fotos', 'notas', 'parent_activo_id'];
+                   'fecha_ultima_cali','fecha_prox_cali','fecha_ultimo_tag','fecha_prox_tag', 'fotos', 'notas', 'parent_activo_id', 'cantidad'];
   const sets = []; const params = [];
+  
+  // Auto status transition logic
+  if (patch.cantidad !== undefined) {
+    if (patch.cantidad === 0 && !patch.estado) {
+      patch.estado = 'sin_stock';
+    } else if (patch.cantidad > 0 && !patch.estado) {
+      // Check current state in DB
+      const currentState = await db.query('SELECT estado FROM activos WHERE id=$1', [id]);
+      if (currentState.rows[0]?.estado === 'sin_stock') {
+        patch.estado = 'disponible';
+      }
+    }
+  }
+
   for (const k of allowed) {
     if (patch[k] !== undefined) { 
       let val = patch[k] === '' ? null : patch[k];

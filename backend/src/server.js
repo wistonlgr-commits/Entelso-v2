@@ -14,6 +14,9 @@ async function start() {
     const runMigration = require('./migrations/20260812_corrections');
     await runMigration();
 
+    const runMigrationOct = require('./migrations/20261008_add_cantidad_sin_stock');
+    await runMigrationOct();
+
     server = app.listen(env.PORT, () =>
       logger.info(`🚀 Backend Entelso escuchando en http://localhost:${env.PORT} [${env.NODE_ENV}]`)
     );

@@ -66,7 +66,8 @@ const STATUS_EN = {
   'calibrado': 'CALIBRATED',
   'danado': 'DAMAGED',
   'en_funcionamiento': 'IN OPERATION',
-  'desconocido': 'UNKNOWN'
+  'desconocido': 'UNKNOWN',
+  'sin_stock': 'OUT OF STOCK'
 };
 
 const STATUS_COLORS = {
@@ -78,7 +79,8 @@ const STATUS_COLORS = {
   'PENDING CALIBRATION': { fill: 'FFFFF3E0', text: 'FFE65100' },
   'CALIBRATED': { fill: 'FFE8F5E9', text: 'FF2E7D32' },
   'IN OPERATION': { fill: 'FFE8F5E9', text: 'FF2E7D32' },
-  'UNKNOWN': { fill: 'FFF5F5F5', text: 'FF757575' }
+  'UNKNOWN': { fill: 'FFF5F5F5', text: 'FF757575' },
+  'OUT OF STOCK': { fill: 'FFECEFF1', text: 'FF546E7A' }
 };
 
 async function downloadImage(url) {
@@ -169,6 +171,7 @@ exports.exportExcel = async (req, reply, next) => {
       'Equipment Name',
       'Category',
       'Zone / Site',
+      'Qty',
       'Status',
       'Team',
       'Assigned To',
@@ -254,7 +257,7 @@ exports.exportExcel = async (req, reply, next) => {
     };
 
     const PHOTO_ROW_HEIGHT = 100;
-    const photoColBase = 9; // Col 10 is Photo 1 (0-based index 9)
+    const photoColBase = 10; // Col 11 is Photo 1 (0-based index 10)
 
     let rowIndex = 5; // data starts at row 5
     for (const item of data) {
@@ -276,6 +279,7 @@ exports.exportExcel = async (req, reply, next) => {
         item.nombre_item || '—',
         item.categoria_padre || 'Uncategorized',
         item.nombre_ubicacion || '—',
+        item.cantidad ?? 1,
         statusEN,
         item.usuario_team || item.team || '—',
         item.nombre_usuario || 'Unassigned',

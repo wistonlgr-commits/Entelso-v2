@@ -2,7 +2,7 @@ const { z } = require('zod');
 
 const estadoEnum = z.enum([
   'disponible', 'en_uso', 'en_mantenimiento', 'calibracion_pendiente',
-  'fuera_de_servicio', 'calibrado', 'danado', 'en_funcionamiento', 'desconocido'
+  'fuera_de_servicio', 'calibrado', 'danado', 'en_funcionamiento', 'desconocido', 'sin_stock'
 ]);
 const fecha = z.string().regex(/^\d{4}-\d{2}-\d{2}$/).nullable().optional();
 
@@ -26,6 +26,7 @@ exports.createAssetSchema = z.object({
   estado: estadoEnum.default('disponible'),
   fotos: z.array(z.string()).max(5).optional(),
   notas: z.string().nullable().optional(),
+  cantidad: z.number().int().min(0).optional(),
 }).refine(noConflicto, conflictMsg);
 
 exports.updateAssetSchema = z.object({
@@ -44,6 +45,7 @@ exports.updateAssetSchema = z.object({
   fotos: z.array(z.string()).max(5).optional(),
   notas: z.string().nullable().optional(),
   parent_activo_id: z.number().int().positive().nullable().optional(),
+  cantidad: z.number().int().min(0).optional(),
 });
 
 exports.bulkCreateAssetSchema = z.object({

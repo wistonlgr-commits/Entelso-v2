@@ -386,6 +386,7 @@ async function cargarActivos(silent = false) {
       db_id:       a.id,
       id:          a.numero_serie,
       equipo:      a.nombre_item,
+      cantidad:    a.cantidad !== undefined ? a.cantidad : 1,
       marca:       a.marca || '—',
       tipo_item:   window.translateTipo(a.tipo),
       categoria:   window.getAssetCategory(a),
@@ -574,6 +575,7 @@ function renderInventoryTable(tbody, data, groupByKey = null) {
         <td><span class="id-cell" style="display:inline-block; max-width:140px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; font-family: 'Courier New', Courier, monospace; font-weight: 600; font-size: 13px; color: var(--text);" title="${escapeHTML(item.id)}">${escapeHTML(item.id)}</span></td>
         <td>${escapeHTML(item.equipo)}</td>
         <td>${escapeHTML(item.zona)}</td>
+        <td style="text-align:center;">${item.cantidad}</td>
         <td style="color:var(--text-2)">${escapeHTML(item.team)}</td>
         <td>${statusPill(item.status)}</td>
         <td class="col-right">${formatearFecha(item.fecha)}</td>
@@ -589,6 +591,7 @@ function renderInventoryTable(tbody, data, groupByKey = null) {
         <td><span class="id-cell" style="display:inline-block; max-width:140px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; font-family: 'Courier New', Courier, monospace; font-weight: 600; font-size: 13px; color: var(--text);" title="${escapeHTML(item.id)}">${escapeHTML(item.id)}</span></td>
         <td>${escapeHTML(item.equipo)}</td>
         <td>${escapeHTML(item.zona)}</td>
+        <td style="text-align:center;">${item.cantidad}</td>
         <td>${escapeHTML(item.asignado)}</td>
         <td style="color:var(--text-2)">${escapeHTML(item.team)}</td>
         <td>${statusPill(item.status)}</td>
@@ -1811,6 +1814,7 @@ async function openDrawer(item) {
     ]),
     { label: window.i18n.t('drawer.meta_asignado'),value: item.asignado || '—' },
     { label: window.i18n.t('drawer.meta_team'),    value: item.team || '—' },
+    { label: window.i18n.t('drawer.meta_fecha_registro') || 'Registration Date', value: formatearFecha(item.fecha) }
   ];
   metaFields.forEach(f => {
     const div = document.createElement('div');
@@ -1818,6 +1822,37 @@ async function openDrawer(item) {
     div.innerHTML = `<span class="drawer-meta-label">${f.label}</span><span class="drawer-meta-value">${f.value}</span>`;
     metaEl.appendChild(div);
   });
+
+  // Quantity logic
+  const qtyInput = document.getElementById('drawerQtyInput');
+  const qtySave = document.getElementById('drawerQtySave');
+  const qtyStatus = document.getElementById('drawerQtyStatus');
+  if (qtyInput && qtySave && qtyStatus) {
+    qtyInput.value = item.cantidad !== undefined ? item.cantidad : 1;
+    qtyStatus.textContent = '';
+    qtySave.onclick = async () => {
+      const newVal = parseInt(qtyInput.value, 10);
+      if (isNaN(newVal) || newVal < 0) return;
+      qtySave.disabled = true;
+      qtyStatus.textContent = 'Saving...';
+      qtyStatus.style.color = 'var(--text-2)';
+      try {
+        await window.apiFetch(`/api/activos/${item.db_id}`, {
+          method: 'PATCH',
+          body: JSON.stringify({ cantidad: newVal })
+        });
+        qtyStatus.textContent = 'Saved!';
+        qtyStatus.style.color = 'var(--accent-green)';
+        setTimeout(() => { qtyStatus.textContent = ''; }, 2000);
+        window.cargarActivos();
+      } catch (err) {
+        qtyStatus.textContent = 'Error';
+        qtyStatus.style.color = 'var(--accent-red)';
+      } finally {
+        qtySave.disabled = false;
+      }
+    };
+  }
 
   // Add edit button to drawer header
   const drawerEditBtn = document.getElementById('drawerEditBtn');
@@ -2240,10 +2275,14 @@ function inicializarModal() {
 
   document.getElementById('openNewItemModal').addEventListener('click', () => {
     document.getElementById('modalEstado').value = 'disponible';
+    document.getElementById('modalFechaRegistro').value = new Date().toISOString().split('T')[0];
+    if(document.getElementById('modalCantidad')) document.getElementById('modalCantidad').value = '1';
     openModal();
   });
   document.getElementById('openNewItemModal2')?.addEventListener('click', () => {
     document.getElementById('modalEstado').value = 'disponible';
+    document.getElementById('modalFechaRegistro').value = new Date().toISOString().split('T')[0];
+    if(document.getElementById('modalCantidad')) document.getElementById('modalCantidad').value = '1';
     openModal();
   });
   document.getElementById('openAgendarModal')?.addEventListener('click', () => {
@@ -2444,6 +2483,7 @@ function inicializarModal() {
         ubicacion_actual_id: ubicacionId,
         estado,
         team: team || null,
+        cantidad: document.getElementById('modalCantidad') ? parseInt(document.getElementById('modalCantidad').value, 10) : 1,
         fecha_registro: fRegistro || undefined,
         fotos: window.uploadedPhotos || [],
         notas: notasVal || undefined,
@@ -3082,6 +3122,10 @@ window.editarActivo = async function(item) {
             </select>
           </div>
           <div style="margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--border);">
+            <div style="margin-bottom: 12px; width: 150px;">
+              <label>${window.i18n.t('modal.cantidad') || 'Quantity'}</label>
+              <input type="number" id="editAssetCantidad" class="form-input" min="0" value="${item.cantidad !== undefined ? item.cantidad : 1}">
+            </div>
             <label>${window.i18n.t('modal.notas') || 'Notes / Kit Contents'}</label>
             <textarea id="editAssetNotas" class="form-input" rows="3" style="resize: vertical; font-size: 13px;">${escapeHTML(item.notas || '')}</textarea>
           </div>
@@ -3199,6 +3243,7 @@ window.editarActivo = async function(item) {
       marca:               document.getElementById('editAssetMarca').value.trim() || null,
       categoria:           document.getElementById('editAssetCategoria').value || null,
       usuario_actual_id:   document.getElementById('editAssetUsuario').value ? Number(document.getElementById('editAssetUsuario').value) : null,
+      cantidad:            document.getElementById('editAssetCantidad') ? parseInt(document.getElementById('editAssetCantidad').value, 10) : 1,
       notas:               document.getElementById('editAssetNotas').value.trim() || null,
       fotos:               currentFotos
     };
