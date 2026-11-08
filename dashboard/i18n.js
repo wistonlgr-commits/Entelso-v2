@@ -1,4 +1,4 @@
-/* ════════════════════════════════════════════
+﻿/* ════════════════════════════════════════════
    ENTELSO i18n — Language System EN / ES
    Usage:
      import { t, setLang, getLang } from './i18n.js'
@@ -1111,12 +1111,8 @@ const TRANSLATIONS = {
 };
 
 /* ── i18n Engine ─────────────────────────────────────── */
-let _currentLang = localStorage.getItem('entelso_lang') || 'es';
-if (!localStorage.getItem('entelso_lang_set_v9')) {
-  _currentLang = 'es';
-  localStorage.setItem('entelso_lang', 'es');
-  localStorage.setItem('entelso_lang_set_v9', '1');
-}
+let _currentLang = 'en';
+localStorage.setItem('entelso_lang', 'en');
 
 /** Translate a key. If not found, returns the key itself */
 function t(key) {
