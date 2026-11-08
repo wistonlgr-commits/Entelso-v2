@@ -248,6 +248,15 @@ const TRANSLATIONS = {
     'modal.err_already_in_kit': 'Asset is already in a kit.',
     'modal.confirm_remove_kit': 'Remove this asset from the kit?',
     'modal.registrando':   'Registering...',
+    // Extra UI & Modals
+    'tabla.ver':           'Details',
+    'modal.err_max_fotos': 'Maximum 5 photos allowed per asset.',
+    'modal.err_duplicado': 'Warning! An equipment with this serial already exists.',
+    'mov.asignacion':      'ASSIGNMENT',
+    'mov.transferencia':   'TRANSFER',
+    'usuarios.role_tecnico': 'Technician',
+    'usuarios.role_operador': 'Operator',
+
     'modal.fecha_registro':'Registration Date',
     'modal.cantidad': 'Quantity',
     'modal.err_requerido': 'Inventory number and description are required.',
@@ -799,6 +808,15 @@ const TRANSLATIONS = {
     'modal.err_already_in_kit': 'Asset is already in a kit.',
     'modal.confirm_remove_kit': 'Remove this asset from the kit?',
     'modal.registrando':   'Registrando...',
+    // Extra UI & Modals
+    'tabla.ver':           'Ver detalles',
+    'modal.err_max_fotos': 'Máximo 5 fotos permitidas por equipo.',
+    'modal.err_duplicado': '¡Atención! Ya existe un equipo con este serial.',
+    'mov.asignacion':      'ASIGNACIÓN',
+    'mov.transferencia':   'TRANSFERENCIA',
+    'usuarios.role_tecnico': 'Técnico',
+    'usuarios.role_operador': 'Operador',
+
     'modal.fecha_registro':'Fecha de Registro',
     'modal.cantidad': 'Cantidad',
     'modal.err_requerido': 'El número de inventario y la descripción son obligatorios.',
@@ -1112,21 +1130,29 @@ const TRANSLATIONS = {
 
 /* ── i18n Engine ─────────────────────────────────────── */
 let _currentLang = 'en';
-localStorage.setItem('entelso_lang', 'en');
+try {
+  localStorage.setItem('entelso_lang', 'en');
+} catch (e) {}
 
-/** Translate a key. If not found, returns the key itself */
+/** Translate a key. If not found, returns clean human-readable text (never raw function/key syntax) */
 function t(key) {
-  return TRANSLATIONS[_currentLang]?.[key] ?? TRANSLATIONS['en']?.[key] ?? key;
+  if (!key) return '';
+  const val = TRANSLATIONS[_currentLang]?.[key] ?? TRANSLATIONS['en']?.[key];
+  if (val !== undefined && val !== null) return val;
+  // Safety fallback: prevents raw function or dotted variable names from displaying in UI
+  const parts = String(key).split('.');
+  const last = parts[parts.length - 1] || key;
+  return last.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
 }
 
 /** Change the active language and re-render the UI */
 function setLang(lang) {
-  if (!TRANSLATIONS[lang]) return;
-  _currentLang = lang;
-  localStorage.setItem('entelso_lang', lang);
+  _currentLang = (lang === 'es') ? 'es' : 'en';
+  try {
+    localStorage.setItem('entelso_lang', _currentLang);
+  } catch (e) {}
   applyTranslations();
-  // Fire an event so script.js can re-render tables
-  document.dispatchEvent(new CustomEvent('langchange', { detail: { lang } }));
+  document.dispatchEvent(new CustomEvent('langchange', { detail: { lang: _currentLang } }));
 }
 
 /** Get the current language */
@@ -1138,31 +1164,26 @@ function getLang() { return _currentLang; }
  * and data-i18n-title="key" (for title attributes)
  */
 function applyTranslations() {
-  // Normal elements: textContent
   document.querySelectorAll('[data-i18n]').forEach(el => {
     const key = el.getAttribute('data-i18n');
-    // <option> uses .text for cross-browser compatibility
     if (el.tagName === 'OPTION') {
       el.text = t(key);
     } else {
       el.textContent = t(key);
     }
   });
-  // Placeholders
   document.querySelectorAll('[data-i18n-ph]').forEach(el => {
     const key = el.getAttribute('data-i18n-ph');
     el.setAttribute('placeholder', t(key));
   });
-  // Title attributes
   document.querySelectorAll('[data-i18n-title]').forEach(el => {
     const key = el.getAttribute('data-i18n-title');
     el.setAttribute('title', t(key));
   });
-  // Update html lang attribute
   document.documentElement.lang = _currentLang;
 }
 
-// Expose globally so script.js can use
+// Expose globally
 window.i18n = { t, setLang, getLang, applyTranslations };
 
 

@@ -1478,13 +1478,11 @@ function aplicarTema(theme) {
    IDIOMA ES / EN
 ───────────────────────────────────────── */
 function actualizarBotonIdioma() {
-  const lang    = window.i18n.getLang();
-  const otroLang = lang === 'es' ? 'ES' : 'EN';
+  const lang = window.i18n.getLang();
   const langLabel = document.getElementById('langLabel');
-  if (langLabel) langLabel.textContent = otroLang;
+  if (langLabel) langLabel.textContent = lang.toUpperCase();
   const loginLangLabel = document.getElementById('loginLangLabel');
-  if (loginLangLabel) loginLangLabel.textContent = otroLang;
-
+  if (loginLangLabel) loginLangLabel.textContent = lang.toUpperCase();
 }
 
 function toggleLang() {
