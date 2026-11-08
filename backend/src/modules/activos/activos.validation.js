@@ -6,9 +6,6 @@ const estadoEnum = z.enum([
 ]);
 const fecha = z.string().regex(/^\d{4}-\d{2}-\d{2}$/).nullable().optional();
 
-const noConflicto = (data) => !(data.usuario_actual_id && data.ubicacion_actual_id);
-const conflictMsg  = { message: 'Cannot assign both user and location at the same time.', path: ['usuario_actual_id'] };
-
 exports.createAssetSchema = z.object({
   item_id: z.number().int().positive().optional().nullable(),
   descripcion: z.string().optional(),
@@ -27,7 +24,7 @@ exports.createAssetSchema = z.object({
   fotos: z.array(z.string()).max(5).optional(),
   notas: z.string().nullable().optional(),
   cantidad: z.number().int().min(0).optional(),
-}).refine(noConflicto, conflictMsg);
+});
 
 exports.updateAssetSchema = z.object({
   numero_serie: z.string().min(2).max(100).optional(),
@@ -55,6 +52,8 @@ exports.bulkCreateAssetSchema = z.object({
     serie: z.string().optional(),
     zona: z.string().optional(),
     team: z.string().optional(),
+    usuario: z.string().optional(),
+    asignado: z.string().optional(),
     estado: z.string().optional(),
     fecha_ultima_cali: z.string().nullable().optional(),
     fecha_prox_cali:   z.string().nullable().optional(),

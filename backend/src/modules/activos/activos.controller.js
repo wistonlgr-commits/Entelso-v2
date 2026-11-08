@@ -220,7 +220,7 @@ exports.exportExcel = async (req, reply, next) => {
     });
 
     // ── Column widths ──
-    const colWidths = [18, 38, 16, 14, 22, 16, 20, 16, 16];
+    const colWidths = [18, 38, 18, 14, 10, 20, 18, 22, 16, 16];
     if (withPhotos) colWidths.push(25, 25);
     colWidths.forEach((w, i) => { sheet.getColumn(i + 1).width = w; });
 
@@ -281,7 +281,7 @@ exports.exportExcel = async (req, reply, next) => {
         item.nombre_ubicacion || '—',
         item.cantidad ?? 1,
         statusEN,
-        item.usuario_team || item.team || '—',
+        item.team || item.usuario_team || '—',
         item.nombre_usuario || 'Unassigned',
         formatDate(item.fecha_ultima_cali || item.fecha_ultimo_tag),
         formatDate(item.fecha_prox_cali || item.fecha_prox_tag)
@@ -309,7 +309,7 @@ exports.exportExcel = async (req, reply, next) => {
           // Serial No.
           cell.alignment = { horizontal: 'center', vertical: 'middle' };
           cell.font = { size: 10, name: 'Segoe UI', bold: true, color: { argb: 'FF1E3A5F' } };
-        } else if (colNumber === 5) {
+        } else if (colNumber === 6) {
           // Status Badge
           cell.alignment = { horizontal: 'center', vertical: 'middle' };
           cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: statusColor.fill } };
@@ -393,41 +393,52 @@ exports.bulkDelete = async (req, reply, next) => {
 };
 exports.bulkUpdateEstado = async (req, reply, next) => {
   try {
-    const { ids, estado } = req.body;
+    const { ids, estado, status } = req.body;
     if (!Array.isArray(ids) || ids.length === 0) {
       return reply.status(400).json(res.error('Se requiere un array de IDs no vacío', 'BAD_REQUEST'));
     }
-    const count = await svc.bulkUpdateEstado(ids, estado);
+    const count = await svc.bulkUpdateEstado(ids, estado || status);
     reply.json(res.success({ updatedCount: count }, `Estado actualizado para ${count} activos.`));
   } catch (e) { next(e); }
 };
 exports.bulkUpdateZona = async (req, reply, next) => {
   try {
-    const { ids, ubicacion_actual_id } = req.body;
+    const { ids, ubicacion_actual_id, zona_id } = req.body;
     if (!Array.isArray(ids) || ids.length === 0) {
       return reply.status(400).json(res.error('Se requiere un array de IDs no vacío', 'BAD_REQUEST'));
     }
-    const count = await svc.bulkUpdateZona(ids, ubicacion_actual_id);
+    const count = await svc.bulkUpdateZona(ids, ubicacion_actual_id ?? zona_id);
     reply.json(res.success({ updatedCount: count }, `Zona actualizada para ${count} activos.`));
   } catch (e) { next(e); }
 };
 exports.bulkUpdateTeam = async (req, reply, next) => {
   try {
-    const { ids, team } = req.body;
+    const { ids, team, team_id } = req.body;
     if (!Array.isArray(ids) || ids.length === 0) {
       return reply.status(400).json(res.error('Se requiere un array de IDs no vacío', 'BAD_REQUEST'));
     }
-    const count = await svc.bulkUpdateTeam(ids, team);
+    const count = await svc.bulkUpdateTeam(ids, team ?? team_id);
     reply.json(res.success({ updatedCount: count }, `Team actualizado para ${count} activos.`));
+  } catch (e) { next(e); }
+};
+exports.bulkUpdateUsuario = async (req, reply, next) => {
+  try {
+    const { ids, usuario_actual_id, usuario_id } = req.body;
+    if (!Array.isArray(ids) || ids.length === 0) {
+      return reply.status(400).json(res.error('Se requiere un array de IDs no vacío', 'BAD_REQUEST'));
+    }
+    const targetUserId = usuario_actual_id !== undefined ? usuario_actual_id : usuario_id;
+    const count = await svc.bulkUpdateUsuario(ids, targetUserId);
+    reply.json(res.success({ updatedCount: count }, `Persona asignada actualizada para ${count} activos.`));
   } catch (e) { next(e); }
 };
 exports.bulkUpdateItem = async (req, reply, next) => {
   try {
-    const { ids, item_id } = req.body;
+    const { ids, item_id, categoria } = req.body;
     if (!Array.isArray(ids) || ids.length === 0) {
       return reply.status(400).json(res.error('Se requiere un array de IDs no vacío', 'BAD_REQUEST'));
     }
-    const count = await svc.bulkUpdateItem(ids, item_id);
+    const count = await svc.bulkUpdateItem(ids, item_id ?? categoria);
     reply.json(res.success({ updatedCount: count }, `Categoría actualizada para ${count} activos.`));
   } catch (e) { next(e); }
 };

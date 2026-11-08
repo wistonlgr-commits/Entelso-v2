@@ -13,7 +13,7 @@ const getUserByTelefono = async (telefono) => {
   }
   
   const { rows } = await db.query(
-    "SELECT id, nombre, pin_hash, activo, en_terreno FROM usuarios WHERE regexp_replace(telefono_whatsapp, '\\D', '', 'g') LIKE $1 LIMIT 1",
+    "SELECT id, nombre, pin_hash, activo, en_terreno, rol, team, default_zona FROM usuarios WHERE regexp_replace(telefono_whatsapp, '\\D', '', 'g') LIKE $1 LIMIT 1",
     [`%${cleanPhone}`]
   );
   if (!rows[0]) throwOpError('User not registered or phone not found.', 404);
@@ -22,9 +22,6 @@ const getUserByTelefono = async (telefono) => {
 };
 
 const validatePin = async (user, pin) => {
-  // if (!user.pin_hash) throwOpError('User does not have a PIN configured. Contact admin.', 403);
-  // const isValid = await bcrypt.compare(String(pin), user.pin_hash);
-  // if (!isValid) throwOpError('Incorrect PIN.', 401);
   return true; // Bypass PIN verification
 };
 
@@ -36,13 +33,16 @@ const getActivoByInventario = async (numero_inventario) => {
        a.estado, 
        a.item_id,
        a.usuario_actual_id,
+       a.ubicacion_actual_id,
        a.notas,
        u.nombre_ubicacion as sitio,
        u.nombre_ubicacion as zona,
+       usr.nombre as nombre_usuario,
        i.nombre as equipo_nombre
      FROM activos a
      JOIN items i ON a.item_id = i.id
      LEFT JOIN ubicaciones u ON a.ubicacion_actual_id = u.id
+     LEFT JOIN usuarios usr ON a.usuario_actual_id = usr.id
      WHERE LOWER(a.numero_serie) = LOWER($1) OR LOWER(a.original_serial) = LOWER($1) LIMIT 1`,
     [numero_inventario.trim()]
   );
@@ -59,7 +59,8 @@ exports.consultarEquipo = async (telefono, numero_inventario) => {
     inventario: activo.numero_inventario,
     estado: activo.estado,
     sitio_actual: activo.sitio,
-    zona_actual: activo.zona
+    zona_actual: activo.zona,
+    asignado_a: activo.nombre_usuario || 'Unassigned'
   };
 };
 
@@ -73,37 +74,45 @@ exports.asignarEquipo = async (telefono, pin, numero_inventario, zonaInput) => {
     throwOpError(`Cannot assign equipment in status: ${activo.estado}`);
   }
 
-  const zona = zonaInput || activo.zona || 'Unassigned';
+  const zona = (zonaInput && zonaInput.trim()) || activo.zona || user.default_zona || 'Unassigned';
 
   // Registrar el movimiento
   const client = await db.pool.connect();
   try {
     await client.query('BEGIN');
-    // Buscar la primera ubicación para origen/destino temporalmente
-    const { rows: uRows } = await client.query('SELECT id FROM ubicaciones LIMIT 1');
-    const ubiId = uRows[0] ? uRows[0].id : null;
+    let destUbiId = activo.ubicacion_actual_id || null;
+    if (zonaInput && zonaInput.trim()) {
+      const { rows: zRows } = await client.query(
+        `INSERT INTO ubicaciones (nombre_ubicacion, descripcion)
+         VALUES ($1, $2)
+         ON CONFLICT (nombre_ubicacion) DO UPDATE SET nombre_ubicacion = EXCLUDED.nombre_ubicacion
+         RETURNING id`,
+        [zonaInput.trim(), `Zone (${zonaInput.trim()})`]
+      );
+      if (zRows[0]) destUbiId = zRows[0].id;
+    }
 
     // Crear movimiento (Asignacion / Despacho)
     const movQuery = `
       INSERT INTO movimientos (item_id, activo_id, usuario_id, cantidad, tipo_movimiento, ubicacion_origen_id, ubicacion_destino_id, observacion)
       VALUES (
         (SELECT item_id FROM activos WHERE id = $1),
-        $1, $2, 1, 'despacho', $3, NULL, $4
+        $1, $2, 1, 'despacho', $3, $4, $5
       ) RETURNING id
     `;
-    await client.query(movQuery, [activo.id, user.id, ubiId, `Assigned via WhatsApp to zone: ${zona}`]);
+    await client.query(movQuery, [activo.id, user.id, activo.ubicacion_actual_id || null, destUbiId, `Assigned via WhatsApp to ${user.nombre} (zone: ${zona})`]);
 
-    // Actualizar estado del activo (Asignado a usuario, limpiando ubicación física)
+    // Actualizar estado del activo (Asignado a usuario y manteniendo su ubicación/zona física)
     await client.query(
-      "UPDATE activos SET estado = 'en_uso', usuario_actual_id = $1, ubicacion_actual_id = NULL WHERE id = $2",
-      [user.id, activo.id]
+      "UPDATE activos SET estado = 'en_uso', usuario_actual_id = $1, ubicacion_actual_id = COALESCE($2, ubicacion_actual_id) WHERE id = $3",
+      [user.id, destUbiId, activo.id]
     );
 
     // Actualizar usuario a en_terreno = true
     await client.query("UPDATE usuarios SET en_terreno = true WHERE id = $1", [user.id]);
 
     await client.query('COMMIT');
-    return { success: true, equipo: activo.equipo_nombre, asignado_a: user.nombre };
+    return { success: true, equipo: activo.equipo_nombre, asignado_a: user.nombre, zona_actual: zona };
   } catch (err) {
     await client.query('ROLLBACK');
     throw err;

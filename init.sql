@@ -86,12 +86,7 @@ CREATE TABLE activos (
     fecha_prox_cali     DATE,
     fecha_ultimo_tag    DATE,
     fecha_prox_tag      DATE,
-    estado              estado_activo_enum NOT NULL DEFAULT 'disponible',
-    CONSTRAINT chk_ubicacion_usuario CHECK (
-        (usuario_actual_id IS NOT NULL AND ubicacion_actual_id IS NULL) OR
-        (usuario_actual_id IS NULL     AND ubicacion_actual_id IS NOT NULL) OR
-        (usuario_actual_id IS NULL     AND ubicacion_actual_id IS NULL)
-    )
+    estado              estado_activo_enum NOT NULL DEFAULT 'disponible'
 );
 
 -- Historial completo de movimientos

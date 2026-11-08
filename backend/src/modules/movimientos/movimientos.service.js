@@ -58,10 +58,10 @@ exports.create = async (data) => {
       if (!activo_id)     throw Object.assign(new Error('Las herramientas requieren activo_id.'), { isOperational: true });
 
       const nuevoUsuario   = tipo_movimiento === 'despacho' ? usuario_id  : null;
-      const nuevaUbicacion = tipo_movimiento !== 'despacho' ? ubicacion_destino_id : null;
+      const nuevaUbicacion = ubicacion_destino_id ?? null;
       const nuevoEstado    = tipo_movimiento === 'despacho' ? 'en_uso' : 'disponible';
       await client.query(
-        'UPDATE activos SET usuario_actual_id=$1, ubicacion_actual_id=$2, estado=$3 WHERE id=$4',
+        'UPDATE activos SET usuario_actual_id=$1, ubicacion_actual_id=COALESCE($2, ubicacion_actual_id), estado=$3 WHERE id=$4',
         [nuevoUsuario, nuevaUbicacion, nuevoEstado, activo_id]
       );
     }

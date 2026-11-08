@@ -148,11 +148,16 @@ function mostrarApp() {
   requestAnimationFrame(() => appShell.classList.add('app-enter'));
   inicializarApp();
 
-  // Auto-refresh every 60 seconds
+  // Subtle background auto-refresh every 120 seconds (skips if user is interacting or data unchanged)
   if (autoRefreshInterval) clearInterval(autoRefreshInterval);
   autoRefreshInterval = setInterval(() => {
-    cargarActivos(true);
-  }, 60000);
+    if (document.hidden) return;
+    const activeEl = document.activeElement;
+    if (activeEl && ['INPUT', 'SELECT', 'TEXTAREA'].includes(activeEl.tagName)) return;
+    if (document.querySelector('.modal-overlay.open, .drawer-overlay.open')) return;
+    if (document.querySelectorAll('.row-checkbox:checked').length > 0) return;
+    cargarActivos(true, false);
+  }, 120000);
 }
 
 // Al cargar la página, verificar si ya hay sesión Y si el token no ha expirado
@@ -373,16 +378,27 @@ function mostrarErrorTabla(tbodyId) {
 ───────────────────────────────────────── */
 let inventoryData = [];
 
-async function cargarActivos(silent = false) {
-  if (!silent) {
+async function cargarActivos(silent = false, forceRender = true) {
+  if (!silent && inventoryData.length === 0) {
     mostrarCargando('dashTableBody');
     mostrarCargando('inventTableBody');
   }
   try {
     const res = await apiFetch('/api/activos');
     const json = await res.json();
+    const rawList = json.data || [];
+    const newSig = JSON.stringify(rawList.map(a => [
+      a.id, a.numero_serie, a.nombre_item, a.cantidad, a.estado,
+      a.ubicacion_id, a.usuario_id, a.nombre_usuario, a.team, a.usuario_team,
+      a.categoria_padre, a.fecha_ultima_cali, a.fecha_prox_cali, a.fecha_ultimo_tag, a.fecha_prox_tag, a.notas
+    ]));
+    if (silent && !forceRender && window._lastActivosSig === newSig) {
+      return; // Data has not changed — avoid resetting scroll/DOM
+    }
+    window._lastActivosSig = newSig;
+
     // Normalizar formato del backend al formato del dashboard
-    inventoryData = (json.data || []).map(a => ({
+    inventoryData = rawList.map(a => ({
       db_id:       a.id,
       id:          a.numero_serie,
       equipo:      a.nombre_item,
@@ -393,7 +409,7 @@ async function cargarActivos(silent = false) {
       categoria:   window.getAssetCategory(a),
       categoria_padre: a.categoria_padre || '',
       zona:        a.nombre_ubicacion || '—',
-      team:        a.usuario_team || a.team || '—',
+      team:        a.team || a.usuario_team || '—',
       status:      a.estado,
       fecha:       a.fecha_registro || a.fecha_prox_tag || a.fecha_prox_cali || null,
       // Drawer fields
@@ -413,7 +429,7 @@ async function cargarActivos(silent = false) {
       fotos:       a.fotos           || [],
       _raw:        a,
     }));
-    window.currentDataActivos = json.data || [];
+    window.currentDataActivos = rawList;
     renderizarActivos();
     actualizarKPIs();
     renderizarGraficos();
@@ -437,11 +453,41 @@ async function cargarActivos(silent = false) {
 ───────────────────────────────────────── */
 let employeesData = [];
 
+function populateUsuarioSelects() {
+  const users = window.usuariosData || [];
+  const opts = users.map(u => `<option value="${u.id}">${escapeHTML(u.nombre)}${u.team ? ' (' + escapeHTML(u.team) + ')' : ''}</option>`).join('');
+  const optsPlain = users.map(u => `<option value="${u.id}">${escapeHTML(u.nombre)}</option>`).join('');
+
+  const setSelectPreserve = (id, defaultHtml, optionsHtml) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    const prev = el.value;
+    el.innerHTML = defaultHtml + optionsHtml;
+    if (prev && Array.from(el.options).some(o => o.value === prev)) {
+      el.value = prev;
+    }
+  };
+
+  setSelectPreserve('modalUsuario', `<option value="" data-i18n="usuarios.sin_asignar">-- ${window.i18n?.t('usuarios.sin_asignar') || 'Unassigned'} --</option>`, opts);
+  setSelectPreserve('bulkUsuarioSelect', `<option value="" data-i18n="usuarios.sin_asignar">-- ${window.i18n?.t('usuarios.sin_asignar') || 'Unassigned'} --</option>`, opts);
+  setSelectPreserve('drawerUsuarioSelect', `<option value="" data-i18n="usuarios.sin_asignar">-- ${window.i18n?.t('usuarios.sin_asignar') || 'Unassigned'} --</option>`, opts);
+  setSelectPreserve('editAssetUsuario', `<option value="">-- ${window.i18n?.t('usuarios.sin_asignar') || 'Unassigned'} --</option>`, opts);
+  setSelectPreserve(
+    'advFilterUsuario',
+    `<option value="" data-i18n="filter.todos_usuarios">${window.i18n?.t('filter.todos_usuarios') || 'All People'}</option><option value="__unassigned__" data-i18n="usuarios.sin_asignar">-- ${window.i18n?.t('usuarios.sin_asignar') || 'Unassigned'} --</option>`,
+    optsPlain
+  );
+}
+
 async function cargarUsuarios() {
   try {
     const res  = await apiFetch('/api/usuarios');
     const json = await res.json();
-    employeesData = (json.data || []).map(u => ({
+    const rawUsers = (json.data || []).slice().sort((a, b) => (a.nombre || '').localeCompare(b.nombre || ''));
+    window.usuariosData = rawUsers;
+    populateUsuarioSelects();
+
+    employeesData = rawUsers.map(u => ({
       id:            `USR-${u.id}`,
       db_id:         u.id,
       nombre:        u.nombre,
@@ -461,6 +507,9 @@ async function cargarUsuarios() {
       estado:        'sin_asignacion',
     }));
     syncEmpleadosActivos();
+    if (inventoryData && inventoryData.length > 0) {
+      window.aplicarFiltrosInventario();
+    }
   } catch (err) {
     if (err.message !== 'SESION_EXPIRADA') {
       console.warn('No se pudieron cargar usuarios:', err.message);
@@ -469,25 +518,57 @@ async function cargarUsuarios() {
   }
 }
 
-function syncEmpleadosActivos() {
-  if (!employeesData || !employeesData.length) return;
-  if (inventoryData && inventoryData.length > 0) {
-    employeesData.forEach(emp => {
-      // Buscar si el empleado tiene un activo asignado
-      const activo = inventoryData.find(a => a.asignado && a.asignado.toLowerCase() === emp.nombre.toLowerCase());
-      if (activo) {
-        emp.equipo_id = activo.id;
-        emp.equipo_nombre = activo.equipo;
-        emp.sitio = activo.zona;
-        emp.zona = activo.zona;
-        emp.estado = 'en_terreno';
-        emp.fecha_asig = activo.fecha;
-      } else {
-        emp.estado = emp.en_terreno ? 'en_terreno' : 'sin_asignacion';
-      }
+window.aplicarFiltrosEmpleados = function() {
+  if (!employeesData) return;
+  const searchEl = document.getElementById('employeeSearch');
+  const q = searchEl ? searchEl.value.trim().toLowerCase() : '';
+  const activeChip = document.querySelector('[data-emp-filter].active');
+  const filter = activeChip ? activeChip.dataset.empFilter : 'all';
+
+  let filtered = employeesData;
+  if (filter && filter !== 'all') {
+    filtered = filtered.filter(e => {
+      if (filter === 'en_terreno') return e.estado === 'en_terreno' || e.estado === 'asignado';
+      return e.estado === filter;
     });
   }
-  renderizarEmpleados(employeesData);
+  if (q) {
+    filtered = filtered.filter(e => {
+      const nom = e.nombre ? e.nombre.toLowerCase() : '';
+      const id  = e.id ? e.id.toLowerCase() : '';
+      const tm  = e.team ? e.team.toLowerCase() : '';
+      const eq  = e.equipo_nombre ? e.equipo_nombre.toLowerCase() : '';
+      return nom.includes(q) || id.includes(q) || tm.includes(q) || eq.includes(q);
+    });
+  }
+  renderizarEmpleados(filtered);
+};
+
+function syncEmpleadosActivos() {
+  if (!employeesData || !employeesData.length) return;
+  employeesData.forEach(emp => {
+    const activosEmp = (inventoryData || []).filter(a =>
+      (a.usuario_id && Number(a.usuario_id) === Number(emp.db_id)) ||
+      (a.asignado && a.asignado.toLowerCase() === emp.nombre.toLowerCase())
+    );
+    if (activosEmp.length > 0) {
+      const primero = activosEmp[0];
+      emp.equipo_id = primero.id;
+      emp.equipo_nombre = activosEmp.length > 1 ? `${primero.equipo} (+${activosEmp.length - 1})` : primero.equipo;
+      emp.sitio = primero.zona;
+      emp.zona = primero.zona;
+      emp.estado = 'en_terreno';
+      emp.fecha_asig = primero.fecha;
+    } else {
+      emp.equipo_id = null;
+      emp.equipo_nombre = '—';
+      emp.sitio = '—';
+      emp.zona = '—';
+      emp.fecha_asig = '—';
+      emp.estado = emp.en_terreno ? 'en_terreno' : 'sin_asignacion';
+    }
+  });
+  window.aplicarFiltrosEmpleados();
   actualizarKPIsEmpleados();
 }
 
@@ -559,17 +640,23 @@ async function registrarAuditLog(accion, meta = null) {
 /* ─────────────────────────────────────────
    RENDER: TABLA DE ACTIVOS
 ───────────────────────────────────────── */
-function renderInventoryTable(tbody, data, groupByKey = null) {
+window.expandedInventoryGroups = window.expandedInventoryGroups || new Set();
+window.selectedAssetIds = window.selectedAssetIds || new Set();
+
+function renderInventoryTable(tbody, data, groupByKey = null, forceExpandAll = false) {
   if (!tbody) return;
   const isDash = tbody.id === 'dashTableBody';
-  const colspan = isDash ? 6 : 10;
+  const colspan = isDash ? 8 : 11;
 
   if (!data || data.length === 0) {
     tbody.innerHTML = `<tr><td colspan="${colspan}" class="table-empty">${window.i18n.t('api.sin_datos')}</td></tr>`;
     return;
   }
   tbody.innerHTML = '';
-  
+
+  const usersList = window.usuariosData || [];
+  const unassignedLabel = window.i18n?.t('usuarios.sin_asignar') || 'Unassigned';
+
   const renderRow = (item) => {
     if (isDash) {
       return `
@@ -578,22 +665,37 @@ function renderInventoryTable(tbody, data, groupByKey = null) {
         <td>${escapeHTML(item.zona)}</td>
         <td style="text-align:center;">${item.cantidad}</td>
         <td style="color:var(--text-2)">${escapeHTML(item.team)}</td>
+        <td style="font-weight:${item.usuario_id ? '600' : '400'}; color:${item.usuario_id ? 'var(--text-1)' : 'var(--text-3)'};">${escapeHTML(item.asignado && item.asignado !== '—' ? item.asignado : unassignedLabel)}</td>
         <td>${statusPill(item.status)}</td>
         <td class="col-right">${formatearFecha(item.fecha)}</td>
       `;
     } else {
+      const isChecked = window.selectedAssetIds.has(String(item.db_id));
+      const hasCurrentInList = item.usuario_id && usersList.some(u => Number(u.id) === Number(item.usuario_id));
+      const userOpts = [
+        `<option value="" ${!item.usuario_id ? 'selected' : ''}>-- ${escapeHTML(unassignedLabel)} --</option>`,
+        ...(!hasCurrentInList && item.usuario_id && item.asignado && item.asignado !== '—'
+          ? [`<option value="${item.usuario_id}" selected>${escapeHTML(item.asignado)}</option>`]
+          : []),
+        ...usersList.map(u => `<option value="${u.id}" ${Number(item.usuario_id) === Number(u.id) ? 'selected' : ''}>${escapeHTML(u.nombre)}</option>`)
+      ].join('');
+
       return `
         <td style="text-align:center;">
           ${item.parent_activo_id 
             ? `<i class="fa-solid fa-lock" style="color:var(--text-3); font-size:12px;" title="${window.i18n?.t('modal.err_already_in_kit') || 'In Kit'}"></i>` 
-            : `<input type="checkbox" class="row-checkbox" value="${item.db_id}" onclick="event.stopPropagation(); updateBulkActionsState()">`
+            : `<input type="checkbox" class="row-checkbox" value="${item.db_id}" ${isChecked ? 'checked' : ''} onclick="event.stopPropagation(); updateBulkActionsState()">`
           }
         </td>
         <td><span class="id-cell" style="display:inline-block; max-width:140px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; font-family: 'Courier New', Courier, monospace; font-weight: 600; font-size: 13px; color: var(--text);" title="${escapeHTML(item.id)}">${escapeHTML(item.id)}</span></td>
         <td>${escapeHTML(item.equipo)}</td>
         <td>${escapeHTML(item.zona)}</td>
         <td style="text-align:center;">${item.cantidad}</td>
-        <td>${escapeHTML(item.asignado)}</td>
+        <td onclick="event.stopPropagation()">
+          <select class="form-input" style="font-size:12px; padding:3px 6px; min-width:145px; max-width:190px; font-weight:${item.usuario_id ? '600' : '400'}; color:${item.usuario_id ? 'var(--text-1)' : 'var(--text-3)'};" onchange="window.actualizarUsuarioHerramienta('${item.db_id}', this.value)" title="${escapeHTML(item.asignado)}">
+            ${userOpts}
+          </select>
+        </td>
         <td style="color:var(--text-2)">${escapeHTML(item.team)}</td>
         <td>${statusPill(item.status)}</td>
         <td class="col-right">${formatearFecha(item.ultima_calibracion)}</td>
@@ -624,32 +726,41 @@ function renderInventoryTable(tbody, data, groupByKey = null) {
       } else if (groupByKey === 'status') {
         const raw = item.status || '';
         key = window.i18n?.t('estado.' + raw) || raw.replace(/_/g, ' ') || 'Unknown';
+      } else if (groupByKey === 'asignado') {
+        key = (item.asignado && item.asignado !== '—') ? item.asignado : (window.i18n.t('api.sin_asignar') || 'Unassigned');
       } else {
-        key = item[groupByKey] || (window.i18n.t('api.sin_asignar') || 'Unassigned');
+        key = (item[groupByKey] && item[groupByKey] !== '—') ? item[groupByKey] : (window.i18n.t('api.sin_asignar') || 'Unassigned');
       }
       if (!groups[key]) groups[key] = [];
       groups[key].push(item);
     });
     
-    Object.keys(groups).sort().forEach((groupName, gIdx) => {
-      // Group header
+    Object.keys(groups).sort((a, b) => {
+      const unass = (window.i18n?.t('api.sin_asignar') || 'Unassigned').toLowerCase();
+      if (a.toLowerCase() === unass) return 1;
+      if (b.toLowerCase() === unass) return -1;
+      return a.localeCompare(b);
+    }).forEach((groupName, gIdx) => {
+      const groupStateKey = `${groupByKey}:${groupName}`;
+      const isExpanded = forceExpandAll || window.expandedInventoryGroups.has(groupStateKey);
+      const chevronClass = isExpanded ? 'fa-chevron-down' : 'fa-chevron-right';
+
       const headerTr = document.createElement('tr');
       headerTr.style.cursor = 'pointer';
-      const isDash = tbody.id === 'dashTableBody';
       
       if (!isDash) {
         headerTr.innerHTML = `
           <td style="text-align:center; background: var(--bg-hover);" onclick="event.stopPropagation();"><input type="checkbox" class="group-checkbox" data-group="${gIdx}" onclick="window.toggleGroupCheckbox(${gIdx}, this.checked)"></td>
           <td colspan="${colspan - 1}" style="background: var(--bg-hover); font-weight: bold; color: var(--text-1); padding-top: 16px; padding-bottom: 8px; user-select: none;">
-            <i class="fa-solid fa-chevron-right group-toggle-icon" style="margin-right: 8px; width: 14px; text-align: center;"></i>
-            ${groupName} (${groups[groupName].length})
+            <i class="fa-solid ${chevronClass} group-toggle-icon" style="margin-right: 8px; width: 14px; text-align: center;"></i>
+            ${escapeHTML(groupName)} (${groups[groupName].length})
           </td>
         `;
       } else {
         headerTr.innerHTML = `
           <td colspan="${colspan}" style="background: var(--bg-hover); font-weight: bold; color: var(--text-1); padding-top: 16px; padding-bottom: 8px; user-select: none;">
-            <i class="fa-solid fa-chevron-right group-toggle-icon" style="margin-right: 8px; width: 14px; text-align: center;"></i>
-            ${groupName} (${groups[groupName].length})
+            <i class="fa-solid ${chevronClass} group-toggle-icon" style="margin-right: 8px; width: 14px; text-align: center;"></i>
+            ${escapeHTML(groupName)} (${groups[groupName].length})
           </td>
         `;
       }
@@ -662,20 +773,21 @@ function renderInventoryTable(tbody, data, groupByKey = null) {
         if (isCollapsed) {
           icon.classList.replace('fa-chevron-right', 'fa-chevron-down');
           rows.forEach(r => r.style.display = '');
+          window.expandedInventoryGroups.add(groupStateKey);
         } else {
           icon.classList.replace('fa-chevron-down', 'fa-chevron-right');
           rows.forEach(r => r.style.display = 'none');
+          window.expandedInventoryGroups.delete(groupStateKey);
         }
       };
 
       tbody.appendChild(headerTr);
       
-      // Group items
       groups[groupName].forEach(item => {
         const tr = document.createElement('tr');
         tr.dataset.id = item.id;
         tr.classList.add(`group-row-${gIdx}`);
-        tr.style.display = 'none'; // collapsed by default
+        tr.style.display = isExpanded ? '' : 'none';
         tr.innerHTML = renderRow(item);
         if (!isDash) {
           const cb = tr.querySelector('.row-checkbox');
@@ -730,10 +842,24 @@ const smartFilterFns = {
   }
 };
 
+window.aplicarFiltrosDashboard = function() {
+  const activeChip = document.querySelector('#view-dashboard .filter-chips .chip.active');
+  const i18nKey = activeChip ? activeChip.getAttribute('data-i18n') : 'dash.filter.todos';
+  let filtered = inventoryData;
+  if (i18nKey === 'dash.filter.disp') {
+    filtered = inventoryData.filter(i => ['disponible', 'calibrado', 'en_funcionamiento'].includes(i.status));
+  } else if (i18nKey === 'dash.filter.alertas') {
+    filtered = inventoryData.filter(i => window.tieneAlerta(i));
+  } else {
+    filtered = inventoryData.slice(0, 20);
+  }
+  renderInventoryTable(document.getElementById('dashTableBody'), filtered);
+};
+
 window.aplicarFiltrosInventario = function() {
   let data = inventoryData;
 
-  // 1. Search Query
+  // 1. Search Query (includes assigned person name and notes)
   const searchInput = document.getElementById('inventarioSearch');
   const q = searchInput ? searchInput.value.trim().toLowerCase() : '';
   if (q) {
@@ -742,11 +868,13 @@ window.aplicarFiltrosInventario = function() {
       (i.equipo && i.equipo.toLowerCase().includes(q)) ||
       (i.zona && i.zona.toLowerCase().includes(q)) || 
       (i.team && i.team.toLowerCase().includes(q)) ||
+      (i.asignado && i.asignado.toLowerCase().includes(q)) ||
       (i.status && i.status.toLowerCase().includes(q)) ||
       (i.serie && i.serie.toLowerCase().includes(q)) ||
       (i.marca && i.marca.toLowerCase().includes(q)) ||
       (i.original_serial && i.original_serial.toLowerCase().includes(q)) ||
-      (i.categoria_padre && i.categoria_padre.toLowerCase().includes(q))
+      (i.categoria_padre && i.categoria_padre.toLowerCase().includes(q)) ||
+      (i.notas && i.notas.toLowerCase().includes(q))
     );
   }
 
@@ -770,26 +898,41 @@ window.aplicarFiltrosInventario = function() {
     });
   }
 
-  // 4. Advanced Filters (Zone, Team, Status) if active
-  const advZona = document.getElementById('advFilterZona')?.value.trim().toLowerCase();
-  const advTeam = document.getElementById('advFilterTeam')?.value.trim().toLowerCase();
-  const advStatus = document.getElementById('advFilterStatus')?.value.trim().toLowerCase();
-  if (advZona || advTeam || advStatus) {
+  // 4. Advanced Filters (Zone, Team, Person, Status) if active
+  const advZonaSelect = document.getElementById('advFilterZona');
+  const advZonaVal = advZonaSelect?.value.trim() || '';
+  const advZonaText = (advZonaVal && advZonaSelect?.selectedOptions?.[0]) ? advZonaSelect.selectedOptions[0].textContent.trim().toLowerCase() : advZonaVal.toLowerCase();
+  const advTeam = document.getElementById('advFilterTeam')?.value.trim().toLowerCase() || '';
+  const advUsuario = document.getElementById('advFilterUsuario')?.value.trim() || '';
+  const advStatus = document.getElementById('advFilterStatus')?.value.trim().toLowerCase() || '';
+
+  if (advZonaVal || advTeam || advUsuario || advStatus) {
     data = data.filter(i => {
-      const matchZona = advZona ? (i.zona || '').toLowerCase().includes(advZona) : true;
+      const matchZona = advZonaVal
+        ? (String(i.ubicacion_id) === advZonaVal || (i.zona || '').toLowerCase().includes(advZonaText) || (i.zona || '').toLowerCase().includes(advZonaVal.toLowerCase()))
+        : true;
       const matchTeam = advTeam ? (i.team || '').toLowerCase().includes(advTeam) : true;
+      const matchUsuario = advUsuario
+        ? (advUsuario === '__unassigned__' ? !i.usuario_id : String(i.usuario_id) === String(advUsuario))
+        : true;
       const matchStatus = advStatus ? (i.status || '').toLowerCase() === advStatus : true;
-      return matchZona && matchTeam && matchStatus;
+      return matchZona && matchTeam && matchUsuario && matchStatus;
     });
   }
 
   // Store for export
   window.currentFilteredData = data;
 
+  const hasAnyFilter = Boolean(
+    q ||
+    (filterCat && filterCat !== 'all') ||
+    (window.activeSmartFilters && window.activeSmartFilters.size > 0) ||
+    advZonaVal || advTeam || advUsuario || advStatus
+  );
+
   // Update active filter count badge
   const countEl = document.getElementById('smartFilterCount');
   if (countEl) {
-    const hasAnyFilter = q || (filterCat && filterCat !== 'all') || (window.activeSmartFilters && window.activeSmartFilters.size > 0) || advZona || advTeam || advStatus;
     if (hasAnyFilter) {
       countEl.textContent = data.length + ' result' + (data.length !== 1 ? 's' : '');
       countEl.style.display = 'inline';
@@ -802,8 +945,9 @@ window.aplicarFiltrosInventario = function() {
   const activeGTab = document.querySelector('.gtab.active');
   const groupByKey = activeGTab ? activeGTab.dataset.group : null;
 
-  renderInventoryTable(document.getElementById('inventTableBody'), data, groupByKey);
-  renderInventoryTable(document.getElementById('dashTableBody'), inventoryData.slice(0, 20));
+  // Automatically expand matching groups when a search or filter is active so results are never hidden!
+  renderInventoryTable(document.getElementById('inventTableBody'), data, groupByKey, hasAnyFilter);
+  window.aplicarFiltrosDashboard();
 };
 
 function renderizarActivos() {
@@ -1359,7 +1503,7 @@ document.addEventListener('langchange', () => {
     actualizarKPIs();
     renderizarGraficos();
     renderizarZonas();
-    renderizarEmpleados(employeesData);
+    window.aplicarFiltrosEmpleados();
     renderizarAlertas([]);
     if (typeof maintenanceData !== 'undefined') {
         renderMaintenanceTable(document.getElementById('maintTableBody'), maintenanceData);
@@ -1823,6 +1967,56 @@ async function openDrawer(item) {
     div.innerHTML = `<span class="drawer-meta-label">${f.label}</span><span class="drawer-meta-value">${f.value}</span>`;
     metaEl.appendChild(div);
   });
+
+  // Quick Person Assignment in Drawer
+  const drawerUsuarioSelect = document.getElementById('drawerUsuarioSelect');
+  const drawerUsuarioSave = document.getElementById('drawerUsuarioSave');
+  const drawerUsuarioStatus = document.getElementById('drawerUsuarioStatus');
+  if (drawerUsuarioSelect && drawerUsuarioSave) {
+    if (typeof populateUsuarioSelects === 'function') populateUsuarioSelects();
+    drawerUsuarioSelect.value = item.usuario_id ? String(item.usuario_id) : '';
+    if (drawerUsuarioStatus) drawerUsuarioStatus.textContent = '';
+    drawerUsuarioSave.onclick = async () => {
+      const val = drawerUsuarioSelect.value;
+      const newUserId = val ? Number(val) : null;
+      drawerUsuarioSave.disabled = true;
+      if (drawerUsuarioStatus) {
+        drawerUsuarioStatus.textContent = 'Saving...';
+        drawerUsuarioStatus.style.color = 'var(--text-2)';
+      }
+      try {
+        const r = await apiFetch(`/api/activos/${item.db_id}`, {
+          method: 'PATCH',
+          body: JSON.stringify({ usuario_actual_id: newUserId })
+        });
+        if (r.ok) {
+          const matchedUser = (window.usuariosData || []).find(u => Number(u.id) === Number(newUserId));
+          item.usuario_id = newUserId;
+          item.asignado = matchedUser ? matchedUser.nombre : '—';
+          if (drawerUsuarioStatus) {
+            drawerUsuarioStatus.textContent = '✓ Saved';
+            drawerUsuarioStatus.style.color = 'var(--accent-green)';
+            setTimeout(() => { drawerUsuarioStatus.textContent = ''; }, 2000);
+          }
+          await cargarActivos(true, true);
+          const refreshed = inventoryData.find(i => i.db_id === item.db_id);
+          if (refreshed) openDrawer(refreshed);
+        } else {
+          if (drawerUsuarioStatus) {
+            drawerUsuarioStatus.textContent = 'Error';
+            drawerUsuarioStatus.style.color = 'var(--accent-red)';
+          }
+        }
+      } catch (err) {
+        if (drawerUsuarioStatus) {
+          drawerUsuarioStatus.textContent = 'Error';
+          drawerUsuarioStatus.style.color = 'var(--accent-red)';
+        }
+      } finally {
+        drawerUsuarioSave.disabled = false;
+      }
+    };
+  }
 
   // Quantity logic
   const qtySection = document.getElementById('drawerQtySection');
@@ -2486,8 +2680,10 @@ function inicializarModal() {
       if (cat) itemId = cat.id;
     }
 
-        // ubicacion: zonaVal is already the ID from the select option value
-    const ubicacionId = zonaVal ? parseInt(zonaVal) : null;
+        // ubicacion & usuario
+    const ubicacionId = zonaVal ? parseInt(zonaVal, 10) : null;
+    const usuarioVal  = document.getElementById('modalUsuario')?.value;
+    const usuarioId   = usuarioVal ? parseInt(usuarioVal, 10) : null;
 
     const btn = document.getElementById('submitNewItem');
     btn.disabled = true;
@@ -2503,6 +2699,7 @@ function inicializarModal() {
         categoria:           categoriaVal,
         tipo:                categoriaVal,
         ubicacion_actual_id: ubicacionId,
+        usuario_actual_id:   usuarioId,
         estado,
         team: team || null,
         cantidad: document.getElementById('modalCantidad') ? parseInt(document.getElementById('modalCantidad').value, 10) : 1,
@@ -2532,6 +2729,7 @@ function inicializarModal() {
         document.getElementById('modalNumSerie').value = '';
         document.getElementById('modalDesc').value     = '';
         if(document.getElementById('modalCategoria')) document.getElementById('modalCategoria').value = 'WalkTest Kits';
+        if(document.getElementById('modalUsuario')) document.getElementById('modalUsuario').value = '';
         if(document.getElementById('modalNotas')) document.getElementById('modalNotas').value = '';
         window.uploadedPhotos = [];
         const gallery = document.getElementById('modalFotosGallery');
@@ -2574,21 +2772,15 @@ function inicializarModal() {
    FILTROS DE BÚSQUEDA
 ───────────────────────────────────────── */
 function inicializarFiltros() {
+  let inventarioSearchTimer = null;
   document.getElementById('inventarioSearch')?.addEventListener('input', function () {
-    window.aplicarFiltrosInventario();
+    clearTimeout(inventarioSearchTimer);
+    inventarioSearchTimer = setTimeout(() => window.aplicarFiltrosInventario(), 200);
   });
 
   // Búsqueda de empleados
   document.getElementById('employeeSearch')?.addEventListener('input', function () {
-    const q        = this.value.toLowerCase();
-    const filtered = employeesData.filter(e => {
-      const nom = e.nombre ? e.nombre.toLowerCase() : '';
-      const id  = e.id ? e.id.toLowerCase() : '';
-      const tm  = e.team ? e.team.toLowerCase() : '';
-      const eq  = e.equipo_nombre ? e.equipo_nombre.toLowerCase() : '';
-      return nom.includes(q) || id.includes(q) || tm.includes(q) || eq.includes(q);
-    });
-    renderizarEmpleados(filtered);
+    window.aplicarFiltrosEmpleados();
   });
 
   // Filter chips de empleados
@@ -2596,26 +2788,16 @@ function inicializarFiltros() {
     chip.addEventListener('click', function () {
       document.querySelectorAll('[data-emp-filter]').forEach(c => c.classList.remove('active'));
       this.classList.add('active');
-      const filter   = this.dataset.empFilter;
-      const filtered = filter === 'all' ? employeesData : employeesData.filter(e => {
-          if (filter === 'en_terreno') return e.estado === 'en_terreno' || e.estado === 'asignado';
-          return e.estado === filter;
-      });
-      renderizarEmpleados(filtered);
+      window.aplicarFiltrosEmpleados();
     });
   });
 
   // Filter chips del dashboard
-  document.querySelectorAll('.filter-chips .chip:not([data-emp-filter])').forEach(chip => {
+  document.querySelectorAll('#view-dashboard .filter-chips .chip').forEach(chip => {
     chip.addEventListener('click', function () {
-      document.querySelectorAll('.filter-chips .chip:not([data-emp-filter])').forEach(c => c.classList.remove('active'));
+      document.querySelectorAll('#view-dashboard .filter-chips .chip').forEach(c => c.classList.remove('active'));
       this.classList.add('active');
-      const { t }    = window.i18n;
-      const label    = this.textContent.trim();
-      let filtered   = inventoryData;
-      if (label === t('dash.filter.disp'))    filtered = inventoryData.filter(i => ['disponible','calibrado','en_funcionamiento'].includes(i.status));
-      else if (label === t('dash.filter.alertas')) filtered = inventoryData.filter(i => window.tieneAlerta(i));
-      renderInventoryTable(document.getElementById('dashTableBody'), filtered);
+      window.aplicarFiltrosDashboard();
     });
   });
 
@@ -2661,6 +2843,7 @@ function inicializarFiltros() {
     clearFilterBtn.addEventListener('click', () => {
       document.getElementById('advFilterZona').value = '';
       document.getElementById('advFilterTeam').value = '';
+      if (document.getElementById('advFilterUsuario')) document.getElementById('advFilterUsuario').value = '';
       document.getElementById('advFilterStatus').value = '';
       window.aplicarFiltrosInventario();
       document.getElementById('filterModalOverlay').classList.remove('open');
@@ -2886,14 +3069,40 @@ window.eliminarActivo = async function(db_id) {
 window.actualizarEstadoHerramienta = async function(db_id, newState) {
     if(!newState || !db_id) return;
     try {
-        await apiFetch(`/api/activos/${db_id}`, { 
+        const res = await apiFetch(`/api/activos/${db_id}`, { 
             method: 'PATCH',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ estado: newState })
         });
-        window.customAlert(window.i18n.t('drawer.estado_ok') || "Status updated");
-        await cargarActivos();
+        if (res.ok) {
+            showToast(window.i18n.t('drawer.estado_ok') || "Status updated");
+        } else {
+            const d = await res.json().catch(() => ({}));
+            window.customAlert(d.message || window.i18n.t('drawer.err_actualizar') || "Error updating");
+        }
+        await cargarActivos(true, true);
     } catch(e) { window.customAlert(window.i18n.t('drawer.err_actualizar') || "Error updating"); }
+};
+
+window.actualizarUsuarioHerramienta = async function(db_id, newUserId) {
+    if (!db_id) return;
+    const usuario_actual_id = newUserId ? Number(newUserId) : null;
+    try {
+        const res = await apiFetch(`/api/activos/${db_id}`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ usuario_actual_id })
+        });
+        if (res.ok) {
+            showToast(window.i18n.t('drawer.usuario_ok') || "Assigned person updated");
+        } else {
+            const d = await res.json().catch(() => ({}));
+            window.customAlert(d.message || window.i18n.t('drawer.err_actualizar') || "Error updating");
+        }
+        await cargarActivos(true, true);
+    } catch(e) {
+        window.customAlert(window.i18n.t('drawer.err_actualizar') || "Error updating");
+    }
 };
 
 const saveCategoryBtn = document.getElementById('saveCategoryBtn');
@@ -3137,10 +3346,10 @@ window.editarActivo = async function(item) {
             <div class="form-group"><label>${window.i18n.t('drawer.meta_ulti_tag') || 'DOM / Last Tag'}</label><input type="text" data-type="date" id="editAssetUltiTag" class="form-input" value="${item.ultimo_tag?item.ultimo_tag.substring(0,10):''}"></div>
             <div class="form-group"><label>${window.i18n.t('drawer.meta_tag') || 'Next Tag / Inspection'}</label><input type="text" data-type="date" id="editAssetProxTag" class="form-input" value="${item.tag?item.tag.substring(0,10):''}"></div>
           </div>
-          <div class="form-group"><label>${window.i18n.t('usuarios.titulo') || 'Assigned User'}</label>
+          <div class="form-group"><label>${window.i18n.t('modal.asignado') || 'Assigned to (Person)'}</label>
             <select id="editAssetUsuario" class="form-input">
-              <option value="">-- Unassigned --</option>
-              ${(window.usuariosData || []).map(u => `<option value="${u.id}" ${item.usuario_id == u.id ? 'selected' : ''}>${u.nombre}</option>`).join('')}
+              <option value="">-- ${window.i18n.t('usuarios.sin_asignar') || 'Unassigned'} --</option>
+              ${(window.usuariosData || []).map(u => `<option value="${u.id}" ${Number(item.usuario_id) === Number(u.id) ? 'selected' : ''}>${escapeHTML(u.nombre)}${u.team ? ' (' + escapeHTML(u.team) + ')' : ''}</option>`).join('')}
             </select>
           </div>
           <div style="margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--border);">
@@ -3269,10 +3478,7 @@ window.editarActivo = async function(item) {
       notas:               document.getElementById('editAssetNotas').value.trim() || null,
       fotos:               currentFotos
     };
-    // If assigning to a location, remove user assignment (only if both are provided)
-    if (payload.ubicacion_actual_id && payload.usuario_actual_id) {
-      payload.usuario_actual_id = null;
-    }
+    // Both ubicacion_actual_id (Zone) and usuario_actual_id (Assigned Person) can be saved together
 
     try {
       const r = await apiFetch(`/api/activos/${item.db_id}`, {
@@ -3732,6 +3938,11 @@ window.deleteZona = async function(id) {
 // BULK ACTIONS & CATEGORY MANAGEMENT
 // ==========================================
 window.updateBulkActionsState = function() {
+  const allBoxes = document.querySelectorAll('.row-checkbox');
+  allBoxes.forEach(cb => {
+    if (cb.checked) window.selectedAssetIds.add(String(cb.value));
+    else window.selectedAssetIds.delete(String(cb.value));
+  });
   const checked = document.querySelectorAll('.row-checkbox:checked');
   const btn = document.getElementById('bulkActionsBtn');
   const countEl = document.getElementById('bulkActionsCount');
@@ -3816,7 +4027,8 @@ document.getElementById('bulkDeleteSelectedBtn')?.addEventListener('click', asyn
   try {
     await apiFetch('/api/activos/bulk/delete', { method: 'POST', body: JSON.stringify({ ids }) });
     window.customAlert(window.i18n.t('bulk.ok_delete') || 'Assets deleted successfully.');
-    await cargarActivos();
+    window.selectedAssetIds.clear();
+    await cargarActivos(true, true);
     document.getElementById('selectAllCheckbox').checked = false;
     window.updateBulkActionsState();
   } catch (err) { window.customAlert((window.i18n.t('api.error_prefix') || 'Error: ') + err.message); }
@@ -3846,7 +4058,8 @@ document.getElementById('confirmBulkCategoryBtn')?.addEventListener('click', asy
     await apiFetch('/api/activos/bulk/category', { method: 'PATCH', body: JSON.stringify({ ids: selectedIdsForMove, item_id }) });
     window.customAlert(window.i18n.t('bulk.ok_cat') || 'Categories updated successfully.');
     document.getElementById('bulkCategoryModal').style.display = 'none';
-    await cargarActivos();
+    window.selectedAssetIds.clear();
+    await cargarActivos(true, true);
     document.getElementById('selectAllCheckbox').checked = false;
     window.updateBulkActionsState();
   } catch (err) { window.customAlert((window.i18n.t('api.error_prefix') || 'Error: ') + err.message); }
@@ -3871,7 +4084,8 @@ document.getElementById('confirmBulkStatusBtn')?.addEventListener('click', async
     await apiFetch('/api/activos/bulk/status', { method: 'PATCH', body: JSON.stringify({ ids: selectedIdsForStatus, status }) });
     window.customAlert(window.i18n.t('bulk.ok_estado') || 'Statuses updated successfully.');
     document.getElementById('bulkStatusModal').style.display = 'none';
-    await cargarActivos();
+    window.selectedAssetIds.clear();
+    await cargarActivos(true, true);
     document.getElementById('selectAllCheckbox').checked = false;
     window.updateBulkActionsState();
   } catch (err) { window.customAlert((window.i18n.t('api.error_prefix') || 'Error: ') + err.message); }
@@ -3902,7 +4116,8 @@ document.getElementById('confirmBulkZonaBtn')?.addEventListener('click', async (
     await apiFetch('/api/activos/bulk/zona', { method: 'PATCH', body: JSON.stringify({ ids: selectedIdsForZona, zona_id }) });
     window.customAlert(window.i18n.t('bulk.ok_zona') || 'Zones updated successfully.');
     document.getElementById('bulkZonaModal').style.display = 'none';
-    await cargarActivos();
+    window.selectedAssetIds.clear();
+    await cargarActivos(true, true);
     document.getElementById('selectAllCheckbox').checked = false;
     window.updateBulkActionsState();
   } catch (err) { window.customAlert((window.i18n.t('api.error_prefix') || 'Error: ') + err.message); }
@@ -3933,7 +4148,41 @@ document.getElementById('confirmBulkTeamBtn')?.addEventListener('click', async (
     await apiFetch('/api/activos/bulk/team', { method: 'PATCH', body: JSON.stringify({ ids: selectedIdsForTeam, team_id }) });
     window.customAlert(window.i18n.t('bulk.ok_team') || 'Teams updated successfully.');
     document.getElementById('bulkTeamModal').style.display = 'none';
-    await cargarActivos();
+    window.selectedAssetIds.clear();
+    await cargarActivos(true, true);
+    document.getElementById('selectAllCheckbox').checked = false;
+    window.updateBulkActionsState();
+  } catch (err) { window.customAlert((window.i18n.t('api.error_prefix') || 'Error: ') + err.message); }
+});
+
+// Bulk Assign Person (Usuario)
+let selectedIdsForUsuario = [];
+document.getElementById('bulkSetUsuarioBtn')?.addEventListener('click', () => {
+  document.getElementById('bulkActionsMenu').style.display = 'none';
+  const checked = document.querySelectorAll('.row-checkbox:checked');
+  if (!checked.length) return;
+  selectedIdsForUsuario = Array.from(checked).map(cb => cb.value);
+  const select = document.getElementById('bulkUsuarioSelect');
+  if (select) {
+    select.innerHTML = '<option value="">-- ' + (window.i18n?.t('usuarios.sin_asignar') || 'Unassigned') + ' --</option>';
+    (window.usuariosData || []).forEach(u => {
+      select.innerHTML += `<option value="${u.id}">${escapeHTML(u.nombre)}${u.team ? ' (' + escapeHTML(u.team) + ')' : ''}</option>`;
+    });
+  }
+  document.getElementById('bulkUsuarioModal').style.display = 'flex';
+});
+
+document.getElementById('closeBulkUsuarioModal')?.addEventListener('click', () => document.getElementById('bulkUsuarioModal').style.display = 'none');
+document.getElementById('cancelBulkUsuarioBtn')?.addEventListener('click', () => document.getElementById('bulkUsuarioModal').style.display = 'none');
+document.getElementById('confirmBulkUsuarioBtn')?.addEventListener('click', async () => {
+  const val = document.getElementById('bulkUsuarioSelect')?.value;
+  const usuario_id = val ? Number(val) : null;
+  try {
+    await apiFetch('/api/activos/bulk/usuario', { method: 'PATCH', body: JSON.stringify({ ids: selectedIdsForUsuario, usuario_id }) });
+    window.customAlert(window.i18n.t('bulk.ok_usuario') || 'Assigned person updated successfully.');
+    document.getElementById('bulkUsuarioModal').style.display = 'none';
+    window.selectedAssetIds.clear();
+    await cargarActivos(true, true);
     document.getElementById('selectAllCheckbox').checked = false;
     window.updateBulkActionsState();
   } catch (err) { window.customAlert((window.i18n.t('api.error_prefix') || 'Error: ') + err.message); }
@@ -4237,7 +4486,7 @@ window.removeKitItem = async function(childId, kitId) {
   try {
     const res = await apiFetch('/api/activos/' + childId, {
       method: 'PATCH',
-      body: JSON.stringify({ parent_activo_id: '' }) // Empty string or null to remove
+      body: JSON.stringify({ parent_activo_id: null }) // null removes the asset from the kit
     });
     const json = await res.json();
     if (json.success) {

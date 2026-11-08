@@ -61,7 +61,7 @@ exports.getAll = async (filters = {}) => {
   if (ubicacion_actual_id) add('a.ubicacion_actual_id = ', Number(ubicacion_actual_id));
   if (search) {
     params.push(`%${search}%`);
-    conds.push(`(LOWER(a.numero_serie) LIKE LOWER($${params.length}) OR LOWER(i.nombre) LIKE LOWER($${params.length}) OR LOWER(a.original_serial) LIKE LOWER($${params.length}))`);
+    conds.push(`(LOWER(a.numero_serie) LIKE LOWER($${params.length}) OR LOWER(i.nombre) LIKE LOWER($${params.length}) OR LOWER(a.original_serial) LIKE LOWER($${params.length}) OR LOWER(COALESCE(u.nombre, '')) LIKE LOWER($${params.length}))`);
   }
 
   const { rows } = await db.query(`${ASSET_SELECT} WHERE ${conds.join(' AND ')} ORDER BY a.id DESC`, params);
@@ -81,8 +81,6 @@ exports.getBySerial = async (serial) => {
 exports.create = async (data) => {
   let { item_id, descripcion, tipo, numero_serie, usuario_actual_id, ubicacion_actual_id,
           fecha_ultima_cali, fecha_prox_cali, fecha_ultimo_tag, fecha_prox_tag, estado, team, notas, original_serial } = data;
-  if (usuario_actual_id && ubicacion_actual_id)
-    throw Object.assign(new Error('An asset cannot have both a user and a location simultaneously.'), { isOperational: true });
 
   const existingAsset = await exports.getBySerial(numero_serie || '');
   if (existingAsset && numero_serie) {
@@ -141,10 +139,25 @@ exports.create = async (data) => {
      fecha_ultimo_tag  ?? null, fecha_prox_tag  ?? null,
      finalEstado, team ?? null, data.fotos ? JSON.stringify(data.fotos) : null, notas ?? null, finalCantidad]
   );
-  return rows[0];
+
+  const created = rows[0];
+  if (created && usuario_actual_id) {
+    try {
+      await db.query(
+        `INSERT INTO movimientos (item_id, activo_id, usuario_id, ubicacion_destino_id, cantidad, tipo_movimiento, observacion)
+         VALUES ($1, $2, $3, $4, 1, 'despacho', 'Assigned upon registration')`,
+        [item_id, created.id, usuario_actual_id, ubicacion_actual_id ?? null]
+      );
+    } catch (e) { /* non-blocking */ }
+  }
+
+  return created;
 };
 
 exports.update = async (id, patch) => {
+  const prevRes = await db.query('SELECT item_id, usuario_actual_id, ubicacion_actual_id FROM activos WHERE id = $1', [id]);
+  const prevAsset = prevRes.rows[0] || {};
+
   // Resolve item_id: either from descripcion change or from the existing asset
   if (patch.descripcion) {
     const descTrimmed = patch.descripcion.trim();
@@ -168,9 +181,8 @@ exports.update = async (id, patch) => {
     }
   } else if (patch.marca !== undefined || patch.categoria) {
     // No descripcion change, but marca or categoria changed — resolve item_id from existing asset
-    const existing = await db.query('SELECT item_id FROM activos WHERE id = $1', [id]);
-    if (existing.rows.length > 0 && existing.rows[0].item_id) {
-      const existingItemId = existing.rows[0].item_id;
+    if (prevAsset.item_id) {
+      const existingItemId = prevAsset.item_id;
       const updates = [];
       const vals = [];
       if (patch.marca !== undefined) { vals.push(patch.marca || null); updates.push(`marca = $${vals.length}`); }
@@ -223,7 +235,22 @@ exports.update = async (id, patch) => {
     `UPDATE activos SET ${sets.join(',')} WHERE id=$${params.length} RETURNING *`, params
   );
 
-  // Update children recursively if location/team changes
+  // Record movement if user assignment changed to a specific user
+  if (patch.usuario_actual_id && Number(patch.usuario_actual_id) !== Number(prevAsset.usuario_actual_id)) {
+    try {
+      const itemIdForMov = patch.item_id || prevAsset.item_id;
+      const destLoc = patch.ubicacion_actual_id !== undefined ? (patch.ubicacion_actual_id || null) : (prevAsset.ubicacion_actual_id || null);
+      if (itemIdForMov) {
+        await db.query(
+          `INSERT INTO movimientos (item_id, activo_id, usuario_id, ubicacion_origen_id, ubicacion_destino_id, cantidad, tipo_movimiento, observacion)
+           VALUES ($1, $2, $3, $4, $5, 1, 'despacho', 'Assigned via Dashboard')`,
+          [itemIdForMov, id, Number(patch.usuario_actual_id), prevAsset.ubicacion_actual_id || null, destLoc]
+        );
+      }
+    } catch (e) { /* non-blocking */ }
+  }
+
+  // Update children recursively if location/team/user changes
   if (patch.team !== undefined || patch.ubicacion_actual_id !== undefined || patch.usuario_actual_id !== undefined) {
     const childSets = [];
     const childParams = [];
@@ -322,6 +349,14 @@ exports.bulkCreate = async (activosData) => {
         }
       }
 
+      // 2b. Resolve Assigned User ID (by name) if provided
+      let usuario_actual_id = null;
+      const userNameRaw = (item.usuario || item.asignado || '').trim();
+      if (userNameRaw && userNameRaw !== '—' && userNameRaw !== '-' && userNameRaw.toLowerCase() !== 'unassigned') {
+        const { rows: uRows } = await client.query('SELECT id FROM usuarios WHERE LOWER(nombre) = LOWER($1) OR LOWER(nombre) LIKE LOWER($2) LIMIT 1', [userNameRaw, `%${userNameRaw}%`]);
+        if (uRows.length > 0) usuario_actual_id = uRows[0].id;
+      }
+
       // 3. Resolve Team
       const team = item.team ? item.team.trim() : null;
 
@@ -360,26 +395,25 @@ exports.bulkCreate = async (activosData) => {
           finalOriginalSerial = finalNumeroSerie;
         }
         finalNumeroSerie = await generateAutoId(categoriaPadre);
-      } else {
-         // If we get an explicit well-formatted serial, we still need to check for conflicts, but ON CONFLICT will handle it.
       }
 
-      // 6. Insert into activos (with dates and original_serial)
+      // 6. Insert into activos (with dates, original_serial, and usuario_actual_id)
       await client.query(`
-        INSERT INTO activos (item_id, numero_serie, original_serial, ubicacion_actual_id, estado, team,
+        INSERT INTO activos (item_id, numero_serie, original_serial, ubicacion_actual_id, usuario_actual_id, estado, team,
             fecha_ultima_cali, fecha_prox_cali, fecha_ultimo_tag, fecha_prox_tag)
-        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
         ON CONFLICT (numero_serie) DO UPDATE SET
           item_id = EXCLUDED.item_id,
-          ubicacion_actual_id = EXCLUDED.ubicacion_actual_id,
+          ubicacion_actual_id = COALESCE(EXCLUDED.ubicacion_actual_id, activos.ubicacion_actual_id),
+          usuario_actual_id = COALESCE(EXCLUDED.usuario_actual_id, activos.usuario_actual_id),
           estado = EXCLUDED.estado,
-          team = EXCLUDED.team,
+          team = COALESCE(EXCLUDED.team, activos.team),
           original_serial = COALESCE(EXCLUDED.original_serial, activos.original_serial),
           fecha_ultima_cali = COALESCE(EXCLUDED.fecha_ultima_cali, activos.fecha_ultima_cali),
           fecha_prox_cali   = COALESCE(EXCLUDED.fecha_prox_cali, activos.fecha_prox_cali),
           fecha_ultimo_tag  = COALESCE(EXCLUDED.fecha_ultimo_tag, activos.fecha_ultimo_tag),
           fecha_prox_tag    = COALESCE(EXCLUDED.fecha_prox_tag, activos.fecha_prox_tag)
-      `, [item_id, finalNumeroSerie, finalOriginalSerial, ubicacion_actual_id, normalizedStatus, team,
+      `, [item_id, finalNumeroSerie, finalOriginalSerial, ubicacion_actual_id, usuario_actual_id, normalizedStatus, team,
           fecha_ultima_cali, fecha_prox_cali, fecha_ultimo_tag, fecha_prox_tag]);
 
       inserted++;
@@ -397,18 +431,34 @@ exports.bulkCreate = async (activosData) => {
 
 exports.bulkRemoveSelected = async (ids) => {
   if (!ids || !ids.length) return 0;
-  const { rowCount } = await db.query('DELETE FROM activos WHERE id = ANY($1::int[])', [ids]);
+  const numIds = ids.map(Number).filter(n => !isNaN(n));
+  await db.query('DELETE FROM mantenimientos WHERE activo_id = ANY($1::int[])', [numIds]);
+  await db.query('DELETE FROM movimientos WHERE activo_id = ANY($1::int[])', [numIds]);
+  const { rowCount } = await db.query('DELETE FROM activos WHERE id = ANY($1::int[])', [numIds]);
   return rowCount;
 };
 
-exports.bulkUpdateCategory = async (ids, item_id) => {
+exports.bulkUpdateCategory = async (ids, item_id_or_cat) => {
   if (!ids || !ids.length) return 0;
-  const { rowCount } = await db.query('UPDATE activos SET item_id = $1 WHERE id = ANY($2::int[])', [item_id, ids]);
+  const numIds = ids.map(Number).filter(n => !isNaN(n));
+  if (typeof item_id_or_cat === 'string' && isNaN(Number(item_id_or_cat))) {
+    // Update categoria_padre on the items associated with these assets
+    const derivedTipo = item_id_or_cat.toLowerCase().includes('kit') ? 'kit'
+                      : item_id_or_cat.toLowerCase().includes('consumab') ? 'consumible'
+                      : 'herramienta';
+    await db.query(`
+      UPDATE items SET categoria_padre = $1, tipo = $2
+      WHERE id IN (SELECT DISTINCT item_id FROM activos WHERE id = ANY($3::int[]))
+    `, [item_id_or_cat, derivedTipo, numIds]);
+    return numIds.length;
+  }
+  const { rowCount } = await db.query('UPDATE activos SET item_id = $1 WHERE id = ANY($2::int[])', [Number(item_id_or_cat), numIds]);
   return rowCount;
 };
 
 exports.bulkUpdateStatus = async (ids, status) => {
   if (!ids || !ids.length) return 0;
+  const numIds = ids.map(Number).filter(n => !isNaN(n));
   const { rowCount } = await db.query(`
     WITH RECURSIVE kit_hierarchy AS (
       SELECT id FROM activos WHERE id = ANY($2::int[])
@@ -416,12 +466,14 @@ exports.bulkUpdateStatus = async (ids, status) => {
       SELECT a.id FROM activos a INNER JOIN kit_hierarchy k ON a.parent_activo_id = k.id
     )
     UPDATE activos SET estado = $1 WHERE id IN (SELECT id FROM kit_hierarchy)
-  `, [status, ids]);
+  `, [status, numIds]);
   return rowCount;
 };
 
 exports.bulkUpdateZona = async (ids, zona_id) => {
   if (!ids || !ids.length) return 0;
+  const numIds = ids.map(Number).filter(n => !isNaN(n));
+  const val = zona_id === '' || zona_id === null || zona_id === undefined ? null : Number(zona_id);
   const { rowCount } = await db.query(`
     WITH RECURSIVE kit_hierarchy AS (
       SELECT id FROM activos WHERE id = ANY($2::int[])
@@ -429,12 +481,14 @@ exports.bulkUpdateZona = async (ids, zona_id) => {
       SELECT a.id FROM activos a INNER JOIN kit_hierarchy k ON a.parent_activo_id = k.id
     )
     UPDATE activos SET ubicacion_actual_id = $1 WHERE id IN (SELECT id FROM kit_hierarchy)
-  `, [zona_id, ids]);
+  `, [val, numIds]);
   return rowCount;
 };
 
 exports.bulkUpdateTeam = async (ids, team) => {
   if (!ids || !ids.length) return 0;
+  const numIds = ids.map(Number).filter(n => !isNaN(n));
+  const val = team === '' || team === null || team === undefined ? null : String(team);
   const { rowCount } = await db.query(`
     WITH RECURSIVE kit_hierarchy AS (
       SELECT id FROM activos WHERE id = ANY($2::int[])
@@ -442,6 +496,35 @@ exports.bulkUpdateTeam = async (ids, team) => {
       SELECT a.id FROM activos a INNER JOIN kit_hierarchy k ON a.parent_activo_id = k.id
     )
     UPDATE activos SET team = $1 WHERE id IN (SELECT id FROM kit_hierarchy)
-  `, [team, ids]);
+  `, [val, numIds]);
   return rowCount;
 };
+
+exports.bulkUpdateUsuario = async (ids, usuario_id) => {
+  if (!ids || !ids.length) return 0;
+  const numIds = ids.map(Number).filter(n => !isNaN(n));
+  const val = usuario_id === '' || usuario_id === null || usuario_id === undefined ? null : Number(usuario_id);
+  const { rowCount } = await db.query(`
+    WITH RECURSIVE kit_hierarchy AS (
+      SELECT id FROM activos WHERE id = ANY($2::int[])
+      UNION
+      SELECT a.id FROM activos a INNER JOIN kit_hierarchy k ON a.parent_activo_id = k.id
+    )
+    UPDATE activos SET usuario_actual_id = $1 WHERE id IN (SELECT id FROM kit_hierarchy)
+  `, [val, numIds]);
+  if (val) {
+    try {
+      await db.query(`
+        INSERT INTO movimientos (item_id, activo_id, usuario_id, ubicacion_origen_id, ubicacion_destino_id, cantidad, tipo_movimiento, observacion)
+        SELECT a.item_id, a.id, $1, a.ubicacion_actual_id, a.ubicacion_actual_id, 1, 'despacho', 'Bulk assigned via Dashboard'
+        FROM activos a WHERE a.id = ANY($2::int[])
+      `, [val, numIds]);
+    } catch (e) { /* non-blocking */ }
+  }
+  return rowCount;
+};
+
+// Compatibility aliases
+exports.bulkDelete = exports.bulkRemoveSelected;
+exports.bulkUpdateItem = exports.bulkUpdateCategory;
+exports.bulkUpdateEstado = exports.bulkUpdateStatus;

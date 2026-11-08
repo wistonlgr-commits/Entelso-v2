@@ -13,8 +13,8 @@ const ESTADOS_VALIDOS = new Set([
 // Deduce el tipo de movimiento comparando el estado previo y el nuevo destino
 const deducirMovimiento = (prevUsuario, prevUbicacion, nuevoUsuario, nuevaUbicacion) => {
   if (!prevUsuario && !prevUbicacion) return 'ingreso';
-  if (prevUbicacion && nuevoUsuario)  return 'despacho';
-  if (prevUsuario  && nuevaUbicacion) return 'devolucion';
+  if (prevUbicacion && nuevoUsuario && prevUsuario !== nuevoUsuario) return 'despacho';
+  if (prevUsuario && !nuevoUsuario && nuevaUbicacion) return 'devolucion';
   return 'traspaso';
 };
 
@@ -69,10 +69,14 @@ class IngestService {
     try {
       await client.query('BEGIN');
 
-      // 1. Usuario — si no existe, se auto-crea con su número de WhatsApp y su team
+      // 1. Usuario — buscar por dígitos numéricos del teléfono para coincidir con números con formato (+61 424...)
       let defaultZonaStr = null;
       let userId;
-      const { rows: existUser } = await client.query("SELECT id, default_zona FROM usuarios WHERE telefono_whatsapp = $1 LIMIT 1", [whatsapp_number]);
+      const cleanPhone = String(whatsapp_number || '').replace(/\D/g, '');
+      const { rows: existUser } = await client.query(
+        "SELECT id, default_zona FROM usuarios WHERE telefono_whatsapp = $1 OR ($2 <> '' AND regexp_replace(telefono_whatsapp, '\\D', '', 'g') LIKE $3) LIMIT 1",
+        [whatsapp_number, cleanPhone, `%${cleanPhone}`]
+      );
       if (existUser.length > 0) {
         userId = existUser[0].id;
         defaultZonaStr = existUser[0].default_zona;
@@ -97,10 +101,9 @@ class IngestService {
       );
 
       // 4. Determinar asignación:
-      //    Si el equipo está en uso activo → asignado AL USUARIO
-      //    Cualquier otro estado (mantenimiento, disponible, etc.) → a la UBICACIÓN FÍSICA
-      const nuevoUsuario   = ESTADOS_EN_USO.has(dbStatus) ? userId : null;
-      const nuevaUbicacion = ESTADOS_EN_USO.has(dbStatus) ? null   : locId;
+      //    Siempre registramos tanto la persona que reporta/tiene el equipo (userId) como la ubicación/zona (locId)
+      const nuevoUsuario   = userId;
+      const nuevaUbicacion = locId;
 
       // 5. Search asset by numero_serie OR original_serial (case-insensitive)
       const { rows: existing } = await client.query(

@@ -271,6 +271,7 @@
                             <th data-i18n="col.zona">Zone</th>
                             <th style="text-align:center" data-i18n="col.cantidad">Qty</th>
                             <th data-i18n="col.team">Team</th>
+                            <th data-i18n="col.asignado">Assigned to</th>
                             <th data-i18n="col.estado">Status</th>
                             <th class="col-right" data-i18n="col.registrado">Registered</th>
                         </tr>
@@ -316,6 +317,9 @@
                             <div class="dropdown-item" id="bulkSetTeamBtn" style="cursor:pointer; padding:10px 12px; display:flex; align-items:center; gap:8px;">
                                 <i class="fa-solid fa-users"></i> <span data-i18n="bulk.mover_team">Change Team</span>
                             </div>
+                            <div class="dropdown-item" id="bulkSetUsuarioBtn" style="cursor:pointer; padding:10px 12px; display:flex; align-items:center; gap:8px;">
+                                <i class="fa-solid fa-user-check"></i> <span data-i18n="bulk.mover_usuario">Assign to Person</span>
+                            </div>
                         </div>
                     </div>
                                         <button class="btn-ghost" id="openImportModal"><i class="fa-solid fa-file-import"></i> <span data-i18n="inv.importar">Bulk Import</span></button>
@@ -338,6 +342,7 @@
                     <button class="gtab active" data-group="status" data-i18n="inv.agrupar.estado">Group by Status</button>
                     <button class="gtab" data-group="zona" data-i18n="inv.agrupar.zona">Group by Zone</button>
                     <button class="gtab" data-group="team" data-i18n="inv.agrupar.team">Group by Team</button>
+                    <button class="gtab" data-group="asignado" data-i18n="inv.agrupar.persona">Group by Person</button>
                 </div>
             </div>
             
@@ -771,6 +776,18 @@
         <!-- Equipment detail cards -->
         <div class="drawer-meta" id="drawerMeta"></div>
 
+        <!-- Quick Assign Person in Drawer -->
+        <div id="drawerUsuarioSection" style="padding: 0 24px; margin-bottom: 16px;">
+            <div class="drawer-section-label" data-i18n="modal.asignado">Assigned to (Person)</div>
+            <div style="display: flex; align-items: center; gap: 8px;">
+                <select id="drawerUsuarioSelect" class="form-input" style="flex: 1; font-size: 13px;">
+                    <option value="" data-i18n="usuarios.sin_asignar">-- Unassigned --</option>
+                </select>
+                <button id="drawerUsuarioSave" class="btn-ghost" style="font-size: 12px; padding: 6px 14px;" data-i18n="modal.guardar">Save</button>
+                <span id="drawerUsuarioStatus" style="font-size: 12px;"></span>
+            </div>
+        </div>
+
         <div id="drawerQtySection" style="padding: 0 24px; margin-bottom: 16px;">
             <div class="drawer-section-label" data-i18n="drawer.meta_cantidad">Quantity</div>
             <div style="display: flex; align-items: center; gap: 8px;">
@@ -819,6 +836,10 @@
                 <div class="form-group">
                     <label data-i18n="filter.team_asig">Team / Assignment</label>
                     <select id="advFilterTeam" class="select"><option value="" data-i18n="filter.todos_teams">All Teams</option></select>
+                </div>
+                <div class="form-group">
+                    <label data-i18n="col.asignado">Assigned to</label>
+                    <select id="advFilterUsuario" class="select"><option value="" data-i18n="filter.todos_usuarios">All People</option></select>
                 </div>
                 <div class="form-group">
                     <label>Status</label>
@@ -925,6 +946,14 @@
                 <div class="form-group">
                     <label data-i18n="modal.team">Team</label>
                     <select id="modalTeam" class="form-input"><option value="" data-i18n="usuarios.sin_team">No Team</option></select>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label data-i18n="modal.asignado">Assigned to (Person)</label>
+                    <select id="modalUsuario" class="form-input">
+                        <option value="" data-i18n="usuarios.sin_asignar">-- Unassigned --</option>
+                    </select>
                 </div>
             </div>
             <div class="form-row">
@@ -1387,11 +1416,34 @@
     </div>
 </div>
 
+<!-- Modal: Bulk Set Assigned Person -->
+<div class="modal-overlay" id="bulkUsuarioModal">
+    <div class="modal" style="max-width: 400px;">
+        <div class="modal-header">
+            <h3 data-i18n="bulk.mover_usuario">Assign to Person</h3>
+            <button class="close-btn" id="closeBulkUsuarioModal"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="modal-body">
+            <div class="form-group">
+                <label data-i18n="bulk.seleccionar_usuario">Select Person</label>
+                <select id="bulkUsuarioSelect" class="form-input select">
+                    <option value="" data-i18n="usuarios.sin_asignar">Unassigned</option>
+                    <!-- Filled dynamically -->
+                </select>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn-ghost" id="cancelBulkUsuarioBtn" data-i18n="modal.cancelar">Cancel</button>
+            <button class="btn-primary" id="confirmBulkUsuarioBtn"><i class="fa-solid fa-check"></i> <span data-i18n="modal.ok">OK</span></button>
+        </div>
+    </div>
+</div>
+
 <script>
 if (window.location.pathname.endsWith('/index.html')) {
     window.history.replaceState(null, '', window.location.pathname.replace(/\/index\.html$/, '/') + window.location.search + window.location.hash);
 }
 </script>
-<script src="script.js?v=9"></script>
+<script src="script.js?v=10"></script>
 </body>
 </html>
