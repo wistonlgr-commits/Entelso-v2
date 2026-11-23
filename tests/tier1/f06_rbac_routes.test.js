@@ -128,7 +128,137 @@ describe('F6 — RBAC & Route Hierarchy (Tier 1)', () => {
     assert.equal(getRes.status, 200);
     assert.equal(getRes.json.success, true);
     assert.ok(Array.isArray(getRes.json.data));
+    assert.ok(getRes.json.pagination && typeof getRes.json.pagination.total === 'number');
     assert.ok(getRes.json.data.some((l) => l.accion === 'F6_AUDIT_TEST'));
+  });
+
+  it('F6-T1-3b: Audit log captures real mutations with diffs, scrubs secrets/base64, paginates, filters, and fails safely', async () => {
+    const { execFileSync } = require('node:child_process');
+    const path = require('node:path');
+
+    // 1. Non-blocking fault-tolerance check in isolated subprocess: logSafe must never throw even if createLog fails
+    const auditSvcPath = path.resolve(__dirname, '../../backend/src/modules/audit/audit.service.js');
+    const out = execFileSync(
+      process.execPath,
+      [
+        '-e',
+        `const svc = require(${JSON.stringify(auditSvcPath)});
+         svc.createLog = async () => { throw new Error('Simulated audit DB outage'); };
+         svc.logSafe({ userId: 1, accion: 'test.outage' }).then((r) => {
+           if (r !== null) process.exit(2);
+           console.log('LOGSAFE_OK');
+         });`,
+      ],
+      {
+        encoding: 'utf8',
+        env: {
+          ...process.env,
+          DATABASE_URL: 'postgres://test:test@127.0.0.1:1/test',
+          API_KEY: 'test-api-key-123456',
+          JWT_SECRET: 'test-jwt-secret-key-32-chars-minimum',
+          NODE_ENV: 'test',
+        },
+      }
+    );
+    assert.ok(out.includes('LOGSAFE_OK'), 'Expected logSafe to swallow DB outage safely');
+
+    // 2. Secret & base64 scrubbing on POST /api/audit
+    const scrubRes = await httpJson(apiUrl, '/api/audit', {
+      method: 'POST',
+      token: adminToken,
+      body: {
+        accion: 'F6_SCRUB_TEST',
+        detalles: 'Uploaded data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAAB',
+        meta: {
+          module: 'security',
+          password: 'SuperSecretPassword!',
+          pin_hash: '$2b$10$secret',
+          secret_2fa: 'JBSWY3DPEHPK3PXP',
+          token: 'eyJhbGciOiJIUzI1NiJ9.fake',
+          base64_image: 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAAB',
+          safeField: 'kept_ok',
+        },
+      },
+    });
+    assert.equal(scrubRes.status, 200);
+
+    // 3. Automatic backend audit on asset create + status update with before->after diff
+    const serial = `AUD-${Math.floor(10000 + Math.random() * 80000)}`;
+    const cRes = await httpJson(apiUrl, '/api/activos', {
+      method: 'POST',
+      token: adminToken,
+      body: { descripcion: 'Audit Test Meter', categoria: 'Testing Equipment', numero_serie: serial },
+    });
+    assert.equal(cRes.status, 201);
+    const aid = cRes.json.data.id;
+
+    const uRes = await httpJson(apiUrl, `/api/activos/${aid}`, {
+      method: 'PATCH',
+      token: adminToken,
+      body: { estado: 'en_mantenimiento', notas: 'Audit diff check' },
+    });
+    assert.equal(uRes.status, 200);
+
+    // 4. Filter by module=equipment and search q=<serial> (allow non-blocking background audit write to flush)
+    let filtered = null;
+    for (let attempt = 0; attempt < 15; attempt++) {
+      filtered = await httpJson(apiUrl, `/api/audit?module=equipment&q=${encodeURIComponent(serial)}&limit=10&offset=0`, {
+        token: adminToken,
+      });
+      if (filtered.status === 200 && filtered.json.data.some((l) => l.accion === 'asset.updated')) break;
+      await new Promise((r) => setTimeout(r, 40));
+    }
+    assert.equal(filtered.status, 200);
+    assert.ok(filtered.json.data.length >= 2);
+    const updLog = filtered.json.data.find((l) => l.accion === 'asset.updated');
+    assert.ok(updLog, 'Expected automatic asset.updated audit entry');
+    assert.ok(updLog.fecha_iso && !Number.isNaN(Date.parse(updLog.fecha_iso)), 'Expected valid ISO UTC fecha_iso');
+    assert.equal(updLog.meta?.target, serial);
+    assert.ok(
+      Array.isArray(updLog.meta?.changes) &&
+      updLog.meta.changes.some((c) => c.field === 'estado' && c.to === 'en_mantenimiento'),
+      'Expected structured estado before->after diff in meta.changes'
+    );
+
+    // 5. Verify scrubbed log never contains secrets or base64 data URI
+    const scrubQuery = await httpJson(apiUrl, '/api/audit?q=F6_SCRUB_TEST&limit=5', { token: adminToken });
+    assert.equal(scrubQuery.status, 200);
+    const scrubRow = scrubQuery.json.data.find((l) => l.accion === 'F6_SCRUB_TEST');
+    assert.ok(scrubRow, 'Expected F6_SCRUB_TEST row');
+    const serialized = JSON.stringify(scrubRow);
+    assert.ok(!serialized.includes('SuperSecretPassword!'), 'password leaked into audit log');
+    assert.ok(!serialized.includes('$2b$10$secret'), 'pin_hash leaked into audit log');
+    assert.ok(!serialized.includes('JBSWY3DPEHPK3PXP'), 'secret_2fa leaked into audit log');
+    assert.ok(!serialized.includes('eyJhbGciOiJIUzI1NiJ9'), 'token leaked into audit log');
+    assert.ok(!serialized.includes('iVBORw0KGgo'), 'base64 image leaked into audit log');
+    assert.equal(scrubRow.meta?.safeField, 'kept_ok');
+
+    // 6. Real SQL pagination (limit & offset & hasMore)
+    const p1 = await httpJson(apiUrl, '/api/audit?limit=2&offset=0', { token: adminToken });
+    const p2 = await httpJson(apiUrl, '/api/audit?limit=2&offset=2', { token: adminToken });
+    assert.equal(p1.status, 200);
+    assert.equal(p2.status, 200);
+    assert.equal(p1.json.data.length, 2);
+    assert.equal(p1.json.pagination.limit, 2);
+    assert.equal(p1.json.pagination.offset, 0);
+    assert.equal(p1.json.pagination.hasMore, p1.json.pagination.total > 2);
+    if (p2.json.data.length > 0) {
+      assert.notEqual(p1.json.data[0].id, p2.json.data[0].id);
+    }
+
+    // 7. Legacy null-detalles/null-meta row renders cleanly via API
+    const legacyPost = await httpJson(apiUrl, '/api/audit', {
+      method: 'POST',
+      token: adminToken,
+      body: { accion: 'Inició sesión en el sistema' },
+    });
+    assert.equal(legacyPost.status, 200);
+    const legacySec = await httpJson(apiUrl, '/api/audit?module=security&limit=20', { token: adminToken });
+    assert.equal(legacySec.status, 200);
+    const legacyRow = legacySec.json.data.find((l) => l.accion === 'Inició sesión en el sistema');
+    assert.ok(legacyRow, 'Legacy login row must match module=security filter');
+    assert.equal(legacyRow.detalles, '');
+    assert.equal(legacyRow.meta, null);
   });
 
   it('F6-T1-4: almacen succeeds on activos create, bulk create (201), full patch, bulk category, bulk delete, and delete', async () => {

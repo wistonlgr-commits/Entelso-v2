@@ -1,4 +1,5 @@
 const db = require('../../config/database');
+const auditService = require('../audit/audit.service');
 
 const throwOpError = (msg, status = 400, code = 'BUSINESS_ERROR') => {
   throw Object.assign(new Error(msg), { isOperational: true, statusCode: status, code });
@@ -145,6 +146,26 @@ exports.asignarEquipo = async (telefono, numero_inventario, zonaInput) => {
     await client.query("UPDATE usuarios SET en_terreno = true WHERE id = $1", [user.id]);
 
     await client.query('COMMIT');
+    const waChanges = [
+      { field: 'estado', from: activo.estado || null, to: 'en_uso' },
+      { field: 'usuario', from: activo.nombre_usuario || null, to: user.nombre },
+    ];
+    if ((activo.zona || null) !== (zona || null)) {
+      waChanges.push({ field: 'zona', from: activo.zona || null, to: zona });
+    }
+    void auditService.logSafe({
+      userId: user.id,
+      accion: 'wa.assigned',
+      detalles: `${activo.numero_inventario} · ${activo.equipo_nombre} → ${user.nombre} (${zona})`,
+      meta: {
+        module: 'whatsapp',
+        severity: 'update',
+        source: 'whatsapp',
+        target: activo.numero_inventario,
+        targetId: activo.id,
+        changes: waChanges,
+      },
+    });
     return { success: true, equipo: activo.equipo_nombre, asignado_a: user.nombre, zona_actual: zona };
   } catch (err) {
     await client.query('ROLLBACK');
@@ -173,6 +194,19 @@ exports.reportarMantenimiento = async (telefono, numero_inventario, descripcion)
     await client.query("UPDATE activos SET estado = 'en_mantenimiento' WHERE id = $1", [activo.id]);
 
     await client.query('COMMIT');
+    void auditService.logSafe({
+      userId: user.id,
+      accion: 'wa.maintenance',
+      detalles: `${activo.numero_inventario} · ${descripcion}`,
+      meta: {
+        module: 'whatsapp',
+        severity: 'warning',
+        source: 'whatsapp',
+        target: activo.numero_inventario,
+        targetId: activo.id,
+        changes: [{ field: 'estado', from: activo.estado || null, to: 'en_mantenimiento' }],
+      },
+    });
     return { success: true, reporte_id: rows[0].id, equipo: activo.equipo_nombre };
   } catch (err) {
     await client.query('ROLLBACK');
@@ -185,7 +219,7 @@ exports.reportarMantenimiento = async (telefono, numero_inventario, descripcion)
 const storageSvc = require('../storage/storage.service');
 
 exports.subirFoto = async (telefono, numero_inventario, base64_image, mimetype = null) => {
-  await getUserByTelefono(telefono);
+  const user = await getUserByTelefono(telefono);
   const activo = await getActivoByInventario(numero_inventario);
 
   // Verificar límite de fotos
@@ -248,6 +282,21 @@ exports.subirFoto = async (telefono, numero_inventario, base64_image, mimetype =
     WHERE id = $2
   `, [JSON.stringify([url]), activo.id]);
 
+  void auditService.logSafe({
+    userId: user.id,
+    accion: 'wa.photo',
+    detalles: `${activo.numero_inventario} · Photo uploaded`,
+    meta: {
+      module: 'whatsapp',
+      severity: 'create',
+      source: 'whatsapp',
+      target: activo.numero_inventario,
+      targetId: activo.id,
+      url,
+      count: Number(countRes.rows[0]?.count || 0) + 1,
+    },
+  });
+
   return { success: true, url, equipo: activo.equipo_nombre };
 };
 
@@ -268,6 +317,19 @@ exports.devolverEquipo = async (telefono, numero_inventario) => {
     );
     await client.query("UPDATE activos SET estado = 'disponible', usuario_actual_id = NULL WHERE id = $1", [activo.id]);
     await client.query('COMMIT');
+    void auditService.logSafe({
+      userId: user.id,
+      accion: 'wa.returned',
+      detalles: `${activo.numero_inventario} · ${activo.equipo_nombre}`,
+      meta: {
+        module: 'whatsapp',
+        severity: 'create',
+        source: 'whatsapp',
+        target: activo.numero_inventario,
+        targetId: activo.id,
+        changes: [{ field: 'estado', from: activo.estado || null, to: 'disponible' }],
+      },
+    });
     return { success: true, equipo: activo.equipo_nombre, mensaje: 'Equipment returned successfully.' };
   } catch (err) {
     await client.query('ROLLBACK');
@@ -278,7 +340,7 @@ exports.devolverEquipo = async (telefono, numero_inventario) => {
 };
 
 exports.cambiarEstado = async (telefono, numero_inventario, nuevo_estado) => {
-  await getUserByTelefono(telefono);
+  const user = await getUserByTelefono(telefono);
   const activo = await getActivoByInventario(numero_inventario);
 
   const estadosValidos = ['disponible', 'en_uso', 'en_mantenimiento', 'calibracion_pendiente', 'fuera_de_servicio', 'calibrado', 'danado'];
@@ -287,6 +349,19 @@ exports.cambiarEstado = async (telefono, numero_inventario, nuevo_estado) => {
   }
 
   await db.query("UPDATE activos SET estado = $1 WHERE id = $2", [nuevo_estado, activo.id]);
+  void auditService.logSafe({
+    userId: user.id,
+    accion: 'wa.status',
+    detalles: `${activo.numero_inventario} · ${activo.estado} → ${nuevo_estado}`,
+    meta: {
+      module: 'whatsapp',
+      severity: ['en_mantenimiento', 'danado', 'fuera_de_servicio'].includes(nuevo_estado) ? 'warning' : 'update',
+      source: 'whatsapp',
+      target: activo.numero_inventario,
+      targetId: activo.id,
+      changes: [{ field: 'estado', from: activo.estado || null, to: nuevo_estado }],
+    },
+  });
   return { success: true, equipo: activo.equipo_nombre, nuevo_estado, mensaje: 'Status updated successfully.' };
 };
 

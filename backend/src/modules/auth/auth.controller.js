@@ -1,5 +1,6 @@
 const svc = require('./auth.service');
 const res = require('../../common/utils/apiResponse');
+const auditService = require('../audit/audit.service');
 
 /**
  * POST /api/auth/login
@@ -28,12 +29,40 @@ exports.login = async (req, reply, next) => {
     }
 
     const data = await svc.login(email, pin, rawTotp);
-    return reply.json(res.success(data));
+    reply.json(res.success(data));
+    void auditService.logSafe({
+      userId: data.usuario?.id ?? null,
+      accion: 'auth.login',
+      detalles: `${data.usuario?.email || email.trim()}${data.usuario?.is_2fa_enabled ? ' (2FA)' : ''}`,
+      meta: {
+        module: 'security',
+        severity: 'security',
+        source: 'web',
+        email: data.usuario?.email || email.trim(),
+        twoFactor: Boolean(data.usuario?.is_2fa_enabled),
+      },
+    });
+    return;
   } catch (err) {
     if (err.isOperational) {
-      return reply
+      reply
         .status(err.statusCode ?? 401)
         .json(res.error(err.message, err.code || 'AUTH_ERROR', err.details || null));
+      if (err.code && err.code !== '2FA_REQUIRED') {
+        void auditService.logSafe({
+          userId: null,
+          accion: 'auth.login_failed',
+          detalles: `${typeof email === 'string' ? email.trim() : 'unknown'} (${err.code})`,
+          meta: {
+            module: 'security',
+            severity: 'warning',
+            source: 'web',
+            email: typeof email === 'string' ? email.trim() : null,
+            reason: err.code,
+          },
+        });
+      }
+      return;
     }
     next(err); // el error handler global lo maneja
   }
@@ -64,6 +93,13 @@ exports.updateMe = async (req, reply, next) => {
     const userId = req.user.sub;
     const updated = await svc.updateMe(userId, req.body);
     reply.json(res.success(updated, 'Perfil actualizado correctamente.'));
+    const updatedFields = Object.keys(req.body || {}).filter((k) => ['nombre', 'email', 'telefono_whatsapp', 'preferencias'].includes(k));
+    void auditService.logSafe({
+      userId,
+      accion: 'auth.profile_updated',
+      detalles: updatedFields.join(', '),
+      meta: { module: 'security', severity: 'update', source: 'web', fields: updatedFields },
+    });
   } catch (e) {
     next(e);
   }
@@ -82,6 +118,12 @@ exports.changePassword = async (req, reply, next) => {
     }
     await svc.changePassword(userId, oldPassword, newPassword);
     reply.json(res.success(null, 'Contraseña actualizada correctamente.'));
+    void auditService.logSafe({
+      userId,
+      accion: 'auth.password_changed',
+      detalles: req.user?.email || '',
+      meta: { module: 'security', severity: 'security', source: 'web' },
+    });
   } catch (e) {
     next(e);
   }
@@ -106,6 +148,12 @@ exports.verify2FA = async (req, reply, next) => {
     }
     const success = await svc.verify2FA(userId, token);
     reply.json(res.success({ success }, '2FA verificado y activado.'));
+    void auditService.logSafe({
+      userId,
+      accion: 'auth.2fa_enabled',
+      detalles: req.user?.email || '',
+      meta: { module: 'security', severity: 'security', source: 'web' },
+    });
   } catch (e) {
     next(e);
   }
@@ -120,6 +168,12 @@ exports.disable2FA = async (req, reply, next) => {
     }
     const success = await svc.disable2FA(userId, token);
     reply.json(res.success({ success }, '2FA desactivado correctamente.'));
+    void auditService.logSafe({
+      userId,
+      accion: 'auth.2fa_disabled',
+      detalles: req.user?.email || '',
+      meta: { module: 'security', severity: 'warning', source: 'web' },
+    });
   } catch (e) {
     next(e);
   }

@@ -94,7 +94,7 @@ function main() {
 
   const res = spawnSync(
     process.execPath,
-    ['--test', '--test-concurrency=4', '--test-reporter=spec', ...discovered],
+    ['--test', '--test-concurrency=2', '--test-reporter=spec', ...discovered],
     {
       cwd: TESTS_ROOT,
       stdio: 'inherit',

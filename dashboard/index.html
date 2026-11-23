@@ -9,7 +9,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <!-- Flatpickr CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
-    <link rel="stylesheet" href="style.css?v=15">
+    <link rel="stylesheet" href="style.css?v=16">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/xlsx-js-style@1.2.0/dist/xlsx.bundle.js"></script>
     <!-- Flatpickr JS -->
@@ -17,7 +17,7 @@
     <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/en.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/es.js"></script>
     <!-- i18n debe cargarse ANTES que script.js -->
-    <script src="i18n.js?v=14"></script>
+    <script src="i18n.js?v=16"></script>
 </head>
 <body>
 
@@ -658,24 +658,60 @@
                     <i class="fa-solid fa-chevron-right bc-sep"></i>
                     <span class="bc-current" data-i18n="perfil.audit">Activity Log</span>
                 </div>
-            </header>
-            <div class="card" style="margin-top: 16px;">
-                <div class="card-header">
-                    <div class="card-title" data-i18n="audit.titulo">Action Audit (Audit Log)</div>
+                <div class="header-actions">
+                    <button class="btn-ghost" id="auditRefreshBtn">
+                        <i class="fa-solid fa-rotate-right"></i> <span data-i18n="audit.refresh">Refresh</span>
+                    </button>
+                    <button class="btn-ghost" id="auditExportCsvBtn">
+                        <i class="fa-solid fa-file-csv"></i> <span data-i18n="audit.export_csv">Export CSV</span>
+                    </button>
                 </div>
-                <div class="table-responsive">
-                    <table class="data-table">
+            </header>
+
+            <div class="audit-toolbar">
+                <div class="filter-chips" id="auditModuleChips">
+                    <button type="button" class="chip active" data-audit-module="" data-i18n="audit.mod_all">All</button>
+                    <button type="button" class="chip" data-audit-module="equipment" data-i18n="audit.mod_equipment">Equipment</button>
+                    <button type="button" class="chip" data-audit-module="bulk" data-i18n="audit.mod_bulk">Bulk</button>
+                    <button type="button" class="chip" data-audit-module="maintenance" data-i18n="audit.mod_maintenance">Maintenance</button>
+                    <button type="button" class="chip" data-audit-module="whatsapp" data-i18n="audit.mod_whatsapp">WhatsApp</button>
+                    <button type="button" class="chip" data-audit-module="users" data-i18n="audit.mod_users">Users</button>
+                    <button type="button" class="chip" data-audit-module="config" data-i18n="audit.mod_config">Config</button>
+                    <button type="button" class="chip" data-audit-module="security" data-i18n="audit.mod_security">Security</button>
+                </div>
+                <div class="audit-controls">
+                    <div class="audit-search-wrap">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                        <input type="text" id="auditSearchInput" class="form-input" data-i18n-ph="audit.search_ph" placeholder="Search serial, user, or detail...">
+                    </div>
+                    <select id="auditUserFilter" class="form-input audit-select">
+                        <option value="" data-i18n="audit.all_users">All Users</option>
+                    </select>
+                    <input type="date" id="auditDateFrom" class="form-input audit-date" data-i18n-title="audit.date_from" title="From">
+                    <input type="date" id="auditDateTo" class="form-input audit-date" data-i18n-title="audit.date_to" title="To">
+                    <button type="button" class="btn-ghost" id="auditClearFiltersBtn" style="display:none;" data-i18n="audit.clear_filters">Clear</button>
+                </div>
+            </div>
+
+            <div class="list-card no-top-radius" style="flex:1; display:flex; flex-direction:column; min-height:0;">
+                <div class="table-responsive" style="flex:1; overflow-y:auto;">
+                    <table class="linear-table audit-table">
                         <thead>
                             <tr>
-                                <th style="width: 150px;" data-i18n="audit.fecha">Date and Time</th>
-                                <th data-i18n="audit.user">User</th>
-                                <th data-i18n="audit.accion">Action Performed</th>
+                                <th style="width: 175px;" data-i18n="audit.fecha">Date & Time</th>
+                                <th style="width: 210px;" data-i18n="audit.user">User</th>
+                                <th style="width: 210px;" data-i18n="audit.accion">Action</th>
+                                <th data-i18n="audit.col_details">Target & Changes</th>
                             </tr>
                         </thead>
                         <tbody id="auditTableBody">
                             <!-- Logs renderizados aquí -->
                         </tbody>
                     </table>
+                </div>
+                <div class="audit-footer">
+                    <span id="auditCountSummary" class="audit-summary-text"></span>
+                    <button type="button" class="btn-ghost" id="auditLoadMoreBtn" style="display:none;" data-i18n="audit.load_more">Load more</button>
                 </div>
             </div>
         </div>
@@ -1494,6 +1530,6 @@ if (window.location.pathname.endsWith('/index.html')) {
 }
 </script>
 <script src="config.js?v=14"></script>
-<script src="script.js?v=15"></script>
+<script src="script.js?v=16"></script>
 </body>
 </html>

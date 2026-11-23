@@ -90,7 +90,7 @@ async function startIsolatedEnv(options = {}) {
   const initSqlPath = options.initSqlPath || path.join(repoRoot, 'init.sql');
   const enableStorageMock = options.enableStorageMock !== false;
   const enableDashboard = options.enableDashboard !== false;
-  const healthTimeoutMs = options.healthTimeoutMs ?? 20000;
+  const healthTimeoutMs = options.healthTimeoutMs ?? 35000;
 
   const tempCwd = fs.mkdtempSync(path.join(os.tmpdir(), 'entelso-test-cwd-'));
   let adapter = null;

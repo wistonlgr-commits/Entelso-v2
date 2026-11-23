@@ -589,10 +589,9 @@ document.getElementById('loginForm').addEventListener('submit', async (e) => {
     if (totpGroup) totpGroup.style.display = 'none';
     if (totpInput) totpInput.value = '';
 
-    // Login exitoso — guardar token y usuario
+    // Login exitoso — guardar token y usuario (el backend registra auth.login automáticamente)
     session.save(data.data.token, data.data.usuario);
     actualizarInfoUsuario(data.data.usuario);
-    registrarAuditLog('login');
     const urlParams = new URLSearchParams(window.location.search);
     const redirectUrl = urlParams.get('redirect');
     if (redirectUrl && ['manual.html', 'video_dashboard.html', 'video_whatsapp.html'].includes(redirectUrl)) {
@@ -1076,49 +1075,460 @@ async function cargarAlertas() {
   renderizarAlertas([]);
 }
 
-async function cargarAuditLog() {
+const auditState = {
+  items: [],
+  total: 0,
+  limit: 50,
+  offset: 0,
+  hasMore: false,
+  module: '',
+  usuarioId: '',
+  q: '',
+  from: '',
+  to: '',
+  initialized: false,
+  loading: false,
+  searchTimer: null,
+};
+
+function formatAuditTimestamp(log) {
+  const lang = window.i18n?.getLang?.() === 'es' ? 'es-ES' : 'en-AU';
+  const rawIso = log?.fecha_iso || null;
+  let d = rawIso ? new Date(rawIso) : null;
+  if (!d || Number.isNaN(d.getTime())) {
+    if (log?.fecha) {
+      const parsed = new Date(log.fecha);
+      if (!Number.isNaN(parsed.getTime())) d = parsed;
+    }
+  }
+  if (!d) {
+    return { rel: log?.fecha || '—', abs: log?.fecha || '' };
+  }
+
+  const abs = d.toLocaleString(lang, {
+    year: 'numeric',
+    month: 'short',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+  });
+
+  const diffSec = Math.floor((Date.now() - d.getTime()) / 1000);
+  let rel = abs;
+  if (diffSec < 60 && diffSec >= -60) {
+    rel = window.i18n.t('audit.just_now') || 'Just now';
+  } else if (diffSec >= 60 && diffSec < 3600) {
+    rel = (window.i18n.t('audit.mins_ago') || '{n}m ago').replace('{n}', Math.floor(diffSec / 60));
+  } else if (diffSec >= 3600 && diffSec < 86400) {
+    rel = (window.i18n.t('audit.hours_ago') || '{n}h ago').replace('{n}', Math.floor(diffSec / 3600));
+  } else if (diffSec >= 86400 && diffSec < 86400 * 14) {
+    rel = (window.i18n.t('audit.days_ago') || '{n}d ago').replace('{n}', Math.floor(diffSec / 86400));
+  }
+  return { rel, abs };
+}
+
+function getAuditActionPresentation(log) {
+  const rawAction = String(log?.accion || '').trim();
+  const meta = (log?.meta && typeof log.meta === 'object') ? log.meta : {};
+  const lower = rawAction.toLowerCase();
+
+  let label = rawAction || '—';
+  let severity = meta.severity || 'update';
+  let icon = 'fa-circle-info';
+
+  if (lower === 'inició sesión en el sistema' || lower === 'inicio sesion en el sistema' || lower === 'login' || lower === 'auth.login') {
+    label = window.i18n.t('audit.act.auth.login') || window.i18n.t('audit.login') || 'Signed in';
+    severity = 'security';
+    icon = 'fa-right-to-bracket';
+  } else if (window.i18n?.has?.(`audit.act.${rawAction}`)) {
+    label = window.i18n.t(`audit.act.${rawAction}`);
+  }
+
+  if (!meta.severity) {
+    if (/delete|remove|bulk_delete/i.test(lower)) severity = 'danger';
+    else if (/create|import|return|resolve|photo|added/i.test(lower)) severity = 'create';
+    else if (/maint|failed|disable|status/i.test(lower)) severity = 'warning';
+    else if (/auth\.|login|2fa|password/i.test(lower)) severity = 'security';
+    else severity = 'update';
+  }
+
+  if (severity === 'create') icon = 'fa-plus';
+  else if (severity === 'danger') icon = 'fa-trash-can';
+  else if (severity === 'warning') icon = 'fa-triangle-exclamation';
+  else if (severity === 'security') icon = 'fa-shield-halved';
+  else icon = 'fa-pen';
+
+  if (lower.startsWith('wa.')) icon = 'fa-brands fa-whatsapp';
+  else if (lower === 'bulk.import') icon = 'fa-file-import';
+  else if (lower === 'maint.resolved') icon = 'fa-circle-check';
+  else if (lower === 'auth.login') icon = 'fa-right-to-bracket';
+
+  return { label, severity, icon };
+}
+
+function formatAuditValue(field, val) {
+  if (val === null || val === undefined || val === '') return '—';
+  if (field === 'estado') {
+    const k = `estado.${String(val).toLowerCase()}`;
+    return window.i18n?.has?.(k) ? window.i18n.t(k) : String(val);
+  }
+  return String(val);
+}
+
+function renderAuditDetailsHtml(log) {
+  const meta = (log?.meta && typeof log.meta === 'object') ? log.meta : {};
+  const parts = [];
+  const target = meta.target ? String(meta.target).trim() : '';
+
+  if (target) {
+    const matchedAsset = (typeof inventoryData !== 'undefined' && Array.isArray(inventoryData))
+      ? inventoryData.find((a) => String(a.id || '').toLowerCase() === target.toLowerCase())
+      : null;
+    if (matchedAsset) {
+      const openTitle = window.i18n.t('audit.open_asset') || 'View equipment details';
+      parts.push(
+        `<button type="button" class="audit-target-btn" data-action="audit-open-asset" data-serial="${escapeHTML(matchedAsset.id)}" title="${escapeHTML(openTitle)}"><i class="fa-solid fa-cube" style="font-size:10px;"></i>${escapeHTML(target)}</button>`
+      );
+    } else {
+      parts.push(`<span class="audit-target-text">${escapeHTML(target)}</span>`);
+    }
+  }
+
+  if (Array.isArray(meta.changes) && meta.changes.length > 0) {
+    meta.changes.forEach((ch) => {
+      if (!ch || typeof ch !== 'object') return;
+      const fKey = `audit.field.${ch.field}`;
+      const fieldLabel = window.i18n?.has?.(fKey) ? window.i18n.t(fKey) : String(ch.field || '');
+      const fromText = formatAuditValue(ch.field, ch.from);
+      const toText = formatAuditValue(ch.field, ch.to);
+      parts.push(
+        `<span class="audit-diff-chip"><span>${escapeHTML(fieldLabel)}:</span> <span>${escapeHTML(fromText)}</span> <i class="fa-solid fa-arrow-right audit-diff-arrow"></i> <strong>${escapeHTML(toText)}</strong></span>`
+      );
+    });
+  } else if (meta.field && (meta.before !== undefined || meta.after !== undefined)) {
+    const fKey = `audit.field.${meta.field}`;
+    const fieldLabel = window.i18n?.has?.(fKey) ? window.i18n.t(fKey) : String(meta.field);
+    parts.push(
+      `<span class="audit-diff-chip"><span>${escapeHTML(fieldLabel)}:</span> <span>${escapeHTML(formatAuditValue(meta.field, meta.before))}</span> <i class="fa-solid fa-arrow-right audit-diff-arrow"></i> <strong>${escapeHTML(formatAuditValue(meta.field, meta.after))}</strong></span>`
+    );
+  } else if (meta.count !== undefined && meta.to !== undefined && meta.to !== null) {
+    const toText = (String(log?.accion || '').includes('status')) ? formatAuditValue('estado', meta.to) : String(meta.to);
+    parts.push(`<span class="audit-diff-chip"><strong>${escapeHTML(meta.count)}</strong> <i class="fa-solid fa-arrow-right audit-diff-arrow"></i> <strong>${escapeHTML(toText)}</strong></span>`);
+  }
+
+  // Show human detail text if no structured diff chips were rendered (or for maintenance/photo/login details)
+  const rawDetail = String(log?.detalles || '').trim();
+  const hasStructuredDiff = Array.isArray(meta.changes) && meta.changes.length > 0;
+  if (rawDetail && !hasStructuredDiff) {
+    // Avoid duplicating target prefix if target badge is already rendered
+    let cleanDetail = rawDetail;
+    if (target && cleanDetail.startsWith(target)) {
+      cleanDetail = cleanDetail.slice(target.length).replace(/^\s*·\s*/, '').trim();
+    }
+    if (cleanDetail) {
+      parts.push(`<span class="audit-detail-text">${escapeHTML(cleanDetail)}</span>`);
+    }
+  }
+
+  if (parts.length === 0) {
+    return '<span class="audit-detail-text">—</span>';
+  }
+  return `<div class="audit-details-cell">${parts.join('')}</div>`;
+}
+
+function populateAuditUserFilter() {
+  const sel = document.getElementById('auditUserFilter');
+  if (!sel) return;
+  const currentVal = sel.value || auditState.usuarioId || '';
+  const allLabel = window.i18n?.t('audit.all_users') || 'All Users';
+  const users = Array.isArray(window.usuariosData) ? window.usuariosData : [];
+  const opts = [`<option value="">${escapeHTML(allLabel)}</option>`];
+  users.forEach((u) => {
+    opts.push(`<option value="${escapeHTML(u.id)}">${escapeHTML(u.nombre || u.email || `#${u.id}`)}</option>`);
+  });
+  sel.innerHTML = opts.join('');
+  if (currentVal && Array.from(sel.options).some((o) => o.value === String(currentVal))) {
+    sel.value = String(currentVal);
+  }
+}
+
+function updateAuditClearButton() {
+  const btn = document.getElementById('auditClearFiltersBtn');
+  if (!btn) return;
+  const active = Boolean(auditState.module || auditState.usuarioId || auditState.q || auditState.from || auditState.to);
+  btn.style.display = active ? 'inline-flex' : 'none';
+}
+
+function renderAuditRows() {
+  const tbody = document.getElementById('auditTableBody');
+  if (!tbody) return;
+
+  const summaryEl = document.getElementById('auditCountSummary');
+  const loadMoreBtn = document.getElementById('auditLoadMoreBtn');
+  const logs = auditState.items || [];
+
+  tbody.innerHTML = '';
+
+  if (logs.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; padding: 28px; color: var(--text-3);">${escapeHTML(window.i18n.t('audit.no_records') || 'No activity records.')}</td></tr>`;
+  } else {
+    logs.forEach((log) => {
+      const tr = document.createElement('tr');
+      const time = formatAuditTimestamp(log);
+      const userName = log.user || window.i18n.t('audit.system_user') || 'System';
+      const initials = userName.split(/\s+/).filter(Boolean).slice(0, 2).map((p) => p[0]).join('').toUpperCase() || 'S';
+      const meta = (log.meta && typeof log.meta === 'object') ? log.meta : {};
+      const source = meta.source || (String(log.accion || '').startsWith('wa.') ? 'whatsapp' : 'web');
+      const sourceLabel = source === 'whatsapp'
+        ? (window.i18n.t('audit.src_whatsapp') || 'WhatsApp')
+        : source === 'import'
+          ? (window.i18n.t('audit.src_import') || 'Import')
+          : (window.i18n.t('audit.src_web') || 'Web');
+      const sourceIcon = source === 'whatsapp' ? 'fa-brands fa-whatsapp' : (source === 'import' ? 'fa-solid fa-file-import' : 'fa-solid fa-globe');
+      const act = getAuditActionPresentation(log);
+      const iconClass = act.icon.startsWith('fa-brands') ? act.icon : `fa-solid ${act.icon}`;
+
+      const absLine = (time.abs && time.abs !== time.rel)
+        ? `<span class="audit-time-abs">${escapeHTML(time.abs)}</span>`
+        : '';
+
+      tr.innerHTML = `
+        <td>
+          <div class="audit-time-cell" title="${escapeHTML(time.abs)}">
+            <span class="audit-time-rel">${escapeHTML(time.rel)}</span>
+            ${absLine}
+          </div>
+        </td>
+        <td>
+          <div class="audit-user-cell">
+            <span class="audit-avatar">${escapeHTML(initials)}</span>
+            <div class="audit-user-meta">
+              <span class="audit-user-name">${escapeHTML(userName)}</span>
+              <span class="audit-source-tag ${escapeHTML(source)}"><i class="${escapeHTML(sourceIcon)}"></i> ${escapeHTML(sourceLabel)}</span>
+            </div>
+          </div>
+        </td>
+        <td>
+          <span class="audit-badge sev-${escapeHTML(act.severity)}">
+            <i class="${escapeHTML(iconClass)}"></i>
+            ${escapeHTML(act.label)}
+          </span>
+        </td>
+        <td>${renderAuditDetailsHtml(log)}</td>
+      `;
+      tbody.appendChild(tr);
+    });
+  }
+
+  if (summaryEl) {
+    const shown = logs.length;
+    const total = Math.max(auditState.total, shown);
+    summaryEl.textContent = (window.i18n.t('audit.showing') || 'Showing {shown} of {total} events')
+      .replace('{shown}', shown)
+      .replace('{total}', total);
+  }
+  if (loadMoreBtn) {
+    loadMoreBtn.style.display = auditState.hasMore ? 'inline-flex' : 'none';
+    loadMoreBtn.disabled = false;
+    loadMoreBtn.textContent = window.i18n.t('audit.load_more') || 'Load more';
+  }
+  updateAuditClearButton();
+}
+
+function exportAuditCsv() {
+  const logs = auditState.items || [];
+  if (logs.length === 0) {
+    showToast(window.i18n.t('audit.no_export') || 'No records to export.', 'warning');
+    return;
+  }
+  const csvEsc = (v) => `"${String(v ?? '').replace(/"/g, '""')}"`;
+  const headers = [
+    window.i18n.t('audit.fecha') || 'Date & Time',
+    window.i18n.t('audit.user') || 'User',
+    window.i18n.t('audit.col_source') || 'Source',
+    window.i18n.t('audit.accion') || 'Action',
+    window.i18n.t('audit.col_details') || 'Target & Changes',
+  ];
+  const lines = [headers.map(csvEsc).join(',')];
+  logs.forEach((log) => {
+    const time = formatAuditTimestamp(log);
+    const meta = (log.meta && typeof log.meta === 'object') ? log.meta : {};
+    const source = meta.source || (String(log.accion || '').startsWith('wa.') ? 'whatsapp' : 'web');
+    const act = getAuditActionPresentation(log);
+    const detailText = log.detalles || (meta.target ? String(meta.target) : '');
+    lines.push([
+      time.abs || log.fecha_iso || log.fecha || '',
+      log.user || 'System',
+      source,
+      act.label,
+      detailText,
+    ].map(csvEsc).join(','));
+  });
+  const blob = new Blob(['\uFEFF' + lines.join('\r\n')], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `Entelso_Activity_Log_${new Date().toISOString().slice(0, 10)}.csv`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+  showToast(window.i18n.t('audit.exported_ok') || 'Activity log exported to CSV.');
+}
+
+function initAuditLogUI() {
+  if (auditState.initialized) return;
+  auditState.initialized = true;
+
+  const chipsWrap = document.getElementById('auditModuleChips');
+  if (chipsWrap) {
+    chipsWrap.addEventListener('click', (e) => {
+      const btn = e.target.closest('button[data-audit-module]');
+      if (!btn) return;
+      chipsWrap.querySelectorAll('button[data-audit-module]').forEach((b) => b.classList.remove('active'));
+      btn.classList.add('active');
+      auditState.module = btn.dataset.auditModule || '';
+      cargarAuditLog({ append: false });
+    });
+  }
+
+  const searchInput = document.getElementById('auditSearchInput');
+  if (searchInput) {
+    searchInput.addEventListener('input', () => {
+      if (auditState.searchTimer) clearTimeout(auditState.searchTimer);
+      auditState.searchTimer = setTimeout(() => {
+        auditState.q = searchInput.value.trim();
+        cargarAuditLog({ append: false });
+      }, 280);
+    });
+  }
+
+  const userSel = document.getElementById('auditUserFilter');
+  if (userSel) {
+    userSel.addEventListener('change', () => {
+      auditState.usuarioId = userSel.value || '';
+      cargarAuditLog({ append: false });
+    });
+  }
+
+  const fromEl = document.getElementById('auditDateFrom');
+  if (fromEl) {
+    fromEl.addEventListener('change', () => {
+      auditState.from = fromEl.value || '';
+      cargarAuditLog({ append: false });
+    });
+  }
+
+  const toEl = document.getElementById('auditDateTo');
+  if (toEl) {
+    toEl.addEventListener('change', () => {
+      auditState.to = toEl.value || '';
+      cargarAuditLog({ append: false });
+    });
+  }
+
+  document.getElementById('auditClearFiltersBtn')?.addEventListener('click', () => {
+    auditState.module = '';
+    auditState.usuarioId = '';
+    auditState.q = '';
+    auditState.from = '';
+    auditState.to = '';
+    if (searchInput) searchInput.value = '';
+    if (userSel) userSel.value = '';
+    if (fromEl) fromEl.value = '';
+    if (toEl) toEl.value = '';
+    document.querySelectorAll('#auditModuleChips button[data-audit-module]').forEach((b) => {
+      b.classList.toggle('active', (b.dataset.auditModule || '') === '');
+    });
+    cargarAuditLog({ append: false });
+  });
+
+  document.getElementById('auditRefreshBtn')?.addEventListener('click', () => {
+    cargarAuditLog({ append: false });
+  });
+
+  document.getElementById('auditExportCsvBtn')?.addEventListener('click', exportAuditCsv);
+
+  document.getElementById('auditLoadMoreBtn')?.addEventListener('click', () => {
+    if (!auditState.loading && auditState.hasMore) {
+      cargarAuditLog({ append: true });
+    }
+  });
+
+  const tbody = document.getElementById('auditTableBody');
+  if (tbody && tbody.dataset.delegated !== '1') {
+    tbody.dataset.delegated = '1';
+    tbody.addEventListener('click', (e) => {
+      const btn = e.target.closest('button[data-action="audit-open-asset"]');
+      if (btn && btn.dataset.serial && typeof window.openDrawerAsset === 'function') {
+        window.openDrawerAsset(btn.dataset.serial);
+      }
+    });
+  }
+}
+
+async function cargarAuditLog({ append = false } = {}) {
   const tbody = document.getElementById('auditTableBody');
   if (!tbody) return;
   if (!isAdminRole()) {
     tbody.innerHTML = '';
     return;
   }
-  
-  mostrarCargando('auditTableBody', 3);
-  
+
+  initAuditLogUI();
+  populateAuditUserFilter();
+
+  if (auditState.loading) return;
+  auditState.loading = true;
+
+  const nextOffset = append ? auditState.items.length : 0;
+  const loadMoreBtn = document.getElementById('auditLoadMoreBtn');
+  if (append && loadMoreBtn) {
+    loadMoreBtn.disabled = true;
+    loadMoreBtn.textContent = window.i18n.t('audit.loading_more') || 'Loading...';
+  } else {
+    mostrarCargando('auditTableBody', 4);
+  }
+
   try {
-    const res = await apiFetch('/api/audit');
+    const qs = new URLSearchParams();
+    qs.set('limit', String(auditState.limit));
+    qs.set('offset', String(nextOffset));
+    if (auditState.module) qs.set('module', auditState.module);
+    if (auditState.usuarioId) qs.set('usuario_id', auditState.usuarioId);
+    if (auditState.q) qs.set('q', auditState.q);
+    if (auditState.from) qs.set('from', auditState.from);
+    if (auditState.to) qs.set('to', auditState.to);
+
+    const res = await apiFetch(`/api/audit?${qs.toString()}`);
     const json = await parseApiJson(res);
     if (!res.ok || json.success === false) {
       throw new Error(extractErrorMessage(json, window.i18n?.t('audit.err_cargar') || 'Error loading audit log'));
     }
-    const logs = json.data || [];
-    
-    tbody.innerHTML = '';
-    
-    if (logs.length === 0) {
-      tbody.innerHTML = `<tr><td colspan="3" style="text-align:center; padding: 20px; color: var(--text-3);">${escapeHTML(window.i18n.t('audit.no_records') || 'No activity records.')}</td></tr>`;
-      return;
+
+    const page = Array.isArray(json.data) ? json.data : [];
+    const pg = json.pagination || null;
+
+    if (append) {
+      auditState.items = auditState.items.concat(page);
+    } else {
+      auditState.items = page;
     }
-    
-    logs.forEach(log => {
-      const tr = document.createElement('tr');
-      // Traducir acciones conocidas
-      let actionText = log.accion;
-      if (actionText === 'Inició sesión en el sistema' || actionText === 'login') {
-        actionText = window.i18n.t('audit.login') || actionText;
-      }
-      
-      tr.innerHTML = `
-        <td style="font-size: 12px; color: var(--text-2);">${escapeHTML(log.fecha)}</td>
-        <td style="font-weight: 500;">${escapeHTML(log.user)}</td>
-        <td style="color: var(--text-1);">${escapeHTML(actionText)}</td>
-      `;
-      tbody.appendChild(tr);
-    });
+    auditState.offset = nextOffset;
+    auditState.total = pg ? Number(pg.total) : auditState.items.length;
+    auditState.hasMore = pg ? Boolean(pg.hasMore) : false;
+
+    renderAuditRows();
   } catch (err) {
     if (err.message !== 'SESION_EXPIRADA') {
-      mostrarErrorTabla('auditTableBody', null, 3);
+      if (!append) mostrarErrorTabla('auditTableBody', null, 4);
+      else showToast(err.message || window.i18n.t('audit.err_cargar') || 'Error loading audit log.', 'error');
+    }
+  } finally {
+    auditState.loading = false;
+    if (loadMoreBtn) {
+      loadMoreBtn.disabled = false;
+      loadMoreBtn.textContent = window.i18n.t('audit.load_more') || 'Load more';
     }
   }
 }
@@ -2195,8 +2605,9 @@ document.addEventListener('langchange', () => {
   if (document.getElementById('view-usuarios')?.classList.contains('active') && typeof window.cargarUsuariosAdministracion === 'function') {
     window.cargarUsuariosAdministracion();
   }
-  if (document.getElementById('view-audit')?.classList.contains('active') && typeof cargarAuditLog === 'function') {
-    cargarAuditLog();
+  if (document.getElementById('view-audit')?.classList.contains('active')) {
+    if (typeof populateAuditUserFilter === 'function') populateAuditUserFilter();
+    if (typeof renderAuditRows === 'function') renderAuditRows();
   }
   if (typeof window.updateBulkActionsState === 'function') {
     window.updateBulkActionsState();
@@ -2830,7 +3241,6 @@ async function openDrawer(item) {
             notasStatus.style.color = 'var(--success)';
             setTimeout(() => { notasStatus.textContent = ''; }, 2000);
           }
-          registrarAuditLog(`Updated notes for ${item.id}`, { field: 'notas', before: item.notas || '', after: newNotas });
         } catch (err) {
           if (err.message !== 'SESION_EXPIRADA' && notasStatus) {
             notasStatus.textContent = err.message || window.i18n.t('drawer.err_guardar') || 'Error saving';
@@ -5532,7 +5942,6 @@ window.promptAddKitItem = async function(kitId) {
     });
     const json = await parseApiJson(res);
     if (res.ok && json.success !== false) {
-      registrarAuditLog(`Added asset ${child.id} to kit ${kitId}`);
       await cargarActivos(true); // force reload
       window.renderKitContents(kitId);
     } else {
@@ -5557,7 +5966,6 @@ window.removeKitItem = async function(childId, kitId) {
     });
     const json = await parseApiJson(res);
     if (res.ok && json.success !== false) {
-      registrarAuditLog(`Removed asset ${childId} from kit ${kitId}`);
       await cargarActivos(true);
       window.renderKitContents(kitId);
     } else {

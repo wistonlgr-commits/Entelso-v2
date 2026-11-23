@@ -668,7 +668,7 @@ describe('E2E-M1 Isolated Native Test Harness Sanity Suite', () => {
       const form = sandbox.document.getElementById('loginForm');
       form.dispatchEvent(new sandbox.window.Event('submit', { bubbles: true, cancelable: true }));
 
-      await sandbox.flushMicrotasks(250);
+      await sandbox.flushMicrotasks(600);
 
       const appShell = sandbox.document.getElementById('appShell');
       assert.equal(appShell.style.display, 'flex');

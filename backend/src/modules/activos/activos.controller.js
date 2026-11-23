@@ -1,5 +1,6 @@
 const svc = require('./activos.service');
 const res = require('../../common/utils/apiResponse');
+const auditService = require('../audit/audit.service');
 const net = require('net');
 const ExcelJS = require('exceljs');
 const axios = require('axios');
@@ -439,8 +440,81 @@ exports.getBySerial = async (req, reply, next) => {
     reply.json(res.success(item));
   } catch (e) { next(e); }
 };
+function countPhotosSafe(val) {
+  if (Array.isArray(val)) return val.length;
+  if (typeof val === 'string') {
+    try {
+      const parsed = JSON.parse(val);
+      return Array.isArray(parsed) ? parsed.length : 0;
+    } catch (_) {
+      return 0;
+    }
+  }
+  return 0;
+}
+
+function buildAssetChanges(before, after, body = {}) {
+  const changes = [];
+  if (!before || !after) return changes;
+
+  if (body.estado !== undefined && before.estado !== after.estado) {
+    changes.push({ field: 'estado', from: before.estado || null, to: after.estado || null });
+  }
+  const beforeZone = before.nombre_ubicacion || null;
+  const afterZone = after.nombre_ubicacion || null;
+  if ((body.ubicacion_actual_id !== undefined || body.zona !== undefined) && beforeZone !== afterZone) {
+    changes.push({ field: 'zona', from: beforeZone, to: afterZone });
+  }
+  const beforeUser = before.nombre_usuario || null;
+  const afterUser = after.nombre_usuario || null;
+  if ((body.usuario_actual_id !== undefined || body.usuario_id !== undefined) && beforeUser !== afterUser) {
+    changes.push({ field: 'usuario', from: beforeUser, to: afterUser });
+  }
+  if (body.team !== undefined && (before.team || null) !== (after.team || null)) {
+    changes.push({ field: 'team', from: before.team || null, to: after.team || null });
+  }
+  if (body.cantidad !== undefined && Number(before.cantidad) !== Number(after.cantidad)) {
+    changes.push({ field: 'cantidad', from: before.cantidad ?? null, to: after.cantidad ?? null });
+  }
+  if (body.notas !== undefined && (before.notas || '') !== (after.notas || '')) {
+    changes.push({ field: 'notas', from: before.notas ? String(before.notas).slice(0, 80) : null, to: after.notas ? String(after.notas).slice(0, 80) : null });
+  }
+  if (body.parent_activo_id !== undefined && (before.parent_activo_id ?? null) !== (after.parent_activo_id ?? null)) {
+    changes.push({ field: 'kit', from: before.parent_activo_id ?? null, to: after.parent_activo_id ?? null });
+  }
+  if (body.fecha_prox_cali !== undefined && String(before.fecha_prox_cali || '').slice(0, 10) !== String(after.fecha_prox_cali || '').slice(0, 10)) {
+    changes.push({ field: 'calibracion', from: before.fecha_prox_cali ? String(before.fecha_prox_cali).slice(0, 10) : null, to: after.fecha_prox_cali ? String(after.fecha_prox_cali).slice(0, 10) : null });
+  }
+  if (body.fotos !== undefined) {
+    const beforeCount = countPhotosSafe(before.fotos);
+    const afterCount = countPhotosSafe(after.fotos);
+    if (beforeCount !== afterCount) {
+      changes.push({ field: 'fotos', from: beforeCount, to: afterCount });
+    }
+  }
+  return changes;
+}
+
 exports.create = async (req, reply, next) => {
-  try { reply.status(201).json(res.success(await svc.create(req.body))); } catch (e) { next(e); }
+  try {
+    const created = await svc.create(req.body);
+    reply.status(201).json(res.success(created));
+    const serial = created?.numero_serie || req.body?.numero_serie || null;
+    const desc = created?.nombre_item || req.body?.descripcion || '';
+    void auditService.logSafe({
+      userId: req.user?.sub ?? null,
+      accion: 'asset.created',
+      detalles: [serial, desc].filter(Boolean).join(' · '),
+      meta: {
+        module: 'equipment',
+        severity: 'create',
+        source: 'web',
+        target: serial,
+        targetId: created?.id ?? null,
+        status: created?.estado || null,
+      },
+    });
+  } catch (e) { next(e); }
 };
 const SUPERVISOR_ALLOWED_FIELDS = new Set([
   'estado', 'ubicacion_actual_id', 'team', 'usuario_actual_id', 'notas', 'observaciones'
@@ -457,19 +531,74 @@ exports.update = async (req, reply, next) => {
         );
       }
     }
-    reply.json(res.success(await svc.update(req.params.id, req.body)));
+    let before = null;
+    try { before = await svc.getById(req.params.id); } catch (_) {}
+    const updated = await svc.update(req.params.id, req.body);
+    reply.json(res.success(updated));
+
+    const reqUserId = req.user?.sub ?? null;
+    const assetId = req.params.id;
+    const reqBody = { ...(req.body || {}) };
+    void (async () => {
+      try {
+        let after = updated;
+        try { after = (await svc.getById(assetId)) || updated; } catch (_) {}
+        const changes = buildAssetChanges(before, after, reqBody);
+        const serial = after?.numero_serie || before?.numero_serie || `#${assetId}`;
+        const kitChange = changes.find((c) => c.field === 'kit');
+        const accion = kitChange ? (kitChange.to ? 'asset.kit_added' : 'asset.kit_removed') : 'asset.updated';
+        const summary = changes.length > 0
+          ? changes.map((c) => `${c.field}: ${c.from ?? '—'} → ${c.to ?? '—'}`).join(' · ')
+          : (after?.nombre_item || '');
+
+        await auditService.logSafe({
+          userId: reqUserId,
+          accion,
+          detalles: [serial, summary].filter(Boolean).join(' · '),
+          meta: {
+            module: 'equipment',
+            severity: changes.some((c) => c.field === 'estado' && ['en_mantenimiento', 'danado', 'fuera_de_servicio'].includes(c.to)) ? 'warning' : 'update',
+            source: 'web',
+            target: serial,
+            targetId: Number(assetId) || after?.id || null,
+            changes,
+          },
+        });
+      } catch (_) {}
+    })();
   } catch (e) { next(e); }
 };
 exports.remove = async (req, reply, next) => {
   try {
+    let before = null;
+    try { before = await svc.getById(req.params.id); } catch (_) {}
     await svc.remove(req.params.id);
     reply.json(res.success({ deleted: true }, 'Activo eliminado.'));
+    const serial = before?.numero_serie || `#${req.params.id}`;
+    void auditService.logSafe({
+      userId: req.user?.sub ?? null,
+      accion: 'asset.deleted',
+      detalles: [serial, before?.nombre_item || ''].filter(Boolean).join(' · '),
+      meta: {
+        module: 'equipment',
+        severity: 'danger',
+        source: 'web',
+        target: serial,
+        targetId: Number(req.params.id) || null,
+      },
+    });
   } catch (e) { next(e); }
 };
 exports.removeAll = async (req, reply, next) => {
   try {
     await svc.removeAll();
     reply.json(res.success({ deleted: true }, 'Todos los activos han sido eliminados.'));
+    void auditService.logSafe({
+      userId: req.user?.sub ?? null,
+      accion: 'bulk.delete_all',
+      detalles: 'All assets deleted',
+      meta: { module: 'bulk', severity: 'danger', source: 'web' },
+    });
   } catch (e) { next(e); }
 };
 exports.bulkDelete = async (req, reply, next) => {
@@ -480,6 +609,12 @@ exports.bulkDelete = async (req, reply, next) => {
     }
     const count = await svc.bulkRemoveSelected(ids);
     reply.json(res.success({ deletedCount: count }, `${count} activos eliminados.`));
+    void auditService.logSafe({
+      userId: req.user?.sub ?? null,
+      accion: 'bulk.delete',
+      detalles: `${count} assets deleted`,
+      meta: { module: 'bulk', severity: 'danger', source: 'web', count },
+    });
   } catch (e) { next(e); }
 };
 exports.bulkUpdateEstado = async (req, reply, next) => {
@@ -488,8 +623,15 @@ exports.bulkUpdateEstado = async (req, reply, next) => {
     if (!Array.isArray(ids) || ids.length === 0) {
       return reply.status(400).json(res.error('Se requiere un array de IDs no vacío', 'BAD_REQUEST'));
     }
-    const count = await svc.bulkUpdateStatus(ids, estado || status);
+    const nextStatus = estado || status;
+    const count = await svc.bulkUpdateStatus(ids, nextStatus);
     reply.json(res.success({ updatedCount: count }, `Estado actualizado para ${count} activos.`));
+    void auditService.logSafe({
+      userId: req.user?.sub ?? null,
+      accion: 'bulk.status',
+      detalles: `${count} assets → ${nextStatus}`,
+      meta: { module: 'bulk', severity: 'warning', source: 'web', count, to: nextStatus },
+    });
   } catch (e) { next(e); }
 };
 exports.bulkUpdateZona = async (req, reply, next) => {
@@ -498,8 +640,15 @@ exports.bulkUpdateZona = async (req, reply, next) => {
     if (!Array.isArray(ids) || ids.length === 0) {
       return reply.status(400).json(res.error('Se requiere un array de IDs no vacío', 'BAD_REQUEST'));
     }
-    const count = await svc.bulkUpdateZona(ids, ubicacion_actual_id ?? zona_id);
+    const targetZone = ubicacion_actual_id ?? zona_id ?? null;
+    const count = await svc.bulkUpdateZona(ids, targetZone);
     reply.json(res.success({ updatedCount: count }, `Zona actualizada para ${count} activos.`));
+    void auditService.logSafe({
+      userId: req.user?.sub ?? null,
+      accion: 'bulk.zona',
+      detalles: `${count} assets updated`,
+      meta: { module: 'bulk', severity: 'update', source: 'web', count, to: targetZone },
+    });
   } catch (e) { next(e); }
 };
 exports.bulkUpdateTeam = async (req, reply, next) => {
@@ -508,8 +657,15 @@ exports.bulkUpdateTeam = async (req, reply, next) => {
     if (!Array.isArray(ids) || ids.length === 0) {
       return reply.status(400).json(res.error('Se requiere un array de IDs no vacío', 'BAD_REQUEST'));
     }
-    const count = await svc.bulkUpdateTeam(ids, team ?? team_id);
+    const targetTeam = team ?? team_id ?? null;
+    const count = await svc.bulkUpdateTeam(ids, targetTeam);
     reply.json(res.success({ updatedCount: count }, `Team actualizado para ${count} activos.`));
+    void auditService.logSafe({
+      userId: req.user?.sub ?? null,
+      accion: 'bulk.team',
+      detalles: `${count} assets → ${targetTeam || 'Unassigned'}`,
+      meta: { module: 'bulk', severity: 'update', source: 'web', count, to: targetTeam },
+    });
   } catch (e) { next(e); }
 };
 exports.bulkUpdateUsuario = async (req, reply, next) => {
@@ -521,6 +677,12 @@ exports.bulkUpdateUsuario = async (req, reply, next) => {
     const targetUserId = usuario_actual_id !== undefined ? usuario_actual_id : usuario_id;
     const count = await svc.bulkUpdateUsuario(ids, targetUserId);
     reply.json(res.success({ updatedCount: count }, `Persona asignada actualizada para ${count} activos.`));
+    void auditService.logSafe({
+      userId: req.user?.sub ?? null,
+      accion: 'bulk.usuario',
+      detalles: `${count} assets reassigned`,
+      meta: { module: 'bulk', severity: 'update', source: 'web', count, to: targetUserId ?? null },
+    });
   } catch (e) { next(e); }
 };
 exports.bulkUpdateItem = async (req, reply, next) => {
@@ -529,8 +691,15 @@ exports.bulkUpdateItem = async (req, reply, next) => {
     if (!Array.isArray(ids) || ids.length === 0) {
       return reply.status(400).json(res.error('Se requiere un array de IDs no vacío', 'BAD_REQUEST'));
     }
-    const count = await svc.bulkUpdateCategory(ids, item_id ?? categoria);
+    const targetCat = item_id ?? categoria;
+    const count = await svc.bulkUpdateCategory(ids, targetCat);
     reply.json(res.success({ updatedCount: count }, `Categoría actualizada para ${count} activos.`));
+    void auditService.logSafe({
+      userId: req.user?.sub ?? null,
+      accion: 'bulk.category',
+      detalles: `${count} assets → ${categoria || item_id || ''}`,
+      meta: { module: 'bulk', severity: 'update', source: 'web', count, to: targetCat ?? null },
+    });
   } catch (e) { next(e); }
 };
 
@@ -542,7 +711,15 @@ exports.bulkUpdateStatus   = exports.bulkUpdateEstado;
 // ── Bulk create (delegates to service) ──
 exports.bulkCreate = async (req, reply, next) => {
   try {
-    const result = await svc.bulkCreate(req.body.activos || req.body);
+    const payload = req.body.activos || req.body;
+    const result = await svc.bulkCreate(payload);
     reply.status(201).json(res.success(result, 'Bulk create completed'));
+    const count = Array.isArray(result) ? result.length : (result?.createdCount ?? (Array.isArray(payload) ? payload.length : 0));
+    void auditService.logSafe({
+      userId: req.user?.sub ?? null,
+      accion: 'bulk.import',
+      detalles: `${count} assets imported`,
+      meta: { module: 'bulk', severity: 'create', source: 'import', count },
+    });
   } catch (e) { next(e); }
 };
