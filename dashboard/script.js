@@ -1896,7 +1896,7 @@ function actualizarKPIs() {
   const total       = inventoryData.length;
   const disponibles = inventoryData.filter(a => ['disponible','calibrado','en_funcionamiento'].includes(a.status)).length;
   const calibPend   = inventoryData.filter(a => a.status === 'calibracion_pendiente').length;
-  const mantenim    = inventoryData.filter(a => ['en_mantenimiento','fuera_de_servicio','danado'].includes(a.status)).length;
+  const mantenim    = inventoryData.filter(a => a.status === 'en_mantenimiento').length;
   const pct         = total > 0 ? ((disponibles / total) * 100).toFixed(1) : '0.0';
 
   document.getElementById('kpi-total').textContent         = total.toLocaleString();
@@ -1929,10 +1929,7 @@ function actualizarKPIs() {
   safeKpi('kpi-reg-today', regToday);
   safeKpi('kpi-reg-week', regWeek);
 
-  // Badge de mantenimiento
-  document.getElementById('badge-mantenimiento').textContent = mantenim + calibPend;
-
-  // Actualizar datos de mantenimiento para su tabla
+  // Actualizar datos de mantenimiento para su tabla (cola operativa de atención)
   maintenanceData = inventoryData.filter(a =>
     ['en_mantenimiento','fuera_de_servicio','danado','calibracion_pendiente'].includes(a.status)
   ).map(a => ({
@@ -1943,6 +1940,7 @@ function actualizarKPIs() {
     status: a.status,
     fecha:  a.calibracion || a.fecha,
   }));
+  document.getElementById('badge-mantenimiento').textContent = maintenanceData.length;
   renderMaintenanceTable(document.getElementById('maintTableBody'), maintenanceData);
 }
 
@@ -2033,14 +2031,29 @@ function renderizarGraficos() {
   // Chart donut de estados
   const disponible  = inventoryData.filter(a => ['disponible','calibrado','en_funcionamiento'].includes(a.status)).length;
   const enUso       = inventoryData.filter(a => a.status === 'en_uso').length;
-  const mantenim    = inventoryData.filter(a => ['en_mantenimiento','fuera_de_servicio','danado'].includes(a.status)).length;
+  const mantenim    = inventoryData.filter(a => a.status === 'en_mantenimiento').length;
+  const danado      = inventoryData.filter(a => a.status === 'danado').length;
+  const fueraServ   = inventoryData.filter(a => a.status === 'fuera_de_servicio').length;
   const calibPend   = inventoryData.filter(a => a.status === 'calibracion_pendiente').length;
-  const otros       = inventoryData.filter(a => ['desconocido', 'sin_stock'].includes(a.status)).length;
+  const otros       = inventoryData.filter(a => !['disponible','calibrado','en_funcionamiento','en_uso','en_mantenimiento','danado','fuera_de_servicio','calibracion_pendiente'].includes(a.status)).length;
 
   const { t } = window.i18n;
-  const donutLabels = [t('estado.disponible'), t('estado.en_uso'), t('nav.mantenimiento'), t('kpi.calibracion'), t('kpi.otros') || 'Other'];
-  const donutColors = ['#3fb950','#58a6ff','#d29922','#7c6ff7','#8b949e'];
-  const donutData   = [disponible, enUso, mantenim, calibPend, otros];
+  const slices = [
+    { label: t('estado.disponible'),       color: '#3fb950', value: disponible },
+    { label: t('estado.en_uso'),           color: '#58a6ff', value: enUso },
+    { label: t('estado.en_mantenimiento'), color: '#d29922', value: mantenim },
+    { label: t('estado.danado'),           color: '#f85149', value: danado },
+    { label: t('kpi.calibracion'),         color: '#7c6ff7', value: calibPend },
+  ];
+  if (fueraServ > 0) {
+    slices.push({ label: t('estado.fuera_de_servicio'), color: '#f0883e', value: fueraServ });
+  }
+  if (otros > 0) {
+    slices.push({ label: t('kpi.otros') || 'Other', color: '#8b949e', value: otros });
+  }
+  const donutLabels = slices.map(s => s.label);
+  const donutColors = slices.map(s => s.color);
+  const donutData   = slices.map(s => s.value);
 
   const ctxStatus = document.getElementById('statusChart')?.getContext('2d');
   if (ctxStatus) {

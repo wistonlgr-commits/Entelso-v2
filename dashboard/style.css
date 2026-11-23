@@ -533,7 +533,7 @@ canvas { display: block; }
     gap: 0;
     border-bottom: 1px solid var(--border);
     flex-shrink: 0;
-    height: 240px;
+    height: 268px;
 }
 
 .chart-card {
@@ -574,9 +574,9 @@ canvas { display: block; }
 }
 
 .chart-body.donut {
-    padding: 0 12px 8px;
-    height: 140px;
-    flex: 0 0 140px;
+    padding: 0 12px 6px;
+    height: 118px;
+    flex: 0 0 118px;
 }
 
 .donut-legend {
