@@ -1,0 +1,17 @@
+node_modules/
+backend/node_modules/
+.env
+.env.*
+backend/.env
+backend/.env.*
+!.env.example
+*.log
+npm-debug.log*
+*.tmp
+*.bak
+*.swp
+tmp/
+.tmp/
+.DS_Store
+Thumbs.db
+coverage/

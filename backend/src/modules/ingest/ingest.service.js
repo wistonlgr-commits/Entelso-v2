@@ -1,0 +1,167 @@
+const db     = require('../../config/database');
+const logger = require('../../common/utils/logger');
+const { supportsAdvisoryLock, withSerialMutex, generateAutoId } = require('../../common/utils/serialGenerator');
+
+// Estados que implican que el activo está EN MANOS de un usuario
+const ESTADOS_EN_USO = new Set(['en_uso', 'en_funcionamiento']);
+
+// Valida que el estado sea uno de los permitidos por el ENUM de la DB
+const ESTADOS_VALIDOS = new Set([
+  'disponible', 'en_uso', 'en_mantenimiento', 'calibracion_pendiente',
+  'fuera_de_servicio', 'calibrado', 'danado', 'en_funcionamiento', 'desconocido'
+]);
+
+// Deduce el tipo de movimiento comparando el estado previo y el nuevo destino
+const deducirMovimiento = (prevUsuario, prevUbicacion, nuevoUsuario, nuevaUbicacion) => {
+  if (!prevUsuario && !prevUbicacion) return 'ingreso';
+  if (prevUbicacion && nuevoUsuario && prevUsuario !== nuevoUsuario) return 'despacho';
+  if (prevUsuario && !nuevoUsuario && nuevaUbicacion) return 'devolucion';
+  return 'traspaso';
+};
+
+/**
+ * Busca un registro por campo. Si no existe, lo crea y devuelve su id.
+ * Evita duplicar lógica de "upsert" a mano.
+ */
+const buscarOCrear = async (client, tabla, campoFiltro, valor, camposInsert) => {
+  const cols  = Object.keys(camposInsert).join(', ');
+  const vals  = Object.values(camposInsert);
+  const marks = vals.map((_, i) => `$${i + 1}`).join(', ');
+
+  const query = `
+    INSERT INTO ${tabla} (${cols})
+    VALUES (${marks})
+    ON CONFLICT (${campoFiltro}) DO UPDATE SET ${campoFiltro} = EXCLUDED.${campoFiltro}
+    RETURNING id
+  `;
+  const { rows } = await client.query(query, vals);
+  return rows[0].id;
+};
+
+class IngestService {
+  async processWhatsappReport({ whatsapp_number, parsed }) {
+    const { numero_inventario, equipo, zona, team, status } = parsed;
+
+    // Normalizar y validar el estado recibido del bot
+    let rawStatus = status?.toLowerCase?.().trim() || '';
+    
+    // Mapear traducciones del LLM (inglés) a estados válidos (español)
+    const statusMap = {
+      'available': 'disponible',
+      'in use': 'en_uso',
+      'maintenance': 'en_mantenimiento',
+      'under maintenance': 'en_mantenimiento',
+      'damaged': 'danado',
+      'broken': 'danado',
+      'out of service': 'fuera_de_servicio',
+      'calibration pending': 'calibracion_pendiente',
+      'pending calibration': 'calibracion_pendiente',
+      'calibrated': 'calibrado'
+    };
+    
+    let normalizedStatus = statusMap[rawStatus] || rawStatus;
+    
+    const dbStatus = ESTADOS_VALIDOS.has(normalizedStatus)
+      ? normalizedStatus
+      : 'desconocido'; // fallback seguro si Gemini manda algo inesperado
+
+    const lockAllowed = await supportsAdvisoryLock(db);
+
+    return withSerialMutex(async () => {
+      const client = await db.pool.connect();
+
+      try {
+        await client.query('BEGIN');
+
+        // 1. Usuario — buscar por dígitos numéricos del teléfono para coincidir con números con formato (+61 424...)
+        let defaultZonaStr = null;
+        let userId;
+        const cleanPhone = String(whatsapp_number || '').replace(/\D/g, '');
+        const { rows: existUser } = await client.query(
+          "SELECT id, default_zona FROM usuarios WHERE telefono_whatsapp = $1 OR ($2 <> '' AND regexp_replace(telefono_whatsapp, '\\D', '', 'g') LIKE $3) LIMIT 1",
+          [whatsapp_number, cleanPhone, `%${cleanPhone}`]
+        );
+        if (existUser.length > 0) {
+          userId = existUser[0].id;
+          defaultZonaStr = existUser[0].default_zona;
+        } else {
+          userId = await buscarOCrear(
+            client, 'usuarios', 'telefono_whatsapp', whatsapp_number,
+            { nombre: `Technician (${whatsapp_number})`, telefono_whatsapp: whatsapp_number, rol: 'trabajador', team: team || null }
+          );
+        }
+
+        // 2. Item del catálogo
+        const itemId = await buscarOCrear(
+          client, 'items', 'nombre', equipo,
+          { nombre: equipo.trim(), tipo: 'herramienta', stock_global_consumibles: 0 }
+        );
+
+        // 3. Location (zone from WhatsApp)
+        const zonaName = (zona && zona.trim()) || defaultZonaStr || 'Unassigned';
+        const locId = await buscarOCrear(
+          client, 'ubicaciones', 'nombre_ubicacion', zonaName,
+          { nombre_ubicacion: zonaName, descripcion: `Auto-created via WhatsApp report (${zonaName})` }
+        );
+
+        // 4. Determinar asignación:
+        //    Siempre registramos tanto la persona que reporta/tiene el equipo (userId) como la ubicación/zona (locId)
+        const nuevoUsuario   = userId;
+        const nuevaUbicacion = locId;
+
+        // 5. Search asset by numero_serie OR original_serial (case-insensitive)
+        const { rows: existing } = await client.query(
+          'SELECT id, usuario_actual_id, ubicacion_actual_id FROM activos WHERE LOWER(numero_serie) = LOWER($1) OR LOWER(original_serial) = LOWER($1)',
+          [String(numero_inventario || '').trim()]
+        );
+
+        let assetId;
+        let prevUsuario   = null;
+        let prevUbicacion = null;
+
+        if (existing.length === 0) {
+          // Generar ID automatico (ej. EQ-00001) de forma segura contra concurrencia
+          const autoId = await generateAutoId('', client, lockAllowed);
+
+          const ins = await client.query(
+            `INSERT INTO activos (item_id, numero_serie, original_serial, usuario_actual_id, ubicacion_actual_id, estado, team)
+             VALUES ($1,$2,$3,$4,$5,$6,$7) RETURNING id`,
+            [itemId, autoId, numero_inventario.trim(), nuevoUsuario, nuevaUbicacion, dbStatus, team || null]
+          );
+          assetId = ins.rows[0].id;
+          logger.info(`Activo creado: ${autoId} (Serial: ${numero_inventario})`);
+        } else {
+          assetId       = existing[0].id;
+          prevUsuario   = existing[0].usuario_actual_id;
+          prevUbicacion = existing[0].ubicacion_actual_id;
+          await client.query(
+            'UPDATE activos SET usuario_actual_id=$1, ubicacion_actual_id=$2, estado=$3, team=COALESCE($4, team) WHERE id=$5',
+            [nuevoUsuario, nuevaUbicacion, dbStatus, team || null, assetId]
+          );
+          logger.info(`Activo actualizado: ${numero_inventario} → ${dbStatus}`);
+        }
+
+        // 6. Movimiento histórico
+        const tipoMov = deducirMovimiento(prevUsuario, prevUbicacion, nuevoUsuario, nuevaUbicacion);
+        const { rows: [mov] } = await client.query(
+          `INSERT INTO movimientos
+             (item_id, activo_id, usuario_id, ubicacion_origen_id, ubicacion_destino_id, cantidad, tipo_movimiento)
+           VALUES ($1,$2,$3,$4,$5,1,$6) RETURNING id`,
+          [itemId, assetId, userId, prevUbicacion ?? null, nuevaUbicacion ?? null, tipoMov]
+        );
+
+        await client.query('COMMIT');
+        return { report_id: mov.id, activo: numero_inventario, estado: dbStatus, tipo_movimiento: tipoMov };
+
+      } catch (err) {
+        await client.query('ROLLBACK');
+        logger.error('Error procesando reporte WhatsApp (ROLLBACK)', err);
+        throw err;
+      } finally {
+        client.release();
+      }
+    });
+  }
+}
+
+module.exports = new IngestService();

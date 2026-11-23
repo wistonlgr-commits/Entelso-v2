@@ -1,0 +1,48 @@
+const app    = require('./app');
+const env    = require('./config/environment');
+const db     = require('./config/database');
+const logger = require('./common/utils/logger');
+
+let server;
+
+async function start() {
+  try {
+    // Verificar conexión a la DB antes de arrancar
+    await db.query('SELECT 1');
+    logger.info('✅ Conexión a PostgreSQL/Supabase verificada.');
+
+    if (env.NODE_ENV === 'production' && env.JWT_SECRET.length < 32) {
+      logger.warn('⚠️ JWT_SECRET tiene menos de 32 caracteres en producción.');
+    }
+
+    const runUnifiedSchema = require('./migrations/20261123_unified_schema');
+    await runUnifiedSchema();
+
+    const runMigration = require('./migrations/20260812_corrections');
+    await runMigration();
+
+    const runMigrationOct = require('./migrations/20261008_add_cantidad_sin_stock');
+    await runMigrationOct();
+
+    server = app.listen(env.PORT, () =>
+      logger.info(`🚀 Backend Entelso escuchando en http://localhost:${env.PORT} [${env.NODE_ENV}]`)
+    );
+  } catch (err) {
+    logger.error('❌ No se pudo conectar a la base de datos al iniciar.', err);
+    process.exit(1);
+  }
+}
+
+const gracefulShutdown = async (signal) => {
+  logger.warn(`Señal ${signal} recibida. Cerrando servidor...`);
+  server?.close(async () => {
+    await db.pool.end();
+    logger.info('Servidor y pool de DB cerrados correctamente.');
+    process.exit(0);
+  });
+};
+
+process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
+process.on('SIGINT',  () => gracefulShutdown('SIGINT'));
+
+start();

@@ -1,0 +1,30 @@
+const router   = require('express').Router();
+const ctrl     = require('./activos.controller');
+const { requireAuth, requireAdmin, hasRole } = require('../../common/middleware/auth.middleware');
+const validate = require('../../common/middleware/validate.middleware');
+const { createAssetSchema, updateAssetSchema, bulkCreateAssetSchema } = require('./activos.validation');
+
+router.get('/',                requireAuth, ctrl.getAll);
+router.get('/serial/:serial',  requireAuth, ctrl.getBySerial);
+router.delete('/bulk/all',     requireAuth, requireAdmin, ctrl.removeAll);
+router.post('/bulk/delete',    requireAuth, hasRole('admin', 'almacen'), ctrl.bulkRemoveSelected);
+router.post('/bulk-delete',    requireAuth, hasRole('admin', 'almacen'), ctrl.bulkRemoveSelected);
+router.patch('/bulk/category', requireAuth, hasRole('admin', 'almacen'), ctrl.bulkUpdateCategory);
+router.patch('/bulk-category', requireAuth, hasRole('admin', 'almacen'), ctrl.bulkUpdateCategory);
+router.patch('/bulk/status',   requireAuth, hasRole('admin', 'almacen', 'supervisor'), ctrl.bulkUpdateStatus);
+router.patch('/bulk-status',   requireAuth, hasRole('admin', 'almacen', 'supervisor'), ctrl.bulkUpdateStatus);
+router.patch('/bulk/zona',     requireAuth, hasRole('admin', 'almacen', 'supervisor'), ctrl.bulkUpdateZona);
+router.patch('/bulk-zona',     requireAuth, hasRole('admin', 'almacen', 'supervisor'), ctrl.bulkUpdateZona);
+router.patch('/bulk/team',     requireAuth, hasRole('admin', 'almacen', 'supervisor'), ctrl.bulkUpdateTeam);
+router.patch('/bulk-team',     requireAuth, hasRole('admin', 'almacen', 'supervisor'), ctrl.bulkUpdateTeam);
+router.patch('/bulk/usuario',  requireAuth, hasRole('admin', 'almacen', 'supervisor'), ctrl.bulkUpdateUsuario);
+router.patch('/bulk-usuario',  requireAuth, hasRole('admin', 'almacen', 'supervisor'), ctrl.bulkUpdateUsuario);
+router.get('/export-excel',    requireAuth, ctrl.exportExcel);
+router.post('/export-excel',   requireAuth, ctrl.exportExcel);
+router.get('/:id',             requireAuth, ctrl.getById);
+router.post('/',               requireAuth, hasRole('admin', 'almacen'), validate(createAssetSchema), ctrl.create);
+router.post('/bulk',           requireAuth, hasRole('admin', 'almacen'), validate(bulkCreateAssetSchema), ctrl.bulkCreate);
+router.patch('/:id',           requireAuth, hasRole('admin', 'almacen', 'supervisor'), validate(updateAssetSchema), ctrl.update);
+router.delete('/:id',          requireAuth, hasRole('admin', 'almacen'), ctrl.remove);
+
+module.exports = router;

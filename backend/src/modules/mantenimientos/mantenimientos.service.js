@@ -1,0 +1,62 @@
+const db = require('../../config/database');
+
+exports.getAll = async () => {
+    const { rows } = await db.query(`
+        SELECT m.id, m.activo_id, a.numero_serie, i.nombre as nombre_item, 
+               m.fecha_envio, m.fecha_estimada_retorno, m.motivo, m.notas, m.fotos, m.estado,
+               ub.nombre_ubicacion as zona
+        FROM mantenimientos m
+        JOIN activos a ON m.activo_id = a.id
+        JOIN items i ON a.item_id = i.id
+        LEFT JOIN ubicaciones ub ON a.ubicacion_actual_id = ub.id
+        ORDER BY m.id DESC
+    `);
+    return rows;
+};
+
+exports.create = async (data) => {
+    const { activo_id, fecha_envio, fecha_estimada_retorno, motivo, notas, fotos, creado_por } = data;
+    const finalFechaEnvio = (fecha_envio !== undefined && fecha_envio !== null && String(fecha_envio).trim() !== '')
+        ? fecha_envio
+        : new Date();
+    const finalRetorno = (fecha_estimada_retorno !== undefined && fecha_estimada_retorno !== null && String(fecha_estimada_retorno).trim() !== '')
+        ? fecha_estimada_retorno
+        : null;
+    const finalFotos = JSON.stringify(Array.isArray(fotos) ? fotos : []);
+
+    const client = await db.pool.connect();
+    try {
+        await client.query('BEGIN');
+        const { rows } = await client.query(`
+            INSERT INTO mantenimientos (activo_id, fecha_envio, fecha_estimada_retorno, motivo, notas, fotos, creado_por)
+            VALUES ($1, COALESCE($2, CURRENT_TIMESTAMP), $3, $4, $5, $6, $7)
+            RETURNING *
+        `, [activo_id, finalFechaEnvio, finalRetorno, motivo, notas ?? null, finalFotos, creado_por ?? null]);
+        
+        // Actualizar el estado del activo a 'en_mantenimiento'
+        await client.query(`UPDATE activos SET estado = 'en_mantenimiento' WHERE id = $1`, [activo_id]);
+        
+        await client.query('COMMIT');
+        return rows[0];
+    } catch (err) {
+        await client.query('ROLLBACK');
+        throw err;
+    } finally {
+        client.release();
+    }
+};
+
+exports.markAsAttended = async (id) => {
+    const { rows } = await db.query(`
+        UPDATE mantenimientos 
+        SET estado = 'Atendido'
+        WHERE id = $1
+        RETURNING *
+    `, [id]);
+    
+    if (rows[0]) {
+        // Regresar a 'disponible' si es necesario, dependiendo del negocio.
+        await db.query(`UPDATE activos SET estado = 'disponible' WHERE id = $1`, [rows[0].activo_id]);
+    }
+    return rows[0];
+};

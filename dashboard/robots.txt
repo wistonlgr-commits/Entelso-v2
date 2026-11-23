@@ -1,0 +1,4 @@
+# Entelso — Block all search engine indexing
+# This is a private enterprise inventory management system
+User-agent: *
+Disallow: /
